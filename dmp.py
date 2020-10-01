@@ -74,6 +74,77 @@ class ForcingTerm:
         return z[np.newaxis, :] * self.weights.dot(activations)
 
 
+class DMP:
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+        self.n_dims = n_dims
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(self.n_dims)
+        self.start_ydd = np.zeros(self.n_dims)
+        self.goal_y = np.zeros(self.n_dims)
+        self.goal_yd = np.zeros(self.n_dims)
+        self.goal_ydd = np.zeros(self.n_dims)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+        if goal_yd is not None:
+            self.goal_yd = goal_yd
+        if goal_ydd is not None:
+            self.goal_ydd = goal_ydd
+
+    def step(self, last_y, last_yd):
+        self.last_t = self.t
+        self.t += self.dt
+        return dmp_step(
+            self.last_t, self.t,
+            last_y, last_yd,
+            self.goal_y, self.goal_yd, self.goal_ydd,
+            self.start_y, self.start_yd, self.start_ydd,
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term,
+            self.int_dt)
+
+    def open_loop(self, run_t=None):
+        return dmp_open_loop(
+            self.execution_time, 0.0, self.dt,
+            self.start_y, self.goal_y,
+            self.alpha_y, self.beta_y,
+            self.forcing_term,
+            run_t)
+
+    def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
+        self.forcing_term.weights[:, :] = dmp_imitate(
+            T, Y,
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+
+
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, int_dt=0.001):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
