@@ -63,8 +63,12 @@ class ForcingTerm:
             activations /= activations.sum(axis=0)
         return activations
 
+    def design_matrix(self, T, int_dt=0.001):  # returns: n_weights_per_dim x n_steps
+        Z = phase(T, alpha=self.alpha_z, goal_t=T[-1], start_t=T[0], int_dt=int_dt)
+        return Z[np.newaxis, :] * self._activations(Z, normalized=True)
+
     def __call__(self, t, int_dt=0.001):
-        z = phase(t, self.alpha_z, self.goal_t, self.start_t, int_dt)
+        z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t, start_t=self.start_t, int_dt=int_dt)
         z = np.atleast_1d(z)
         activations = self._activations(z, normalized=True)
         return z[np.newaxis, :] * self.weights.dot(activations)
@@ -94,6 +98,47 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
         y += dt * last_yd
         yd += dt * ydd
     return y, yd
+
+
+def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
+    if regularization_coefficient < 0.0:
+        raise ValueError("Regularization coefficient must be >= 0!")
+
+    forcing_term = ForcingTerm(Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
+    F = determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+
+    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
+
+    return ridge_regression(X, F, regularization_coefficient, forcing_term);
+
+
+def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
+    n_dims = Y.shape[1]
+    DT = np.gradient(T)
+    Yd = np.empty_like(Y)
+    for d in range(n_dims):
+        Yd[:, d] = np.gradient(Y[:, d]) / DT
+    if not allow_final_velocity:
+        Yd[-1, :] = 0.0
+    Ydd = np.empty_like(Y)
+    for d in range(n_dims):
+        Ydd[:, d] = np.gradient(Yd[:, d]) / DT
+    Ydd[-1, :] = 0.0
+
+    execution_time = T[-1] - T[0]
+    goal_y = Y[-1]
+    goal_yd = Yd[-1]
+    goal_ydd = Ydd[-1]
+    F = np.empty((len(T), n_dims))
+    for t in range(len(T)):
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * (goal_y - Y[t]) + goal_yd * execution_time - Yd[t] * execution_time) - execution_time ** 2 * goal_ydd
+    return F
+
+
+def ridge_regression(X, F, regularization_coefficient, forcing_term):  # returns: n_dims x n_weights_per_dim
+    # X: n_weights_per_dim x n_steps
+    # F: n_steps x n_dims
+    return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
 
 
 def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term):

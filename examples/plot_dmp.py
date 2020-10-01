@@ -16,7 +16,7 @@ forcing_term = ForcingTerm(
     n_dims=start_y.shape[0], n_weights_per_dim=6, goal_t=goal_t, start_t=start_t, overlap=0.8, alpha_z=alpha_z)
 forcing_term.weights = 1000 * np.random.randn(*forcing_term.weights.shape)
 
-T, Y = dmp_open_loop(goal_t=goal_t, start_t=start_t, dt=0.01, start_y=start_y, goal_y=goal_y, alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term)
+T, Y = dmp_open_loop(goal_t=goal_t, start_t=start_t, dt=dt, start_y=start_y, goal_y=goal_y, alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term)
 
 plt.plot(T, Y)
 plt.scatter([start_t], [start_y])
