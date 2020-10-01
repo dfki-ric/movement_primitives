@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from dmp import canonical_system_alpha, phase, ForcingTerm
+from dmp import canonical_system_alpha, ForcingTerm
 
 
 alpha_z = canonical_system_alpha(goal_z=0.01, goal_t=1.0, start_t=0.0)

@@ -65,7 +65,32 @@ class ForcingTerm:
 
     def __call__(self, t, int_dt=0.001):
         z = phase(t, self.alpha_z, self.goal_t, self.start_t, int_dt)
-        print(z.shape, self.weights.shape)
+        z = np.atleast_1d(z)
         activations = self._activations(z, normalized=True)
-        print(activations.shape)
         return z[np.newaxis, :] * self.weights.dot(activations)
+
+
+def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, int_dt=0.001):
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    y = np.copy(last_y)
+    yd = np.copy(last_yd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        f = forcing_term(current_t).squeeze()
+        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f) / execution_time ** 2
+        y += dt * last_yd
+        yd += dt * ydd
+    return y, yd
