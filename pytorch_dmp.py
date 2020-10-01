@@ -40,6 +40,8 @@ class DMP(nn.Module):
         times = times.view(len(times), 1)
         z = phase(times, self.execution_time, self.dt, self.alpha_z)
         f = z * self.forcing_term(times)
+        if torch.cuda.is_available():
+            f = f.cuda()
 
         trajectories = []
         for i, t in enumerate(times):
@@ -85,7 +87,7 @@ P = np.array(P)
 dmp = DMP(1, g, execution_time, dt)
 
 trajectories = dmp(Tensor(np.zeros((1, 1))), 0.0)
-P1 = np.array(trajectories.detach())
+P1 = np.array(trajectories.cpu().detach())
 
 X = np.empty((1, 201))
 X[0] = np.sin(0.5 * np.pi * np.linspace(0, 1, 201))
@@ -104,7 +106,7 @@ for _ in pbar:
     pbar.set_description("MSE %g; Epochs" % l.item())
 
 trajectories = dmp(Tensor(np.zeros((1, 1))), 0.0)
-P2 = np.array(trajectories.detach())
+P2 = np.array(trajectories.cpu().detach())
 
 import matplotlib.pyplot as plt
 plt.plot(P1[0])
