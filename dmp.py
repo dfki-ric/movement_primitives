@@ -94,3 +94,23 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
         y += dt * last_yd
         yd += dt * ydd
     return y, yd
+
+
+def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term):
+    t = start_t
+    y = np.copy(start_y)
+    yd = np.zeros_like(y)
+    T = [start_t]
+    Y = [np.copy(y)]
+    while t < goal_t:
+        last_t = t
+        t += dt
+        y, yd = dmp_step(
+            last_t, t, y, yd,
+            goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
+            start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
+            goal_t=goal_t, start_t=start_t,
+            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)
