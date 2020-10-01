@@ -109,7 +109,7 @@ def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, be
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
-    return ridge_regression(X, F, regularization_coefficient, forcing_term);
+    return ridge_regression(X, F, regularization_coefficient);
 
 
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
@@ -135,19 +135,19 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
     return F
 
 
-def ridge_regression(X, F, regularization_coefficient, forcing_term):  # returns: n_dims x n_weights_per_dim
-    # X: n_weights_per_dim x n_steps
-    # F: n_steps x n_dims
+def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim
     return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
 
 
-def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term):
+def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, run_t=None):
     t = start_t
     y = np.copy(start_y)
     yd = np.zeros_like(y)
     T = [start_t]
     Y = [np.copy(y)]
-    while t < goal_t:
+    if run_t is None:
+        run_t = goal_t
+    while t < run_t:
         last_t = t
         t += dt
         y, yd = dmp_step(
