@@ -147,8 +147,17 @@ class DMP:
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
+# lf - Binary values that indicate which DMP(s) will be adapted.
+# The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+# then both robots will adapt their trajectories to follow average trajectories
+# at the defined distance dd between them [..]. On the other hand, if
+# lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory to match the
+# trajectory of DMP0, again at the distance dd and again only after learning.
+# Vice versa applies as well. Leader-follower relation can be determined by a
+# higher-level planner [..].
+
 class CouplingTerm:
-    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+    def __init__(self, desired_distance, lf, k=1.0, c1=100.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
         self.k = k
@@ -161,10 +170,31 @@ class CouplingTerm:
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
         C21 = self.c1 * F21 * self.lf[1]
-        # TODO track change of C12/C21 over time
+        C12dot = self.c2 * self.c1 * F12 * self.lf[0]
+        C21dot = self.c2 * self.c1 * F21 * self.lf[1]
+        return np.array([C12, C21]), np.array([C12dot, C21dot])
+
+
+class CouplingTermCartesianPosition:
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y):
+        da = y[:3] - y[3:6]
+        # Why do we take -self.desired_distance here? Because this allows us
+        # to regard the desired distance as the displacement of DMP1 with
+        # respect to DMP0.
+        F12 = self.k * (-self.desired_distance - da)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
-        return np.array([C21, C12]), np.array([C21dot, C12dot])
+        return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001):
