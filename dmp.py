@@ -115,7 +115,7 @@ class DMP:
         if goal_ydd is not None:
             self.goal_ydd = goal_ydd
 
-    def step(self, last_y, last_yd):
+    def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
         self.t += self.dt
         return dmp_step(
@@ -126,15 +126,17 @@ class DMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term,
+            coupling_term,
             self.int_dt)
 
-    def open_loop(self, run_t=None):
+    def open_loop(self, run_t=None, coupling_term=None):
         return dmp_open_loop(
             self.execution_time, 0.0, self.dt,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,
-            run_t)
+            coupling_term,
+            run_t, self.int_dt)
 
     def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
         self.forcing_term.weights[:, :] = dmp_imitate(
@@ -145,7 +147,27 @@ class DMP:
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
-def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, int_dt=0.001):
+class CouplingTerm:
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y):
+        da = y[1] - y[0]
+        F12 = self.k * (self.desired_distance - da)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
+        # TODO track change of C12/C21 over time
+        C12dot = F12 * self.c2 * self.lf[0]
+        C21dot = F21 * self.c2 * self.lf[1]
+        return np.array([C21, C12]), np.array([C21dot, C12dot])
+
+
+def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -164,10 +186,15 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
             dt = t - current_t
         current_t += dt
 
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(y)
+        else:
+            cd, cdd = np.zeros_like(y), np.zeros_like(y)
+
         f = forcing_term(current_t).squeeze()
-        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f) / execution_time ** 2
-        y += dt * last_yd
-        yd += dt * ydd
+        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
+        y += dt * yd
+        yd += dt * ydd + cd / execution_time
     return y, yd
 
 
@@ -210,7 +237,7 @@ def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_w
     return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
 
 
-def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, run_t=None):
+def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
     t = start_t
     y = np.copy(start_y)
     yd = np.zeros_like(y)
@@ -226,7 +253,7 @@ def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing
             goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
             start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
             goal_t=goal_t, start_t=start_t,
-            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term)
+            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term, coupling_term=coupling_term, int_dt=int_dt)
         T.append(t)
         Y.append(np.copy(y))
     return np.asarray(T), np.asarray(Y)
