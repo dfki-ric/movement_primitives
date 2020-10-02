@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from pytransform3d import plot_utils
 import numpy as np
-from dmp import DMP, CouplingTermCartesianPosition
+from dmp import DMP, CouplingTermCartesianPosition, CouplingTermCartesianDistance
 
 
 dt = 0.01
@@ -29,7 +29,9 @@ plt.plot(Y[:, 0], Y[:, 1], Y[:, 2], label="Reproduction 1")
 plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Reproduction 2")
 
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
-T, Y = dmp.open_loop(coupling_term=CouplingTermCartesianPosition(desired_distance=np.array([0.1, 0.1, 0.8]), lf=(0.0, 1.0)))
+#ct = CouplingTermCartesianPosition(desired_distance=np.array([0.1, 0.1, 0.8]), lf=(0.0, 1.0))
+ct = CouplingTermCartesianDistance(desired_distance=1.0, lf=(1.0, 0.0))
+T, Y = dmp.open_loop(coupling_term=ct)
 plt.plot(Y[:, 0], Y[:, 1], Y[:, 2], label="Coupled 1")
 plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Coupled 2")
 

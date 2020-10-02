@@ -197,6 +197,26 @@ class CouplingTermCartesianPosition:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
+class CouplingTermCartesianDistance:
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y):
+        da = y[:3] - y[3:6]
+        desired_distance = np.abs(self.desired_distance) * da / np.linalg.norm(da)
+        F12 = self.k * (desired_distance - da)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
+        C12dot = F12 * self.c2 * self.lf[0]
+        C21dot = F21 * self.c2 * self.lf[1]
+        return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
+
+
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
