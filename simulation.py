@@ -41,6 +41,9 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
         return pos, rot
 
+    def _pytransform_pose(self, pos, rot):
+        return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
+
     def inverse_kinematics(self, ee2robot):
         pos, rot = self._pybullet_pose(ee2robot)
         # ee2world
@@ -73,13 +76,22 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
                 self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.VELOCITY_CONTROL,
                 targetVelocities=joint_state)
 
-    def get_ee_state(self):
+    def get_ee_state(self, return_velocity=False):
         ee_state = pybullet.getLinkState(
-            self.robot, self.ee_link_index, computeForwardKinematics=1)
+            self.robot, self.ee_link_index, computeLinkVelocity=1, computeForwardKinematics=1)
         pos = ee_state[4]
         rot = ee_state[5]
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
-        return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
+        if return_velocity:
+            vel = ee_state[6]
+            #ang_vel = ee_state[7]
+            #ang_speed = np.linalg.norm(ang_vel)
+            #ang_axis = np.asarray(ang_vel) / ang_speed
+            vel, _ = pybullet.multiplyTransforms(vel, [0, 0, 0, 1], *self.inv_base_pose)
+            # TODO transform angular velocity?
+            return self._pytransform_pose(pos, rot), np.hstack((vel, np.zeros(4)))
+        else:
+            return self._pytransform_pose(pos, rot)
 
     def set_desired_ee_state(self, ee_state):
         q = self.inverse_kinematics(ee_state)
@@ -101,14 +113,15 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         pybullet.setJointMotorControlArray(
             self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.VELOCITY_CONTROL,
             targetVelocities=np.zeros(self.n_ur5_joints))
+        self.step()
 
-    def goto_ee_state(self, ee_state, text=None):
+    def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
         if text:
             pos, rot = self._pybullet_pose(ee_state)
             self.write(pos, text)
         q = self.inverse_kinematics(ee_state)
         self.set_desired_joint_state(q, position_control=True)
-        self.sim_loop(int(1.0 / self.dt))  # 1 second
+        self.sim_loop(int(wait_time / self.dt))
 
     def write(self, pos, text):
         pybullet.addUserDebugText(text, pos, [0, 0, 0])

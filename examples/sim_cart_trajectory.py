@@ -13,8 +13,8 @@ X[:, 3] = 1.0
 
 ur5 = UR5Simulation(dt=0.001, real_time=True)
 
-ur5.goto_ee_state(X[0], "Start")
-ur5.write(X[-1, :3], "Goal")
+ur5.goto_ee_state(X[0], text="Start")
+ur5.write(X[-1, :3], text="Goal")
 
 P = []
 for t in range(len(X)):
