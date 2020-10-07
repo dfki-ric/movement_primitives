@@ -10,8 +10,6 @@ X[:, 0] = 0.5 + 0.1 * sigmoid
 X[:, 1] = -0.5 + 1.0 * sigmoid
 X[:, 2] = 0.45 + 0.1 * sigmoid
 X[:, 3] = 1.0
-#plt.plot(X[:, 0])
-#plt.show()
 
 ur5 = UR5Simulation(dt=0.001, real_time=True)
 

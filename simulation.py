@@ -54,11 +54,7 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         if position_control:
             pybullet.setJointMotorControlArray(
                 self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.POSITION_CONTROL,
-                targetPositions=joint_state,
-                #positionGains=[0.1] * self.n_ur5_joints, velocityGains=[0.0] * self.n_ur5_joints,
-                #targetVelocities=[0] * self.n_ur5_joints,
-                #forces=[10] * self.n_ur5_joints
-            )
+                targetPositions=joint_state)
         else:  # velocity control
             pybullet.setJointMotorControlArray(
                 self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.VELOCITY_CONTROL,
