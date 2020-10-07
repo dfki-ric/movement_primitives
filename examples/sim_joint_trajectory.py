@@ -13,11 +13,8 @@ X[:, 3] = 1.0
 
 ur5 = UR5Simulation(dt=0.001, real_time=True)
 
-q = ur5.inverse_kinematics(X[0])
-ur5.set_desired_joint_state(q, position_control=True)
-ur5.sim_loop(1000)
-ur5.stop()
-ur5.sim_loop(1000)
+ur5.goto_ee_state(X[0], "Start")
+ur5.write(X[-1, :3], "Goal")
 
 P = []
 for t in range(len(X)):

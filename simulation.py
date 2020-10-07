@@ -35,6 +35,24 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
 
         #print([self.joint_names[i] for i in self.joint_indices[:6]])
 
+    def _pybullet_pose(self, pose):
+        pos = pose[:3]
+        rot = pose[3:]
+        rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
+        return pos, rot
+
+    def inverse_kinematics(self, ee2robot):
+        pos, rot = self._pybullet_pose(ee2robot)
+        # ee2world
+        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
+
+        q = pybullet.calculateInverseKinematics(
+            self.robot, self.ee_link_index, pos, rot, maxNumIterations=100, residualThreshold=0.001)
+        q = q[:self.n_ur5_joints]
+        if any(np.isnan(q)):
+            raise Exception("IK solver found no solution.")
+        return q
+
     def get_joint_state(self):
         joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
         positions = []
@@ -44,11 +62,6 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
             positions.append(pos)
             velocities.append(vel)
         return np.asarray(positions), np.asarray(velocities)
-
-    def stop(self):
-        pybullet.setJointMotorControlArray(
-            self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.VELOCITY_CONTROL,
-            targetVelocities=np.zeros(self.n_ur5_joints))
 
     def set_desired_joint_state(self, joint_state, position_control=False):
         if position_control:
@@ -68,21 +81,6 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
         return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
 
-    def inverse_kinematics(self, ee2robot):
-        pos = ee2robot[:3]
-        rot = ee2robot[3:]
-        rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
-
-        # ee2world
-        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
-
-        q = pybullet.calculateInverseKinematics(
-            self.robot, self.ee_link_index, pos, rot, maxNumIterations=100, residualThreshold=0.001)
-        q = q[:self.n_ur5_joints]
-        if any(np.isnan(q)):
-            raise Exception("IK solver found no solution.")
-        return q
-
     def set_desired_ee_state(self, ee_state):
         q = self.inverse_kinematics(ee_state)
         last_q, last_qd = self.get_joint_state()
@@ -98,3 +96,20 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         else:
             for _ in range(n_steps):
                 pybullet.stepSimulation()
+
+    def stop(self):
+        pybullet.setJointMotorControlArray(
+            self.robot, self.joint_indices[:self.n_ur5_joints], pybullet.VELOCITY_CONTROL,
+            targetVelocities=np.zeros(self.n_ur5_joints))
+
+    def goto_ee_state(self, ee_state, text=None):
+        if text:
+            pos, rot = self._pybullet_pose(ee_state)
+            self.write(pos, text)
+        q = self.inverse_kinematics(ee_state)
+        self.set_desired_joint_state(q, position_control=True)
+        self.sim_loop(int(1.0 / self.dt))  # 1 second
+
+    def write(self, pos, text):
+        pybullet.addUserDebugText(text, pos, [0, 0, 0])
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
