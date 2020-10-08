@@ -1,5 +1,5 @@
 import numpy as np
-from dmp import DMP
+from dmp import CartesianDMP
 from simulation import UR5Simulation
 
 
@@ -7,17 +7,20 @@ from simulation import UR5Simulation
 dt = 0.0001
 execution_time = 1.0
 
-dmp = DMP(n_dims=7, execution_time=execution_time, dt=dt,
-          n_weights_per_dim=10, int_dt=0.0001)
+dmp = CartesianDMP(
+    execution_time=execution_time, dt=dt,
+    n_weights_per_dim=10, int_dt=0.0001)
 Y = np.zeros((1001, 7))
 T = np.linspace(0, 1, len(Y))
 sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
 Y[:, 0] = 0.6
 Y[:, 1] = -0.2 + 0.4 * sigmoid
 Y[:, 2] = 0.45
-Y[:, 4] = 1.0
-dmp.imitate(T, Y)
-#dmp.forcing_term.weights[:, :] = 0.0
+Y[:, 3] = np.linspace(1, 0, len(Y))
+Y[:, 4] = np.linspace(0, 1, len(Y))
+#dmp.imitate(T, Y)
+dmp.forcing_term_pos.weights[:, :] = 0.0
+dmp.forcing_term_rot.weights[:, :] = 0.0
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
 ur5 = UR5Simulation(dt=dt, real_time=False)
@@ -26,7 +29,7 @@ for _ in range(4):
     ur5.stop()
 
 desired_positions, positions, desired_velocities, velocities = \
-    ur5.step_through_cartesian(dmp, Y[0], np.zeros(7), execution_time)
+    ur5.step_through_cartesian(dmp, Y[0], np.zeros(6), execution_time)
 
 import matplotlib.pyplot as plt
 P = np.asarray(positions)

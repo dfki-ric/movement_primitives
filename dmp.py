@@ -1,4 +1,5 @@
 import numpy as np
+from pytransform3d import rotations as pr
 
 
 def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
@@ -147,6 +148,102 @@ class DMP:
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
+class CartesianDMP:
+    def __init__(self, execution_time, dt=0.01,
+                 n_weights_per_dim=10, int_dt=0.001):
+        self.n_dims = 7
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term_pos = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(6)
+        self.start_ydd = np.zeros(6)
+        self.goal_y = np.zeros(self.n_dims)
+        self.goal_yd = np.zeros(6)
+        self.goal_ydd = np.zeros(6)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+        if goal_yd is not None:
+            self.goal_yd = goal_yd
+        if goal_ydd is not None:
+            self.goal_ydd = goal_ydd
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        assert len(last_y) == 7
+        assert len(last_yd) == 6
+
+        self.last_t = self.t
+        self.t += self.dt
+
+        current_y = np.empty(self.n_dims)
+        current_yd = np.empty(6)
+
+        current_y[:3], current_yd[:3] = dmp_step(
+            self.last_t, self.t,
+            last_y[:3], last_yd[:3],
+            self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
+            self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos,
+            coupling_term,
+            self.int_dt)
+        current_y[3:], current_yd[3:] = dmp_step_quaternion(
+            self.last_t, self.t,
+            last_y[3:], last_yd[3:],
+            self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
+            self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot,
+            coupling_term,
+            self.int_dt)
+        return current_y, current_yd
+
+    def open_loop(self, run_t=None, coupling_term=None):
+        T, Y = dmp_open_loop(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[:3], self.goal_y[:3],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_pos,
+                coupling_term,
+                run_t, self.int_dt)
+        # TODO open loop orientation dmp
+        return (T, np.hstack((Y, np.zeros((len(Y), 4)))))
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        raise NotImplementedError()
+
+
 # lf - Binary values that indicate which DMP(s) will be adapted.
 # The variable lf defines the relation leader-follower. If lf[0] = lf[1],
 # then both robots will adapt their trajectories to follow average trajectories
@@ -259,6 +356,69 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
     return y, yd
 
 
+def dmp_step_quaternion(
+        last_t, t,
+        last_y, last_yd,
+        goal_y, goal_yd, goal_ydd,
+        start_y, start_yd, start_ydd,
+        goal_t, start_t, alpha_y, beta_y,
+        forcing_term,
+        coupling_term=None,
+        int_dt=0.001):
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    y = np.copy(last_y)
+    yd = np.copy(last_yd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(y)
+        else:
+            cd, cdd = np.zeros(3), np.zeros(3)
+
+        f = forcing_term(current_t).squeeze()
+
+        # TODO why factor 2???
+        ydd = (alpha_y * (beta_y * 2.0 * quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(last_y))) - execution_time * last_yd) + f + cdd) / execution_time ** 2
+        yd += dt * ydd + cd / execution_time
+        y = pr.concatenate_quaternions(axis_angle_exp(dt / 2.0 * yd), y)
+    return y, yd
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L754
+
+
+def quaternion_log(q):
+    im_norm = np.linalg.norm(q[1:])
+    if abs(im_norm) < np.finfo(float).eps:
+        return np.zeros(3)
+    # TODO why not 2*arccos(w)?
+    return q[1:] / im_norm * np.arccos(q[0])
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L646
+
+
+def axis_angle_exp(aa):
+    angle = np.linalg.norm(aa)
+    if abs(angle) < np.finfo(float).eps:
+        return np.array([1.0, 0.0, 0.0, 0.0])
+    else:
+        # TODO why not angle/2?
+        im = np.sin(angle) * aa / angle
+        re = np.cos(angle)
+        return np.hstack(((re,), im))
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L655
+
+
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
@@ -292,6 +452,18 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
     for t in range(len(T)):
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * (goal_y - Y[t]) + goal_yd * execution_time - Yd[t] * execution_time) - execution_time ** 2 * goal_ydd
     return F
+
+
+def dmp_quaternion_imitation():
+    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L702")
+
+
+def quaternion_gradient():
+    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L73")
+
+
+def determine_forces_quaternions():
+    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670")
 
 
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim
