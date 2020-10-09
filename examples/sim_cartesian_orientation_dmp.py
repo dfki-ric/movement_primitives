@@ -1,7 +1,7 @@
 import numpy as np
 from dmp import CartesianDMP
 from simulation import UR5Simulation
-
+from pytransform3d import rotations as pr
 
 
 dt = 0.0001
@@ -16,11 +16,16 @@ sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
 Y[:, 0] = 0.6
 Y[:, 1] = -0.2 + 0.4 * sigmoid
 Y[:, 2] = 0.45
-Y[:, 3] = np.linspace(1, 0, len(Y))
-Y[:, 4] = np.linspace(0, 1, len(Y))
-#dmp.imitate(T, Y)
-dmp.forcing_term_pos.weights[:, :] = 0.0
-dmp.forcing_term_rot.weights[:, :] = 0.0
+start_aa = np.array([0.0, 1.0, 0.0, 0.25 * np.pi])
+goal_aa = np.array([0.0, 0.0, 1.0, 0.25 * np.pi])
+for t in range(len(Y)):
+    frac = sigmoid[t]
+    aa_t = (1.0 - frac) * start_aa + frac * goal_aa
+    aa_t[:3] /= np.linalg.norm(aa_t[:3])
+    Y[t, 3:] = pr.quaternion_from_axis_angle(aa_t)
+dmp.imitate(T, Y, allow_final_velocity=True)
+#dmp.forcing_term_pos.weights[:, :] = 0.0
+#dmp.forcing_term_rot.weights[:, :] = 0.0
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
 ur5 = UR5Simulation(dt=dt, real_time=False)
@@ -37,15 +42,15 @@ dP = np.asarray(desired_positions)
 V = np.asarray(velocities)
 dV = np.asarray(desired_velocities)
 
-plot_dim = 3
-plt.plot(Y[:, plot_dim], label="Demo")
-plt.scatter([[0, len(Y)]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
-plt.plot(P[:, plot_dim], label="Actual")
-plt.scatter([[0, len(P)]], [[P[0, plot_dim], P[-1, plot_dim]]])
-plt.plot(dP[:, plot_dim], label="Desired")
-plt.scatter([[0, len(dP)]], [[dP[0, plot_dim], dP[-1, plot_dim]]])
-T, Y = dmp.open_loop(run_t=1.0)
-plt.plot(Y[:, plot_dim], label="Open loop")
-plt.scatter([[0, len(Y)]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
+plot_dim = 5
+plt.plot(T, Y[:, plot_dim], label="Demo")
+plt.scatter([[0, T[-1]]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
+plt.plot(np.linspace(0, execution_time, len(P)), P[:, plot_dim], label="Actual")
+plt.scatter([[0, execution_time]], [[P[0, plot_dim], P[-1, plot_dim]]])
+plt.plot(np.linspace(0, execution_time, len(dP)), dP[:, plot_dim], label="Desired")
+plt.scatter([[0, execution_time]], [[dP[0, plot_dim], dP[-1, plot_dim]]])
+T, Y = dmp.open_loop(run_t=2.0)
+plt.plot(T, Y[:, plot_dim], label="Open loop")
+plt.scatter([[0, T[-1]]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
 plt.legend()
 plt.show()

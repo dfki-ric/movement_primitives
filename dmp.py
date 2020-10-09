@@ -248,7 +248,18 @@ class CartesianDMP:
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
-        raise NotImplementedError()
+        self.forcing_term_pos.weights[:, :] = dmp_imitate(
+            T, Y[:, :3],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos.overlap,
+            alpha_z=self.forcing_term_pos.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
+            T, Y[:, 3:],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot.overlap,
+            alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
 # lf - Binary values that indicate which DMP(s) will be adapted.
@@ -435,7 +446,7 @@ def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, be
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
-    return ridge_regression(X, F, regularization_coefficient);
+    return ridge_regression(X, F, regularization_coefficient)
 
 
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
@@ -461,16 +472,48 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
     return F
 
 
-def dmp_quaternion_imitation():
-    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L702")
+def dmp_quaternion_imitation(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L702
+    if regularization_coefficient < 0.0:
+        raise ValueError("Regularization coefficient must be >= 0!")
+
+    forcing_term = ForcingTerm(3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
+    F = determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+
+    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
+
+    return ridge_regression(X, F, regularization_coefficient)
 
 
-def quaternion_gradient():
-    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L73")
+def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670
+    n_dims = 3
+    DT = np.gradient(T)
+    Yd = quaternion_gradient(Y) / DT[:, np.newaxis]
+    if not allow_final_velocity:
+        Yd[-1, :] = 0.0
+    Ydd = np.empty_like(Yd)
+    for d in range(n_dims):
+        Ydd[:, d] = np.gradient(Yd[:, d]) / DT
+    Ydd[-1, :] = 0.0
+
+    execution_time = T[-1] - T[0]
+    goal_y = Y[-1]
+    F = np.empty((len(T), n_dims))
+    for t in range(len(T)):
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * 2.0 * quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
+    return F
 
 
-def determine_forces_quaternions():
-    raise NotImplementedError("https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670")
+def quaternion_gradient(Y):  # similar to numpy.gradient, doesn't include dt
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L73
+    assert Y.shape[1] == 4
+    Yd = np.empty((len(Y), 3))
+    Yd[0] = 0.0
+    for t in range(1, len(Y)):
+        # TODO why factor 2?
+        Yd[t] = 2.0 * quaternion_log(pr.concatenate_quaternions(Y[t], pr.q_conj(Y[t])))
+    return Yd
 
 
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim

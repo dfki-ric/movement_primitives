@@ -100,7 +100,7 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
             vel, _ = pybullet.multiplyTransforms(
                 vel, [0, 0, 0, 1], *self.inv_base_pose)
             # TODO transform angular velocity?
-            return self._pytransform_pose(pos, rot), np.hstack((vel, np.zeros(4)))
+            return self._pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
         else:
             return self._pytransform_pose(pos, rot)
 
