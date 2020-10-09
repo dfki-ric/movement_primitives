@@ -37,7 +37,7 @@ dP = np.asarray(desired_positions)
 V = np.asarray(velocities)
 dV = np.asarray(desired_velocities)
 
-plot_dim = 1
+plot_dim = 3
 plt.plot(Y[:, plot_dim], label="Demo")
 plt.scatter([[0, len(Y)]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
 plt.plot(P[:, plot_dim], label="Actual")

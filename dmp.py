@@ -229,15 +229,22 @@ class CartesianDMP:
         return current_y, current_yd
 
     def open_loop(self, run_t=None, coupling_term=None):
-        T, Y = dmp_open_loop(
+        T, Yp = dmp_open_loop(
                 self.execution_time, 0.0, self.dt,
                 self.start_y[:3], self.goal_y[:3],
                 self.alpha_y, self.beta_y,
                 self.forcing_term_pos,
                 coupling_term,
                 run_t, self.int_dt)
+        _, Yr = dmp_open_loop_quaternion(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[3:], self.goal_y[3:],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_rot,
+                coupling_term,
+                run_t, self.int_dt)
         # TODO open loop orientation dmp
-        return (T, np.hstack((Y, np.zeros((len(Y), 4)))))
+        return (T, np.hstack((Yp, Yr)))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
@@ -485,6 +492,28 @@ def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing
             last_t, t, y, yd,
             goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
             start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
+            goal_t=goal_t, start_t=start_t,
+            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)
+
+
+def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
+    t = start_t
+    y = np.copy(start_y)
+    yd = np.zeros(3)
+    T = [start_t]
+    Y = [np.copy(y)]
+    if run_t is None:
+        run_t = goal_t
+    while t < run_t:
+        last_t = t
+        t += dt
+        y, yd = dmp_step_quaternion(
+            last_t, t, y, yd,
+            goal_y=goal_y, goal_yd=np.zeros_like(yd), goal_ydd=np.zeros_like(yd),
+            start_y=start_y, start_yd=np.zeros_like(yd), start_ydd=np.zeros_like(yd),
             goal_t=goal_t, start_t=start_t,
             alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term, coupling_term=coupling_term, int_dt=int_dt)
         T.append(t)
