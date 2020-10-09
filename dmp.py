@@ -164,7 +164,6 @@ class DMP:
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
-
 class CartesianDMP:
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001):
@@ -279,6 +278,11 @@ class CartesianDMP:
             alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
+raise NotImplementedError()
+class DualCartesianDMP:  # TODO implement
+    pass
+
+
 # lf - Binary values that indicate which DMP(s) will be adapted.
 # The variable lf defines the relation leader-follower. If lf[0] = lf[1],
 # then both robots will adapt their trajectories to follow average trajectories
@@ -347,6 +351,11 @@ class CouplingTermCartesianDistance:
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
+
+
+raise NotImplementedError()
+class CouplingTermCartesianPose:  # TODO implement
+    pass
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
