@@ -76,12 +76,14 @@ class ForcingTerm:
 
 
 class DMP:
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
         self.n_dims = n_dims
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
+        self.k_tracking_error = k_tracking_error
+
         alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
         self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
 
@@ -96,6 +98,9 @@ class DMP:
         self.goal_y = np.zeros(self.n_dims)
         self.goal_yd = np.zeros(self.n_dims)
         self.goal_ydd = np.zeros(self.n_dims)
+        self.initialized = False
+        self.current_y = np.zeros(self.n_dims)
+        self.current_yd = np.zeros(self.n_dims)
         self.configure()
 
     def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
@@ -119,7 +124,16 @@ class DMP:
     def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
         self.t += self.dt
-        return dmp_step(
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
+        tracking_error = self.current_y - last_y
+
+        self.current_y[:], self.current_yd[:] = dmp_step(
             self.last_t, self.t,
             last_y, last_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
@@ -128,7 +142,10 @@ class DMP:
             self.alpha_y, self.beta_y,
             self.forcing_term,
             coupling_term,
-            self.int_dt)
+            self.int_dt,
+            k_tracking_error=self.k_tracking_error,
+            tracking_error=tracking_error)
+        return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
         return dmp_open_loop(
@@ -332,7 +349,7 @@ class CouplingTermCartesianDistance:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
-def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001):
+def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -368,7 +385,8 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
         y += dt * yd
         yd += dt * ydd + cd / execution_time
         """
-        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
+        coupling_sum = cdd + k_tracking_error * tracking_error / dt
+        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
         yd += dt * ydd + cd / execution_time
         y += dt * yd
     return y, yd

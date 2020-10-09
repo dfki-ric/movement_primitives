@@ -4,16 +4,16 @@ from simulation import UR5Simulation
 
 
 
-dt = 0.0001
+dt = 0.001
 execution_time = 1.0
 
 dmp = DMP(n_dims=7, execution_time=execution_time, dt=dt,
-          n_weights_per_dim=10, int_dt=0.0001)
+          n_weights_per_dim=10, int_dt=0.001, k_tracking_error=25.0)
 Y = np.zeros((1001, 7))
 T = np.linspace(0, 1, len(Y))
 sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
 Y[:, 0] = 0.6
-Y[:, 1] = -0.2 + 0.4 * sigmoid
+Y[:, 1] = -0.2 + 0.4 * sigmoid + np.linspace(-0.4, 0.4, len(Y)) ** 2
 Y[:, 2] = 0.45
 Y[:, 4] = 1.0
 dmp.imitate(T, Y)
@@ -26,7 +26,7 @@ for _ in range(4):
     ur5.stop()
 
 desired_positions, positions, desired_velocities, velocities = \
-    ur5.step_through_cartesian(dmp, Y[0], np.zeros(7), execution_time)
+    ur5.step_through_cartesian(dmp, Y[0], np.zeros(7), 4 * execution_time, closed_loop=True)
 
 import matplotlib.pyplot as plt
 P = np.asarray(positions)

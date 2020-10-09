@@ -136,7 +136,7 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         self.set_desired_joint_state(q, position_control=True)
         self.sim_loop(int(wait_time / self.dt))
 
-    def step_through_cartesian(self, steppable, last_p, last_v, execution_time):
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False):
         p, v = self.get_ee_state(return_velocity=True)
         desired_positions = [last_p]
         positions = [p]
@@ -144,8 +144,9 @@ class UR5Simulation:  # Quaternion convention: x, y, z, w
         velocities = [v]
 
         for i in range(int(execution_time / self.dt)):
-            # closed loop:
-            #last_p, last_v = self.get_ee_state(return_velocity=True)
+            if closed_loop:
+                last_p, _ = self.get_ee_state(return_velocity=True)  # TODO last_v
+
             p, v = steppable.step(last_p, last_v)
             self.set_desired_ee_state(p)
             self.step()
