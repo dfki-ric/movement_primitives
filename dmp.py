@@ -505,14 +505,15 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     return F
 
 
-def quaternion_gradient(Y):  # similar to numpy.gradient, doesn't include dt
+def quaternion_gradient(Y):  # similar to numpy.gradient (https://numpy.org/doc/stable/reference/generated/numpy.gradient.html), doesn't include dt
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L73
     assert Y.shape[1] == 4
     Yd = np.empty((len(Y), 3))
-    Yd[0] = 0.0
-    for t in range(1, len(Y)):
+    Yd[0] = quaternion_log(pr.concatenate_quaternions(Y[1], pr.q_conj(Y[0])))
+    for t in range(1, len(Y) - 1):
         # TODO why factor 2?
-        Yd[t] = 2.0 * quaternion_log(pr.concatenate_quaternions(Y[t], pr.q_conj(Y[t])))
+        Yd[t] = 2.0 * quaternion_log(pr.concatenate_quaternions(Y[t + 1], pr.q_conj(Y[t - 1]))) / 2.0  # divided by two because of central differences
+    Yd[-1] = quaternion_log(pr.concatenate_quaternions(Y[-1], pr.q_conj(Y[-2])))
     return Yd
 
 
