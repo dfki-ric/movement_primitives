@@ -278,7 +278,6 @@ class CartesianDMP:
             alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
-raise NotImplementedError()
 class DualCartesianDMP:  # TODO implement
     pass
 
@@ -353,7 +352,6 @@ class CouplingTermCartesianDistance:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
-raise NotImplementedError()
 class CouplingTermCartesianPose:  # TODO implement
     pass
 
@@ -436,32 +434,11 @@ def dmp_step_quaternion(
         f = forcing_term(current_t).squeeze()
 
         # TODO why factor 2???
-        ydd = (alpha_y * (beta_y * 2.0 * quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(last_y))) - execution_time * last_yd) + f + cdd) / execution_time ** 2
+        ydd = (alpha_y * (beta_y * pr.quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(last_y))) - execution_time * last_yd) + f + cdd) / execution_time ** 2
         yd += dt * ydd + cd / execution_time
-        y = pr.concatenate_quaternions(axis_angle_exp(dt / 2.0 * yd), y)
+        y = pr.concatenate_quaternions(pr.angular_velocity_exp(dt * yd), y)
     return y, yd
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L754
-
-
-def quaternion_log(q):
-    im_norm = np.linalg.norm(q[1:])
-    if abs(im_norm) < np.finfo(float).eps:
-        return np.zeros(3)
-    # TODO why not 2*arccos(w)?
-    return q[1:] / im_norm * np.arccos(q[0])
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L646
-
-
-def axis_angle_exp(aa):
-    angle = np.linalg.norm(aa)
-    if abs(angle) < np.finfo(float).eps:
-        return np.array([1.0, 0.0, 0.0, 0.0])
-    else:
-        # TODO why not angle/2?
-        im = np.sin(angle) * aa / angle
-        re = np.cos(angle)
-        return np.hstack(((re,), im))
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L655
 
 
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
@@ -516,7 +493,7 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670
     n_dims = 3
     DT = np.gradient(T)
-    Yd = quaternion_gradient(Y) / DT[:, np.newaxis]
+    Yd = pr.quaternion_gradient(Y) / DT[:, np.newaxis]
     if not allow_final_velocity:
         Yd[-1, :] = 0.0
     Ydd = np.empty_like(Yd)
@@ -528,20 +505,8 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     goal_y = Y[-1]
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
-        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * 2.0 * quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * pr.quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
     return F
-
-
-def quaternion_gradient(Y):  # similar to numpy.gradient (https://numpy.org/doc/stable/reference/generated/numpy.gradient.html), doesn't include dt
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L73
-    assert Y.shape[1] == 4
-    Yd = np.empty((len(Y), 3))
-    Yd[0] = quaternion_log(pr.concatenate_quaternions(Y[1], pr.q_conj(Y[0])))
-    for t in range(1, len(Y) - 1):
-        # TODO why factor 2?
-        Yd[t] = 2.0 * quaternion_log(pr.concatenate_quaternions(Y[t + 1], pr.q_conj(Y[t - 1]))) / 2.0  # divided by two because of central differences
-    Yd[-1] = quaternion_log(pr.concatenate_quaternions(Y[-1], pr.q_conj(Y[-2])))
-    return Yd
 
 
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim
