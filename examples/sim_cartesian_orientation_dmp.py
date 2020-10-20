@@ -4,7 +4,7 @@ from simulation import UR5Simulation
 from pytransform3d import rotations as pr
 
 
-dt = 0.0001
+dt = 0.001
 execution_time = 1.0
 
 dmp = CartesianDMP(

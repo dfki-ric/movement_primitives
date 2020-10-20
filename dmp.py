@@ -433,7 +433,6 @@ def dmp_step_quaternion(
 
         f = forcing_term(current_t).squeeze()
 
-        # TODO why factor 2???
         ydd = (alpha_y * (beta_y * pr.quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(last_y))) - execution_time * last_yd) + f + cdd) / execution_time ** 2
         yd += dt * ydd + cd / execution_time
         y = pr.concatenate_quaternions(pr.angular_velocity_exp(dt * yd), y)
