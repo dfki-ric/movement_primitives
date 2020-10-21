@@ -1,0 +1,2124 @@
+<?xml version="1.0"?>
+<!-- created with Phobos 0.7 -->
+  <robot name="RH5">
+
+    <link name="ALElbow_Link">
+      <inertial>
+        <origin xyz="0.008 0 0.009" rpy="0 0 0"/>
+        <mass value="0.255"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ALvisual_0_Elbow_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALElbow_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ALShoulder1_Link">
+      <inertial>
+        <origin xyz="-0.059 0.002 0" rpy="0 0 0"/>
+        <mass value="0.474"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ALvisual_0_Shoulder1_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder1_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ALShoulder2_Link">
+      <inertial>
+        <origin xyz="0 0.01 0.002" rpy="0 0 0"/>
+        <mass value="0.98"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ALvisual_0_Shoulder2_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder2_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ALShoulder3_Link">
+      <inertial>
+        <origin xyz="0 0 0.19" rpy="0 0 0"/>
+        <mass value="1.4"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="ALvisual_0_Shoulder3_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder3_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="ALvisual_0_Shoulder3_Link">
+        <origin xyz="0 0 0.197" rpy="3.142 0 0"/>
+        <geometry>
+          <box size="0.078 0.1 0.227"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ALWristPitch_Link">
+      <inertial>
+        <origin xyz="0 0 -0.034" rpy="0 0 0"/>
+        <mass value="0.788"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="GL_visual_0_Gripper_Root_link">
+        <origin xyz="0.005 0 -0.08" rpy="-3.142 0 1.559"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Gripper_Root_link_Collision.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_collision_0_Gripper_Root_link">
+        <origin xyz="0.005 0 -0.079" rpy="-3.142 0 1.559"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Gripper_Root_link_Collision.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ALWristRoll_Link">
+      <inertial>
+        <origin xyz="0.015 0 0.2" rpy="0 0 0"/>
+        <mass value="2.753"/>
+        <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.007"/>
+      </inertial>
+      <visual name="ALvisual_0_WristRoll_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWristRoll_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_Act1_Link">
+        <origin xyz="-0.036 -0.035 -0.005" rpy="3.076 0.032 0.24"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_Act1_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_Act2_Link">
+        <origin xyz="-0.036 0.035 -0.005" rpy="-3.07 0.015 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_Act2_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_B11_Link">
+        <origin xyz="-0.032 -0.016 0.262" rpy="3.07 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B11_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_B12_Link">
+        <origin xyz="-0.032 -0.016 0.262" rpy="3.07 0.015 -0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B12_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_B21_Link">
+        <origin xyz="-0.032 0.016 0.262" rpy="-3.07 0.015 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B21_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ALvisual_0_Wrist_B22_Link">
+        <origin xyz="-0.032 0.016 0.262" rpy="-3.07 0.018 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B22_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="ALvisual_0_WristRoll_Link">
+        <origin xyz="0.015 0 0.162" rpy="0 0 3.13"/>
+        <geometry>
+          <box size="0.141 0.12 0.308"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ALWristYaw_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.007"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ALvisual_0_WristYaw_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWristYaw_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="AL_WristFT">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <link name="ARElbow_Link">
+      <inertial>
+        <origin xyz="0.008 0 0.009" rpy="0 0 0"/>
+        <mass value="0.255"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="ARvisual_0_Elbow_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALElbow_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ARShoulder1_Link">
+      <inertial>
+        <origin xyz="-0.059 0.002 0" rpy="0 0 0"/>
+        <mass value="0.474"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="ARvisual_0_Shoulder1_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder1_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ARShoulder2_Link">
+      <inertial>
+        <origin xyz="0 0.01 0.002" rpy="0 0 0"/>
+        <mass value="0.98"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ARvisual_0_Shoulder2_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder2_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="ARShoulder3_Link">
+      <inertial>
+        <origin xyz="0 0 0.19" rpy="0 0 0"/>
+        <mass value="1.4"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="ARvisual_0_Shoulder3_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALShoulder3_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="ARvisual_0_Shoulder3_Link">
+        <origin xyz="0 0 0.197" rpy="3.142 0 0"/>
+        <geometry>
+          <box size="0.078 0.1 0.227"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ARWristPitch_Link">
+      <inertial>
+        <origin xyz="0 0 -0.034" rpy="0 0 0"/>
+        <mass value="0.788"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="GR_visual_0_Gripper_Root_link">
+        <origin xyz="0.005 0 -0.079" rpy="-3.142 0 1.559"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Gripper_Root_link_Collision.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_collision_0_Gripper_Root_link">
+        <origin xyz="0.005 0 -0.079" rpy="-3.142 0 1.559"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Gripper_Root_link_Collision.004.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ARWristRoll_Link">
+      <inertial>
+        <origin xyz="0.015 0 0.2" rpy="0 0 0"/>
+        <mass value="2.753"/>
+        <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.007"/>
+      </inertial>
+      <visual name="ARvisual_0_WristRoll_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWristRoll_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_Act1_Link">
+        <origin xyz="-0.036 -0.035 -0.005" rpy="3.076 0.032 0.24"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_Act1_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_Act2_Link">
+        <origin xyz="-0.036 0.035 -0.005" rpy="-3.07 0.015 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_Act2_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_B11_Link">
+        <origin xyz="-0.032 -0.016 0.262" rpy="3.07 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B11_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_B12_Link">
+        <origin xyz="-0.032 -0.016 0.262" rpy="3.07 0.015 -0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B12_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_B21_Link">
+        <origin xyz="-0.032 0.016 0.262" rpy="-3.07 0.015 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B21_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="ARvisual_0_Wrist_B22_Link">
+        <origin xyz="-0.032 0.016 0.262" rpy="-3.07 0.018 0.001"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWrist_B22_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="ARvisual_0_WristRoll_Link">
+        <origin xyz="0.015 0 0.162" rpy="0 0 -0.012"/>
+        <geometry>
+          <box size="0.141 0.12 0.308"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="ARWristYaw_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.007"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="ARvisual_0_WristYaw_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/ALWristYaw_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="AR_WristFT">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <link name="BodyBase_Link">
+      <inertial>
+        <origin xyz="0 -0.085 0.091" rpy="0 0 0"/>
+        <mass value="1.463"/>
+        <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.007"/>
+      </inertial>
+      <visual name="visual_0_Body_Act1_Link">
+        <origin xyz="0.077 -0.092 -0.023" rpy="2.902 0.045 1.56"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_Act1_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_Body_Act2_Link">
+        <origin xyz="-0.077 -0.092 -0.023" rpy="-2.902 0.045 1.582"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_Act2_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_Body_B11_Link">
+        <origin xyz="0.02 -0.081 0.21" rpy="2.902 0 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_B11_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_Body_B12_Link">
+        <origin xyz="0.02 -0.081 0.21" rpy="2.902 0.045 1.56"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_B12_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_Body_B21_Link">
+        <origin xyz="-0.02 -0.08 0.21" rpy="-2.902 0 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_B21_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_Body_B22_Link">
+        <origin xyz="-0.02 -0.08 0.21" rpy="-2.902 0.045 1.582"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Body_B22_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="BodyPitch_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.085"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_BodyPitch_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyPitch_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="BodyRoll_Link">
+      <inertial>
+        <origin xyz="-0.018 0 0.026" rpy="0 0 0"/>
+        <mass value="0.315"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_BodyRoll_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyRoll_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="BodyYaw_Link">
+      <inertial>
+        <origin xyz="-0.013 0 0.274" rpy="0 0 0"/>
+        <mass value="24.861"/>
+        <inertia ixx="0.004" ixy="-0.001" ixz="0" iyy="0.004" iyz="0" izz="0.004"/>
+      </inertial>
+      <visual name="ALvisual_0_Arm">
+        <origin xyz="-0.048 0 -0.217" rpy="0 0 1.937"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LeftArm.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_BodyYaw_Act1_Link">
+        <origin xyz="-0.145 0 0.047" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyYaw_Act1_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_BodyYaw_B11_Link">
+        <origin xyz="-0.145 0.03 0.047" rpy="1.571 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyYaw_B11_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_BodyYaw_B21_Link">
+        <origin xyz="-0.145 -0.03 0.047" rpy="1.571 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyYaw_B21_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="visual_0_BodyYaw_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyYaw_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <visual name="visual_0_Head">
+        <origin xyz="-0.048 0 -0.217" rpy="0 0 -1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Head.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="collsion_0_BodyYaw_Link.001">
+        <origin xyz="0.008 0.002 0.311" rpy="0 0 -1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/BodyYaw_Link.006.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_1_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_1_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.002" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_1_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 -0.001" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_1_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_1_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.002" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.006">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_1_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_1_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_1_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_1_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.007">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_2_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_2_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_2_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 0" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_2_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_2_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.002">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_2_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_2_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_2_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_2_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.003">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_3_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_3_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_3_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 -0.001" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_3_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_3_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.005">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Finger_3_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GL_visual_0_Finger_3_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_3_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Finger_3_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.004">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Thumb_Connection_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.156"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GL_visual_0_Thumb_Connection_Link">
+        <origin xyz="0 -0.002 0.022" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Thumb_Connection_Link.006.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_collision_0_Thumb_Connection_Link">
+        <origin xyz="0 -0.002 0.022" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Thumb_Connection_Link.005.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Thumb_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GL_visual_0_Thumb_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Thumb_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 0" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Thumb_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Thumb_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube.001">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GL_Thumb_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GL_visual_0_Thumb_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.002" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Thumb_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GL_visual_0_Thumb_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GL_Cube">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_1_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_1_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_1_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 -0.001" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_1_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_1_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.006">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_1_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_1_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_1_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_1_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.007">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_2_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_2_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_2_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 -0.001" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_2_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_2_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.002">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_2_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_2_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_2_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_2_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.003">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_3_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_3_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_3_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 0" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_3_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_3_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.005">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Finger_3_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GR_visual_0_Finger_3_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.002" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_3_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Finger_3_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.004">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Thumb_Connection_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.156"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="GR_visual_0_Thumb_Connection_Link">
+        <origin xyz="0 -0.002 0.022" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Thumb_Connection_Link.006.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_collision_0_Thumb_Connection_Link">
+        <origin xyz="0 -0.002 0.022" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Thumb_Connection_Link.007.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Thumb_Distal_Link">
+      <inertial>
+        <origin xyz="0.011 -0.004 0" rpy="0 0 0"/>
+        <mass value="0.053"/>
+        <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
+      </inertial>
+      <visual name="GR_visual_0_Thumb_Distal_Base_Link">
+        <origin xyz="0.027 -0.007 -0.001" rpy="0 0 2.847"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Base_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Thumb_Distal_Connection_Link">
+        <origin xyz="0.046 -0.005 0" rpy="0.069 0 -1.318"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Connection_Link.009.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Thumb_Distal_Link">
+        <origin xyz="0.018 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Link.013.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Thumb_Distal_Tip_Link">
+        <origin xyz="0.046 -0.008 -0.001" rpy="0 0 -2.93"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Distal_Tip_Link.011.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube.001">
+        <origin xyz="0.035 -0.007 -0.001" rpy="0.031 -0.012 3.009"/>
+        <geometry>
+          <box size="0.041 0.021 0.025"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="GR_Thumb_Proximal_Link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.048"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="GR_visual_0_Thumb_Proximal_Link">
+        <origin xyz="0.026 0.002 -0.001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Link.014.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Thumb_Proximal_Top_Connection_Link">
+        <origin xyz="0.054 0.008 -0.001" rpy="0.066 0 -2.064"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Connection_Link.008.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="GR_visual_0_Thumb_Proximal_Top_Link">
+        <origin xyz="0.037 0.02 -0.001" rpy="0 0 0.011"/>
+        <geometry>
+          <mesh filename="../meshes/stl/Finger_Proximal_Top_Link.012.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="GR_Cube">
+        <origin xyz="0.026 0.003 -0.002" rpy="-0.005 0 0.031"/>
+        <geometry>
+          <box size="0.042 0.029 0.032"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="HeadPitch_Link">
+      <inertial>
+        <origin xyz="0.003 0 0" rpy="0 0 0"/>
+        <mass value="0.014"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_HeadPitch_Link">
+        <origin xyz="0 0 0" rpy="1.571 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/HeadPitch_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="HeadRoll_Link">
+      <inertial>
+        <origin xyz="-0.004 0 0.017" rpy="0 0 0"/>
+        <mass value="0.032"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_HeadRoll_Link">
+        <origin xyz="0 0 0" rpy="0 -1.571 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/HeadRoll_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="HeadYaw_Link">
+      <inertial>
+        <origin xyz="0.002 -0.006 0.09" rpy="0 0 0"/>
+        <mass value="1.7"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_HeadYaw_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/HeadYaw_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <collision name="visual_0_HeadYaw_Link">
+        <origin xyz="0.017 0 0.05" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.129"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LLAnkleBase_Link">
+      <inertial>
+        <origin xyz="-0.001 -0.019 0.405" rpy="0 0 0"/>
+        <mass value="1.268"/>
+        <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+      </inertial>
+      <visual name="LLvisual_0_Ankle_Act1_Link">
+        <origin xyz="-0.07 0.038 0.03" rpy="-0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_Act2_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_Act2_Link">
+        <origin xyz="-0.07 -0.038 0.03" rpy="0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_Act2_Link002.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_B11_Link">
+        <origin xyz="-0.022 0.025 0.291" rpy="-0.051 -2.967 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B11_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_B12_Link">
+        <origin xyz="-0.022 0.025 0.291" rpy="-0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B12_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_B21_Link">
+        <origin xyz="-0.022 -0.025 0.291" rpy="0.051 -2.967 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B21_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_B22_Link">
+        <origin xyz="-0.022 -0.025 0.291" rpy="0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B22_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LLAnklePitch_Link">
+      <inertial>
+        <origin xyz="-0.058 0 0.054" rpy="0 0 0"/>
+        <mass value="0.233"/>
+        <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+      </inertial>
+      <visual name="LLvisual_0_AnklePitch_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnklePitch_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_E11_Link">
+        <origin xyz="-0.07 0.04 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_E11_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Ankle_E21_Link">
+        <origin xyz="-0.07 -0.04 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_E21_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="Collision_FL_BL">
+        <origin xyz="-0.07 0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collision_FL_BR">
+        <origin xyz="-0.07 -0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collision_FL_FL">
+        <origin xyz="0.13 0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collsion_FL_FR">
+        <origin xyz="0.13 -0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LLAnkleRoll_Link">
+      <inertial>
+        <origin xyz="0.03 0 -0.045" rpy="0 0 0"/>
+        <mass value="1.215"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LLvisual_0_AnkleRoll_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkleRoll_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LLHip1_Link">
+      <inertial>
+        <origin xyz="0 -0.002 0.05" rpy="0 0 0"/>
+        <mass value="0.5"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LLvisual_0_Hip1_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip1_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LLHip2_Link">
+      <inertial>
+        <origin xyz="0 -0.037 -0.117" rpy="0 0 0"/>
+        <mass value="2.358"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LLvisual_0_Hip2_Link">
+        <origin xyz="0 0 0" rpy="0 0.262 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip2_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Hip3_Act1_Link">
+        <origin xyz="0 -0.039 -0.363" rpy="1.571 1.397 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_Act1_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Hip3_B11_Link">
+        <origin xyz="0 -0.09 -0.07" rpy="-1.571 1.397 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_B11_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LLHip3_Link">
+      <inertial>
+        <origin xyz="0.058 0.039 -0.216" rpy="0 0 0"/>
+        <mass value="2.438"/>
+        <inertia ixx="0.003" ixy="-0.001" ixz="0" iyy="0.003" iyz="0" izz="0.003"/>
+      </inertial>
+      <visual name="LLvisual_0_Hip3_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Knee_Act1_Link">
+        <origin xyz="0.091 0.06 -0.339" rpy="-0.151 1.306 -0.156"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_Act1_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LLvisual_0_Knee_B11_Link">
+        <origin xyz="0.02 0.071 -0.075" rpy="-0.151 1.306 -0.156"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_B11_Link.002.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="Collision_LL_Hip3.001">
+        <origin xyz="0.055 0.012 -0.204" rpy="0 -0.262 0"/>
+        <geometry>
+          <box size="0.151 0.145 0.298"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LLKnee_Link">
+      <inertial>
+        <origin xyz="0.121 -0.005 0" rpy="0 0 0"/>
+        <mass value="0.944"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LLvisual_0_Knee_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_Link.004.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="LLvisual_0_Knee_Link">
+        <origin xyz="0.212 -0.004 0.001" rpy="0.589 1.571 -2.537"/>
+        <geometry>
+          <box size="0.122 0.13 0.341"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LL_AnkleFT">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <link name="LRAnkleBase_Link">
+      <inertial>
+        <origin xyz="-0.001 -0.019 0.405" rpy="0 0 0"/>
+        <mass value="1.268"/>
+        <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+      </inertial>
+      <visual name="LRvisual_0_Ankle_Act1_Link">
+        <origin xyz="-0.07 0.038 0.03" rpy="-0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_Act2_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_Act2_Link">
+        <origin xyz="-0.07 -0.038 0.03" rpy="0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_Act2_Link002.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_B11_Link">
+        <origin xyz="-0.022 0.025 0.291" rpy="-0.051 -2.967 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B11_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_B12_Link">
+        <origin xyz="-0.022 0.025 0.291" rpy="-0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B12_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_B21_Link">
+        <origin xyz="-0.022 -0.025 0.291" rpy="0.051 -2.967 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B21_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_B22_Link">
+        <origin xyz="-0.022 -0.025 0.291" rpy="0.051 -2.961 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_B22_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LRAnklePitch_Link">
+      <inertial>
+        <origin xyz="-0.058 0 0.054" rpy="0 0 0"/>
+        <mass value="0.233"/>
+        <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+      </inertial>
+      <visual name="LRvisual_0_AnklePitch_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnklePitch_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_E11_Link">
+        <origin xyz="-0.07 0.04 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_E11_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Ankle_E21_Link">
+        <origin xyz="-0.07 -0.04 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkle_E21_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="Collision_FR_BL">
+        <origin xyz="-0.07 0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collision_FR_BR">
+        <origin xyz="-0.07 -0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collision_FR_FL">
+        <origin xyz="0.13 0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+      <collision name="Collsion_FR_FR">
+        <origin xyz="0.13 -0.04 -0.089" rpy="0 0 -1.571"/>
+        <geometry>
+          <sphere radius="0.017"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LRAnkleRoll_Link">
+      <inertial>
+        <origin xyz="0.03 0 -0.045" rpy="0 0 0"/>
+        <mass value="1.215"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LRvisual_0_AnkleRoll_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLAnkleRoll_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LRHip1_Link">
+      <inertial>
+        <origin xyz="0 -0.002 0.05" rpy="0 0 0"/>
+        <mass value="0.5"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LRvisual_0_Hip1_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LRHip1_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LRHip2_Link">
+      <inertial>
+        <origin xyz="0 -0.037 -0.117" rpy="0 0 0"/>
+        <mass value="2.358"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LRvisual_0_Hip2_Link">
+        <origin xyz="0 0 0" rpy="0 0.262 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip2_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Hip3_Act1_Link">
+        <origin xyz="0 -0.039 -0.363" rpy="1.571 1.397 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_Act1_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Hip3_B11_Link">
+        <origin xyz="0 -0.09 -0.07" rpy="-1.571 1.397 1.571"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_B11_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+    </link>
+
+    <link name="LRHip3_Link">
+      <inertial>
+        <origin xyz="0.058 0.039 -0.216" rpy="0 0 0"/>
+        <mass value="2.438"/>
+        <inertia ixx="0.003" ixy="-0.001" ixz="0" iyy="0.003" iyz="0" izz="0.003"/>
+      </inertial>
+      <visual name="LRvisual_0_Hip3_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLHip3_Link.004.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Knee_Act1_Link">
+        <origin xyz="0.091 0.06 -0.339" rpy="-0.151 1.306 -0.156"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_Act1_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <visual name="LRvisual_0_Knee_B11_Link">
+        <origin xyz="0.02 0.071 -0.075" rpy="-0.151 1.306 -0.156"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_B11_Link.003.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="Collision_LR_Hip3.001">
+        <origin xyz="0.056 0.01 -0.204" rpy="0 -0.262 0"/>
+        <geometry>
+          <box size="0.154 0.156 0.303"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LRKnee_Link">
+      <inertial>
+        <origin xyz="0.121 -0.005 0" rpy="0 0 0"/>
+        <mass value="0.944"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <visual name="LRvisual_0_Knee_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/LLKnee_Link.005.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="Steel"/>
+      </visual>
+      <collision name="LRvisual_0_Knee_Link">
+        <origin xyz="0.212 -0.004 0.001" rpy="-2.53 1.571 0.597"/>
+        <geometry>
+          <box size="0.123 0.131 0.341"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="LR_AnkleFT">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <link name="RH5_Root_Link">
+      <inertial>
+        <origin xyz="0 0.064 0.139" rpy="0 0 0"/>
+        <mass value="3.341"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+      <visual name="visual_0_RH5_Root_Link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/RH5_Root_Link.001.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="WhitePlastic"/>
+      </visual>
+      <collision name="collision_RH5_Root_Link.001">
+        <origin xyz="0.002 0.037 0.148" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="../meshes/stl/RH5_Root_Link.006.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="AL_WristFT" type="fixed">
+      <origin xyz="0 0 -0.026" rpy="0 0 -2.911"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="AL_WristFT"/>
+      <limit effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="AR_WristFT" type="fixed">
+      <origin xyz="0 0 -0.026" rpy="0 0 -1.047"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="AR_WristFT"/>
+      <limit effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="BodyBase_Link" type="fixed">
+      <origin xyz="0 0.048 0.217" rpy="0 -3.142 0"/>
+      <parent link="RH5_Root_Link"/>
+      <child link="BodyBase_Link"/>
+      <limit effort="23.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="LLAnkleBase_Link" type="fixed">
+      <origin xyz="0.42 0 0.002" rpy="1.571 0 -1.571"/>
+      <parent link="LLKnee_Link"/>
+      <child link="LLAnkleBase_Link"/>
+      <limit effort="10.0" velocity="2.3"/>
+    </joint>
+
+    <joint name="LL_AnkleFT" type="fixed">
+      <origin xyz="0 0 -0.059" rpy="3.142 0 0"/>
+      <parent link="LLAnklePitch_Link"/>
+      <child link="LL_AnkleFT"/>
+      <limit effort="200.0" velocity="6.0"/>
+    </joint>
+
+    <joint name="LRAnkleBase_Link" type="fixed">
+      <origin xyz="0.42 0 0.002" rpy="1.571 0 -1.571"/>
+      <parent link="LRKnee_Link"/>
+      <child link="LRAnkleBase_Link"/>
+      <limit effort="10.0" velocity="2.3"/>
+    </joint>
+
+    <joint name="LR_AnkleFT" type="fixed">
+      <origin xyz="0 0 -0.059" rpy="3.142 0 0"/>
+      <parent link="LRAnklePitch_Link"/>
+      <child link="LR_AnkleFT"/>
+      <limit effort="200.0" velocity="6.0"/>
+    </joint>
+
+    <joint name="ALElbow" type="revolute">
+      <origin xyz="0 0 0.355" rpy="1.563 -1.571 -0.004"/>
+      <parent link="ALShoulder3_Link"/>
+      <child link="ALElbow_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.62" upper="0.187" effort="23.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ALShoulder1" type="revolute">
+      <origin xyz="0.012 0.313 0.386" rpy="-3.142 0 1.328"/>
+      <parent link="BodyYaw_Link"/>
+      <child link="ALShoulder1_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-3.054" upper="3.054" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ALShoulder2" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="ALShoulder1_Link"/>
+      <child link="ALShoulder2_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-0.524" upper="1.571" effort="167.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ALShoulder3" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 3.141"/>
+      <parent link="ALShoulder2_Link"/>
+      <child link="ALShoulder3_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-3.054" upper="3.054" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ALWristPitch" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="ALWristYaw_Link"/>
+      <child link="ALWristPitch_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-3.142" upper="3.142" effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="ALWristRoll" type="revolute">
+      <origin xyz="0.386 0 0" rpy="-1.571 0 1.571"/>
+      <parent link="ALElbow_Link"/>
+      <child link="ALWristRoll_Link"/>
+      <axis xyz="0 0 -1.0"/>
+      <limit lower="-3.054" upper="3.054" effort="18.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ALWristYaw" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="ALWristRoll_Link"/>
+      <child link="ALWristYaw_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-1.257" upper="0.785" effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="ARElbow" type="revolute">
+      <origin xyz="0 0 0.355" rpy="1.563 -1.571 -0.004"/>
+      <parent link="ARShoulder3_Link"/>
+      <child link="ARElbow_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.187" upper="1.62" effort="23.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ARShoulder1" type="revolute">
+      <origin xyz="0.012 -0.313 0.386" rpy="0 0 -1.328"/>
+      <parent link="BodyYaw_Link"/>
+      <child link="ARShoulder1_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-3.054" upper="3.054" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ARShoulder2" type="revolute">
+      <origin xyz="0 0 0" rpy="0 -3.142 0"/>
+      <parent link="ARShoulder1_Link"/>
+      <child link="ARShoulder2_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-1.571" upper="0.524" effort="167.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ARShoulder3" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 3.141"/>
+      <parent link="ARShoulder2_Link"/>
+      <child link="ARShoulder3_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-3.054" upper="3.054" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ARWristPitch" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="ARWristYaw_Link"/>
+      <child link="ARWristPitch_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-3.142" upper="3.142" effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="ARWristRoll" type="revolute">
+      <origin xyz="0.386 0 0" rpy="1.571 0 -1.571"/>
+      <parent link="ARElbow_Link"/>
+      <child link="ARWristRoll_Link"/>
+      <axis xyz="0 0 -1.0"/>
+      <limit lower="-175.0" upper="175.0" effort="18.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="ARWristYaw" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="ARWristRoll_Link"/>
+      <child link="ARWristYaw_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-0.785" upper="1.257" effort="12.5" velocity="0.1"/>
+    </joint>
+
+    <joint name="BodyPitch" type="fixed">
+      <origin xyz="0 0 0" rpy="3.142 0 1.571"/>
+      <parent link="BodyBase_Link"/>
+      <child link="BodyPitch_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-0.367" upper="0.489" effort="140.0" velocity="2.321"/>
+    </joint>
+
+    <joint name="BodyRoll" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="BodyPitch_Link"/>
+      <child link="BodyRoll_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-0.402" upper="0.402" effort="140.0" velocity="2.321"/>
+    </joint>
+
+    <joint name="BodyYaw" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="BodyRoll_Link"/>
+      <child link="BodyYaw_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.524" upper="0.524" effort="23.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="GL_Finger_1_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GL_Finger_1_Proximal_Link"/>
+      <child link="GL_Finger_1_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Finger_1_Proximal" type="fixed">
+      <origin xyz="0.026 0.05 -0.12" rpy="1.892 1.057 0.267"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="GL_Finger_1_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Finger_2_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GL_Finger_2_Proximal_Link"/>
+      <child link="GL_Finger_2_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Finger_2_Proximal" type="fixed">
+      <origin xyz="0.036 0.013 -0.127" rpy="1.909 1.079 0.253"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="GL_Finger_2_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Finger_3_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GL_Finger_3_Proximal_Link"/>
+      <child link="GL_Finger_3_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Finger_3_Proximal" type="fixed">
+      <origin xyz="0.022 -0.042 -0.121" rpy="1.075 1.06 -0.499"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="GL_Finger_3_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Thumb_Connection" type="fixed">
+      <origin xyz="-0.025 -0.018 -0.094" rpy="-1.571 -0.133 1.559"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="GL_Thumb_Connection_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.201" upper="1.4" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Thumb_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GL_Thumb_Proximal_Link"/>
+      <child link="GL_Thumb_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GL_Thumb_Proximal" type="fixed">
+      <origin xyz="-0.002 0.032 0.017" rpy="1.571 -0.502 1.638"/>
+      <parent link="GL_Thumb_Connection_Link"/>
+      <child link="GL_Thumb_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_1_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GR_Finger_1_Proximal_Link"/>
+      <child link="GR_Finger_1_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_1_Proximal" type="fixed">
+      <origin xyz="0.025 -0.053 -0.12" rpy="1.265 1.045 -0.279"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="GR_Finger_1_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_2_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GR_Finger_2_Proximal_Link"/>
+      <child link="GR_Finger_2_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_2_Proximal" type="fixed">
+      <origin xyz="0.035 -0.015 -0.126" rpy="1.265 1.045 -0.279"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="GR_Finger_2_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_3_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GR_Finger_3_Proximal_Link"/>
+      <child link="GR_Finger_3_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Finger_3_Proximal" type="fixed">
+      <origin xyz="0.023 0.04 -0.121" rpy="2.04 1.015 0.395"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="GR_Finger_3_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Thumb_Connection" type="fixed">
+      <origin xyz="-0.025 0.018 -0.094" rpy="-1.571 0 1.559"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="GR_Thumb_Connection_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.4" upper="0.2" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Thumb_Distal" type="fixed">
+      <origin xyz="0.053 0 0" rpy="0 0 -0.458"/>
+      <parent link="GR_Thumb_Proximal_Link"/>
+      <child link="GR_Thumb_Distal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="0.8" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="GR_Thumb_Proximal" type="fixed">
+      <origin xyz="-0.002 0.032 0.017" rpy="1.571 -0.506 1.637"/>
+      <parent link="GR_Thumb_Connection_Link"/>
+      <child link="GR_Thumb_Proximal_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <joint name="HeadPitch" type="fixed">
+      <origin xyz="0.004 0 0.662" rpy="-1.571 0 0"/>
+      <parent link="BodyYaw_Link"/>
+      <child link="HeadPitch_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.349" upper="0.262" effort="9.8" velocity="8.055"/>
+    </joint>
+
+    <joint name="HeadRoll" type="fixed">
+      <origin xyz="0 0 0" rpy="1.571 0 1.571"/>
+      <parent link="HeadPitch_Link"/>
+      <child link="HeadRoll_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.436" upper="0.436" effort="9.8" velocity="8.055"/>
+    </joint>
+
+    <joint name="HeadYaw" type="fixed">
+      <origin xyz="0 0 0" rpy="0 -1.571 0"/>
+      <parent link="HeadRoll_Link"/>
+      <child link="HeadYaw_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.571" upper="1.571" effort="4.9" velocity="8.055"/>
+    </joint>
+
+    <joint name="LLAnklePitch" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="LLAnkleRoll_Link"/>
+      <child link="LLAnklePitch_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-0.899" upper="0.785" effort="200.0" velocity="6.0"/>
+    </joint>
+
+    <joint name="LLAnkleRoll" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="LLAnkleBase_Link"/>
+      <child link="LLAnkleRoll_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-0.995" upper="0.995" effort="200.0" velocity="6.0"/>
+    </joint>
+
+    <joint name="LLHip1" type="fixed">
+      <origin xyz="-0.11 0.073 0.014" rpy="0 0.262 0"/>
+      <parent link="RH5_Root_Link"/>
+      <child link="LLHip1_Link"/>
+      <axis xyz="0 0 -1.0"/>
+      <limit lower="-0.785" upper="0.785" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="LLHip2" type="fixed">
+      <origin xyz="0 0 0" rpy="0 -0.262 0"/>
+      <parent link="LLHip1_Link"/>
+      <child link="LLHip2_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-0.436" upper="0.873" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="LLHip3" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0.262 0"/>
+      <parent link="LLHip2_Link"/>
+      <child link="LLHip3_Link"/>
+      <axis xyz="-0.966 0 -0.259"/>
+      <limit lower="-1.16" upper="0.28" effort="378.0" velocity="2.321"/>
+    </joint>
+
+    <joint name="LLKnee" type="fixed">
+      <origin xyz="0.108 0 -0.397" rpy="-3.142 1.309 0"/>
+      <parent link="LLHip3_Link"/>
+      <child link="LLKnee_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.026" upper="1.43" effort="352.0" velocity="2.321"/>
+    </joint>
+
+    <joint name="LRAnklePitch" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="LRAnkleRoll_Link"/>
+      <child link="LRAnklePitch_Link"/>
+    </joint>
+
+    <joint name="LRAnkleRoll" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="LRAnkleBase_Link"/>
+      <child link="LRAnkleRoll_Link"/>
+      <axis xyz="1.0 0 0"/>
+      <limit lower="-0.995" upper="0.995" effort="200.0" velocity="6.0"/>
+    </joint>
+
+    <joint name="LRHip1" type="fixed">
+      <origin xyz="0.11 0.073 0.014" rpy="0 -0.262 0"/>
+      <parent link="RH5_Root_Link"/>
+      <child link="LRHip1_Link"/>
+      <axis xyz="0 0 -1.0"/>
+      <limit lower="-0.785" upper="0.785" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="LRHip2" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0.262 0"/>
+      <parent link="LRHip1_Link"/>
+      <child link="LRHip2_Link"/>
+      <axis xyz="0 1.0 0"/>
+      <limit lower="-0.436" upper="0.873" effort="135.0" velocity="1.833"/>
+    </joint>
+
+    <joint name="LRHip3" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0.262 0"/>
+      <parent link="LRHip2_Link"/>
+      <child link="LRHip3_Link"/>
+      <axis xyz="-0.966 0 -0.259"/>
+      <limit lower="-1.16" upper="0.28" effort="378.0" velocity="2.321"/>
+    </joint>
+
+    <joint name="LRKnee" type="fixed">
+      <origin xyz="0.108 0 -0.397" rpy="-3.142 1.309 0"/>
+      <parent link="LRHip3_Link"/>
+      <child link="LRKnee_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-0.026" upper="1.43" effort="352.0" velocity="2.321"/>
+    </joint>
+
+    <material name="Steel">
+      <color rgba="0.249 0.249 0.249 1.0"/>
+    </material>
+
+    <material name="WhitePlastic">
+      <color rgba="0.924 0.907 1.0 1.0"/>
+    </material>
+
+  </robot>

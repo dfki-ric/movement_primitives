@@ -18,14 +18,14 @@ class PybulletSimulation:
         pybullet.setRealTimeSimulation(1 if real_time else 0)
         pybullet.setGravity(0, 0, -9.81)
 
-    def _pybullet_pose(self, pose):
-        pos = pose[:3]
-        rot = pose[3:]
-        rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
-        return pos, rot
+def _pybullet_pose(pose):
+    pos = pose[:3]
+    rot = pose[3:]
+    rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
+    return pos, rot
 
-    def _pytransform_pose(self, pos, rot):
-        return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
+def _pytransform_pose(pos, rot):
+    return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
 
 
 class UR5Simulation(PybulletSimulation):
@@ -59,7 +59,7 @@ class UR5Simulation(PybulletSimulation):
         #print([self.joint_names[i] for i in self.joint_indices[:6]])
 
     def inverse_kinematics(self, ee2robot):
-        pos, rot = self._pybullet_pose(ee2robot)
+        pos, rot = _pybullet_pose(ee2robot)
         # ee2world
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
 
@@ -107,9 +107,9 @@ class UR5Simulation(PybulletSimulation):
             vel, _ = pybullet.multiplyTransforms(
                 vel, [0, 0, 0, 1], *self.inv_base_pose)
             # TODO transform angular velocity?
-            return self._pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
         else:
-            return self._pytransform_pose(pos, rot)
+            return _pytransform_pose(pos, rot)
 
     def set_desired_ee_state(self, ee_state):
         q = self.inverse_kinematics(ee_state)
@@ -137,7 +137,7 @@ class UR5Simulation(PybulletSimulation):
 
     def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
         if text:
-            pos, rot = self._pybullet_pose(ee_state)
+            pos, rot = _pybullet_pose(ee_state)
             self.write(pos, text)
         q = self.inverse_kinematics(ee_state)
         self.set_desired_joint_state(q, position_control=True)
@@ -180,25 +180,58 @@ class UR5Simulation(PybulletSimulation):
         pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
 
 
+class LeftArmKinematics:
+    def __init__(self, left_arm_pos=(-1, 0, 5)):
+        self.left_arm_pos = left_arm_pos
+        self.left_arm = pybullet.loadURDF(
+            "abstract-urdf-gripper/urdf/rh5_left_arm.urdf", self.left_arm_pos, useFixedBase=1)
+        self.left_arm_pose = self.left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
+        self.n_joints = 7
+        self.left_arm_ee_idx_ik = 10
+
+    def inverse(self, left_ee_state):
+        left_pos, left_rot = _pybullet_pose(left_ee_state)
+        # ee2world
+        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.left_arm_pose)
+        q = pybullet.calculateInverseKinematics(
+            self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot, maxNumIterations=100,
+            residualThreshold=0.001, jointDamping=[0.1] * self.n_joints)
+        return q
+
+
+class RightArmKinematics:
+    def __init__(self, right_arm_pos=(1, 0, 5)):
+        self.right_arm_pos = right_arm_pos
+        self.right_arm = pybullet.loadURDF(
+            "abstract-urdf-gripper/urdf/rh5_right_arm.urdf", self.right_arm_pos, useFixedBase=1)
+        self.right_arm_pose = self.right_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.right_arm)
+        self.n_joints = 7
+        self.right_arm_ee_idx_ik = 10
+
+    def inverse(self, right_ee_state):
+        right_pos, right_rot = _pybullet_pose(right_ee_state)
+        # ee2world
+        right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.right_arm_pose)
+        q = pybullet.calculateInverseKinematics(
+            self.right_arm, self.right_arm_ee_idx_ik, right_pos, right_rot, maxNumIterations=100,
+            residualThreshold=0.001, jointDamping=[0.1] * self.n_joints)
+        return q
+
+
 class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
     def __init__(self, dt, gui=True, real_time=False):
         super(RH5Simulation, self).__init__(dt, gui, real_time)
 
         pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.base_pos = [0, 0, 0]
         self.plane = pybullet.loadURDF(
             "plane.urdf", [0, 0, -1], useFixedBase=1)
         self.robot = pybullet.loadURDF(
-            "abstract-urdf-gripper/urdf/RH5.urdf", [0, 0, 0], useFixedBase=1)
-        self.left_arm_pos = [-1, 0, 5]
-        self.left_arm = pybullet.loadURDF(
-            "abstract-urdf-gripper/urdf/rh5_left_arm.urdf", self.left_arm_pos, useFixedBase=1)
-        self.left_arm_ee_idx_ik = 11
-        self.right_arm_pos = [1, 0, 5]
-        self.right_arm = pybullet.loadURDF(
-            "abstract-urdf-gripper/urdf/rh5_right_arm.urdf", self.right_arm_pos, useFixedBase=1)
-        self.right_arm_ee_idx_ik = 11
+            "abstract-urdf-gripper/urdf/rh5_fixed.urdf", self.base_pos, useFixedBase=1)
+        self.left_arm_kin = LeftArmKinematics()
+        self.right_arm_kin = RightArmKinematics()
 
-        self.base_pose = pybullet.getBasePositionAndOrientation(self.robot)
+        self.base_pose = self.base_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.robot)
         self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
 
         self.left_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
@@ -212,29 +245,14 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
     def inverse_kinematics(self, ee2robot):
         q = np.empty(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices))
         left_ee_state, right_ee_state = np.split(ee2robot, (7,))
-
-        left_pos, left_rot = self._pybullet_pose(left_ee_state)
-        # ee2world
-        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, self.left_arm_pos, [0, 0, 0, 1])
-
-        q[:len(self.left_arm_joint_indices)] = pybullet.calculateInverseKinematics(
-            self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot, maxNumIterations=100,
-            residualThreshold=0.001)
-
-        right_pos, right_rot = self._pybullet_pose(right_ee_state)
-        # ee2world
-        right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, self.left_arm_pos, [0, 0, 0, 1])
-
-        q[len(self.left_arm_joint_indices):] = pybullet.calculateInverseKinematics(
-            self.right_arm, self.right_arm_ee_idx_ik, right_pos, right_rot, maxNumIterations=100,
-            residualThreshold=0.001)
-
+        q[:len(self.left_arm_joint_indices)] = self.left_arm_kin.inverse(left_ee_state)
+        q[len(self.left_arm_joint_indices):] = self.right_arm_kin.inverse(right_ee_state)
         if any(np.isnan(q)):
             raise Exception("IK solver found no solution.")
         return q
 
     def get_joint_state(self):
-        joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
+        joint_states = pybullet.getJointStates(self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices)
         positions = []
         velocities = []
         for joint_state in joint_states:
@@ -263,23 +281,36 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state)
 
     def get_ee_state(self, return_velocity=False):
-        ee_state = pybullet.getLinkState(
-            self.robot, self.ee_link_index, computeLinkVelocity=1,
+        left_ee_state = pybullet.getLinkState(
+            self.robot, self.left_ee_link_index, computeLinkVelocity=1,
             computeForwardKinematics=1)
-        pos = ee_state[4]
-        rot = ee_state[5]
-        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
+        left_pos = left_ee_state[4]
+        left_rot = left_ee_state[5]
+        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.inv_base_pose)
+        left_pose = _pytransform_pose(left_pos, left_rot)
+
+        right_ee_state = pybullet.getLinkState(
+            self.robot, self.right_ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1)
+        right_pos = right_ee_state[4]
+        right_rot = right_ee_state[5]
+        right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.inv_base_pose)
+        right_pose = _pytransform_pose(right_pos, right_rot)
+
         if return_velocity:
-            vel = ee_state[6]
+            raise NotImplementedError()
+            """
+            left_vel = left_ee_state[6]
             #ang_vel = ee_state[7]
             #ang_speed = np.linalg.norm(ang_vel)
             #ang_axis = np.asarray(ang_vel) / ang_speed
-            vel, _ = pybullet.multiplyTransforms(
-                vel, [0, 0, 0, 1], *self.inv_base_pose)
+            left_vel, _ = pybullet.multiplyTransforms(
+                left_vel, [0, 0, 0, 1], *self.inv_base_pose)
             # TODO transform angular velocity?
-            return self._pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+            """
         else:
-            return self._pytransform_pose(pos, rot)
+            return np.hstack((left_pose, right_pose))
 
     def set_desired_ee_state(self, ee_state):
         q = self.inverse_kinematics(ee_state)
@@ -307,7 +338,7 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
 
     def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
         if text:
-            pos, rot = self._pybullet_pose(ee_state)
+            pos, rot = _pybullet_pose(ee_state)
             self.write(pos, text)
         q = self.inverse_kinematics(ee_state)
         self.set_desired_joint_state(q, position_control=True)

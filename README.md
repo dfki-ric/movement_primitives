@@ -17,6 +17,7 @@ cd ..
 
 cp rh5_left_arm.urdf abstract-urdf-gripper/urdf/
 cp rh5_right_arm.urdf abstract-urdf-gripper/urdf/
+cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
 # install hyrodyn: https://git.hb.dfki.de/skumar/hyrodyn/
 ```
