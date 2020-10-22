@@ -1,31 +1,33 @@
 import numpy as np
+from dmp import DualCartesianDMP
 from pytransform3d.rotations import quaternion_from_axis_angle
 from simulation import RH5Simulation
 import pybullet
 
 dt = 0.001
+execution_time = 1.0
+
+dmp = DualCartesianDMP(
+    execution_time=execution_time, dt=dt,
+    n_weights_per_dim=10, int_dt=0.001)
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
 
-a = np.array([0.0, 0.0, 1.0, 0.0 * np.pi])
-orientation = quaternion_from_axis_angle(a)
+Y = np.zeros((1001, 14))
+T = np.linspace(0, 1, len(Y))
+sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
+Y[:, 0] = -0.5 + 0.15 * (sigmoid - 0.5)
+Y[:, 1] = 0.55
+Y[:, 2] = 0.4
+Y[:, 3] = 1.0
+Y[:, 7] = 0.5 + 0.15 * (sigmoid - 0.5)
+Y[:, 8] = 0.55
+Y[:, 9] = 0.4
+Y[:, 10] = 1.0
+dmp.imitate(T, Y)
+dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
-x = np.array([-0.4, 0.6, 0.3] + orientation.tolist() +
-              [0.4, 0.6, 0.3] + orientation.tolist())
-q = rh5.inverse_kinematics(x)
-print("desired")
-print(q[:7])
-print(q[7:])
-rh5.set_desired_joint_state(q, position_control=True)
-rh5.sim_loop(1000)
-q, qd = rh5.get_joint_state()
-print("actual")
-print(q[:7])
-print(q[7:])
-print("desired ee")
-print(x[:7])
-print(x[7:])
-print("actual ee")
-x = rh5.get_ee_state()
-print(x[:7])
-print(x[7:])
-rh5.sim_loop()
+while True:
+    rh5.set_desired_ee_state(Y[0], position_control=True)
+    rh5.sim_loop(1000)
+    desired_positions, positions, desired_velocities, velocities = \
+        rh5.step_through_cartesian(dmp, Y[0], np.zeros(12), execution_time)

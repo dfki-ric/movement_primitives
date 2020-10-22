@@ -278,8 +278,171 @@ class CartesianDMP:
             alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
-class DualCartesianDMP:  # TODO implement
-    pass
+class DualCartesianDMP:
+    def __init__(self, execution_time, dt=0.01,
+                 n_weights_per_dim=10, int_dt=0.001):
+        self.n_dims = 14
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term_pos_left = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot_left = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_pos_right = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot_right = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(12)
+        self.start_ydd = np.zeros(12)
+        self.goal_y = np.zeros(self.n_dims)
+        self.goal_yd = np.zeros(12)
+        self.goal_ydd = np.zeros(12)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+        if goal_yd is not None:
+            self.goal_yd = goal_yd
+        if goal_ydd is not None:
+            self.goal_ydd = goal_ydd
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        assert len(last_y) == self.n_dims
+        assert len(last_yd) == 12
+
+        self.last_t = self.t
+        self.t += self.dt
+
+        current_y = np.empty(self.n_dims)
+        current_yd = np.empty(12)
+
+        current_y[:3], current_yd[:3] = dmp_step(
+            self.last_t, self.t,
+            last_y[:3], last_yd[:3],
+            self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
+            self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos_left,
+            coupling_term,
+            self.int_dt)
+        current_y[3:7], current_yd[3:6] = dmp_step_quaternion(
+            self.last_t, self.t,
+            last_y[3:7], last_yd[3:6],
+            self.goal_y[3:7], self.goal_yd[3:6], self.goal_ydd[3:6],
+            self.start_y[3:7], self.start_yd[3:6], self.start_ydd[3:6],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot_left,
+            coupling_term,
+            self.int_dt)
+
+        current_y[7:10], current_yd[6:9] = dmp_step(
+            self.last_t, self.t,
+            last_y[7:10], last_yd[6:9],
+            self.goal_y[7:10], self.goal_yd[6:9], self.goal_ydd[6:9],
+            self.start_y[7:10], self.start_yd[6:9], self.start_ydd[6:9],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos_right,
+            coupling_term,
+            self.int_dt)
+        current_y[10:], current_yd[9:] = dmp_step_quaternion(
+            self.last_t, self.t,
+            last_y[10:], last_yd[9:],
+            self.goal_y[10:], self.goal_yd[9:], self.goal_ydd[9:],
+            self.start_y[10:], self.start_yd[9:], self.start_ydd[9:],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot_right,
+            coupling_term,
+            self.int_dt)
+        return current_y, current_yd
+
+    def open_loop(self, run_t=None, coupling_term=None):
+        T, Yp_left = dmp_open_loop(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[:3], self.goal_y[:3],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_pos_left,
+                coupling_term,
+                run_t, self.int_dt)
+        _, Yr_left = dmp_open_loop_quaternion(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[3:7], self.goal_y[3:7],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_rot,
+                coupling_term,
+                run_t, self.int_dt)
+        _, Yp_right = dmp_open_loop(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[7:10], self.goal_y[7:10],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_pos_right,
+                coupling_term,
+                run_t, self.int_dt)
+        _, Yr_right = dmp_open_loop_quaternion(
+                self.execution_time, 0.0, self.dt,
+                self.start_y[10:], self.goal_y[10:],
+                self.alpha_y, self.beta_y,
+                self.forcing_term_rot_right,
+                coupling_term,
+                run_t, self.int_dt)
+        # TODO open loop orientation dmp
+        return (T, np.hstack((Yp_left, Yr_left, Yp_right, Yr_right)))
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        self.forcing_term_pos_left.weights[:, :] = dmp_imitate(
+            T, Y[:, :3],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos_left.overlap,
+            alpha_z=self.forcing_term_pos_left.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term_rot_left.weights[:, :] = dmp_quaternion_imitation(
+            T, Y[:, 3:7],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot_left.overlap,
+            alpha_z=self.forcing_term_rot_left.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term_pos_right.weights[:, :] = dmp_imitate(
+            T, Y[:, 7:10],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos_right.overlap,
+            alpha_z=self.forcing_term_pos_right.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term_rot_right.weights[:, :] = dmp_quaternion_imitation(
+            T, Y[:, 3:7],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot_right.overlap,
+            alpha_z=self.forcing_term_rot_right.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
 # lf - Binary values that indicate which DMP(s) will be adapted.
