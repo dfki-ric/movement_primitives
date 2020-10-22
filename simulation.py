@@ -186,13 +186,19 @@ class LeftArmKinematics:
         self.left_arm = pybullet.loadURDF(
             "abstract-urdf-gripper/urdf/rh5_left_arm.urdf", self.left_arm_pos, useFixedBase=1)
         self.left_arm_pose = self.left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
-        self.n_joints = 7
+        self.left_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
+        self.n_joints = len(self.left_arm_joint_indices)
         self.left_arm_ee_idx_ik = 10
 
-    def inverse(self, left_ee_state):
+    def inverse(self, left_ee_state, q_current=None):
         left_pos, left_rot = _pybullet_pose(left_ee_state)
         # ee2world
         left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.left_arm_pose)
+        if q_current is not None:  # not effective in this step yet
+            pybullet.setJointMotorControlArray(
+                self.left_arm, self.left_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=q_current)
         q = pybullet.calculateInverseKinematics(
             self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot, maxNumIterations=100,
             residualThreshold=0.001, jointDamping=[0.1] * self.n_joints)
@@ -205,13 +211,19 @@ class RightArmKinematics:
         self.right_arm = pybullet.loadURDF(
             "abstract-urdf-gripper/urdf/rh5_right_arm.urdf", self.right_arm_pos, useFixedBase=1)
         self.right_arm_pose = self.right_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.right_arm)
-        self.n_joints = 7
+        self.right_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
+        self.n_joints = len(self.right_arm_joint_indices)
         self.right_arm_ee_idx_ik = 10
 
-    def inverse(self, right_ee_state):
+    def inverse(self, right_ee_state, q_current=None):
         right_pos, right_rot = _pybullet_pose(right_ee_state)
         # ee2world
         right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.right_arm_pose)
+        if q_current is not None:  # not effective in this step yet
+            pybullet.setJointMotorControlArray(
+                self.right_arm, self.right_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=q_current)
         q = pybullet.calculateInverseKinematics(
             self.right_arm, self.right_arm_ee_idx_ik, right_pos, right_rot, maxNumIterations=100,
             residualThreshold=0.001, jointDamping=[0.1] * self.n_joints)
@@ -245,8 +257,9 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
     def inverse_kinematics(self, ee2robot):
         q = np.empty(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices))
         left_ee_state, right_ee_state = np.split(ee2robot, (7,))
-        q[:len(self.left_arm_joint_indices)] = self.left_arm_kin.inverse(left_ee_state)
-        q[len(self.left_arm_joint_indices):] = self.right_arm_kin.inverse(right_ee_state)
+        q_current, _ = self.get_joint_state()
+        q[:len(self.left_arm_joint_indices)] = self.left_arm_kin.inverse(left_ee_state, q_current[:len(self.left_arm_joint_indices)])
+        q[len(self.left_arm_joint_indices):] = self.right_arm_kin.inverse(right_ee_state, q_current[len(self.left_arm_joint_indices):])
         if any(np.isnan(q)):
             raise Exception("IK solver found no solution.")
         return q
@@ -312,11 +325,14 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
         else:
             return np.hstack((left_pose, right_pose))
 
-    def set_desired_ee_state(self, ee_state):
+    def set_desired_ee_state(self, ee_state, position_control=False):
         q = self.inverse_kinematics(ee_state)
-        last_q, last_qd = self.get_joint_state()
-        self.set_desired_joint_state(
-            (q - last_q) / self.dt, position_control=False)
+        if position_control:
+            self.set_desired_joint_state(q, position_control=True)
+        else:
+            last_q, _ = self.get_joint_state()
+            self.set_desired_joint_state(
+                (q - last_q) / self.dt, position_control=False)
 
     def step(self):
         pybullet.stepSimulation()
@@ -330,10 +346,13 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 pybullet.stepSimulation()
 
     def stop(self):
-        pybullet.setJointMotorControlArray(
-            self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
-            pybullet.VELOCITY_CONTROL,
-            targetVelocities=np.zeros(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices)))
+        #pybullet.setJointMotorControlArray(
+        #    self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
+        #    pybullet.VELOCITY_CONTROL,
+        #    targetVelocities=np.zeros(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices)))
+        x = self.get_ee_state()
+        q = self.inverse_kinematics(x)
+        self.set_desired_joint_state(q, position_control=True)
         self.step()
 
     def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
