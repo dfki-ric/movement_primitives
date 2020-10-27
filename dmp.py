@@ -493,7 +493,7 @@ class CouplingTerm:
         return np.array([C12, C21]), np.array([C12dot, C21dot])
 
 
-class CouplingTermCartesianPosition:
+class CouplingTermCartesianPosition:  # for DMP
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -515,7 +515,7 @@ class CouplingTermCartesianPosition:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
-class CouplingTermCartesianDistance:
+class CouplingTermCartesianDistance:  # for DMP
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -535,7 +535,7 @@ class CouplingTermCartesianDistance:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
-class CouplingTermDualCartesianDistance:
+class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -552,7 +552,6 @@ class CouplingTermDualCartesianDistance:
         C21 = self.c1 * F21 * self.lf[1]
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
-        #return np.zeros(12), np.zeros(12)
         return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
 
 
