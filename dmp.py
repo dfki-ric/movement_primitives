@@ -141,8 +141,8 @@ class DMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term,
-            coupling_term,
-            self.int_dt,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt,
             k_tracking_error=self.k_tracking_error,
             tracking_error=tracking_error)
         return np.copy(self.current_y), np.copy(self.current_yd)
@@ -231,8 +231,8 @@ class CartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
-            coupling_term,
-            self.int_dt)
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
         current_y[3:], current_yd[3:] = dmp_step_quaternion(
             self.last_t, self.t,
             last_y[3:], last_yd[3:],
@@ -241,8 +241,8 @@ class CartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,
-            coupling_term,
-            self.int_dt)
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
         return current_y, current_yd
 
     def open_loop(self, run_t=None, coupling_term=None):
