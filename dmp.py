@@ -349,7 +349,16 @@ class DualCartesianDMP:
             self.current_yd = np.copy(self.start_yd)
             self.initialized = True
 
-        tracking_error_pos_1 = self.current_y[:3] - last_y[:3]
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(last_y)
+        else:
+            cd, cdd = np.zeros_like(last_y), np.zeros_like(last_yd)
+        ct_pos_left = cd[:3], cdd[:3]
+        ct_rot_left = cd[3:6], cdd[3:6]
+        ct_pos_right = cd[6:9], cdd[6:9]
+        ct_rot_right = cd[9:], cdd[9:]
+
+        tracking_error_pos_left = self.current_y[:3] - last_y[:3]
         self.current_y[:3], self.current_yd[:3] = dmp_step(
             self.last_t, self.t,
             last_y[:3], last_yd[:3],
@@ -358,9 +367,9 @@ class DualCartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_pos_left,
-            coupling_term,
-            self.int_dt,
-            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_1)
+            coupling_term_precomputed=ct_pos_left,
+            int_dt=self.int_dt,
+            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_left)
         self.current_y[3:7], self.current_yd[3:6] = dmp_step_quaternion(
             self.last_t, self.t,
             last_y[3:7], last_yd[3:6],
@@ -369,10 +378,10 @@ class DualCartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_rot_left,
-            coupling_term,
-            self.int_dt)
+            coupling_term_precomputed=ct_rot_left,
+            int_dt=self.int_dt)
 
-        tracking_error_pos_2 = self.current_y[7:10] - last_y[7:10]
+        tracking_error_pos_right = self.current_y[7:10] - last_y[7:10]
         self.current_y[7:10], self.current_yd[6:9] = dmp_step(
             self.last_t, self.t,
             last_y[7:10], last_yd[6:9],
@@ -381,9 +390,9 @@ class DualCartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_pos_right,
-            coupling_term,
-            self.int_dt,
-            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_2)
+            coupling_term_precomputed=ct_pos_right,
+            int_dt=self.int_dt,
+            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_right)
         self.current_y[10:], self.current_yd[9:] = dmp_step_quaternion(
             self.last_t, self.t,
             last_y[10:], last_yd[9:],
@@ -392,8 +401,8 @@ class DualCartesianDMP:
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_rot_right,
-            coupling_term,
-            self.int_dt)
+            coupling_term_precomputed=ct_rot_right,
+            int_dt=self.int_dt)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
@@ -515,9 +524,9 @@ class CouplingTermCartesianDistance:
         self.c2 = c2
 
     def coupling(self, y):
-        da = y[:3] - y[3:6]
-        desired_distance = np.abs(self.desired_distance) * da / np.linalg.norm(da)
-        F12 = self.k * (desired_distance - da)
+        actual_distance = y[:3] - y[3:6]
+        desired_distance = np.abs(self.desired_distance) * actual_distance / np.linalg.norm(actual_distance)
+        F12 = self.k * (desired_distance - actual_distance)
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
         C21 = self.c1 * F21 * self.lf[1]
@@ -526,11 +535,32 @@ class CouplingTermCartesianDistance:
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
+class CouplingTermDualCartesianDistance:
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y):
+        actual_distance = y[:3] - y[7:10]
+        desired_distance = np.abs(self.desired_distance) * actual_distance / np.linalg.norm(actual_distance)
+        F12 = self.k * (desired_distance - actual_distance)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
+        C12dot = F12 * self.c2 * self.lf[0]
+        C21dot = F21 * self.c2 * self.lf[1]
+        #return np.zeros(12), np.zeros(12)
+        return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
+
+
 class CouplingTermCartesianPose:  # TODO implement
     pass
 
 
-def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
+def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -553,6 +583,9 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
             cd, cdd = coupling_term.coupling(y)
         else:
             cd, cdd = np.zeros_like(y), np.zeros_like(y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
 
         f = forcing_term(current_t).squeeze()
 
@@ -581,6 +614,7 @@ def dmp_step_quaternion(
         goal_t, start_t, alpha_y, beta_y,
         forcing_term,
         coupling_term=None,
+        coupling_term_precomputed=None,
         int_dt=0.001):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -604,6 +638,9 @@ def dmp_step_quaternion(
             cd, cdd = coupling_term.coupling(y)
         else:
             cd, cdd = np.zeros(3), np.zeros(3)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
 
         f = forcing_term(current_t).squeeze()
 
