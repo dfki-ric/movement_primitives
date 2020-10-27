@@ -9,7 +9,7 @@ execution_time = 1.0
 
 dmp = DualCartesianDMP(
     execution_time=execution_time, dt=dt,
-    n_weights_per_dim=10, int_dt=0.001)
+    n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
 
 Y = np.zeros((1001, 14))
@@ -31,3 +31,21 @@ while True:
     rh5.sim_loop(1000)
     desired_positions, positions, desired_velocities, velocities = \
         rh5.step_through_cartesian(dmp, Y[0], np.zeros(12), execution_time)
+    import matplotlib.pyplot as plt
+    P = np.asarray(positions)
+    dP = np.asarray(desired_positions)
+    V = np.asarray(velocities)
+    dV = np.asarray(desired_velocities)
+
+    plot_dim = 0
+    plt.plot(T, Y[:, plot_dim], label="Demo")
+    plt.scatter([[0, T[-1]]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
+    plt.plot(np.linspace(0, execution_time, len(P)), P[:, plot_dim], label="Actual")
+    plt.scatter([[0, execution_time]], [[P[0, plot_dim], P[-1, plot_dim]]])
+    plt.plot(np.linspace(0, execution_time, len(dP)), dP[:, plot_dim], label="Desired")
+    plt.scatter([[0, execution_time]], [[dP[0, plot_dim], dP[-1, plot_dim]]])
+    T, Y = dmp.open_loop(run_t=2.0)
+    plt.plot(T, Y[:, plot_dim], label="Open loop")
+    plt.scatter([[0, T[-1]]], [[Y[0, plot_dim], Y[-1, plot_dim]]])
+    plt.legend()
+    plt.show()

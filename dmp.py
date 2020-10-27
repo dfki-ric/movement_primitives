@@ -164,6 +164,7 @@ class DMP:
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
+
 class CartesianDMP:
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001):
@@ -280,12 +281,13 @@ class CartesianDMP:
 
 class DualCartesianDMP:
     def __init__(self, execution_time, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001):
+                 n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
         self.n_dims = 14
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
+        self.k_tracking_error = k_tracking_error
         alpha_z = canonical_system_alpha(
             0.01, self.execution_time, 0.0, self.int_dt)
         self.forcing_term_pos_left = ForcingTerm(
@@ -312,6 +314,9 @@ class DualCartesianDMP:
         self.goal_y = np.zeros(self.n_dims)
         self.goal_yd = np.zeros(12)
         self.goal_ydd = np.zeros(12)
+        self.initialized = False
+        self.current_y = np.zeros(self.n_dims)
+        self.current_yd = np.zeros(12)
         self.configure()
 
     def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
@@ -339,10 +344,13 @@ class DualCartesianDMP:
         self.last_t = self.t
         self.t += self.dt
 
-        current_y = np.empty(self.n_dims)
-        current_yd = np.empty(12)
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
 
-        current_y[:3], current_yd[:3] = dmp_step(
+        tracking_error_pos_1 = self.current_y[:3] - last_y[:3]
+        self.current_y[:3], self.current_yd[:3] = dmp_step(
             self.last_t, self.t,
             last_y[:3], last_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
@@ -351,8 +359,9 @@ class DualCartesianDMP:
             self.alpha_y, self.beta_y,
             self.forcing_term_pos_left,
             coupling_term,
-            self.int_dt)
-        current_y[3:7], current_yd[3:6] = dmp_step_quaternion(
+            self.int_dt,
+            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_1)
+        self.current_y[3:7], self.current_yd[3:6] = dmp_step_quaternion(
             self.last_t, self.t,
             last_y[3:7], last_yd[3:6],
             self.goal_y[3:7], self.goal_yd[3:6], self.goal_ydd[3:6],
@@ -363,7 +372,8 @@ class DualCartesianDMP:
             coupling_term,
             self.int_dt)
 
-        current_y[7:10], current_yd[6:9] = dmp_step(
+        tracking_error_pos_2 = self.current_y[7:10] - last_y[7:10]
+        self.current_y[7:10], self.current_yd[6:9] = dmp_step(
             self.last_t, self.t,
             last_y[7:10], last_yd[6:9],
             self.goal_y[7:10], self.goal_yd[6:9], self.goal_ydd[6:9],
@@ -372,8 +382,9 @@ class DualCartesianDMP:
             self.alpha_y, self.beta_y,
             self.forcing_term_pos_right,
             coupling_term,
-            self.int_dt)
-        current_y[10:], current_yd[9:] = dmp_step_quaternion(
+            self.int_dt,
+            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_2)
+        self.current_y[10:], self.current_yd[9:] = dmp_step_quaternion(
             self.last_t, self.t,
             last_y[10:], last_yd[9:],
             self.goal_y[10:], self.goal_yd[9:], self.goal_ydd[9:],
@@ -383,7 +394,7 @@ class DualCartesianDMP:
             self.forcing_term_rot_right,
             coupling_term,
             self.int_dt)
-        return current_y, current_yd
+        return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
         T, Yp_left = dmp_open_loop(
@@ -397,7 +408,7 @@ class DualCartesianDMP:
                 self.execution_time, 0.0, self.dt,
                 self.start_y[3:7], self.goal_y[3:7],
                 self.alpha_y, self.beta_y,
-                self.forcing_term_rot,
+                self.forcing_term_rot_left,
                 coupling_term,
                 run_t, self.int_dt)
         _, Yp_right = dmp_open_loop(
