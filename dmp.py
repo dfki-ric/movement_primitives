@@ -555,8 +555,30 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
         return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
 
 
-class CouplingTermCartesianPose:  # TODO implement
-    pass
+class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y):
+        q1 = y[3:7]
+        q2 = y[10:]
+        actual_distance = pr.quaternion_log(pr.concatenate_quaternions(q1, pr.q_conj(q2)))
+        actual_distance_norm = np.linalg.norm(actual_distance)
+        if actual_distance_norm < np.finfo("float").eps:
+            desired_distance = np.abs(self.desired_distance) * np.array([0.0, 0.0, 1.0])
+        else:
+            desired_distance = np.abs(self.desired_distance) * actual_distance / actual_distance_norm
+        F12 = self.k * (desired_distance - actual_distance)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
+        C12dot = F12 * self.c2 * self.lf[0]
+        C21dot = F21 * self.c2 * self.lf[1]
+        return np.hstack([np.zeros(3), C12, np.zeros(3), C21]), np.hstack([np.zeros(3), C12dot, np.zeros(3), C21dot])
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
