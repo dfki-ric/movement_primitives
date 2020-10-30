@@ -6,9 +6,6 @@ from simulation import RH5Simulation
 dt = 0.001
 execution_time = 1.0
 
-dmp = DualCartesianDMP(
-    execution_time=execution_time, dt=dt,
-    n_weights_per_dim=10, int_dt=0.0001, k_tracking_error=0.0)
 #ct = CouplingTermDualCartesianDistance(desired_distance=0.9, lf=(1.0, 0.0), k=1.0, c1=0.0, c2=1000)
 #ct = CouplingTermDualCartesianOrientation(desired_distance=np.deg2rad(25), lf=(1.0, 0.0), k=0.1)
 desired_distance = np.array([  # right arm to left arm
@@ -18,6 +15,7 @@ desired_distance = np.array([  # right arm to left arm
     [0.0, 0.0, 0.0, 1.0]
 ])
 ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000)
+
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
 
 Y = np.zeros((1001, 14))
@@ -31,10 +29,19 @@ Y[:, 7] = 0.5 + 0.15 * (sigmoid - 0.5)
 Y[:, 8] = 0.55# + 0.15 * (sigmoid - 0.5) - 0.05
 Y[:, 9] = 0.25 - 0.05 - 0.1 * (sigmoid - 0.5)
 Y[:, 10] = 1.0
-dmp.imitate(T, Y)
-dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
-for coupling_term in [ct, None]:  # TODO reset DMP properly
+
+for coupling_term in [ct, None]:
+    # TODO reset DMP properly
+    dmp = DualCartesianDMP(
+        execution_time=execution_time, dt=dt,
+        n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
+    dmp.imitate(T, Y)
+    dmp.configure(start_y=Y[0], goal_y=Y[-1])
+
+    #import time
+    #if coupling_term is not None:
+    #    time.sleep(20)
     rh5.goto_ee_state(Y[0])
     desired_positions, positions, desired_velocities, velocities = \
         rh5.step_through_cartesian(dmp, Y[0], np.zeros(12), execution_time, coupling_term=coupling_term)

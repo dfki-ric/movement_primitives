@@ -591,6 +591,8 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         self.c2 = c2
 
     def coupling(self, y, yd=None):
+        damping = 2.0 * np.sqrt(self.k * self.c2)
+
         left2base = pt.transform_from_pq(y[:7])
         vel_left = yd[:7]
         right2base = pt.transform_from_pq(y[7:])
@@ -599,12 +601,15 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         base2left = pt.invert_transform(left2base)
         right2left = pt.concat(right2base, base2left)
         right2left_pq = pt.pq_from_transform(right2left)
+
         actual_distance_pos = right2left_pq[:3]
+        actual_distance_rot = right2left_pq[3:]
 
-        #actual_distance_angular = pr.compact_axis_angle_from_quaternion(right2left_pq[3:])  # TODO orientation
         desired_distance = pt.pq_from_transform(self.desired_distance)
+        desired_distance_pos = desired_distance[:3]
+        desired_distance_rot = desired_distance[3:]
 
-        error_pos = desired_distance[:3] - actual_distance_pos
+        error_pos = desired_distance_pos - actual_distance_pos
         # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
         error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]
         F12_pos = -self.k * error_pos2base
@@ -613,10 +618,23 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         C12_pos = self.lf[0] * self.c1 * F12_pos
         C21_pos = self.lf[1] * self.c1 * F21_pos
 
-        damping = 2.0 * np.sqrt(self.k * self.c2)
         C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
         C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
-        return (np.hstack([C12_pos, np.zeros(3), C21_pos, np.zeros(3)]),
+
+        # TODO orientation
+        error_rot = pr.compact_axis_angle_from_quaternion(
+            pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
+        error_rot2base = np.zeros(3)  # TODO convert rotational error to base frame, it is currently expressed in left frame
+        F12_rot = -self.k * error_rot2base
+        F21_rot = self.k * error_rot2base
+
+        C12_rot = self.lf[0] * self.c1 * F12_rot
+        C21_rot = self.lf[1] * self.c1 * F21_rot
+
+        # TODO subtract current velocity
+        #C12dot_rot = self.lf[0] * (self.c2 * F12_rot - damping * vel_left[:3])
+        #C21dot_rot = self.lf[1] * (self.c2 * F21_rot - damping * vel_right[:3])
+        return (np.hstack([C12_pos, C12_rot, C21_pos, C21_rot]),
                 np.hstack([C12dot_pos, np.zeros(3), C21dot_pos, np.zeros(3)]))
 
 
