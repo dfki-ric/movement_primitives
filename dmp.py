@@ -1,5 +1,6 @@
 import numpy as np
 from pytransform3d import rotations as pr
+from pytransform3d import transformations as pt
 
 
 def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
@@ -350,9 +351,9 @@ class DualCartesianDMP:
             self.initialized = True
 
         if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(last_y)
+            cd, cdd = coupling_term.coupling(last_y, last_yd)
         else:
-            cd, cdd = np.zeros_like(last_y), np.zeros_like(last_yd)
+            cd, cdd = np.zeros(12), np.zeros(12)
         ct_pos_left = cd[:3], cdd[:3]
         ct_rot_left = cd[3:6], cdd[3:6]
         ct_pos_right = cd[6:9], cdd[6:9]
@@ -434,7 +435,6 @@ class DualCartesianDMP:
                 self.forcing_term_rot_right,
                 coupling_term,
                 run_t, self.int_dt)
-        # TODO open loop orientation dmp
         return (T, np.hstack((Yp_left, Yr_left, Yp_right, Yr_right)))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -482,7 +482,7 @@ class CouplingTerm:
         self.c1 = c1
         self.c2 = c2
 
-    def coupling(self, y):
+    def coupling(self, y, yd=None):
         da = y[1] - y[0]
         F12 = self.k * (self.desired_distance - da)
         F21 = -F12
@@ -501,7 +501,7 @@ class CouplingTermCartesianPosition:  # for DMP
         self.c1 = c1
         self.c2 = c2
 
-    def coupling(self, y):
+    def coupling(self, y, yd=None):
         da = y[:3] - y[3:6]
         # Why do we take -self.desired_distance here? Because this allows us
         # to regard the desired distance as the displacement of DMP1 with
@@ -523,7 +523,7 @@ class CouplingTermCartesianDistance:  # for DMP
         self.c1 = c1
         self.c2 = c2
 
-    def coupling(self, y):
+    def coupling(self, y, yd=None):
         actual_distance = y[:3] - y[3:6]
         desired_distance = np.abs(self.desired_distance) * actual_distance / np.linalg.norm(actual_distance)
         F12 = self.k * (desired_distance - actual_distance)
@@ -543,7 +543,7 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
         self.c1 = c1
         self.c2 = c2
 
-    def coupling(self, y):
+    def coupling(self, y, yd=None):
         actual_distance = y[:3] - y[7:10]
         desired_distance = np.abs(self.desired_distance) * actual_distance / np.linalg.norm(actual_distance)
         F12 = self.k * (desired_distance - actual_distance)
@@ -552,6 +552,7 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
         C21 = self.c1 * F21 * self.lf[1]
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
+        #return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
         return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
 
 
@@ -563,10 +564,10 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
         self.c1 = c1
         self.c2 = c2
 
-    def coupling(self, y):
+    def coupling(self, y, yd=None):
         q1 = y[3:7]
         q2 = y[10:]
-        actual_distance = pr.quaternion_log(pr.concatenate_quaternions(q1, pr.q_conj(q2)))
+        actual_distance = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(q1, pr.q_conj(q2)))
         actual_distance_norm = np.linalg.norm(actual_distance)
         if actual_distance_norm < np.finfo("float").eps:
             desired_distance = np.abs(self.desired_distance) * np.array([0.0, 0.0, 1.0])
@@ -579,6 +580,60 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
         return np.hstack([np.zeros(3), C12, np.zeros(3), C21]), np.hstack([np.zeros(3), C12dot, np.zeros(3), C21dot])
+
+
+class CouplingTermDualCartesianPose:  # for DualCartesianDMP
+    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y, yd=None):
+        left2base = pt.transform_from_pq(y[:7])
+        vel_left = yd[:7]
+        right2base = pt.transform_from_pq(y[7:])
+        vel_right = yd[7:]
+
+        base2left = pt.invert_transform(left2base)
+        right2left = pt.concat(right2base, base2left)
+        right2left_pq = pt.pq_from_transform(right2left)
+        actual_distance_pos = right2left_pq[:3]
+
+        #base2right = pt.invert_transform(right2base)
+        #left2right = pt.concat(left2base, base2right)
+        #left2right_pq = pt.pq_from_transform(left2right)
+        #actual_distance_pos = left2right_pq[:3]
+
+        #print("====")
+        #print(left2base)
+        #print(right2base)
+        #print(right2left)
+        #print(left2right)
+
+        #actual_distance_angular = pr.compact_axis_angle_from_quaternion(right2left_pq[3:])  # TODO orientation
+        desired_distance = pt.pq_from_transform(self.desired_distance)
+
+        error_pos = desired_distance[:3] - actual_distance_pos
+        # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
+        error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]
+        #error_pos2base = pt.transform(right2base, np.hstack((error_pos, 0)))[:3]
+        F12_pos = -self.k * error_pos2base
+        F21_pos = self.k * error_pos2base
+
+        C12_pos = self.lf[0] * self.c1 * F12_pos
+        C21_pos = self.lf[1] * self.c1 * F21_pos
+
+        damping = 2.0 * np.sqrt(self.k * self.c2)
+        C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
+        C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
+        #print("===")
+        #print(desired_distance[:3])
+        #print(actual_distance_pos)
+        #print(error_pos)
+        #exit()
+        return np.hstack([C12_pos, np.zeros(3), C21_pos, np.zeros(3)]), np.hstack([C12dot_pos, np.zeros(3), C21dot_pos, np.zeros(3)])
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
@@ -601,7 +656,7 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
         current_t += dt
 
         if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(y)
+            cd, cdd = coupling_term.coupling(y, yd)
         else:
             cd, cdd = np.zeros_like(y), np.zeros_like(y)
         if coupling_term_precomputed is not None:
@@ -621,7 +676,7 @@ def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, sta
         yd += dt * ydd + cd / execution_time
         """
         coupling_sum = cdd + k_tracking_error * tracking_error / dt
-        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
+        ydd = (alpha_y * (beta_y * (goal_y - y) + execution_time * goal_yd - execution_time * yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
         yd += dt * ydd + cd / execution_time
         y += dt * yd
     return y, yd
@@ -656,7 +711,7 @@ def dmp_step_quaternion(
         current_t += dt
 
         if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(y)
+            cd, cdd = coupling_term.coupling(y, yd)
         else:
             cd, cdd = np.zeros(3), np.zeros(3)
         if coupling_term_precomputed is not None:
@@ -665,9 +720,9 @@ def dmp_step_quaternion(
 
         f = forcing_term(current_t).squeeze()
 
-        ydd = (alpha_y * (beta_y * pr.quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(last_y))) - execution_time * last_yd) + f + cdd) / execution_time ** 2
+        ydd = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y))) - execution_time * yd) + f + cdd) / execution_time ** 2
         yd += dt * ydd + cd / execution_time
-        y = pr.concatenate_quaternions(pr.angular_velocity_exp(dt * yd), y)
+        y = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd), y)
     return y, yd
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L754
 
@@ -736,7 +791,7 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     goal_y = Y[-1]
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
-        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * pr.quaternion_log(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
     return F
 
 

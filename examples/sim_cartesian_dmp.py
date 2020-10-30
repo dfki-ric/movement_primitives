@@ -8,7 +8,7 @@ dt = 0.001
 execution_time = 1.0
 
 dmp = DMP(n_dims=7, execution_time=execution_time, dt=dt,
-          n_weights_per_dim=10, int_dt=0.001, k_tracking_error=25.0)
+          n_weights_per_dim=10, int_dt=0.0001, k_tracking_error=2.5)
 Y = np.zeros((1001, 7))
 T = np.linspace(0, 1, len(Y))
 sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
