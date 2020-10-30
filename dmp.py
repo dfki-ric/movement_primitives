@@ -601,24 +601,12 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         right2left_pq = pt.pq_from_transform(right2left)
         actual_distance_pos = right2left_pq[:3]
 
-        #base2right = pt.invert_transform(right2base)
-        #left2right = pt.concat(left2base, base2right)
-        #left2right_pq = pt.pq_from_transform(left2right)
-        #actual_distance_pos = left2right_pq[:3]
-
-        #print("====")
-        #print(left2base)
-        #print(right2base)
-        #print(right2left)
-        #print(left2right)
-
         #actual_distance_angular = pr.compact_axis_angle_from_quaternion(right2left_pq[3:])  # TODO orientation
         desired_distance = pt.pq_from_transform(self.desired_distance)
 
         error_pos = desired_distance[:3] - actual_distance_pos
         # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
         error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]
-        #error_pos2base = pt.transform(right2base, np.hstack((error_pos, 0)))[:3]
         F12_pos = -self.k * error_pos2base
         F21_pos = self.k * error_pos2base
 
@@ -628,12 +616,8 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         damping = 2.0 * np.sqrt(self.k * self.c2)
         C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
         C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
-        #print("===")
-        #print(desired_distance[:3])
-        #print(actual_distance_pos)
-        #print(error_pos)
-        #exit()
-        return np.hstack([C12_pos, np.zeros(3), C21_pos, np.zeros(3)]), np.hstack([C12dot_pos, np.zeros(3), C21dot_pos, np.zeros(3)])
+        return (np.hstack([C12_pos, np.zeros(3), C21_pos, np.zeros(3)]),
+                np.hstack([C12dot_pos, np.zeros(3), C21dot_pos, np.zeros(3)]))
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
