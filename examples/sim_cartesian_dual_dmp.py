@@ -15,7 +15,7 @@ desired_distance = np.array([  # right arm to left arm
     [0.0, 0.0, 1.0, 0.0],
     [0.0, 0.0, 0.0, 1.0]
 ])
-desired_distance[:3, :3] = pr.matrix_from_compact_axis_angle([np.deg2rad(-5), 0, 0])
+desired_distance[:3, :3] = pr.matrix_from_compact_axis_angle([np.deg2rad(-1), 0, 0])
 ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000)
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)

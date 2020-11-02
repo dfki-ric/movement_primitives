@@ -594,9 +594,9 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         damping = 2.0 * np.sqrt(self.k * self.c2)
 
         left2base = pt.transform_from_pq(y[:7])
-        vel_left = yd[:7]
+        vel_left = yd[:6]
         right2base = pt.transform_from_pq(y[7:])
-        vel_right = yd[7:]
+        vel_right = yd[6:]
 
         base2left = pt.invert_transform(left2base)
         right2left = pt.concat(right2base, base2left)
@@ -632,10 +632,14 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         C21_rot = self.lf[1] * self.c1 * F21_rot
 
         # TODO subtract current velocity
-        #C12dot_rot = self.lf[0] * (self.c2 * F12_rot - damping * vel_left[:3])
-        #C21dot_rot = self.lf[1] * (self.c2 * F21_rot - damping * vel_right[:3])
+        #ydd = (alpha_y * (beta_y *
+        #    pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y)))
+        #        - execution_time * yd)
+        #    + f + cdd) / execution_time ** 2
+        C12dot_rot = np.zeros(3)#self.lf[0] * (self.c2 * F12_rot - damping * vel_left[3:])
+        C21dot_rot = np.zeros(3)#self.lf[1] * (self.c2 * F21_rot - damping * vel_right[3:])
         return (np.hstack([C12_pos, C12_rot, C21_pos, C21_rot]),
-                np.hstack([C12dot_pos, np.zeros(3), C21dot_pos, np.zeros(3)]))
+                np.hstack([C12dot_pos, C12dot_rot, C21dot_pos, C21dot_rot]))
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
