@@ -621,10 +621,10 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
         C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
 
-        # TODO orientation
-        error_rot = pr.compact_axis_angle_from_quaternion(
+        R_error2left = pr.matrix_from_quaternion(
             pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
-        error_rot2base = np.zeros(3)  # TODO convert rotational error to base frame, it is currently expressed in left frame
+        R_error2base = pt.transform(left2base, pt.transform_from(R=R_error2left, p=np.zeros(3)))
+        error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
         F12_rot = -self.k * error_rot2base
         F21_rot = self.k * error_rot2base
 
