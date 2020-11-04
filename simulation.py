@@ -399,3 +399,35 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
     def write(self, pos, text):
         pybullet.addUserDebugText(text, pos, [0, 0, 0])
         pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
+
+
+class SimulationMockup:  # runs steppables open loop
+    def __init__(self, dt):
+        self.dt = dt
+        self.ee_state = None
+
+    def goto_ee_state(self, ee_state):
+        self.ee_state = np.copy(ee_state)
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, coupling_term=None):
+        desired_positions = [np.copy(last_p)]
+        positions = [np.copy(last_p)]
+        desired_velocities = [np.copy(last_v)]
+        velocities = [np.copy(last_v)]
+
+        for i in range(int(execution_time / self.dt)):
+            p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            positions.append(p)
+            velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
