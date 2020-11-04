@@ -20,12 +20,14 @@ cp rh5_left_arm.urdf abstract-urdf-gripper/urdf/
 cp rh5_right_arm.urdf abstract-urdf-gripper/urdf/
 cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
+# optional:
 # install hyrodyn: https://git.hb.dfki.de/skumar/hyrodyn/
 ```
 
 # Environment
 
 ```bash
-export PYTHONPATH=.:hyrodyn_dev/install/lib/python3.7/site-packages/hyrodyn-0.0.0-py3.7-linux-x86_64.egg:$PYTHONPATH
-source hyrodyn_dev
+# optional:
+export PYTHONPATH=.:hyrodyn_dev/install/lib/python3.7/site-packages/hyrodyn-0.0.0-py3.7-linux-x86_64.egg:$PYTHONPATH  # HACK
+source hyrodyn_dev/env.sh
 ```
