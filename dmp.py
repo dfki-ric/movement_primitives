@@ -609,6 +609,17 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         desired_distance_pos = desired_distance[:3]
         desired_distance_rot = desired_distance[3:]
 
+        """TODO figure out what causes this deviation
+        import matplotlib.pyplot as plt
+        if not hasattr(self, "counter"):
+            self.counter = 0
+        if self.counter % 100 == 0:
+            ax = pt.plot_transform(A2B=self.desired_distance, s=0.1)
+            pt.plot_transform(ax=ax, A2B=right2left, s=0.1, lw=3, alpha=0.3)
+            plt.show()
+        self.counter += 1
+        """
+
         error_pos = desired_distance_pos - actual_distance_pos
         # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
         error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]

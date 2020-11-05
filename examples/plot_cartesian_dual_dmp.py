@@ -64,7 +64,7 @@ tm.add_transform("ARWristPitch_Link", "base", np.eye(4))
 #assert tm.check_consistency()
 
 
-for coupling_term in [None]:#[ct, None]:
+for coupling_term in [ct]:#[ct, None]:
     # TODO reset DMP properly
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
