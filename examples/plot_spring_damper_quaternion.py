@@ -8,7 +8,7 @@ from spring_damper import SpringDamperOrientation
 dt = 0.01
 execution_time = 5.0
 
-sd = SpringDamperOrientation(k=2.0, c=None, dt=dt, int_dt=0.001)
+sd = SpringDamperOrientation(k=4.0, c=2 * np.sqrt(4), dt=dt, int_dt=0.001)
 random_state = np.random.RandomState(42)
 start = pr.random_quaternion(random_state)
 goal = pr.random_quaternion(random_state)

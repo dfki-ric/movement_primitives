@@ -583,9 +583,11 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
-    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
+    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
+        self.couple_position = couple_position
+        self.couple_orientation = couple_orientation
         self.k = k
         self.c1 = c1
         self.c2 = c2
@@ -632,12 +634,25 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
         C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
 
+        if not self.couple_position:
+            C12_pos *= 0
+            C21_pos *= 0
+            C12dot_pos *= 0
+            C21dot_pos *= 0
+
         R_error2left = pr.matrix_from_quaternion(
             pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
+        #print(np.round(desired_distance_rot, 2), np.round(actual_distance_rot, 2))
+        print(np.round(R_error2left, 2))
         R_error2base = pt.transform(left2base, pt.transform_from(R=R_error2left, p=np.zeros(3)))
-        error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
+        #print(np.round(R_error2base, 2))
+        #error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
+        error_rot2base = pr.compact_axis_angle_from_matrix(R_error2left[:3, :3])
         F12_rot = -self.k * error_rot2base
         F21_rot = self.k * error_rot2base
+
+        F12_rot = pt.transform(left2base, np.hstack((F12_rot, 0)))[:3]
+        F21_rot = pt.transform(left2base, np.hstack((F21_rot, 0)))[:3]
 
         C12_rot = self.lf[0] * self.c1 * F12_rot
         C21_rot = self.lf[1] * self.c1 * F21_rot
@@ -647,8 +662,16 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         #    pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y)))
         #        - execution_time * yd)
         #    + f + cdd) / execution_time ** 2
-        C12dot_rot = np.zeros(3)#self.lf[0] * (self.c2 * F12_rot - damping * vel_left[3:])
-        C21dot_rot = np.zeros(3)#self.lf[1] * (self.c2 * F21_rot - damping * vel_right[3:])
+        C12dot_rot = self.lf[0] * (self.c2 * F12_rot - damping * vel_left[3:])
+        C21dot_rot = self.lf[1] * (self.c2 * F21_rot - damping * vel_right[3:])
+        print(np.round(C12dot_rot, 2))
+
+        if not self.couple_orientation:
+            C12_rot *= 0
+            C21_rot *= 0
+            C12dot_rot *= 0
+            C21dot_rot *= 0
+
         return (np.hstack([C12_pos, C12_rot, C21_pos, C21_rot]),
                 np.hstack([C12dot_pos, C12dot_rot, C21dot_pos, C21dot_rot]))
 
