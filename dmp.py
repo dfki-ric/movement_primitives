@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 from pytransform3d import rotations as pr
 from pytransform3d import transformations as pt
 
@@ -573,24 +574,29 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         self.c2 = c2
 
     def coupling(self, y, yd=None):
-        damping = 2.0 * np.sqrt(self.k * self.c2)
+        return self.couple_distance(
+            y, yd, self.k, self.c1, self.c2, self.lf, self.desired_distance,
+            self.couple_position, self.couple_orientation)
 
-        left2base = pt.transform_from_pq(y[:7])
+    def couple_distance(self, y, yd, k, c1, c2, lf, desired_distance, couple_position, couple_orientation):
+        damping = 2.0 * np.sqrt(k * c2)
+
         vel_left = yd[:6]
-        right2base = pt.transform_from_pq(y[7:])
         vel_right = yd[6:]
 
-        base2left = pt.invert_transform(left2base)
-        right2left = pt.concat(right2base, base2left)
-        right2left_pq = pt.pq_from_transform(right2left)
-        print(np.round(right2left, 2))
+        left2base = pt.transform_from_pq(y[:7])
+        right2left_pq = self._right2left_pq(y)
 
         actual_distance_pos = right2left_pq[:3]
         actual_distance_rot = right2left_pq[3:]
 
-        desired_distance = pt.pq_from_transform(self.desired_distance)
+        desired_distance = pt.pq_from_transform(desired_distance)
         desired_distance_pos = desired_distance[:3]
         desired_distance_rot = desired_distance[3:]
+
+        print("==")
+        print(np.round(right2left_pq, 2))
+        print(np.round(desired_distance, 2))
 
         """TODO figure out what causes this deviation
         import matplotlib.pyplot as plt
@@ -606,16 +612,16 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         error_pos = desired_distance_pos - actual_distance_pos
         # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
         error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]
-        F12_pos = -self.k * error_pos2base
-        F21_pos = self.k * error_pos2base
+        F12_pos = -k * error_pos2base
+        F21_pos = k * error_pos2base
 
-        C12_pos = self.lf[0] * self.c1 * F12_pos
-        C21_pos = self.lf[1] * self.c1 * F21_pos
+        C12_pos = lf[0] * c1 * F12_pos
+        C21_pos = lf[1] * c1 * F21_pos
 
-        C12dot_pos = self.lf[0] * (self.c2 * F12_pos - damping * vel_left[:3])
-        C21dot_pos = self.lf[1] * (self.c2 * F21_pos - damping * vel_right[:3])
+        C12dot_pos = lf[0] * (c2 * F12_pos - damping * vel_left[:3])
+        C21dot_pos = lf[1] * (c2 * F21_pos - damping * vel_right[:3])
 
-        if not self.couple_position:
+        if not couple_position:
             C12_pos *= 0
             C21_pos *= 0
             C12dot_pos *= 0
@@ -629,25 +635,25 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         #print(np.round(R_error2base, 2))
         #error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
         error_rot2base = pr.compact_axis_angle_from_matrix(R_error2left[:3, :3])
-        F12_rot = -self.k * error_rot2base
-        F21_rot = self.k * error_rot2base
+        F12_rot = -k * error_rot2base
+        F21_rot = k * error_rot2base
 
         F12_rot = pt.transform(left2base, np.hstack((F12_rot, 0)))[:3]
         F21_rot = pt.transform(left2base, np.hstack((F21_rot, 0)))[:3]
 
-        C12_rot = self.lf[0] * self.c1 * F12_rot
-        C21_rot = self.lf[1] * self.c1 * F21_rot
+        C12_rot = lf[0] * c1 * F12_rot
+        C21_rot = lf[1] * c1 * F21_rot
 
         # TODO subtract current velocity
         #ydd = (alpha_y * (beta_y *
         #    pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y)))
         #        - execution_time * yd)
         #    + f + cdd) / execution_time ** 2
-        C12dot_rot = self.lf[0] * (self.c2 * F12_rot - damping * vel_left[3:])
-        C21dot_rot = self.lf[1] * (self.c2 * F21_rot - damping * vel_right[3:])
+        C12dot_rot = lf[0] * (c2 * F12_rot - damping * vel_left[3:])
+        C21dot_rot = lf[1] * (c2 * F21_rot - damping * vel_right[3:])
         #print(np.round(C12dot_rot, 2))
 
-        if not self.couple_orientation:
+        if not couple_orientation:
             C12_rot *= 0
             C21_rot *= 0
             C12dot_rot *= 0
@@ -655,6 +661,46 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
 
         return (np.hstack([C12_pos, C12_rot, C21_pos, C21_rot]),
                 np.hstack([C12dot_pos, C12dot_rot, C21dot_pos, C21dot_rot]))
+    
+    def _right2left_pq(self, y):
+        left2base = pt.transform_from_pq(y[:7])
+        right2base = pt.transform_from_pq(y[7:])
+        base2left = pt.invert_transform(left2base)
+        right2left = pt.concat(right2base, base2left)
+        right2left_pq = pt.pq_from_transform(right2left)
+        return right2left_pq
+
+
+class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for DualCartesianDMP
+    def __init__(self, offset, lf, dt, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0):
+        self.offset = offset
+        self.lf = lf
+        self.dt = dt
+        self.couple_position = couple_position
+        self.couple_orientation = couple_orientation
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def imitate(self, T, Y):
+        distance = np.empty((len(Y), 7))
+        for t in range(len(Y)):
+            distance[t] = self._right2left_pq(Y[t])
+        self.desired_distance_per_dimension = [
+            interp1d(T, distance[:, d])
+            for d in range(distance.shape[1])
+        ]
+        self.t = 0.0
+
+    def coupling(self, y, yd=None):
+        desired_distance = np.empty(len(self.desired_distance_per_dimension))
+        for d in range(len(desired_distance)):
+            desired_distance[d] = self.desired_distance_per_dimension[d](self.t)
+        desired_distance += self.offset
+        self.t += self.dt
+        return self.couple_distance(
+            y, yd, self.k, self.c1, self.c2, self.lf, pt.transform_from_pq(desired_distance),
+            self.couple_position, self.couple_orientation)
 
 
 def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
