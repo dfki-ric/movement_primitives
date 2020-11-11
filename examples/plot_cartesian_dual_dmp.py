@@ -14,11 +14,11 @@ execution_time = 1.0
 desired_distance = np.array([  # right arm to left arm
     [1.0, 0.0, 0.0, 0.0],
     [0.0, 1.0, 0.0, 0.0],
-    [0.0, 0.0, 1.0, -1.3],
+    [0.0, 0.0, 1.0, -1.2],
     [0.0, 0.0, 0.0, 1.0]
 ])
 desired_distance[:3, :3] = pr.matrix_from_compact_axis_angle([np.deg2rad(180), 0, 0])
-ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=100)  # c2=10000 in simulation
+ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=False, lf=(1.0, 0.0), k=1, c1=0.1, c2=100)  # c2=10000 in simulation
 
 rh5 = SimulationMockup(dt=dt)
 
@@ -35,7 +35,7 @@ Y[:, 2] = circle2
 R_three_fingers_front = pr.matrix_from_axis_angle([0, 0, 1, 0.5 * np.pi])
 R_to_center_start = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(0)])
 # introduces coupling error (default goal: -90; error at: -110)
-R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-120)])
+R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-110)])
 q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
 q_end = -pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
 for i, t in enumerate(T):

@@ -407,35 +407,15 @@ class DualCartesianDMP:
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
-        T, Yp_left = dmp_open_loop(
-                self.execution_time, 0.0, self.dt,
-                self.start_y[:3], self.goal_y[:3],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_pos_left,
-                coupling_term,
-                run_t, self.int_dt)
-        _, Yr_left = dmp_open_loop_quaternion(
-                self.execution_time, 0.0, self.dt,
-                self.start_y[3:7], self.goal_y[3:7],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_rot_left,
-                coupling_term,
-                run_t, self.int_dt)
-        _, Yp_right = dmp_open_loop(
-                self.execution_time, 0.0, self.dt,
-                self.start_y[7:10], self.goal_y[7:10],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_pos_right,
-                coupling_term,
-                run_t, self.int_dt)
-        _, Yr_right = dmp_open_loop_quaternion(
-                self.execution_time, 0.0, self.dt,
-                self.start_y[10:], self.goal_y[10:],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_rot_right,
-                coupling_term,
-                run_t, self.int_dt)
-        return (T, np.hstack((Yp_left, Yr_left, Yp_right, Yr_right)))
+        T = [0.0]
+        Y = [np.copy(self.start_y)]
+        y = np.copy(self.start_y)
+        yd = np.copy(self.start_yd)
+        while self.t < run_t:
+            y, yd = self.step(y, yd, coupling_term)
+            T.append(self.t)
+            Y.append(np.copy(self.current_y))
+        return np.array(T), np.vstack(Y)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
@@ -603,6 +583,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         base2left = pt.invert_transform(left2base)
         right2left = pt.concat(right2base, base2left)
         right2left_pq = pt.pq_from_transform(right2left)
+        print(np.round(right2left, 2))
 
         actual_distance_pos = right2left_pq[:3]
         actual_distance_rot = right2left_pq[3:]
@@ -643,7 +624,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         R_error2left = pr.matrix_from_quaternion(
             pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
         #print(np.round(desired_distance_rot, 2), np.round(actual_distance_rot, 2))
-        print(np.round(R_error2left, 2))
+        #print(np.round(R_error2left, 2))
         R_error2base = pt.transform(left2base, pt.transform_from(R=R_error2left, p=np.zeros(3)))
         #print(np.round(R_error2base, 2))
         #error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
@@ -664,7 +645,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         #    + f + cdd) / execution_time ** 2
         C12dot_rot = self.lf[0] * (self.c2 * F12_rot - damping * vel_left[3:])
         C21dot_rot = self.lf[1] * (self.c2 * F21_rot - damping * vel_right[3:])
-        print(np.round(C12dot_rot, 2))
+        #print(np.round(C12dot_rot, 2))
 
         if not self.couple_orientation:
             C12_rot *= 0
