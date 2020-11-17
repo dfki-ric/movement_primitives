@@ -171,7 +171,6 @@ def spring_damper_step_quaternion(last_t, t, last_y, last_yd, goal_y, k=1.0, c=N
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        #ydd = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y))) - execution_time * yd) + f + cdd) / execution_time ** 2
         ydd = k * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y))) - c * yd
         yd += dt * ydd + cd
         y = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd), y)

@@ -45,7 +45,7 @@ dmp = DualCartesianDMP(
     n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
 dmp.imitate(T, P)
 dmp.configure(start_y=P[0], goal_y=P[-1])
-offset = np.array([-0.1, 0.2, 0, 1, 0, 0, 0])
+offset = np.array([-0.05, 0.05, 0, 1, 0, 0, 0])
 ct = CouplingTermDualCartesianTrajectory(
     offset=offset, dt=dt, couple_position=True, couple_orientation=False,
     lf=(1.0, 0.0), k=1, c1=0.1, c2=100)  # c2=10000 in simulation
