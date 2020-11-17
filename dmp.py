@@ -262,7 +262,6 @@ class CartesianDMP:
                 self.forcing_term_rot,
                 coupling_term,
                 run_t, self.int_dt)
-        # TODO open loop orientation dmp
         return (T, np.hstack((Yp, Yr)))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -629,9 +628,8 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         F12_pos = -k * error_pos
         F21_pos = k * error_pos
 
-        # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
-        F12_pos = pt.transform(left2base, np.hstack((F12_pos, 0)))[:3]
-        F21_pos = pt.transform(left2base, np.hstack((F21_pos, 0)))[:3]
+        F12_pos = pt.transform(left2base, pt.vector_to_direction(F12_pos))[:3]
+        F21_pos = pt.transform(left2base, pt.vector_to_direction(F21_pos))[:3]
 
         C12_pos = lf[0] * c1 * F12_pos
         C21_pos = lf[1] * c1 * F21_pos
@@ -645,14 +643,13 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
             C12dot_pos *= 0
             C21dot_pos *= 0
 
-        # TODO compact_axis_angle_from_quaternion
-        error_rot = pr.compact_axis_angle_from_matrix(pr.matrix_from_quaternion(
-            pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot))))
+        error_rot = pr.compact_axis_angle_from_quaternion(
+            pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
         F12_rot = -k * error_rot
         F21_rot = k * error_rot
 
-        F12_rot = pt.transform(left2base, np.hstack((F12_rot, 0)))[:3]
-        F21_rot = pt.transform(left2base, np.hstack((F21_rot, 0)))[:3]
+        F12_rot = pt.transform(left2base, pt.vector_to_direction(F12_rot))[:3]
+        F21_rot = pt.transform(left2base, pt.vector_to_direction(F21_rot))[:3]
 
         C12_rot = lf[0] * c1 * F12_rot
         C21_rot = lf[1] * c1 * F21_rot
