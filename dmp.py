@@ -445,6 +445,22 @@ class DualCartesianDMP:
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot_right.overlap,
             alpha_z=self.forcing_term_rot_right.alpha_z, allow_final_velocity=allow_final_velocity)
 
+    def get_weights(self):
+        return np.hstack((
+            self.forcing_term_pos_left.weights.ravel(),
+            self.forcing_term_rot_left.weights.ravel(),
+            self.forcing_term_pos_right.weights.ravel(),
+            self.forcing_term_rot_right.weights.ravel()
+        ))
+
+    def set_weights(self, weights):
+        (self.forcing_term_pos_left.weights[:, :],
+         self.forcing_term_rot_left.weights[:, :],
+         self.forcing_term_pos_right.weights[:, :],
+         self.forcing_term_rot_right.weights) = map(
+             lambda a: a.reshape(3, self.n_weights_per_dim),
+             np.split(weights, 4))
+
 
 # lf - Binary values that indicate which DMP(s) will be adapted.
 # The variable lf defines the relation leader-follower. If lf[0] = lf[1],
@@ -595,8 +611,8 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         desired_distance_rot = desired_distance[3:]
 
         print("==")
-        print(np.round(right2left_pq, 2))
-        print(np.round(desired_distance, 2))
+        print("Actual: %s" % (np.round(right2left_pq, 2),))
+        print("Desired: %s" % (np.round(desired_distance, 2),))
 
         """TODO figure out what causes this deviation
         import matplotlib.pyplot as plt
@@ -610,10 +626,12 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         """
 
         error_pos = desired_distance_pos - actual_distance_pos
+        F12_pos = -k * error_pos
+        F21_pos = k * error_pos
+
         # TODO np.hstack((error_pos, 0)) should become vector_to_direction()
-        error_pos2base = pt.transform(left2base, np.hstack((error_pos, 0)))[:3]
-        F12_pos = -k * error_pos2base
-        F21_pos = k * error_pos2base
+        F12_pos = pt.transform(left2base, np.hstack((F12_pos, 0)))[:3]
+        F21_pos = pt.transform(left2base, np.hstack((F21_pos, 0)))[:3]
 
         C12_pos = lf[0] * c1 * F12_pos
         C21_pos = lf[1] * c1 * F21_pos
@@ -627,16 +645,11 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
             C12dot_pos *= 0
             C21dot_pos *= 0
 
-        R_error2left = pr.matrix_from_quaternion(
-            pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot)))
-        #print(np.round(desired_distance_rot, 2), np.round(actual_distance_rot, 2))
-        #print(np.round(R_error2left, 2))
-        R_error2base = pt.transform(left2base, pt.transform_from(R=R_error2left, p=np.zeros(3)))
-        #print(np.round(R_error2base, 2))
-        #error_rot2base = pr.compact_axis_angle_from_matrix(R_error2base[:3, :3])
-        error_rot2base = pr.compact_axis_angle_from_matrix(R_error2left[:3, :3])
-        F12_rot = -k * error_rot2base
-        F21_rot = k * error_rot2base
+        # TODO compact_axis_angle_from_quaternion
+        error_rot = pr.compact_axis_angle_from_matrix(pr.matrix_from_quaternion(
+            pr.concatenate_quaternions(desired_distance_rot, pr.q_conj(actual_distance_rot))))
+        F12_rot = -k * error_rot
+        F21_rot = k * error_rot
 
         F12_rot = pt.transform(left2base, np.hstack((F12_rot, 0)))[:3]
         F21_rot = pt.transform(left2base, np.hstack((F21_rot, 0)))[:3]
@@ -644,14 +657,8 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         C12_rot = lf[0] * c1 * F12_rot
         C21_rot = lf[1] * c1 * F21_rot
 
-        # TODO subtract current velocity
-        #ydd = (alpha_y * (beta_y *
-        #    pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y)))
-        #        - execution_time * yd)
-        #    + f + cdd) / execution_time ** 2
         C12dot_rot = lf[0] * (c2 * F12_rot - damping * vel_left[3:])
         C21dot_rot = lf[1] * (c2 * F21_rot - damping * vel_right[3:])
-        #print(np.round(C12dot_rot, 2))
 
         if not couple_orientation:
             C12_rot *= 0

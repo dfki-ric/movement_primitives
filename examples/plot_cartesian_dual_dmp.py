@@ -9,6 +9,7 @@ from pytransform3d.urdf import UrdfTransformManager
 from simulation import SimulationMockup
 
 dt = 0.001
+int_dt = 0.0001
 execution_time = 1.0
 
 desired_distance = np.array([  # right arm to left arm
@@ -18,7 +19,7 @@ desired_distance = np.array([  # right arm to left arm
     [0.0, 0.0, 0.0, 1.0]
 ])
 desired_distance[:3, :3] = pr.matrix_from_compact_axis_angle([np.deg2rad(180), 0, 0])
-ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=False, lf=(1.0, 0.0), k=1, c1=0.1, c2=100)  # c2=10000 in simulation
+ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=1000)  # c2=10000 in simulation
 
 rh5 = SimulationMockup(dt=dt)
 
@@ -69,7 +70,7 @@ for coupling_term in [ct]:#[ct, None]:
     # TODO reset DMP properly
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
+        n_weights_per_dim=10, int_dt=int_dt, k_tracking_error=0.0)
     dmp.imitate(T, Y)
     dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
