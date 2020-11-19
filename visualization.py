@@ -39,8 +39,6 @@ class Figure:
     def view_init(self, azim=-60, elev=30):
         vc = self.visualizer.get_view_control()
         pcp = vc.convert_to_pinhole_camera_parameters()
-        print(vc.convert_to_pinhole_camera_parameters().extrinsic)
-        print(pr.euler_xyz_from_matrix(pcp.extrinsic[:3, :3]))
         distance = np.linalg.norm(pcp.extrinsic[:3, 3])
         R_azim_elev_0_world2camera = np.array([
             [0, 1, 0],
@@ -112,51 +110,53 @@ class Trajectory:
 
 def show_urdf_transform_manager(
         figure, tm, frame, collision_objects=False, visuals=False,
-        frames=False, s=1.0):
+        frames=False, whitelist=None, s=1.0, c=None):
     if collision_objects:
         if hasattr(tm, "collision_objects"):
-            _add_objects(figure, tm, tm.collision_objects, frame)
+            _add_objects(figure, tm, tm.collision_objects, frame, c)
     if visuals:
         if hasattr(tm, "visuals"):
-            _add_objects(figure, tm, tm.visuals, frame)
+            _add_objects(figure, tm, tm.visuals, frame, c)
     if frames:
         for node in tm.nodes:
-            _add_frame(figure, tm, node, frame, s)
+            _add_frame(figure, tm, node, frame, whitelist, s)
 
 
-def _add_objects(figure, tm, objects, frame):
+def _add_objects(figure, tm, objects, frame, c=None):
     for obj in objects:
-        obj.show(figure, tm, frame)
+        obj.show(figure, tm, frame, c)
 
 
-def _add_frame(figure, tm, from_frame, to_frame, s=1.0):
+def _add_frame(figure, tm, from_frame, to_frame, whitelist=None, s=1.0):
+    if whitelist is not None and from_frame not in whitelist:
+        return
     A2B = tm.get_transform(from_frame, to_frame)
     frame = Frame(A2B, s=s)
     frame.add_frame(figure)
 
 
-def box_show(self, figure, tm, frame):
+def box_show(self, figure, tm, frame, c=None):
     raise NotImplementedError()
 
 
 urdf.Box.show = box_show
 
 
-def sphere_show(self, figure, tm, frame):
+def sphere_show(self, figure, tm, frame, c=None):
     raise NotImplementedError()
 
 
 urdf.Sphere.show = sphere_show
 
 
-def cylinder_show(self, figure, tm, frame):
+def cylinder_show(self, figure, tm, frame, c=None):
     raise NotImplementedError()
 
 
 urdf.Cylinder.show = cylinder_show
 
 
-def mesh_show(self, figure, tm, frame):
+def mesh_show(self, figure, tm, frame, c=None):
     if self.mesh_path is None:
         print("No mesh path given")
         return
@@ -166,6 +166,11 @@ def mesh_show(self, figure, tm, frame):
     mesh = o3d.io.read_triangle_mesh(self.filename)
     mesh.vertices = o3d.utility.Vector3dVector(np.asarray(mesh.vertices) * scale)
     mesh.transform(A2B)
+    if c is not None:
+        n_vertices = len(mesh.vertices)
+        colors = np.zeros((n_vertices, 3))
+        colors[:] = c
+        mesh.vertex_colors = o3d.utility.Vector3dVector(colors)
     figure.add_geometry(mesh)
 
 

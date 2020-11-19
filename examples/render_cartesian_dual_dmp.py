@@ -91,11 +91,9 @@ for coupling_term in [ct]:#[ct, None]:
         gripper_right2base = pt.transform_from_pq(P[t, 7:])
         tm.add_transform("ALWristPitch_Link", "base", gripper_left2base)
         tm.add_transform("ARWristPitch_Link", "base", gripper_right2base)
-        #ax = tm.plot_frames_in(
-        #    "base", s=0.1, whitelist=["ALWristPitch_Link", "ARWristPitch_Link"],
-        #    ax=ax, show_name=False)
         vis.show_urdf_transform_manager(
-            fig, tm, "base", visuals=True, collision_objects=False, frames=True, s=0.05)
+            fig, tm, "base", visuals=True, collision_objects=False, frames=True,
+            whitelist=["ALWristPitch_Link", "ARWristPitch_Link"], s=0.03)
     #ax.plot(P[:, 0], P[:, 1], P[:, 2], color="orange", lw=1)
     #ax.plot(P[:, 7], P[:, 8], P[:, 9], color="orange", lw=1)
     #ppu.plot_vector(
