@@ -1,5 +1,6 @@
 import numpy as np
 import open3d as o3d
+import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from pytransform3d import urdf
@@ -34,6 +35,26 @@ class Figure:
     def set_line_width(self, line_width):
         self.visualizer.get_render_option().line_width = line_width
         self.visualizer.update_renderer()
+
+    def view_init(self, azim=-60, elev=30):
+        vc = self.visualizer.get_view_control()
+        pcp = vc.convert_to_pinhole_camera_parameters()
+        print(vc.convert_to_pinhole_camera_parameters().extrinsic)
+        print(pr.euler_xyz_from_matrix(pcp.extrinsic[:3, :3]))
+        distance = np.linalg.norm(pcp.extrinsic[:3, 3])
+        R_azim_elev_0_world2camera = np.array([
+            [0, 1, 0],
+            [0, 0, -1],
+            [-1, 0, 0]])
+        R_azim_elev_0_camera2world = R_azim_elev_0_world2camera.T
+        # azimuth and elevation are defined in world frame
+        R_azim = pr.active_matrix_from_angle(2, np.deg2rad(azim))
+        R_elev = pr.active_matrix_from_angle(1, np.deg2rad(-elev))
+        R_elev_azim_camera2world = R_azim.dot(R_elev).dot(R_azim_elev_0_camera2world)
+        pcp.extrinsic = pt.transform_from(  # world2camera
+            R=R_elev_azim_camera2world.T,
+            p=[0, 0, distance])
+        vc.convert_from_pinhole_camera_parameters(pcp)
 
     def show(self):
         self.visualizer.run()

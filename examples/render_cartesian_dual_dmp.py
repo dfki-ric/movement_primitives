@@ -8,7 +8,7 @@ from pytransform3d.urdf import UrdfTransformManager
 from simulation import SimulationMockup
 
 dt = 0.001
-int_dt = 0.0001
+int_dt = 0.001
 execution_time = 1.0
 
 desired_distance = np.array([  # right arm to left arm
@@ -95,7 +95,7 @@ for coupling_term in [ct]:#[ct, None]:
         #    "base", s=0.1, whitelist=["ALWristPitch_Link", "ARWristPitch_Link"],
         #    ax=ax, show_name=False)
         vis.show_urdf_transform_manager(
-            fig, tm, "base", visuals=True, collision_objects=False)
+            fig, tm, "base", visuals=True, collision_objects=False, frames=True, s=0.05)
     #ax.plot(P[:, 0], P[:, 1], P[:, 2], color="orange", lw=1)
     #ax.plot(P[:, 7], P[:, 8], P[:, 9], color="orange", lw=1)
     #ppu.plot_vector(
@@ -104,6 +104,7 @@ for coupling_term in [ct]:#[ct, None]:
     #ppu.plot_vector(
     #    ax=ax, start=P[0, 7:10] - np.array([0, 0, 0.2]), direction=P[-1, 7:10] - P[0, 7:10],
     #    lw=0, color="orange")
+    fig.view_init(elev=0, azim=90)
     fig.show()
 
     """
