@@ -3,7 +3,7 @@ from dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, CouplingTer
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-import visualization as vis
+import pytransform3d.visualizer as vis
 from pytransform3d.urdf import UrdfTransformManager
 from simulation import SimulationMockup
 
@@ -82,7 +82,7 @@ for coupling_term in [ct]:#[ct, None]:
     P = np.asarray(positions)
     V = np.asarray(velocities)
 
-    fig = vis.Figure()
+    fig = vis.figure()
     vis.plot_basis(fig, R=np.eye(3), s=0.1)
     vis.plot_trajectory(fig, P=P[:, :7], s=0.05, c=[1, 0.5, 0], show_direction=False)
     vis.plot_trajectory(fig, P=P[:, 7:], s=0.05, c=[1, 0.5, 0], show_direction=False)
