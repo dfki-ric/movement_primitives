@@ -10,8 +10,6 @@ cd ..
 
 git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git
 cd abstract-urdf-gripper
-# TODO pending MR
-#git checkout 49ba35ad
 git submodule init
 git submodule update
 cd ..
