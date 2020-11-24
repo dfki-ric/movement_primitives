@@ -901,3 +901,130 @@ def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta
         T.append(t)
         Y.append(np.copy(y))
     return np.asarray(T), np.asarray(Y)
+
+
+class StateFollowingDMP:
+    def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
+        self.n_dims = n_dims
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_viapoints = n_viapoints
+        self.int_dt = int_dt
+
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(self.n_dims)
+        self.start_ydd = np.zeros(self.n_dims)
+        self.goal_y = np.zeros(self.n_dims)
+        self.goal_yd = np.zeros(self.n_dims)
+        self.goal_ydd = np.zeros(self.n_dims)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+        if goal_yd is not None:
+            self.goal_yd = goal_yd
+        if goal_ydd is not None:
+            self.goal_ydd = goal_ydd
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        assert len(last_y) == self.n_dims
+        assert len(last_yd) == self.n_dims
+
+        self.last_t = self.t
+        self.t += self.dt
+
+        current_y = np.empty(self.n_dims)
+        current_yd = np.empty(self.n_dims)
+
+        current_y[:], current_yd[:] = state_following_dmp_step(
+            self.last_t, self.t,
+            last_y, last_yd,
+            self.goal_y, self.goal_yd, self.goal_ydd,
+            self.start_y, self.start_yd, self.start_ydd,
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return current_y, current_yd
+
+    def open_loop(self, run_t=None, coupling_term=None):
+        return state_following_dmp_open_loop(self.execution_time, 0.0, self.dt, self.start_y, self.goal_y, self.alpha_y, self.beta_y, coupling_term, run_t, self.int_dt)
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        raise NotImplementedError()
+
+
+def state_following_dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    y = np.copy(last_y)
+    yd = np.copy(last_yd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(y, yd)
+        else:
+            cd, cdd = np.zeros_like(y), np.zeros_like(y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        # TODO modify acceleration to incorporate viapoints
+        ydd = (alpha_y * (beta_y * (goal_y - y) + execution_time * goal_yd - execution_time * yd) + goal_ydd * execution_time ** 2 + cdd) / execution_time ** 2
+        yd += dt * ydd + cd / execution_time
+        y += dt * yd
+    return y, yd
+
+
+def state_following_dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, coupling_term=None, run_t=None, int_dt=0.001):
+    t = start_t
+    y = np.copy(start_y)
+    yd = np.zeros_like(y)
+    T = [start_t]
+    Y = [np.copy(y)]
+    if run_t is None:
+        run_t = goal_t
+    while t < run_t:
+        last_t = t
+        t += dt
+        y, yd = state_following_dmp_step(
+            last_t, t, y, yd,
+            goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
+            start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
+            goal_t=goal_t, start_t=start_t,
+            alpha_y=alpha_y, beta_y=beta_y, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)
