@@ -613,17 +613,6 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         print("Actual: %s" % (np.round(right2left_pq, 2),))
         print("Desired: %s" % (np.round(desired_distance, 2),))
 
-        """TODO figure out what causes this deviation
-        import matplotlib.pyplot as plt
-        if not hasattr(self, "counter"):
-            self.counter = 0
-        if self.counter % 100 == 0:
-            ax = pt.plot_transform(A2B=self.desired_distance, s=0.1)
-            pt.plot_transform(ax=ax, A2B=right2left, s=0.1, lw=3, alpha=0.3)
-            plt.show()
-        self.counter += 1
-        """
-
         error_pos = desired_distance_pos - actual_distance_pos
         F12_pos = -k * error_pos
         F21_pos = k * error_pos

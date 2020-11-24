@@ -18,7 +18,7 @@ desired_distance = np.array([  # right arm to left arm
     [0.0, 0.0, 0.0, 1.0]
 ])
 desired_distance[:3, :3] = pr.matrix_from_compact_axis_angle([np.deg2rad(180), 0, 0])
-ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=1000)  # c2=10000 in simulation
+ct = CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000)  # c2=10000 in simulation
 
 rh5 = SimulationMockup(dt=dt)
 
@@ -38,7 +38,7 @@ R_to_center_start = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(0)])
 R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-110)])
 q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
 q_end = -pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-for i, t in enumerate(T):
+for i, t in enumerate(sigmoid):
     Y[i, 3:7] = pr.quaternion_slerp(q_start, q_end, t)
 
 circle1 = radius * np.cos(np.deg2rad(270) + np.deg2rad(90) * sigmoid)
@@ -51,7 +51,7 @@ R_to_center_start = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-180)])
 R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-270)])
 q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
 q_end = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-for i, t in enumerate(T):
+for i, t in enumerate(sigmoid):
     Y[i, 10:] = pr.quaternion_slerp(q_start, q_end, t)
 
 
@@ -83,17 +83,19 @@ for coupling_term in [ct]:#[ct, None]:
     V = np.asarray(velocities)
 
     fig = vis.figure()
-    vis.plot_basis(fig, R=np.eye(3), s=0.1)
-    vis.plot_trajectory(fig, P=P[:, :7], s=0.05, c=[1, 0.5, 0], show_direction=False)
-    vis.plot_trajectory(fig, P=P[:, 7:], s=0.05, c=[1, 0.5, 0], show_direction=False)
-    for t in range(0, len(P), 500):
-        gripper_left2base = pt.transform_from_pq(P[t, :7])
-        gripper_right2base = pt.transform_from_pq(P[t, 7:])
+    fig.plot_basis(R=np.eye(3), s=0.1)
+    fig.plot_trajectory(P=P[:, :7], s=0.05, c=[1, 0.5, 0], show_direction=False)
+    fig.plot_trajectory(P=P[:, 7:], s=0.05, c=[1, 0.5, 0], show_direction=False)
+    tm.add_transform("ALWristPitch_Link", "base", np.eye(4))
+    tm.add_transform("ARWristPitch_Link", "base", np.eye(4))
+    graph = fig.plot_graph(tm, "base", show_visuals=True, show_frames=True, whitelist=["ALWristPitch_Link", "ARWristPitch_Link"], s=0.03)
+    def animation_callback(t, P, tm, graph):
+        gripper_left2base = pt.transform_from_pq(P[10 * t, :7])
+        gripper_right2base = pt.transform_from_pq(P[10 * t, 7:])
         tm.add_transform("ALWristPitch_Link", "base", gripper_left2base)
         tm.add_transform("ARWristPitch_Link", "base", gripper_right2base)
-        vis.show_urdf_transform_manager(
-            fig, tm, "base", visuals=True, collision_objects=False, frames=True,
-            whitelist=["ALWristPitch_Link", "ARWristPitch_Link"], s=0.03)
+        graph.set_data()
+        return graph
     #ax.plot(P[:, 0], P[:, 1], P[:, 2], color="orange", lw=1)
     #ax.plot(P[:, 7], P[:, 8], P[:, 9], color="orange", lw=1)
     #ppu.plot_vector(
@@ -103,6 +105,7 @@ for coupling_term in [ct]:#[ct, None]:
     #    ax=ax, start=P[0, 7:10] - np.array([0, 0, 0.2]), direction=P[-1, 7:10] - P[0, 7:10],
     #    lw=0, color="orange")
     fig.view_init(elev=0, azim=90)
+    fig.animate(animation_callback, len(P) // 10, loop=True, fargs=(P, tm, graph))
     fig.show()
 
     """
