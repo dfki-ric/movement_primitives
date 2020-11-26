@@ -46,9 +46,8 @@ with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
     tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
 fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
 
-all_weights = []
-all_starts = []
-all_goals = []
+n_weights_per_dim = 10
+
 pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
 #pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
@@ -71,6 +70,12 @@ class SelectDemo:
         fig.view_init(azim=0, elev=25)
         return True
 
+all_weights = []
+all_starts = []
+all_goals = []
+all_execution_times = []
+
+# first 5 trajectories are from training set
 for idx, path in enumerate(list(glob.glob(pattern))[:10]):
     print("Loading %s" % path)
     T, P = load_data(path)
@@ -81,40 +86,49 @@ for idx, path in enumerate(list(glob.glob(pattern))[:10]):
         continue
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
+        n_weights_per_dim=n_weights_per_dim, int_dt=0.01, k_tracking_error=0.0)
     dmp.imitate(T, P)
     weights = dmp.get_weights()
     all_weights.append(weights)
     all_starts.append(P[0])
     all_goals.append(P[-1])
+    all_execution_times.append(execution_time)
 
-    #"""
-    # HACK
-    P[:, 0] -= 0.1
-    P[:, 7] -= 0.1
-    left = fig.plot_trajectory(P=P[:, :7], s=0.02)
-    right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
-    key = ord(str((idx + 1) % 10))
-    fig.visualizer.register_key_action_callback(key, SelectDemo(fig, left, right))
-    #ax.plot([P[-1, 0], P[-1, 7]], [P[-1, 1], P[-1, 8]], [P[-1, 2], P[-1, 9]], c="k", alpha=0.3)
-    #"""
-"""
-all_weights = np.vstack(all_weights)
-mean_weights = np.mean(all_weights, axis=0)
-cov_weights = np.cov(all_weights, rowvar=False)
+    if idx < 5:
+        left = fig.plot_trajectory(P=P[:, :7], s=0.02)
+        right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
+        key = ord(str((idx + 1) % 10))
+        fig.visualizer.register_key_action_callback(key, SelectDemo(fig, left, right))
+
+all_parameters = np.vstack([
+    np.hstack((w, s, g, e)) for w, s, g, e in zip(
+        all_weights, all_starts, all_goals, all_execution_times)])
+mean_parameters = np.mean(all_parameters, axis=0)
+cov_parameters = np.cov(all_parameters, rowvar=False)
 random_state = np.random.RandomState(0)
-for i in range(5):
-    print("Reproduce #%d" % (i + 1))
+
+# next 5 trajectories are sampled from Gaussian DMP
+for idx in range(5):
+    print("Reproduce #%d" % (idx + 1))
+
+    params = random_state.multivariate_normal(mean_parameters, cov_parameters)
+    n_weights = 2 * 6 * n_weights_per_dim
+    weights = params[:n_weights]
+    start = params[n_weights:n_weights + 14]
+    goal = params[n_weights + 14:n_weights + 2 * 14]
+    execution_time = params[-1]
+
     dmp = DualCartesianDMP(
-        execution_time=6.0, dt=0.005,
-        n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
-    weights = random_state.multivariate_normal(mean_weights, cov_weights)
+        execution_time=execution_time, dt=0.01,
+        n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
     dmp.set_weights(weights)
-    dmp.configure(start_y=np.mean(all_starts, axis=0), goal_y=np.mean(all_goals, axis=0))
+    dmp.configure(start_y=start, goal_y=goal)
     T, P = dmp.open_loop(run_t=execution_time)
 
-    fig.plot_trajectory(P=P[:, :7], s=0.02)
-    fig.plot_trajectory(P=P[:, 7:], s=0.02)
-#"""
+    left = fig.plot_trajectory(P=P[:, :7], s=0.02)
+    right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
+    key = ord(str((idx + 6) % 10))
+    fig.visualizer.register_key_action_callback(key, SelectDemo(fig, left, right))
+
 fig.view_init(azim=0, elev=25)
 fig.show()
