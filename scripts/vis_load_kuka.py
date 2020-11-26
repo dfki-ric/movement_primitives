@@ -4,6 +4,7 @@ import pandas as pd
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
 import pytransform3d.visualizer as pv
+from pytransform3d.urdf import UrdfTransformManager
 from dmp import DualCartesianDMP
 
 
@@ -38,18 +39,41 @@ def load_data(path):
     return T, P
 
 
-fig = pv.figure()
+fig = pv.figure(with_key_callbacks=True)
 fig.plot_transform(s=0.1)
+tm = UrdfTransformManager()
+with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
+    tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
+fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
+
 all_weights = []
 all_starts = []
 all_goals = []
-#pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
+pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
-pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_500mm/*.csv"
-for path in glob.glob(pattern):
+#pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
+
+class SelectDemo:
+    def __init__(self, fig, left, right):
+        self.fig = fig
+        self.left = left
+        self.right = right
+        self.show = True
+
+    def __call__(self, vis, key, modifier):  # sometimes we don't receive the correct keys, why?
+        self.show = not self.show
+        if self.show and modifier:
+            for g in self.left.geometries + self.right.geometries:
+                vis.remove_geometry(g)
+        elif not self.show and not modifier:
+            for g in self.left.geometries + self.right.geometries:
+                vis.add_geometry(g)
+        fig.view_init(azim=0, elev=25)
+        return True
+
+for idx, path in enumerate(list(glob.glob(pattern))[:10]):
     print("Loading %s" % path)
     T, P = load_data(path)
-
 
     execution_time = T[-1]
     dt = np.mean(np.diff(T))
@@ -68,8 +92,10 @@ for path in glob.glob(pattern):
     # HACK
     P[:, 0] -= 0.1
     P[:, 7] -= 0.1
-    fig.plot_trajectory(P=P[:, :7], s=0.02)
-    fig.plot_trajectory(P=P[:, 7:], s=0.02)
+    left = fig.plot_trajectory(P=P[:, :7], s=0.02)
+    right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
+    key = ord(str((idx + 1) % 10))
+    fig.visualizer.register_key_action_callback(key, SelectDemo(fig, left, right))
     #ax.plot([P[-1, 0], P[-1, 7]], [P[-1, 1], P[-1, 8]], [P[-1, 2], P[-1, 9]], c="k", alpha=0.3)
     #"""
 """
@@ -90,5 +116,5 @@ for i in range(5):
     fig.plot_trajectory(P=P[:, :7], s=0.02)
     fig.plot_trajectory(P=P[:, 7:], s=0.02)
 #"""
-fig.view_init(azim=180, elev=45)
+fig.view_init(azim=0, elev=25)
 fig.show()

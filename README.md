@@ -20,6 +20,9 @@ cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
 # optional:
 # install hyrodyn: https://git.hb.dfki.de/skumar/hyrodyn/
+
+# optional:
+git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 ```
 
 # Environment
