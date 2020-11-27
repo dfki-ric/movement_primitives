@@ -180,55 +180,34 @@ else:
     trajectories = np.vstack(trajectories)
     np.savetxt("trajectories.txt", trajectories)
 
-print(trajectories)
 mvn = estimate_from_sigma_points(
     trajectories, n_weights + 2 * n_dims + 1, alpha=alpha, kappa=kappa)
 
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
-    T, P = load_data(path)
-P = mvn.mean.reshape(-1, 2 * 7)
+mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
+n_steps = len(mean_trajectory)
+
+all_trajectories = []
+for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
+    trajectory = load_data(path)[1]
+    new_trajectory = np.empty((n_steps, trajectory.shape[1]))
+    for d in range(trajectory.shape[1]):
+        fun = interp1d(np.arange(len(trajectory)), trajectory[:, d])
+        x = np.linspace(0, 1, n_steps) * (len(trajectory) - 1)
+        new_trajectory[:, d] = fun(x)
+    all_trajectories.append(new_trajectory)
+
 for d in range(3):
     ax = plt.subplot(3, 1, 1 + d)
-    ax.fill_between(np.arange(len(P)), P[:, d] - sigma[:, d], P[:, d] + sigma[:, d], alpha=0.2)
+    for f in [1, 2, 3]:
+        ax.fill_between(
+            np.arange(len(mean_trajectory)),
+            mean_trajectory[:, d] - f * sigma[:, d],
+            mean_trajectory[:, d] + f * sigma[:, d],
+            color="b", alpha=0.1)
+    for new_trajectory in all_trajectories:
+        ax.plot(new_trajectory[:, d], color="orange")
 plt.show()
-
-exit()
-
-
-fig = pv.figure(with_key_callbacks=True)
-fig.plot_transform(s=0.1)
-tm = UrdfTransformManager()
-
-class SelectDemo:
-    def __init__(self, fig, left, right):
-        self.fig = fig
-        self.left = left
-        self.right = right
-        self.show = True
-
-    def __call__(self, vis, key, modifier):  # sometimes we don't receive the correct keys, why?
-        self.show = not self.show
-        if self.show and modifier:
-            for g in self.left.geometries + self.right.geometries:
-                vis.remove_geometry(g)
-        elif not self.show and not modifier:
-            for g in self.left.geometries + self.right.geometries:
-                vis.add_geometry(g)
-        fig.view_init(azim=0, elev=25)
-        return True
-
-with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
-    tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
-fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
-
-P = mvn.mean.reshape(-1, 2 * 7)
-left = fig.plot_trajectory(P=P[:, :7], s=0.02)
-right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
-#fig.visualizer.register_key_action_callback(str("1"), SelectDemo(fig, left, right))
-
-fig.view_init(azim=0, elev=25)
-fig.show()
