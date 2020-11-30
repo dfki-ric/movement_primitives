@@ -697,7 +697,6 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
 
 
 try:
-    #raise ImportError()
     from dmp_fast import dmp_step
 except ImportError:
     def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
@@ -748,49 +747,52 @@ except ImportError:
         return y, yd
 
 
-def dmp_step_quaternion(
-        last_t, t,
-        last_y, last_yd,
-        goal_y, goal_yd, goal_ydd,
-        start_y, start_yd, start_ydd,
-        goal_t, start_t, alpha_y, beta_y,
-        forcing_term,
-        coupling_term=None,
-        coupling_term_precomputed=None,
-        int_dt=0.001):
-    if start_t >= goal_t:
-        raise ValueError("Goal must be chronologically after start!")
-
-    if t <= start_t:
-        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
-
-    execution_time = goal_t - start_t
-
-    y = np.copy(last_y)
-    yd = np.copy(last_yd)
-
-    current_t = last_t
-    while current_t < t:
-        dt = int_dt
-        if t - current_t < int_dt:
-            dt = t - current_t
-        current_t += dt
-
-        if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(y, yd)
-        else:
-            cd, cdd = np.zeros(3), np.zeros(3)
-        if coupling_term_precomputed is not None:
-            cd += coupling_term_precomputed[0]
-            cdd += coupling_term_precomputed[1]
-
-        f = forcing_term(current_t).squeeze()
-
-        ydd = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y))) - execution_time * yd) + f + cdd) / execution_time ** 2
-        yd += dt * ydd + cd / execution_time
-        y = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd), y)
-    return y, yd
+try:
+    from dmp_fast import dmp_step_quaternion
+except ImportError:
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L754
+    def dmp_step_quaternion(
+            last_t, t,
+            last_y, last_yd,
+            goal_y, goal_yd, goal_ydd,
+            start_y, start_yd, start_ydd,
+            goal_t, start_t, alpha_y, beta_y,
+            forcing_term,
+            coupling_term=None,
+            coupling_term_precomputed=None,
+            int_dt=0.001):
+        if start_t >= goal_t:
+            raise ValueError("Goal must be chronologically after start!")
+
+        if t <= start_t:
+            return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+        execution_time = goal_t - start_t
+
+        y = np.copy(last_y)
+        yd = np.copy(last_yd)
+
+        current_t = last_t
+        while current_t < t:
+            dt = int_dt
+            if t - current_t < int_dt:
+                dt = t - current_t
+            current_t += dt
+
+            if coupling_term is not None:
+                cd, cdd = coupling_term.coupling(y, yd)
+            else:
+                cd, cdd = np.zeros(3), np.zeros(3)
+            if coupling_term_precomputed is not None:
+                cd += coupling_term_precomputed[0]
+                cdd += coupling_term_precomputed[1]
+
+            f = forcing_term(current_t).squeeze()
+
+            ydd = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(y))) - execution_time * yd) + f + cdd) / execution_time ** 2
+            yd += dt * ydd + cd / execution_time
+            y = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd), y)
+        return y, yd
 
 
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
