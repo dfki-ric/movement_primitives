@@ -6,7 +6,7 @@ from dmp import DMP, CouplingTermCartesianPosition, CouplingTermCartesianDistanc
 
 dt = 0.01
 
-dmp = DMP(n_dims=6, execution_time=1.0, dt=0.01, n_weights_per_dim=10)
+dmp = DMP(n_dims=6, execution_time=1.0, dt=dt, n_weights_per_dim=10, int_dt=0.0001)
 
 T = np.linspace(0.0, 1.0, 101)
 Y = np.empty((len(T), 6))
@@ -30,7 +30,7 @@ plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Reproduction 2")
 
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
 #ct = CouplingTermCartesianPosition(desired_distance=np.array([0.1, 0.1, 0.8]), lf=(0.0, 1.0))
-ct = CouplingTermCartesianDistance(desired_distance=1.0, lf=(1.0, 0.0))
+ct = CouplingTermCartesianDistance(desired_distance=1.0, lf=(1.0, 0.0), k=0.1)
 T, Y = dmp.open_loop(coupling_term=ct)
 plt.plot(Y[:, 0], Y[:, 1], Y[:, 2], label="Coupled 1")
 plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Coupled 2")

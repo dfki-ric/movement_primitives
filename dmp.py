@@ -696,50 +696,56 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
             self.couple_position, self.couple_orientation)
 
 
-def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, k_tracking_error=0.0, tracking_error=0.0):
-    if start_t >= goal_t:
-        raise ValueError("Goal must be chronologically after start!")
+try:
+    #raise ImportError()
+    from dmp_fast import dmp_step
+except ImportError:
+    def dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+                 alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
+                 k_tracking_error=0.0, tracking_error=0.0):
+        if start_t >= goal_t:
+            raise ValueError("Goal must be chronologically after start!")
 
-    if t <= start_t:
-        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+        if t <= start_t:
+            return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
 
-    execution_time = goal_t - start_t
+        execution_time = goal_t - start_t
 
-    y = np.copy(last_y)
-    yd = np.copy(last_yd)
+        y = np.copy(last_y)
+        yd = np.copy(last_yd)
 
-    current_t = last_t
-    while current_t < t:
-        dt = int_dt
-        if t - current_t < int_dt:
-            dt = t - current_t
-        current_t += dt
+        current_t = last_t
+        while current_t < t:
+            dt = int_dt
+            if t - current_t < int_dt:
+                dt = t - current_t
+            current_t += dt
 
-        if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(y, yd)
-        else:
-            cd, cdd = np.zeros_like(y), np.zeros_like(y)
-        if coupling_term_precomputed is not None:
-            cd += coupling_term_precomputed[0]
-            cdd += coupling_term_precomputed[1]
+            if coupling_term is not None:
+                cd, cdd = coupling_term.coupling(y, yd)
+            else:
+                cd, cdd = np.zeros_like(y), np.zeros_like(y)
+            if coupling_term_precomputed is not None:
+                cd += coupling_term_precomputed[0]
+                cdd += coupling_term_precomputed[1]
 
-        f = forcing_term(current_t).squeeze()
+            f = forcing_term(current_t).squeeze()
 
-        """
-        # Schaal
-        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
-        # Pastor
-        #K, D = 100, 20
-        #z = phase(t, alpha=forcing_term.alpha_z, goal_t=forcing_term.goal_t, start_t=forcing_term.start_t, int_dt=int_dt)
-        #ydd = (K * (goal_y - last_y) - D * execution_time * last_yd - K * (goal_y - start_y) * z + K * f + cdd) / execution_time ** 2
-        y += dt * yd
-        yd += dt * ydd + cd / execution_time
-        """
-        coupling_sum = cdd + k_tracking_error * tracking_error / dt
-        ydd = (alpha_y * (beta_y * (goal_y - y) + execution_time * goal_yd - execution_time * yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
-        yd += dt * ydd + cd / execution_time
-        y += dt * yd
-    return y, yd
+            """
+            # Schaal
+            ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
+            # Pastor
+            #K, D = 100, 20
+            #z = phase(t, alpha=forcing_term.alpha_z, goal_t=forcing_term.goal_t, start_t=forcing_term.start_t, int_dt=int_dt)
+            #ydd = (K * (goal_y - last_y) - D * execution_time * last_yd - K * (goal_y - start_y) * z + K * f + cdd) / execution_time ** 2
+            y += dt * yd
+            yd += dt * ydd + cd / execution_time
+            """
+            coupling_sum = cdd + k_tracking_error * tracking_error / dt
+            ydd = (alpha_y * (beta_y * (goal_y - y) + execution_time * goal_yd - execution_time * yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
+            yd += dt * ydd + cd / execution_time
+            y += dt * yd
+        return y, yd
 
 
 def dmp_step_quaternion(

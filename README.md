@@ -25,6 +25,12 @@ cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 ```
 
+# Build Cython extensions
+
+```bash
+python setup.py build_ext --inplace
+```
+
 # Environment
 
 ```bash
