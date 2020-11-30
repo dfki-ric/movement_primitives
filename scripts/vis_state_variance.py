@@ -116,8 +116,8 @@ n_weights_per_dim = 5
 n_weights = 2 * 6 * n_weights_per_dim
 n_dims = 14
 
-#pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
-pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
+pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
+#pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
 #pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
 
 alpha = 1e-3
@@ -170,7 +170,7 @@ else:
         start = parameters[start_indices]
         goal = parameters[goal_indices]
         dmp = DualCartesianDMP(
-            execution_time=execution_time, dt=0.01,
+            execution_time=execution_time, dt=0.1,
             n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
         dmp.configure(start_y=start, goal_y=goal)
         dmp.set_weights(weights)
@@ -190,6 +190,7 @@ mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
 n_steps = len(mean_trajectory)
 
+"""
 all_trajectories = []
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
@@ -200,6 +201,7 @@ for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
         new_trajectory[:, d] = fun(x)
     all_trajectories.append(new_trajectory)
 
+sampled_trajectories = mvn.sample(100)
 for d in range(3):
     ax = plt.subplot(3, 1, 1 + d)
     for f in [1, 2, 3]:
@@ -210,4 +212,32 @@ for d in range(3):
             color="b", alpha=0.1)
     for new_trajectory in all_trajectories:
         ax.plot(new_trajectory[:, d], color="orange")
+    for trajectory in sampled_trajectories:
+        P = trajectory.reshape(-1, 14)
+        ax.plot(P[:, d], color="green", alpha=0.2)
+    for t in range(0, n_steps, 10):
+        mmvn = mvn.marginalize(np.array([2 * 7 * t + d]))
+        std = np.sqrt(mmvn.covariance[0, 0])
+        plt.scatter([t, t, t], [mmvn.mean[0] - 2 * std, mmvn.mean[0], mmvn.mean[0] + 2 * std], s=5, color="red")
 plt.show()
+"""
+
+#"""
+import pytransform3d.visualizer as pv
+
+fig = pv.figure()
+fig.plot_basis(s=0.1)
+
+tm = UrdfTransformManager()
+with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
+    tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
+fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
+
+sampled_trajectories = mvn.sample(100)
+for trajectory in sampled_trajectories:
+    P = trajectory.reshape(-1, 2 * 7)
+    fig.plot_trajectory(P[:, :7], s=0.05, n_frames=3)
+    fig.plot_trajectory(P[:, 7:], s=0.05, n_frames=3)
+fig.view_init()
+fig.show()
+#"""
