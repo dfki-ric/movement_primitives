@@ -2,7 +2,6 @@ import numpy as np
 from dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
-import pytransform3d.trajectories as ptr
 import pytransform3d.visualizer as vis
 from pytransform3d.urdf import UrdfTransformManager
 from simulation import SimulationMockup
@@ -84,8 +83,8 @@ for coupling_term in [ct]:#[ct, None]:
 
     fig = vis.figure()
     fig.plot_basis(R=np.eye(3), s=0.1)
-    fig.plot_trajectory(P=P[:, :7], s=0.05, c=[1, 0.5, 0], show_direction=False)
-    fig.plot_trajectory(P=P[:, 7:], s=0.05, c=[1, 0.5, 0], show_direction=False)
+    fig.plot_trajectory(P=P[:, :7], s=0.05, c=[1, 0.5, 0])
+    fig.plot_trajectory(P=P[:, 7:], s=0.05, c=[1, 0.5, 0])
     tm.add_transform("ALWristPitch_Link", "base", np.eye(4))
     tm.add_transform("ARWristPitch_Link", "base", np.eye(4))
     graph = fig.plot_graph(tm, "base", show_visuals=True, show_frames=True, whitelist=["ALWristPitch_Link", "ARWristPitch_Link"], s=0.03)

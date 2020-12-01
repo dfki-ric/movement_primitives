@@ -4,7 +4,7 @@ from dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, CouplingTer
 import pytransform3d.rotations as pr
 from simulation import RH5Simulation
 
-dt = 0.001
+dt = 0.0001
 execution_time = 1.0
 
 #ct = CouplingTermDualCartesianDistance(desired_distance=0.9, lf=(1.0, 0.0), k=1.0, c1=0.0, c2=1000)
@@ -37,7 +37,7 @@ for coupling_term in [ct, None]:
     # TODO reset DMP properly
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
+        n_weights_per_dim=10, int_dt=dt, k_tracking_error=0.0)
     dmp.imitate(T, Y)
     dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
