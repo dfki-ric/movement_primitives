@@ -77,34 +77,7 @@ class ForcingTerm:
         return z[np.newaxis, :] * self.weights.dot(activations)
 
 
-class DMP:
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
-        self.n_dims = n_dims
-        self.execution_time = execution_time
-        self.dt = dt
-        self.n_weights_per_dim = n_weights_per_dim
-        self.int_dt = int_dt
-        self.k_tracking_error = k_tracking_error
-
-        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
-
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
-
-        self.last_t = None
-        self.t = 0.0
-        self.start_y = np.zeros(self.n_dims)
-        self.start_yd = np.zeros(self.n_dims)
-        self.start_ydd = np.zeros(self.n_dims)
-        self.goal_y = np.zeros(self.n_dims)
-        self.goal_yd = np.zeros(self.n_dims)
-        self.goal_ydd = np.zeros(self.n_dims)
-        self.initialized = False
-        self.current_y = np.zeros(self.n_dims)
-        self.current_yd = np.zeros(self.n_dims)
-        self.configure()
-
+class DMPBase:
     def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
         if last_t is not None:
             self.last_t = last_t
@@ -122,6 +95,43 @@ class DMP:
             self.goal_yd = goal_yd
         if goal_ydd is not None:
             self.goal_ydd = goal_ydd
+
+    def _initialize(self, n_pos_dims, n_vel_dims):
+        self.last_t = None
+        self.t = 0.0
+
+        self.start_y = np.zeros(n_pos_dims)
+        self.start_yd = np.zeros(n_vel_dims)
+        self.start_ydd = np.zeros(n_vel_dims)
+
+        self.goal_y = np.zeros(n_pos_dims)
+        self.goal_yd = np.zeros(n_vel_dims)
+        self.goal_ydd = np.zeros(n_vel_dims)
+
+        self.initialized = False
+
+        self.current_y = np.zeros(n_pos_dims)
+        self.current_yd = np.zeros(n_vel_dims)
+
+
+class DMP(DMPBase):
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
+        self.n_dims = n_dims
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        self.k_tracking_error = k_tracking_error
+
+        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self._initialize(n_dims, n_dims)
+
+        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
@@ -167,7 +177,7 @@ class DMP:
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
-class CartesianDMP:
+class CartesianDMP(DMPBase):
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001):
         self.n_dims = 7
@@ -187,33 +197,9 @@ class CartesianDMP:
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
 
-        self.last_t = None
-        self.t = 0.0
-        self.start_y = np.zeros(self.n_dims)
-        self.start_yd = np.zeros(6)
-        self.start_ydd = np.zeros(6)
-        self.goal_y = np.zeros(self.n_dims)
-        self.goal_yd = np.zeros(6)
-        self.goal_ydd = np.zeros(6)
-        self.configure()
+        self._initialize(self.n_dims, 6)
 
-    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-        if start_y is not None:
-            self.start_y = start_y
-        if start_yd is not None:
-            self.start_yd = start_yd
-        if start_ydd is not None:
-            self.start_ydd = start_ydd
-        if goal_y is not None:
-            self.goal_y = goal_y
-        if goal_yd is not None:
-            self.goal_yd = goal_yd
-        if goal_ydd is not None:
-            self.goal_ydd = goal_ydd
+        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == 7
@@ -262,7 +248,7 @@ class CartesianDMP:
                 self.forcing_term_rot,
                 coupling_term,
                 run_t, self.int_dt)
-        return (T, np.hstack((Yp, Yr)))
+        return T, np.hstack((Yp, Yr))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
@@ -280,7 +266,7 @@ class CartesianDMP:
             alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
 
-class DualCartesianDMP:
+class DualCartesianDMP(DMPBase):
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
         self.n_dims = 14
@@ -307,36 +293,8 @@ class DualCartesianDMP:
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
 
-        self.last_t = None
-        self.t = 0.0
-        self.start_y = np.zeros(self.n_dims)
-        self.start_yd = np.zeros(12)
-        self.start_ydd = np.zeros(12)
-        self.goal_y = np.zeros(self.n_dims)
-        self.goal_yd = np.zeros(12)
-        self.goal_ydd = np.zeros(12)
-        self.initialized = False
-        self.current_y = np.zeros(self.n_dims)
-        self.current_yd = np.zeros(12)
+        self._initialize(self.n_dims, 12)
         self.configure()
-
-    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-        if start_y is not None:
-            self.start_y = start_y
-        if start_yd is not None:
-            self.start_yd = start_yd
-        if start_ydd is not None:
-            self.start_ydd = start_ydd
-        if goal_y is not None:
-            self.goal_y = goal_y
-        if goal_yd is not None:
-            self.goal_yd = goal_yd
-        if goal_ydd is not None:
-            self.goal_ydd = goal_ydd
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == self.n_dims
@@ -960,7 +918,7 @@ class StateFollowingForcingTerm:
         return self._activations(z, normalized=True).T
 
 
-class StateFollowingDMP:
+class StateFollowingDMP(DMPBase):
     def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
         self.n_dims = n_dims
         self.execution_time = execution_time
@@ -977,8 +935,8 @@ class StateFollowingDMP:
         self.forcing_term = StateFollowingForcingTerm(
             self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1, alpha_z)
 
-        self.last_t = None
-        self.t = 0.0
+        self._initialize()
+
         self.start_y = np.zeros(self.n_dims)
         self.start_yd = np.zeros(self.n_dims)
         self.start_ydd = np.zeros(self.n_dims)
@@ -986,24 +944,6 @@ class StateFollowingDMP:
         self.goal_yd = np.zeros(self.n_dims)
         self.goal_ydd = np.zeros(self.n_dims)
         self.configure()
-
-    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-        if start_y is not None:
-            self.start_y = start_y
-        if start_yd is not None:
-            self.start_yd = start_yd
-        if start_ydd is not None:
-            self.start_ydd = start_ydd
-        if goal_y is not None:
-            self.goal_y = goal_y
-        if goal_yd is not None:
-            self.goal_yd = goal_yd
-        if goal_ydd is not None:
-            self.goal_ydd = goal_ydd
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == self.n_dims
@@ -1032,7 +972,7 @@ class StateFollowingDMP:
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
-        raise NotImplementedError()
+        raise NotImplementedError("imitation is not yet implemented")
 
 
 def state_following_dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
