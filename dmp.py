@@ -277,6 +277,10 @@ class DualCartesianDMP(DMPBase):
         self.k_tracking_error = k_tracking_error
         alpha_z = canonical_system_alpha(
             0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(
+            12, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        """
         self.forcing_term_pos_left = ForcingTerm(
             3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
             alpha_z)
@@ -289,6 +293,7 @@ class DualCartesianDMP(DMPBase):
         self.forcing_term_rot_right = ForcingTerm(
             3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
             alpha_z)
+        """
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
@@ -308,6 +313,18 @@ class DualCartesianDMP(DMPBase):
             self.current_yd = np.copy(self.start_yd)
             self.initialized = True
 
+        # TODO tracking error
+        self.current_y[:], self.current_yd[:] = dmp_dual_cartesian_step(
+            self.last_t, self.t, last_y, last_yd,
+            self.goal_y, self.goal_yd, self.goal_ydd,
+            self.start_y, self.start_yd, self.start_ydd,
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term, coupling_term,
+            self.int_dt)
+
+        """
+        # TODO does not work correctly if int_dt != dt
         if coupling_term is not None:
             cd, cdd = coupling_term.coupling(last_y, last_yd)
         else:
@@ -362,6 +379,7 @@ class DualCartesianDMP(DMPBase):
             self.forcing_term_rot_right,
             coupling_term_precomputed=ct_rot_right,
             int_dt=self.int_dt)
+        """
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
@@ -377,46 +395,36 @@ class DualCartesianDMP(DMPBase):
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
-        self.forcing_term_pos_left.weights[:, :] = dmp_imitate(
+        self.forcing_term.weights[:3, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos_left.overlap,
-            alpha_z=self.forcing_term_pos_left.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.forcing_term_rot_left.weights[:, :] = dmp_quaternion_imitation(
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term.weights[3:6, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot_left.overlap,
-            alpha_z=self.forcing_term_rot_left.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.forcing_term_pos_right.weights[:, :] = dmp_imitate(
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term.weights[6:9, :] = dmp_imitate(
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos_right.overlap,
-            alpha_z=self.forcing_term_pos_right.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.forcing_term_rot_right.weights[:, :] = dmp_quaternion_imitation(
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.forcing_term.weights[9:12, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot_right.overlap,
-            alpha_z=self.forcing_term_rot_right.alpha_z, allow_final_velocity=allow_final_velocity)
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
 
     def get_weights(self):
-        return np.hstack((
-            self.forcing_term_pos_left.weights.ravel(),
-            self.forcing_term_rot_left.weights.ravel(),
-            self.forcing_term_pos_right.weights.ravel(),
-            self.forcing_term_rot_right.weights.ravel()
-        ))
+        return self.forcing_term.weights.ravel()
 
     def set_weights(self, weights):
-        (self.forcing_term_pos_left.weights[:, :],
-         self.forcing_term_rot_left.weights[:, :],
-         self.forcing_term_pos_right.weights[:, :],
-         self.forcing_term_rot_right.weights) = map(
-             lambda a: a.reshape(3, self.n_weights_per_dim),
-             np.split(weights, 4))
+        self.forcing_term.weights[:, :] = weights.reshape(-1, self.n_weights_per_dim)
 
 
 # lf - Binary values that indicate which DMP(s) will be adapted.
@@ -751,6 +759,50 @@ except ImportError:
             yd += dt * ydd + cd / execution_time
             y = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd), y)
         return y, yd
+
+
+# TODO cython implementation
+def dmp_dual_cartesian_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+             alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001,
+             k_tracking_error=0.0, tracking_error=None):
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    y = np.copy(last_y)
+    yd = np.copy(last_yd)
+    ydd = np.empty_like(last_yd)
+
+    cd, cdd = np.zeros_like(yd), np.zeros_like(yd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd[:], cdd[:] = coupling_term.coupling(y, yd)
+
+        f = forcing_term(current_t).squeeze()
+        if tracking_error is not None:
+            cdd += k_tracking_error * tracking_error / dt
+
+        # position components
+        for pps, pvs in ((slice(0, 3), slice(0, 3)), (slice(7, 10), slice(6, 9))):
+            ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - y[pps]) + execution_time * goal_yd[pvs] - execution_time * yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+            yd[pvs] += dt * ydd[pvs] + cd[pvs] / execution_time
+            y[pps] += dt * yd[pvs]
+
+        # TODO handle tracking error of orientation correctly
+        # orientation components
+        for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+            ydd[ovs] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y[ops], pr.q_conj(y[ops]))) - execution_time * yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+            yd[ovs] += dt * ydd[ovs] + cd[ovs] / execution_time
+            y[ops] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd[ovs]), y[ops])
+    return y, yd
 
 
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
