@@ -1062,7 +1062,6 @@ def state_following_dmp_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_y
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        # TODO modify acceleration to incorporate viapoints
         h = forcing_term(current_t).squeeze(axis=0)
 
         ydd = np.sum(h[:, np.newaxis] * alpha_y * (beta_y * (forcing_term.viapoints - y) - 0.5 * execution_time * yd[np.newaxis]) / (0.5 * execution_time) ** 2, axis=0)
