@@ -11,77 +11,6 @@ from dmp import DualCartesianDMP
 from gmr import MVN
 
 
-def sqrt_sym_mat(cov):
-    """Compute square root of a covariance matrix."""
-    cov = np.triu(cov) + np.triu(cov, 1).T
-    D, B = np.linalg.eigh(cov)
-    # HACK: avoid numerical problems
-    D = np.maximum(D, np.finfo(np.float).eps)
-    return B.dot(np.diag(np.sqrt(D))).dot(B.T)
-
-
-def sigma_points(mvn, alpha=1e-3, kappa=0.0):
-    """TODO"""
-    n_dims = len(mvn.mean)
-    lmbda = alpha ** 2 * (n_dims + kappa) - n_dims
-    offset = sqrt_sym_mat((n_dims + lmbda) * mvn.covariance)
-
-    points = np.empty(((2 * n_dims + 1), n_dims))
-    points[0, :] = mvn.mean
-    for i in range(n_dims):
-        points[1 + i, :] = mvn.mean + offset[i]
-        points[1 + n_dims + i:, :] = mvn.mean - offset[i]
-    return points
-
-
-def estimate_from_sigma_points(transformed_sigma_points, n_dims, alpha=1e-3, beta=2.0, kappa=0.0, random_state=None):
-    """TODO
-
-    https://www.seas.harvard.edu/courses/cs281/papers/unscented.pdf
-
-    Parameters
-    ----------
-    alpha : float, optional (default: 1e-3)
-        Determines the spread of the sigma points around the mean and is
-        usually set to a small positive value.
-
-    beta : float, optional (default: 2)
-        Encodes information about the distribution. For Gaussian distributions,
-        beta=2 is the optimal choice.
-
-    kappa : float, optional (default: 0)
-        A secondary scaling parameter which is usually set to 0.
-    """
-    lmbda = alpha ** 2 * (n_dims + kappa) - n_dims
-
-    mean_weight_0 = lmbda / (n_dims + lmbda)
-    cov_weight_0 = lmbda / (n_dims + lmbda) + (1 - alpha ** 2 + beta)
-    weights_i = 1.0 / (2.0 * (n_dims + lmbda))
-    mean_weights = np.empty(len(transformed_sigma_points))
-    mean_weights[0] = mean_weight_0
-    mean_weights[1:] = weights_i
-    cov_weights = np.empty(len(transformed_sigma_points))
-    cov_weights[0] = cov_weight_0
-    cov_weights[1:] = weights_i
-
-    mean = np.sum(mean_weights[:, np.newaxis] * transformed_sigma_points, axis=0)
-    sigma_points_minus_mean = transformed_sigma_points - mean
-    covariance = sigma_points_minus_mean.T.dot(np.diag(cov_weights)).dot(sigma_points_minus_mean)
-    return MVN(mean=mean, covariance=covariance, random_state=random_state)
-
-
-# TODO unit test
-"""
-mvn = MVN(mean=np.zeros(2), covariance=np.eye(2))
-points = sigma_points(mvn, alpha=10, kappa=1000000000)
-points[:, 1] *= 10
-points += np.array([0.5, -3.0])
-mvn = estimate_from_sigma_points(points, 2, alpha=10, kappa=1000000000)
-print(mvn.mean, mvn.covariance)
-exit()
-#"""
-
-
 def load_data(path):
     trajectory = pd.read_csv(path, sep=" ")
     patterns = ["time\.microseconds",
@@ -161,7 +90,7 @@ else:
     execution_time_indices = np.arange(n_weights + 2 * n_dims, n_weights + 2 * n_dims + 1)
     execution_time = np.mean(all_execution_times)
 
-    points = sigma_points(mvn, alpha=alpha, kappa=kappa)
+    points = mvn.sigma_points(alpha=alpha, kappa=kappa)
 
     trajectories = []
     print("Propagating...")
@@ -180,8 +109,11 @@ else:
     trajectories = np.vstack(trajectories)
     np.savetxt("trajectories.txt", trajectories)
 
-mvn = estimate_from_sigma_points(
-    trajectories, n_weights + 2 * n_dims + 1, alpha=alpha, kappa=kappa)
+n_features = n_weights + 2 * n_dims + 1
+initial_mean = np.zeros(n_features)
+initial_cov = np.eye(n_features)
+mvn = MVN(initial_mean, initial_cov, random_state=42).estimate_from_sigma_points(
+    trajectories, alpha=alpha, kappa=kappa)
 
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -190,7 +122,7 @@ mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
 n_steps = len(mean_trajectory)
 
-"""
+#"""
 all_trajectories = []
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
