@@ -315,8 +315,9 @@ class DualCartesianDMP(DMPBase):
 
         # TODO tracking error for orientation
         tracking_error = self.current_y - last_y
-        self.current_y[:], self.current_yd[:] = dmp_dual_cartesian_step(
-            self.last_t, self.t, last_y, last_yd,
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        dmp_dual_cartesian_step(
+            self.last_t, self.t, self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
             self.execution_time, 0.0,
@@ -773,22 +774,22 @@ pvs = [0, 1, 2, 6, 7, 8]
 
 def dmp_dual_cartesian_step(
         last_t, t,
-        last_y, last_yd,
+        current_y, current_yd,
         goal_y, goal_yd, goal_ydd,
         start_y, start_yd, start_ydd,
         goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, int_dt=0.001,
         k_tracking_error=0.0, tracking_error=None):
     if t <= start_t:
-        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+        current_y[:] = start_y
+        current_yd[:] = start_yd
+        return current_y, current_yd
 
     execution_time = goal_t - start_t
 
-    y = np.copy(last_y)
-    yd = np.copy(last_yd)
-    ydd = np.empty_like(last_yd)
+    current_ydd = np.empty_like(current_yd)
 
-    cd, cdd = np.zeros_like(yd), np.zeros_like(yd)
+    cd, cdd = np.zeros_like(current_yd), np.zeros_like(current_ydd)
 
     current_t = last_t
     while current_t < t:
@@ -798,7 +799,7 @@ def dmp_dual_cartesian_step(
         current_t += dt
 
         if coupling_term is not None:
-            cd[:], cdd[:] = coupling_term.coupling(y, yd)
+            cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
         f = forcing_term(current_t).squeeze()
         # TODO handle tracking error of orientation correctly
@@ -806,17 +807,17 @@ def dmp_dual_cartesian_step(
             cdd[pvs] += k_tracking_error * tracking_error[pps] / dt
 
         # position components
-        ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - y[pps]) + execution_time * goal_yd[pvs] - execution_time * yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
-        yd[pvs] += dt * ydd[pvs] + cd[pvs] / execution_time
-        y[pps] += dt * yd[pvs]
+        current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * goal_yd[pvs] - execution_time * current_yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+        current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
+        current_y[pps] += dt * current_yd[pvs]
 
         # TODO handle tracking error of orientation correctly
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
-            ydd[ovs] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y[ops], pr.q_conj(y[ops]))) - execution_time * yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
-            yd[ovs] += dt * ydd[ovs] + cd[ovs] / execution_time
-            y[ops] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * yd[ovs]), y[ops])
-    return y, yd
+            current_ydd[ovs] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops]))) - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+            current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
+            current_y[ops] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
+    return current_y, current_yd
 
 
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
