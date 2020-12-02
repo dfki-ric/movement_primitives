@@ -280,20 +280,6 @@ class DualCartesianDMP(DMPBase):
         self.forcing_term = ForcingTerm(
             12, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
             alpha_z)
-        """
-        self.forcing_term_pos_left = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_rot_left = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_pos_right = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_rot_right = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        """
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
@@ -326,63 +312,6 @@ class DualCartesianDMP(DMPBase):
             self.int_dt,
             self.k_tracking_error, tracking_error)
 
-        """
-        # TODO does not work correctly if int_dt != dt
-        if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(last_y, last_yd)
-        else:
-            cd, cdd = np.zeros(12), np.zeros(12)
-        ct_pos_left = cd[:3], cdd[:3]
-        ct_rot_left = cd[3:6], cdd[3:6]
-        ct_pos_right = cd[6:9], cdd[6:9]
-        ct_rot_right = cd[9:], cdd[9:]
-
-        tracking_error_pos_left = self.current_y[:3] - last_y[:3]
-        self.current_y[:3], self.current_yd[:3] = dmp_step(
-            self.last_t, self.t,
-            last_y[:3], last_yd[:3],
-            self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
-            self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_pos_left,
-            coupling_term_precomputed=ct_pos_left,
-            int_dt=self.int_dt,
-            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_left)
-        self.current_y[3:7], self.current_yd[3:6] = dmp_step_quaternion(
-            self.last_t, self.t,
-            last_y[3:7], last_yd[3:6],
-            self.goal_y[3:7], self.goal_yd[3:6], self.goal_ydd[3:6],
-            self.start_y[3:7], self.start_yd[3:6], self.start_ydd[3:6],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_rot_left,
-            coupling_term_precomputed=ct_rot_left,
-            int_dt=self.int_dt)
-
-        tracking_error_pos_right = self.current_y[7:10] - last_y[7:10]
-        self.current_y[7:10], self.current_yd[6:9] = dmp_step(
-            self.last_t, self.t,
-            last_y[7:10], last_yd[6:9],
-            self.goal_y[7:10], self.goal_yd[6:9], self.goal_ydd[6:9],
-            self.start_y[7:10], self.start_yd[6:9], self.start_ydd[6:9],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_pos_right,
-            coupling_term_precomputed=ct_pos_right,
-            int_dt=self.int_dt,
-            k_tracking_error=self.k_tracking_error, tracking_error=tracking_error_pos_right)
-        self.current_y[10:], self.current_yd[9:] = dmp_step_quaternion(
-            self.last_t, self.t,
-            last_y[10:], last_yd[9:],
-            self.goal_y[10:], self.goal_yd[9:], self.goal_ydd[9:],
-            self.start_y[10:], self.start_yd[9:], self.start_ydd[9:],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_rot_right,
-            coupling_term_precomputed=ct_rot_right,
-            int_dt=self.int_dt)
-        """
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
