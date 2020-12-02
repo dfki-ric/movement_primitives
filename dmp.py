@@ -313,7 +313,8 @@ class DualCartesianDMP(DMPBase):
             self.current_yd = np.copy(self.start_yd)
             self.initialized = True
 
-        # TODO tracking error
+        # TODO tracking error for orientation
+        tracking_error = self.current_y - last_y
         self.current_y[:], self.current_yd[:] = dmp_dual_cartesian_step(
             self.last_t, self.t, last_y, last_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
@@ -321,7 +322,8 @@ class DualCartesianDMP(DMPBase):
             self.execution_time, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term, coupling_term,
-            self.int_dt)
+            self.int_dt,
+            self.k_tracking_error, tracking_error)
 
         """
         # TODO does not work correctly if int_dt != dt
@@ -545,7 +547,7 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
-    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0):
+    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
         self.desired_distance = desired_distance
         self.lf = lf
         self.couple_position = couple_position
@@ -553,6 +555,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         self.k = k
         self.c1 = c1
         self.c2 = c2
+        self.verbose = verbose
 
     def coupling(self, y, yd=None):
         return self.couple_distance(
@@ -575,9 +578,10 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         desired_distance_pos = desired_distance[:3]
         desired_distance_rot = desired_distance[3:]
 
-        print("==")
-        print("Actual: %s" % (np.round(right2left_pq, 2),))
-        print("Desired: %s" % (np.round(desired_distance, 2),))
+        if self.verbose:
+            print("Desired vs. actual:")
+            print(np.round(desired_distance, 2))
+            print(np.round(right2left_pq, 2))
 
         error_pos = desired_distance_pos - actual_distance_pos
         F12_pos = -k * error_pos
@@ -631,7 +635,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for DualCartesianDMP
-    def __init__(self, offset, lf, dt, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0):
+    def __init__(self, offset, lf, dt, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
         self.offset = offset
         self.lf = lf
         self.dt = dt
@@ -640,6 +644,7 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
         self.k = k
         self.c1 = c1
         self.c2 = c2
+        self.verbose = verbose
 
     def imitate(self, T, Y):
         distance = np.empty((len(Y), 7))
@@ -762,9 +767,18 @@ except ImportError:
 
 
 # TODO cython implementation
-def dmp_dual_cartesian_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
-             alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001,
-             k_tracking_error=0.0, tracking_error=None):
+pps = [0, 1, 2, 7, 8, 9]
+pvs = [0, 1, 2, 6, 7, 8]
+
+
+def dmp_dual_cartesian_step(
+        last_t, t,
+        last_y, last_yd,
+        goal_y, goal_yd, goal_ydd,
+        start_y, start_yd, start_ydd,
+        goal_t, start_t, alpha_y, beta_y,
+        forcing_term, coupling_term=None, int_dt=0.001,
+        k_tracking_error=0.0, tracking_error=None):
     if t <= start_t:
         return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
 
@@ -787,14 +801,14 @@ def dmp_dual_cartesian_step(last_t, t, last_y, last_yd, goal_y, goal_yd, goal_yd
             cd[:], cdd[:] = coupling_term.coupling(y, yd)
 
         f = forcing_term(current_t).squeeze()
+        # TODO handle tracking error of orientation correctly
         if tracking_error is not None:
-            cdd += k_tracking_error * tracking_error / dt
+            cdd[pvs] += k_tracking_error * tracking_error[pps] / dt
 
         # position components
-        for pps, pvs in ((slice(0, 3), slice(0, 3)), (slice(7, 10), slice(6, 9))):
-            ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - y[pps]) + execution_time * goal_yd[pvs] - execution_time * yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
-            yd[pvs] += dt * ydd[pvs] + cd[pvs] / execution_time
-            y[pps] += dt * yd[pvs]
+        ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - y[pps]) + execution_time * goal_yd[pvs] - execution_time * yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+        yd[pvs] += dt * ydd[pvs] + cd[pvs] / execution_time
+        y[pps] += dt * yd[pvs]
 
         # TODO handle tracking error of orientation correctly
         # orientation components
