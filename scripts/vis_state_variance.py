@@ -5,6 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
+from pytransform3d import transformations as pt
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 from dmp import DualCartesianDMP
@@ -122,7 +123,7 @@ mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
 n_steps = len(mean_trajectory)
 
-#"""
+"""
 all_trajectories = []
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
@@ -152,24 +153,61 @@ for d in range(3):
         std = np.sqrt(mmvn.covariance[0, 0])
         plt.scatter([t, t, t], [mmvn.mean[0] - 2 * std, mmvn.mean[0], mmvn.mean[0] + 2 * std], s=5, color="red")
 plt.show()
-"""
+#"""
 
 #"""
 import pytransform3d.visualizer as pv
+from kinematics import Kinematics
+
+with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
+    kin = Kinematics(f.read(), mesh_path="kuka_lbr/urdf/")
+right_chain = kin.create_chain(
+    ["kuka_lbr_r_joint_%d" % i for i in range(1, 8)],
+    "kuka_lbr", "kuka_lbr_r_tcp", verbose=0)
+left_chain = kin.create_chain(
+    ["kuka_lbr_l_joint_%d" % i for i in range(1, 8)],
+    "kuka_lbr", "kuka_lbr_l_tcp", verbose=0)
+
+
+def animation_callback(step, left_chain, right_chain, graph, joint_trajectories):
+    k = step // len(joint_trajectories[0][0])
+    t = step % len(joint_trajectories[0][0])
+    print(k, t)
+    q_left = joint_trajectories[k][0][t]
+    q_right = joint_trajectories[k][1][t]
+    left_chain.forward(q_left)
+    right_chain.forward(q_right)
+    graph.set_data()
+    return graph
+
 
 fig = pv.figure()
 fig.plot_basis(s=0.1)
 
-tm = UrdfTransformManager()
-with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
-    tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
-fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
+graph = fig.plot_graph(kin.tm, "kuka_lbr", show_visuals=True)
 
-sampled_trajectories = mvn.sample(100)
-for trajectory in sampled_trajectories:
-    P = trajectory.reshape(-1, 2 * 7)
+sampled_trajectories = mvn.sample(20)
+sampled_trajectories = [trajectory.reshape(-1, 2 * 7) for trajectory in sampled_trajectories]
+joint_trajectories = []
+random_state = np.random.RandomState(2)
+for k in range(len(sampled_trajectories)):
+    print(k)
+    P = sampled_trajectories[k]
+    H_left = np.empty((len(P), 4, 4))
+    H_right = np.empty((len(P), 4, 4))
+    for t in range(len(P)):
+        H_left[t] = pt.transform_from_pq(P[t, :7])
+        H_right[t] = pt.transform_from_pq(P[t, 7:])
+    Q_left = left_chain.inverse_trajectory(H_left, np.zeros(7), random_state=random_state)
+    Q_right = right_chain.inverse_trajectory(H_right, np.zeros(7), random_state=random_state)
+    joint_trajectories.append((Q_left, Q_right))
+
+
+for P in sampled_trajectories:
     fig.plot_trajectory(P[:, :7], s=0.05, n_frames=3)
     fig.plot_trajectory(P[:, 7:], s=0.05, n_frames=3)
+
 fig.view_init()
+fig.animate(animation_callback, len(joint_trajectories) * len(joint_trajectories[0][0]), loop=True, fargs=(left_chain, right_chain, graph, joint_trajectories))
 fig.show()
 #"""

@@ -1,7 +1,5 @@
 import numpy as np
 import pytransform3d.visualizer as pv
-import pytransform3d.transformations as pt
-import pytransform3d.rotations as pr
 from kinematics import Kinematics
 
 
