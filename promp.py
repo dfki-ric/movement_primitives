@@ -49,9 +49,18 @@ class ProMP(ProMPBase):
     def open_loop(self, run_t=None, coupling_term=None):
         raise NotImplementedError()
 
-    def imitate(self, Ts, Ys, n_iter=100):
+    def imitate(self, Ts, Ys, gamma=0.7, n_iter=100):  # SCMTL algorithm
         # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
+        # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
         # Section 3.2 of https://hal.inria.fr/inria-00475214/document
+
+        # P = I
+        # mu_0 = 0
+        # k_0 = 0
+        # nu_0 = 0
+        # Sigma_0 = 0
+        # alpha_0 = 0
+        # beta_0 = 0
 
         n_demos = len(Ts)
         n_weights = self.n_dims * self.n_weights_per_dim
@@ -60,68 +69,82 @@ class ProMP(ProMPBase):
         self.weight_cov = np.eye(n_weights)
         self.variance = 1.0
 
-        means = np.zeros((n_demos, 2 * self.n_weights_per_dim))
-        covs = np.empty((n_demos, 2 * self.n_weights_per_dim, 2 * self.n_weights_per_dim))
+        means = np.zeros((n_demos, self.n_weights_per_dim))
+        covs = np.empty((n_demos, self.n_weights_per_dim, self.n_weights_per_dim))
+
+        # n_demos x n_steps*self.n_dims x n_steps*self.n_dims
         Hs = []
         for demo_idx in range(n_demos):
             n_steps = len(Ys[demo_idx])
             H_partial = np.eye(n_steps)
             # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L80
             for y in range(n_steps - 1):
-                H_partial[y, y + 1] = -0.7
+                H_partial[y, y + 1] = -gamma
             H = np.zeros((n_steps * self.n_dims, n_steps * self.n_dims))
             for j in range(self.n_dims):
                 H[n_steps * j:n_steps * (j + 1), n_steps * j:n_steps * (j + 1)] = H_partial
             Hs.append(H)
 
+        # n_demos x n_steps*n_dims
         vals = []  # TODO rename
         for demo_idx in range(n_demos):
             n_steps = Ys[demo_idx].shape[0]
-            val = np.zeros((n_steps * self.n_dims, 1))
+            val = np.zeros((n_steps * self.n_dims))
             for j in range(self.n_dims):
-                val[n_steps * j:n_steps * (j + 1)] = Ys[demo_idx, :n_steps, j:j + 1]
+                val[n_steps * j:n_steps * (j + 1)] = Ys[demo_idx, :, j]
             vals.append(val)
 
+        # n_demos x n_dims*self.n_weights_per_dim x self.n_dims*n_steps
         BFs = []
-        for i in range(n_demos):
-            BF = self._bf(Ts[i]).T  # TODO why .T?
+        for demo_idx in range(n_demos):
+            BF = self._bf(Ts[demo_idx]).T  # TODO why .T?
             BFs.append(BF)
 
+        # n_demos x n_steps*self.n_dims
         Rs = []
-        for i in range(n_demos):
-            R = Hs[i].dot(vals[i])
+        for demo_idx in range(n_demos):
+            R = Hs[demo_idx].dot(vals[demo_idx])
             Rs.append(R)
 
-        RRs = []
-        for i in range(n_demos):
-            RR = Rs[i].T.dot(Rs[i])
-            RRs.append(RR)
+        # n_demos
+        # RR in original code
+        RTRs = []
+        for demo_idx in range(n_demos):
+            RTR = Rs[demo_idx].T.dot(Rs[demo_idx])
+            RTRs.append(RTR)
 
-        BHs = []
-        for i in range(n_demos):
-            BH = BFs[i].dot(Hs[i].T)
-            BHs.append(BH)
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_steps
+        # BH in original code
+        PhiHTs = []
+        for demo_idx in range(n_demos):
+            PhiHT = BFs[demo_idx].dot(Hs[demo_idx].T)
+            PhiHTs.append(PhiHT)
 
-        mean_esteps = []
-        for i in range(n_demos):
-            mean_estep = BHs[i].dot(Rs[i])
-            mean_esteps.append(mean_estep)
+        # n_demos x self.n_dims*self.n_weights_per_dim
+        # mean_esteps in original code
+        PhiHTRs = []
+        for demo_idx in range(n_demos):
+            PhiHTR = PhiHTs[demo_idx].dot(Rs[demo_idx])
+            PhiHTRs.append(PhiHTR)
 
-        cov_esteps = []
-        for i in range(n_demos):
-            cov_estep = BHs[i].dot(BHs[i].T)
-            cov_esteps.append(cov_estep)
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_weights_per_dim
+        # cov_esteps in original code
+        PhiHTHPhiTs = []
+        for demo_idx in range(n_demos):
+            PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
+            PhiHTHPhiTs.append(PhiHTHPhiT)
 
         # TODO more efficient
         n_samples = 0
-        for i in range(n_demos):
-            n_samples += Ys[i].shape[0]
+        for demo_idx in range(n_demos):
+            n_samples += Ys[demo_idx].shape[0]
 
         for it in range(n_iter):
             weight_mean_old = self.weight_mean
-            for i in range(n_demos):
-                means[i], covs[i] = self._expectation(mean_esteps[i] / self.variance, cov_esteps[i] / self.variance)
-            self._maximization(means, covs, RRs, mean_esteps, cov_esteps, n_samples)
+            for demo_idx in range(n_demos):
+                means[demo_idx], covs[demo_idx] = self._expectation(
+                        PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
+            self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
             if np.linalg.norm(self.weight_mean - weight_mean_old) < 1e-5:
                 break
 
@@ -145,23 +168,32 @@ class ProMP(ProMPBase):
             ret[d * n_steps:(d + 1) * n_steps, d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim] = self._rbfs(time).T
         return ret
 
-    def _expectation(self, mean_estep, cov_estep):
-        cov = np.linalg.pinv(cov_estep + np.linalg.pinv(self.weight_cov))
-        mean = cov.dot(mean_estep + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))[:, 0]
+    def _expectation(self, PhiHTR, PhiHTHPhiT):
+        cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
+        mean = cov.dot(PhiHTR / self.variance + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))
         return mean, cov
 
-    def _maximization(self, means, covs, RRs, RHs, HHs, n_samples):
-        self.weight_mean = np.mean(means, axis=0)[0]  # TODO should reduce 2d array to 1d array
+    def _maximization(self, means, covs, RRs, PhiHTR, PhiHTHPhiTs, n_samples):
+        M = len(means)
+
+        self.weight_mean = np.mean(means, axis=0)
+
         centered = means - self.weight_mean
         self.weight_cov = centered.T.dot(centered)
         for i in range(len(covs)):
             self.weight_cov += covs[i]
-        self.weight_cov /= len(covs)
+        self.weight_cov /= M  # TODO what is d + 2?
+
         self.variance = 0.0
         for i in range(len(means)):
-            self.variance += np.trace(HHs[i].dot(covs[i]))
-            self.variance += RRs[i][0, 0]
-            self.variance -= 2.0 * RHs[i].T.dot(means[i].T)[0, 0]
-            self.variance += (means[i].dot(HHs[i].dot(means[i].T)))[0, 0]
-        self.variance /= np.linalg.norm(means) * len(means) * self.n_dims * n_samples + 2
+            # a trace is the same irrelevant of the order of matrix multiplications,
+            # see: https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf, Equation 16
+            self.variance += np.trace(PhiHTHPhiTs[i].dot(covs[i]))
+
+            self.variance += RRs[i]
+            self.variance -= 2.0 * PhiHTR[i].T.dot(means[i].T)
+            self.variance += (means[i].dot(PhiHTHPhiTs[i].dot(means[i].T)))
+
+        #self.variance /= np.linalg.norm(means) * M * self.n_dims * n_samples + 2.0  # TODO why these factors?
+        self.variance /= n_samples + 2.0
 
