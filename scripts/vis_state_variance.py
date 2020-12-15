@@ -119,7 +119,7 @@ mvn = MVN(initial_mean, initial_cov, random_state=42).estimate_from_sigma_points
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
+mean_trajectory = mvn.mean_trajectory.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
 n_steps = len(mean_trajectory)
 

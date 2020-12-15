@@ -10,17 +10,7 @@ class ProMPBase:
 
     def _initialize(self, n_pos_dims, n_vel_dims):
         self.last_t = None
-        self.t = 0.0
-
-        self.start_y = np.zeros(n_pos_dims)
-        self.start_yd = np.zeros(n_vel_dims)
-        self.start_ydd = np.zeros(n_vel_dims)
-
-        self.goal_y = np.zeros(n_pos_dims)
-        self.goal_yd = np.zeros(n_vel_dims)
-        self.goal_ydd = np.zeros(n_vel_dims)
-
-        self.initialized = False
+        self.t = 0
 
         self.current_y = np.zeros(n_pos_dims)
         self.current_yd = np.zeros(n_vel_dims)
@@ -38,18 +28,44 @@ class ProMP(ProMPBase):
 
         self.configure()
 
-    def step(self, last_y, last_yd, coupling_term=None):
-        self.last_t = self.t
-        self.t += self.dt
+    def mean_trajectory(self, T):  # TODO check for n_dims > 1
+        activations = self._rbfs(T)
+        trajectory = np.empty((len(T), self.n_dims))
+        for d in range(self.n_dims):
+            trajectory[:, d] = activations.T.dot(self.weight_mean.reshape(self.n_weights_per_dim, self.n_dims)[:, d])  # TODO maybe change order
+        return trajectory
 
-        raise NotImplementedError()
+    def sample_trajectories(self, T, n_samples, random_state):  # TODO check for n_dims > 1
+        weight_samples = random_state.multivariate_normal(self.weight_mean, self.weight_cov, n_samples).reshape(n_samples, self.n_weights_per_dim, self.n_dims)  # TODO maybe change order
+        samples = np.empty((n_samples, len(T), self.n_dims))
+        activations = self._rbfs(T)
+        for i in range(n_samples):
+            for d in range(self.n_dims):
+                samples[i, :, d] = activations.T.dot(weight_samples[i, :, d])
+        return samples
 
-        return np.copy(self.current_y), np.copy(self.current_yd)
+    def imitate(self, Ts, Ys, lmbda=1e-5):
+        n_demos = len(Ts)
 
-    def open_loop(self, run_t=None, coupling_term=None):
-        raise NotImplementedError()
+        weights = np.empty((n_demos, self.n_weights_per_dim, self.n_dims))
+        for i in range(n_demos):
+            T = Ts[i]
+            Y = Ys[i]
+            # n_steps x self.n_weights_per_dim
+            Phi = self._rbfs(T).T
+            weights[i] = np.linalg.inv(Phi.T.dot(Phi) + lmbda * np.eye(self.n_weights_per_dim)).dot(Phi.T).dot(Y)
 
-    def imitate(self, Ts, Ys, gamma=0.7, n_iter=100):  # SCMTL algorithm
+        self.weight_mean = np.mean(weights, axis=0)
+
+        # TODO dependend dimensions
+        self.weight_cov = np.zeros((self.n_dims, self.n_weights_per_dim, self.n_weights_per_dim))
+        for d in range(self.n_dims):
+            for i in range(n_demos):
+                diff = weights[i, :, d] - self.weight_mean[:, d]
+                self.weight_cov[d] += np.outer(diff, diff)
+        self.weight_cov /= n_demos
+
+    def imitate_scmtl(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
         # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
         # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
         # Section 3.2 of https://hal.inria.fr/inria-00475214/document
@@ -72,12 +88,13 @@ class ProMP(ProMPBase):
         means = np.zeros((n_demos, self.n_weights_per_dim))
         covs = np.empty((n_demos, self.n_weights_per_dim, self.n_weights_per_dim))
 
+        # Precompute constant terms in expectation-maximization algorithm
+
         # n_demos x n_steps*self.n_dims x n_steps*self.n_dims
         Hs = []
         for demo_idx in range(n_demos):
             n_steps = len(Ys[demo_idx])
             H_partial = np.eye(n_steps)
-            # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L80
             for y in range(n_steps - 1):
                 H_partial[y, y + 1] = -gamma
             H = np.zeros((n_steps * self.n_dims, n_steps * self.n_dims))
@@ -97,7 +114,7 @@ class ProMP(ProMPBase):
         # n_demos x n_dims*self.n_weights_per_dim x self.n_dims*n_steps
         BFs = []
         for demo_idx in range(n_demos):
-            BF = self._bf(Ts[demo_idx]).T  # TODO why .T?
+            BF = self._bf(Ts[demo_idx]).T
             BFs.append(BF)
 
         # n_demos x n_steps*self.n_dims
@@ -134,29 +151,35 @@ class ProMP(ProMPBase):
             PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
             PhiHTHPhiTs.append(PhiHTHPhiT)
 
-        # TODO more efficient
         n_samples = 0
-        for demo_idx in range(n_demos):
+        for demo_idx in range(n_demos):  # TODO more efficient
             n_samples += Ys[demo_idx].shape[0]
 
         for it in range(n_iter):
             weight_mean_old = self.weight_mean
+
             for demo_idx in range(n_demos):
                 means[demo_idx], covs[demo_idx] = self._expectation(
                         PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
+
             self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
-            if np.linalg.norm(self.weight_mean - weight_mean_old) < 1e-5:
+
+            delta = np.linalg.norm(self.weight_mean - weight_mean_old)
+            if verbose:
+                print("Iteration %04d: delta = %g" % (it + 1, delta))
+            if delta < min_delta:
                 break
 
     def _rbfs(self, t, overlap=0.7, normalized=True):
         self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
-        t = np.atleast_2d(t)  # 1 x n_steps
+        # normalize time to interval [0, 1]
+        t = np.atleast_2d(t)
         t /= np.max(t)
 
-        squared_dist = (t - self.centers[:, np.newaxis]) ** 2  # 1 x n_steps x
-        activations = np.exp(squared_dist / (2.0 * h))
+        squared_dist = (t - self.centers[:, np.newaxis]) ** 2
+        activations = np.exp(-squared_dist / (2.0 * h))
         if normalized:
             activations /= activations.sum(axis=0)
         return activations
