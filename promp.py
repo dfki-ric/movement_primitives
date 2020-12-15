@@ -28,20 +28,20 @@ class ProMP(ProMPBase):
 
         self.configure()
 
-    def mean_trajectory(self, T):  # TODO check for n_dims > 1
+    def mean_trajectory(self, T):
         activations = self._rbfs(T)
         trajectory = np.empty((len(T), self.n_dims))
         for d in range(self.n_dims):
-            trajectory[:, d] = activations.T.dot(self.weight_mean.reshape(self.n_weights_per_dim, self.n_dims)[:, d])  # TODO maybe change order
+            trajectory[:, d] = activations.T.dot(self.weight_mean.reshape(self.n_dims, self.n_weights_per_dim)[d])
         return trajectory
 
-    def sample_trajectories(self, T, n_samples, random_state):  # TODO check for n_dims > 1
-        weight_samples = random_state.multivariate_normal(self.weight_mean, self.weight_cov, n_samples).reshape(n_samples, self.n_weights_per_dim, self.n_dims)  # TODO maybe change order
+    def sample_trajectories(self, T, n_samples, random_state):
+        weight_samples = random_state.multivariate_normal(self.weight_mean, self.weight_cov, n_samples).reshape(n_samples, self.n_dims, self.n_weights_per_dim)
         samples = np.empty((n_samples, len(T), self.n_dims))
         activations = self._rbfs(T)
         for i in range(n_samples):
             for d in range(self.n_dims):
-                samples[i, :, d] = activations.T.dot(weight_samples[i, :, d])
+                samples[i, :, d] = activations.T.dot(weight_samples[i, d])
         return samples
 
     def imitate(self, Ts, Ys, lmbda=1e-5):
@@ -85,8 +85,8 @@ class ProMP(ProMPBase):
         self.weight_cov = np.eye(n_weights)
         self.variance = 1.0
 
-        means = np.zeros((n_demos, self.n_weights_per_dim))
-        covs = np.empty((n_demos, self.n_weights_per_dim, self.n_weights_per_dim))
+        means = np.zeros((n_demos, n_weights))
+        covs = np.empty((n_demos, n_weights, n_weights))
 
         # Precompute constant terms in expectation-maximization algorithm
 
