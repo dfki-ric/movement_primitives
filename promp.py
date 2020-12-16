@@ -1,24 +1,7 @@
 import numpy as np
 
 
-class ProMPBase:
-    def configure(self, last_t=None, t=None):  # TODO viapoints / conditioning
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-
-    def _initialize(self, n_dims, n_weights_per_dim):
-        self.last_t = None
-        self.t = 0
-
-        self.n_weights = n_dims * n_weights_per_dim
-
-        self.weight_mean = np.zeros(self.n_weights)
-        self.weight_cov = np.eye(self.n_weights)
-
-
-class ProMP(ProMPBase):
+class ProMP:
     """Probabilistic Movement Primitive (ProMP).
 
     ProMPs have been proposed first in [1] and have been used later in [2,3].
@@ -46,16 +29,14 @@ class ProMP(ProMPBase):
     [4] Lazaric et al.: Bayesian Multi-Task Reinforcement Learning, ICML (2010),
     https://hal.inria.fr/inria-00475214/document
     """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+    def __init__(self, n_dims, n_weights_per_dim=10):
         self.n_dims = n_dims
-        self.execution_time = execution_time
-        self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
-        self.int_dt = int_dt
 
-        self._initialize(n_dims, n_weights_per_dim)
+        self.n_weights = n_dims * n_weights_per_dim
 
-        self.configure()
+        self.weight_mean = np.zeros(self.n_weights)
+        self.weight_cov = np.eye(self.n_weights)
 
     def weights(self, T, Y, lmbda=1e-12):
         activations = self._bf(T).T

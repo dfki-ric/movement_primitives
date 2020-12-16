@@ -3,10 +3,9 @@ import numpy as np
 from promp import ProMP
 
 
-dt = 0.02
 n_weights_per_dim = 15
 
-promp = ProMP(n_dims=2, execution_time=1.0, dt=0.01, n_weights_per_dim=n_weights_per_dim)
+promp = ProMP(n_dims=2, n_weights_per_dim=n_weights_per_dim)
 
 random_state = np.random.RandomState(10)
 n_demos = 20

@@ -7,7 +7,7 @@ from gmr import GMM
 n_dims = 2
 n_weights_per_dim = 10
 
-promp = ProMP(n_dims=n_dims, execution_time=1.0, dt=0.01, n_weights_per_dim=n_weights_per_dim)
+promp = ProMP(n_dims=n_dims, n_weights_per_dim=n_weights_per_dim)
 
 random_state = np.random.RandomState(10)
 n_demos = 30
