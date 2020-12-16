@@ -5,7 +5,7 @@ from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
-from dmp import DualCartesianDMP
+from promp import ProMP
 
 
 def load_data(path):
@@ -70,29 +70,15 @@ class SelectDemo:
         fig.view_init(azim=0, elev=25)
         return True
 
-all_weights = []
-all_starts = []
-all_goals = []
-all_execution_times = []
 
-# first N trajectories are from training set
-for idx, path in enumerate(list(glob.glob(pattern))[:10]):
+# first 5 trajectories are from training set
+Ts = []
+Ps = []
+for idx, path in enumerate(list(glob.glob(pattern))[:5]):
     print("Loading %s" % path)
     T, P = load_data(path)
-
-    execution_time = T[-1]
-    dt = np.mean(np.diff(T))
-    if dt < 0.005:  # HACK
-        continue
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=dt,
-        n_weights_per_dim=n_weights_per_dim, int_dt=0.01, k_tracking_error=0.0)
-    dmp.imitate(T, P)
-    weights = dmp.get_weights()
-    all_weights.append(weights)
-    all_starts.append(P[0])
-    all_goals.append(P[-1])
-    all_execution_times.append(execution_time)
+    Ts.append(T)
+    Ps.append(P)
 
     if idx < 5:
         left = fig.plot_trajectory(P=P[:, :7], s=0.02)
@@ -100,30 +86,18 @@ for idx, path in enumerate(list(glob.glob(pattern))[:10]):
         key = ord(str((idx + 1) % 10))
         fig.visualizer.register_key_action_callback(key, SelectDemo(fig, left, right))
 
-all_parameters = np.vstack([
-    np.hstack((w, s, g, e)) for w, s, g, e in zip(
-        all_weights, all_starts, all_goals, all_execution_times)])
-mean_parameters = np.mean(all_parameters, axis=0)
-cov_parameters = np.cov(all_parameters, rowvar=False)
+mean_n_steps = int(np.mean([len(P) for P in Ps]))
+mean_T = np.linspace(0, 1, mean_n_steps)
+promp = ProMP(n_dims=14, n_weights_per_dim=n_weights_per_dim)
+promp.imitate(Ts, Ps)
+
 random_state = np.random.RandomState(0)
 
-# next 5 trajectories are sampled from Gaussian DMP
+# next 5 trajectories are sampled from ProMP
 for idx in range(5):
     print("Reproduce #%d" % (idx + 1))
 
-    params = random_state.multivariate_normal(mean_parameters, cov_parameters)
-    n_weights = 2 * 6 * n_weights_per_dim
-    weights = params[:n_weights]
-    start = params[n_weights:n_weights + 14]
-    goal = params[n_weights + 14:n_weights + 2 * 14]
-    execution_time = params[-1]
-
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=0.01,
-        n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
-    dmp.set_weights(weights)
-    dmp.configure(start_y=start, goal_y=goal)
-    T, P = dmp.open_loop(run_t=execution_time)
+    P = promp.sample_trajectories(mean_T, 1, random_state)[0]
 
     left = fig.plot_trajectory(P=P[:, :7], s=0.02)
     right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
