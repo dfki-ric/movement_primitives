@@ -1,6 +1,7 @@
 import glob
 import numpy as np
 import pandas as pd
+import open3d as o3d
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
 import pytransform3d.visualizer as pv
@@ -83,14 +84,31 @@ gmm.from_samples(X)
 mean_n_steps = int(np.mean([len(P) for P in Ps]))
 mean_T = np.linspace(0, 1, mean_n_steps)
 
-fig = pv.figure()
+fig = pv.figure(with_key_callbacks=True)
 fig.plot_transform(s=0.1)
 tm = UrdfTransformManager()
 with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
     tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
 fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
 
-for panel_width, color in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0])):
+
+class SelectContext:
+    def __init__(self, fig, pcl):
+        self.fig = fig
+        self.pcl = pcl
+        self.show = True
+
+    def __call__(self, vis, key, modifier):  # sometimes we don't receive the correct keys, why?
+        self.show = not self.show
+        if self.show and modifier:
+            vis.remove_geometry(self.pcl)
+        elif not self.show and not modifier:
+            vis.add_geometry(self.pcl)
+        fig.view_init(azim=0, elev=25)
+        return True
+
+
+for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0]), range(3)):
     print("panel_width = %.2f, color = %s" % (panel_width, color))
 
     context = np.array([panel_width, 1.0, 0.0])
@@ -98,14 +116,27 @@ for panel_width, color in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0]
     promp.from_weight_distribution(
         conditional_weight_distribution.mean,
         conditional_weight_distribution.covariance)
-    samples = promp.sample_trajectories(mean_T, 50, random_state)
+    samples = promp.sample_trajectories(mean_T, 1000, random_state)
 
+    pcl_points = []
     for P in samples:
+        pcl_points.extend(P[:, :3])
+        pcl_points.extend(P[:, 7:10])
+
         ee_distances = np.linalg.norm(P[:, :3] - P[:, 7:10], axis=1)
         average_ee_distance = np.mean(ee_distances)
         print("Average distance = %.2f" % average_ee_distance)
-        left = fig.plot_trajectory(P=P[:, :7], s=0.02, c=color)
-        right = fig.plot_trajectory(P=P[:, 7:], s=0.02, c=color)
+        #left = fig.plot_trajectory(P=P[:, :7], s=0.02, c=color)
+        #right = fig.plot_trajectory(P=P[:, 7:], s=0.02, c=color)
+
+    pcl = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.array(pcl_points)))
+    pcl = pcl.uniform_down_sample(10)
+    colors = o3d.utility.Vector3dVector([color for _ in range(len(pcl.points))])
+    pcl.colors = colors
+    fig.add_geometry(pcl)
+
+    key = ord(str((idx + 1) % 10))
+    fig.visualizer.register_key_action_callback(key, SelectContext(fig, pcl))
 
 """
 # plot training data
