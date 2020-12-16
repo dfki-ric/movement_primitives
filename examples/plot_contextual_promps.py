@@ -21,7 +21,7 @@ for demo_idx in range(n_demos):
 
 weights = np.empty((n_demos, n_dims * n_weights_per_dim))
 for demo_idx in range(n_demos):
-    weights[demo_idx] = promp.weights(T, Ys[demo_idx]).ravel()
+    weights[demo_idx] = promp.weights(T, Ys[demo_idx])
 
 gmm = GMM(n_components=2, random_state=random_state)
 X = np.hstack((contexts[:, np.newaxis], weights))
