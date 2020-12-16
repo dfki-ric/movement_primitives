@@ -51,12 +51,12 @@ class ProMP(ProMPBase):
 
         self.configure()
 
-    def weights(self, T, Y, lmbda=1e-12):  # TODO flatten second dim
-        activations = self._rbfs(T).T
+    def weights(self, T, Y, lmbda=1e-12):
+        activations = self._bf(T).T
         weights = np.linalg.pinv(
             activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
-        ).dot(activations.T).dot(Y)
-        return weights.T
+        ).dot(activations.T).dot(Y.T.ravel())
+        return weights
 
     def trajectory_from_weights(self, T, weights):
         return self._bf(T).T.dot(weights).reshape(self.n_dims, len(T)).T
