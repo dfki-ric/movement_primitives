@@ -59,11 +59,7 @@ class ProMP(ProMPBase):
         return weights.T
 
     def trajectory_from_weights(self, T, weights):
-        activations = self._rbfs(T).T
-        trajectory = np.empty((len(T), self.n_dims))
-        for d in range(self.n_dims):
-            trajectory[:, d] = activations.dot(weights.reshape(self.n_dims, self.n_weights_per_dim)[d])
-        return trajectory
+        return self._bf(T).T.dot(weights).reshape(self.n_dims, len(T)).T
 
     def mean_trajectory(self, T):
         return self.trajectory_from_weights(T, self.weight_mean)
@@ -182,6 +178,35 @@ class ProMP(ProMPBase):
             if delta < min_delta:
                 break
 
+    def _bf(self, T, overlap=0.7):
+        """Radial basis functions for all dimensions.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
+            Activations of RBFs for each time step and in each dimension.
+            All activations for dimension d can be found in
+            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d * n_steps:(d + 1) * n_steps]
+            so that the inner indices run over time / basis function and the
+            outer index over dimensions.
+        """
+        n_steps = len(T)
+        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
+        for d in range(self.n_dims):
+            ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
+                d * n_steps:(d + 1) * n_steps] = self._rbfs(T, overlap)
+        return ret
+
     def _rbfs(self, T, overlap=0.7):
         """Radial basis functions per dimension.
 
@@ -218,34 +243,6 @@ class ProMP(ProMPBase):
         assert activations.shape[1] == n_steps
 
         return activations
-
-    def _bf(self, T, overlap=0.7):
-        """Radial basis functions for all dimensions.
-
-        Parameters
-        ----------
-        T : array-like, shape (n_steps,)
-            Times at which the activations of RBFs will be queried. Note that
-            we assume that T[0] == 0.0 and the times will be normalized
-            internally so that T[-1] == 1.0.
-
-        overlap : float, optional (default: 0.7)
-            Indicates how much the RBFs are allowed to overlap.
-
-        Returns
-        -------
-        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
-            Activations of RBFs for each time step and in each dimension.
-            All activations for dimension d can be found in
-            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d * n_steps:(d + 1) * n_steps]
-            so that the inner indices run over time / basis function and the
-            outer index over dimensions.
-        """
-        n_steps = len(T)
-        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
-        for d in range(self.n_dims):
-            ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim, d * n_steps:(d + 1) * n_steps] = self._rbfs(T, overlap)
-        return ret
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):
         cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
