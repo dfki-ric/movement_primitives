@@ -77,13 +77,10 @@ class ProMP(ProMPBase):
 
     def sample_trajectories(self, T, n_samples, random_state):
         weight_samples = random_state.multivariate_normal(
-            self.weight_mean, self.weight_cov, n_samples).reshape(
-            n_samples, self.n_dims, self.n_weights_per_dim)
+            self.weight_mean, self.weight_cov, n_samples)
         samples = np.empty((n_samples, len(T), self.n_dims))
-        activations = self._rbfs(T)
         for i in range(n_samples):
-            for d in range(self.n_dims):
-                samples[i, :, d] = activations.dot(weight_samples[i, d])
+            samples[i] = self.trajectory_from_weights(T, weight_samples[i])
         return samples
 
     def from_weight_distribution(self, mean, cov):
