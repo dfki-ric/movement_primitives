@@ -80,10 +80,10 @@ class ProMP(ProMPBase):
             self.weight_mean, self.weight_cov, n_samples).reshape(
             n_samples, self.n_dims, self.n_weights_per_dim)
         samples = np.empty((n_samples, len(T), self.n_dims))
-        activations = self._rbfs(T)
+        activations = self._rbfs(T).T
         for i in range(n_samples):
             for d in range(self.n_dims):
-                samples[i, :, d] = activations.T.dot(weight_samples[i, d])
+                samples[i, :, d] = activations.dot(weight_samples[i, d])
         return samples
 
     def from_weight_distribution(self, mean, cov):
@@ -191,25 +191,67 @@ class ProMP(ProMPBase):
             if delta < min_delta:
                 break
 
-    def _rbfs(self, t, overlap=0.7, normalized=True):
+    def _rbfs(self, T, overlap=0.7):
+        """Radial basis functions per dimension.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of RBFs for each time step.
+        """
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
         self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
         # normalize time to interval [0, 1]
-        t = np.atleast_2d(t)
-        t /= np.max(t)
+        T = np.atleast_2d(T)
+        T /= np.max(T)
 
-        squared_dist = (t - self.centers[:, np.newaxis]) ** 2
-        activations = np.exp(-squared_dist / (2.0 * h))
-        if normalized:
-            activations /= activations.sum(axis=0)
+        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
+        activations /= activations.sum(axis=0)  # normalize activations
+
+        assert activations.shape[0] == self.n_weights_per_dim
+        assert activations.shape[1] == n_steps
+
         return activations
 
-    def _bf(self, time):
-        n_steps = len(time)
+    def _bf(self, T, overlap=0.7):
+        """Radial basis functions for all dimensions.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_dims * n_steps, n_dims * n_weights_per_dim)
+            Activations of RBFs for each time step and in each dimension.
+            All activations for dimension d can be found in
+            activations[d * n_steps:(d + 1) * n_steps, d * n_weights_per_dim:(d + 1) * n_weights_per_dim].
+        """
+        n_steps = len(T)
         ret = np.zeros((self.n_dims * n_steps, self.n_dims * self.n_weights_per_dim))
         for d in range(self.n_dims):
-            ret[d * n_steps:(d + 1) * n_steps, d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim] = self._rbfs(time).T
+            ret[d * n_steps:(d + 1) * n_steps, d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim] = self._rbfs(T, overlap).T
         return ret
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):

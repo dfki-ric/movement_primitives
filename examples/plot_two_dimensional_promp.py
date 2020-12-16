@@ -28,10 +28,10 @@ plt.plot(mean_trajectory[:, 0], mean_trajectory[:, 1], label="Reproduction", c="
 plt.scatter(mean_trajectory[:, 0], mean_trajectory[:, 1], c="r")
 
 random_state = np.random.RandomState(0)
-samples = promp.sample_trajectories(T[0], 10, random_state)
+samples = promp.sample_trajectories(T[0], 20, random_state)
 
 for sample in samples:
-    plt.plot(sample[:, 0], sample[:, 1], c="g", alpha=0.05)
+    plt.plot(sample[:, 0], sample[:, 1], c="g", alpha=0.3)
 
 plt.legend(loc="best")
 
