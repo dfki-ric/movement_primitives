@@ -24,6 +24,12 @@ class ProMP(ProMPBase):
     ProMPs have been proposed first in [1] and have been used later in [2,3].
     The learning algorithm is a specialized form of the one presented in [4].
 
+    Note that internally we represented trajectories with the task space
+    dimension as the first axis and the time step as the second axis while
+    the exposed trajectory interface is transposed. In addition, we internally
+    only use the a 1d array representation to make handling of the covariance
+    simpler.
+
     References
     ----------
     [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
@@ -117,18 +123,12 @@ class ProMP(ProMPBase):
             Hs.append(H)
 
         # n_demos x n_steps*n_dims
-        vals = []  # TODO rename
-        for demo_idx in range(n_demos):
-            n_steps = Ys[demo_idx].shape[0]
-            val = np.zeros((n_steps * self.n_dims))
-            for j in range(self.n_dims):
-                val[n_steps * j:n_steps * (j + 1)] = Ys[demo_idx, :, j]
-            vals.append(val)
+        Ys_rearranged = [Y.T.ravel() for Y in Ys]
 
         # n_demos x n_steps*self.n_dims
         Rs = []
         for demo_idx in range(n_demos):
-            R = Hs[demo_idx].dot(vals[demo_idx])
+            R = Hs[demo_idx].dot(Ys_rearranged[demo_idx])
             Rs.append(R)
 
         # n_demos
@@ -159,9 +159,7 @@ class ProMP(ProMPBase):
             PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
             PhiHTHPhiTs.append(PhiHTHPhiT)
 
-        n_samples = 0
-        for demo_idx in range(n_demos):  # TODO more efficient
-            n_samples += Ys[demo_idx].shape[0]
+        n_samples = sum([Y.shape[0] for Y in Ys])
 
         for it in range(n_iter):
             weight_mean_old = self.weight_mean
