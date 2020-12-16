@@ -52,14 +52,14 @@ class ProMP(ProMPBase):
         self.configure()
 
     def weights(self, T, Y, lmbda=1e-12):  # TODO test
-        activations = self._rbfs(T).T
+        activations = self._rbfs(T)
         weights = np.linalg.pinv(
             activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
         ).dot(activations.T).dot(Y)
         return weights.T
 
     def trajectory_from_weights(self, T, weights):
-        activations = self._rbfs(T).T
+        activations = self._rbfs(T)
         trajectory = np.empty((len(T), self.n_dims))
         for d in range(self.n_dims):
             trajectory[:, d] = activations.dot(weights.reshape(self.n_dims, self.n_weights_per_dim)[d])
@@ -80,7 +80,7 @@ class ProMP(ProMPBase):
             self.weight_mean, self.weight_cov, n_samples).reshape(
             n_samples, self.n_dims, self.n_weights_per_dim)
         samples = np.empty((n_samples, len(T), self.n_dims))
-        activations = self._rbfs(T).T
+        activations = self._rbfs(T)
         for i in range(n_samples):
             for d in range(self.n_dims):
                 samples[i, :, d] = activations.dot(weight_samples[i, d])
@@ -206,7 +206,7 @@ class ProMP(ProMPBase):
 
         Returns
         -------
-        activations : array, shape (n_weights_per_dim, n_steps)
+        activations : array, shape (n_steps, n_weights_per_dim)
             Activations of RBFs for each time step.
         """
         assert T.ndim == 1
@@ -220,11 +220,11 @@ class ProMP(ProMPBase):
         T = np.atleast_2d(T)
         T /= np.max(T)
 
-        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
-        activations /= activations.sum(axis=0)  # normalize activations
+        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h)).T
+        activations /= activations.sum(axis=1)[:, np.newaxis]  # normalize activations for each step
 
-        assert activations.shape[0] == self.n_weights_per_dim
-        assert activations.shape[1] == n_steps
+        assert activations.shape[0] == n_steps
+        assert activations.shape[1] == self.n_weights_per_dim
 
         return activations
 
@@ -246,12 +246,14 @@ class ProMP(ProMPBase):
         activations : array, shape (n_dims * n_steps, n_dims * n_weights_per_dim)
             Activations of RBFs for each time step and in each dimension.
             All activations for dimension d can be found in
-            activations[d * n_steps:(d + 1) * n_steps, d * n_weights_per_dim:(d + 1) * n_weights_per_dim].
+            activations[d * n_steps:(d + 1) * n_steps, d * n_weights_per_dim:(d + 1) * n_weights_per_dim]
+            so that the inner indices run over time / basis function and the
+            outer index over dimensions.
         """
         n_steps = len(T)
         ret = np.zeros((self.n_dims * n_steps, self.n_dims * self.n_weights_per_dim))
         for d in range(self.n_dims):
-            ret[d * n_steps:(d + 1) * n_steps, d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim] = self._rbfs(T, overlap).T
+            ret[d * n_steps:(d + 1) * n_steps, d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim] = self._rbfs(T, overlap)
         return ret
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):
