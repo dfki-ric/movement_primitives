@@ -8,12 +8,14 @@ class ProMPBase:
         if t is not None:
             self.t = t
 
-    def _initialize(self, n_pos_dims, n_vel_dims):
+    def _initialize(self, n_dims, n_weights_per_dim):
         self.last_t = None
         self.t = 0
 
-        self.current_y = np.zeros(n_pos_dims)
-        self.current_yd = np.zeros(n_vel_dims)
+        self.n_weights = n_dims * n_weights_per_dim
+
+        self.weight_mean = np.zeros(self.n_weights)
+        self.weight_cov = np.eye(self.n_weights)
 
 
 class ProMP(ProMPBase):
@@ -45,16 +47,26 @@ class ProMP(ProMPBase):
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
 
-        self._initialize(n_dims, n_dims)
+        self._initialize(n_dims, n_weights_per_dim)
 
         self.configure()
 
-    def mean_trajectory(self, T):
-        activations = self._rbfs(T)
-        mean = np.empty((len(T), self.n_dims))
+    def weights(self, T, Y, lmbda=1e-12):  # TODO test
+        activations = self._rbfs(T).T
+        weights = np.linalg.pinv(
+            activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
+        ).dot(activations.T).dot(Y)
+        return weights.T
+
+    def trajectory_from_weights(self, T, weights):
+        activations = self._rbfs(T).T
+        trajectory = np.empty((len(T), self.n_dims))
         for d in range(self.n_dims):
-            mean[:, d] = activations.T.dot(self.weight_mean.reshape(self.n_dims, self.n_weights_per_dim)[d])
-        return mean
+            trajectory[:, d] = activations.dot(weights.reshape(self.n_dims, self.n_weights_per_dim)[d])
+        return trajectory
+
+    def mean_trajectory(self, T):
+        return self.trajectory_from_weights(T, self.weight_mean)
 
     def cov_trajectory(self, T):
         activations = self._bf(T).T
@@ -87,6 +99,10 @@ class ProMP(ProMPBase):
             #    samples[i, t] += random_state.multivariate_normal(
             #        np.zeros(self.n_dims), self.state_cov)
         return samples
+
+    def from_weight_distribution(self, mean, cov):
+        self.weight_mean = mean
+        self.weight_cov = cov
 
     """
     def imitate(self, Ts, Ys, lmbda=1e-5): # TODO subtract parameter noise!
@@ -127,14 +143,10 @@ class ProMP(ProMPBase):
         # TODO what is Sigma_y?
 
         n_demos = len(Ts)
-        n_weights = self.n_dims * self.n_weights_per_dim
-
-        self.weight_mean = np.zeros(n_weights)
-        self.weight_cov = np.eye(n_weights)
         self.variance = 1.0
 
-        means = np.zeros((n_demos, n_weights))
-        covs = np.empty((n_demos, n_weights, n_weights))
+        means = np.zeros((n_demos, self.n_weights))
+        covs = np.empty((n_demos, self.n_weights, self.n_weights))
 
         # Precompute constant terms in expectation-maximization algorithm
 

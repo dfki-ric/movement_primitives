@@ -3,8 +3,6 @@ import numpy as np
 from promp import ProMP
 
 
-start_t = 0.0
-goal_t = 1.0
 dt = 0.02
 n_weights_per_dim = 15
 
