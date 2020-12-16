@@ -71,12 +71,6 @@ class ProMP(ProMPBase):
     def cov_trajectory(self, T):
         activations = self._bf(T).T
         return activations.T.dot(self.weight_cov).dot(activations)
-        #n_steps = len(T)
-        #cov1 = activations.T.dot(self.weight_cov).dot(activations)
-        #cov2 = np.zeros_like(cov1)
-        #for t in range(n_steps):
-        #    cov2[t * self.n_dims:(t + 1) * self.n_dims, t * self.n_dims:(t + 1) * self.n_dims] = self.state_cov
-        #return cov1 + cov2
 
     def var_trajectory(self, T):
         return np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T
@@ -90,42 +84,11 @@ class ProMP(ProMPBase):
         for i in range(n_samples):
             for d in range(self.n_dims):
                 samples[i, :, d] = activations.T.dot(weight_samples[i, d])
-            # maybe not required:
-            # we sample in parameter space and in state space
-            # alternatively, we could compute the full state space
-            # covariance and mean state trajectory and sample in
-            # state space directly
-            #for t in range(len(T)):
-            #    samples[i, t] += random_state.multivariate_normal(
-            #        np.zeros(self.n_dims), self.state_cov)
         return samples
 
     def from_weight_distribution(self, mean, cov):
         self.weight_mean = mean
         self.weight_cov = cov
-
-    """
-    def imitate(self, Ts, Ys, lmbda=1e-5): # TODO subtract parameter noise!
-        n_demos = len(Ts)
-
-        weights = np.empty((n_demos, self.n_weights_per_dim, self.n_dims))
-        for i in range(n_demos):
-            T = Ts[i]
-            Y = Ys[i]
-            # n_steps x self.n_weights_per_dim
-            Phi = self._rbfs(T).T
-            weights[i] = np.linalg.inv(Phi.T.dot(Phi) + lmbda * np.eye(self.n_weights_per_dim)).dot(Phi.T).dot(Y)
-
-        self.weight_mean = np.mean(weights, axis=0)
-
-        # TODO correlations between dimensions
-        self.weight_cov = np.zeros((self.n_dims, self.n_weights_per_dim, self.n_weights_per_dim))
-        for d in range(self.n_dims):
-            for i in range(n_demos):
-                diff = weights[i, :, d] - self.weight_mean[:, d]
-                self.weight_cov[d] += np.outer(diff, diff)
-        self.weight_cov /= n_demos
-        """
 
     def imitate(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
         # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
@@ -139,8 +102,6 @@ class ProMP(ProMPBase):
         # Sigma_0 = 0
         # alpha_0 = 0
         # beta_0 = 0
-
-        # TODO what is Sigma_y?
 
         n_demos = len(Ts)
         self.variance = 1.0
@@ -229,17 +190,6 @@ class ProMP(ProMPBase):
                 print("Iteration %04d: delta = %g" % (it + 1, delta))
             if delta < min_delta:
                 break
-
-        """
-        self._state_cov(Ts, Ys)
-
-    def _state_cov(self, Ts, Ys):
-        self.state_cov = np.zeros((self.n_dims, self.n_dims))
-        for demo_idx in range(len(Ts)):
-            eps = Ys[demo_idx] - self.mean_trajectory(Ts[demo_idx]).reshape(len(Ts[demo_idx]), self.n_dims)
-            self.state_cov += eps.T.dot(eps) / len(Ts[demo_idx])
-        self.state_cov /= len(Ts)
-    """
 
     def _rbfs(self, t, overlap=0.7, normalized=True):
         self.centers = np.linspace(0, 1, self.n_weights_per_dim)
