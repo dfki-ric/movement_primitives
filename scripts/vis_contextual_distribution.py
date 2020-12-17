@@ -10,11 +10,42 @@ from promp import ProMP
 from gmr import GMM
 
 
-def load_data(path):
+# available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
+def generate_training_data(
+        pattern, n_weights_per_dim, context_names, verbose=0):
+    Ts, Ps, contexts = load_demos(pattern, context_names, verbose=verbose)
+
+    n_demos = len(Ts)
+    n_dims = Ps[0].shape[1]
+
+    promp = ProMP(n_dims=n_dims, n_weights_per_dim=n_weights_per_dim)
+    weights = np.empty((n_demos, n_dims * n_weights_per_dim))
+    for demo_idx in range(n_demos):
+        weights[demo_idx] = promp.weights(Ts[demo_idx], Ps[demo_idx])
+
+    return np.hstack((contexts, weights)), Ts, Ps, contexts
+
+
+def load_demos(pattern, context_names, verbose=0):
+    Ts = []
+    Ps = []
+    contexts = []
+    for idx, path in enumerate(list(glob.glob(pattern))):
+        if verbose:
+            print("Loading %s" % path)
+        T, P, context = load_demo(path, context_names, verbose=verbose - 1)
+        Ts.append(T)
+        Ps.append(P)
+        contexts.append(context)
+    return Ts, Ps, contexts
+
+
+def load_demo(path, context_names, verbose=0):
     trajectory = pd.read_csv(path, sep=" ")
 
-    # omitted: "left_arm", "right_arm"
-    context = trajectory[["panel_width", "clockwise", "counterclockwise"]].iloc[0].to_numpy()
+    context = trajectory[list(context_names)].iloc[0].to_numpy()
+    if verbose:
+        print("Context: %s" % (context,))
 
     patterns = ["time\.microseconds",
                 "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*",
@@ -51,38 +82,22 @@ def load_data(path):
 
 n_dims = 14
 n_weights_per_dim = 10
+# omitted contexts: "left_arm", "right_arm"
+context_names = ["panel_width", "clockwise", "counterclockwise"]
 
 #pattern = "data/kuka/20200129_peg_in_hole/csv_processed/*/*.csv"
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/*/*.csv"
 pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/*/*.csv"
 
-
-Ts = []
-Ps = []
-contexts = []
-for idx, path in enumerate(list(glob.glob(pattern))):
-    print("Loading %s" % path)
-    T, P, context = load_data(path)
-    Ts.append(T)
-    Ps.append(P)
-    contexts.append(context)
-
-print("All contexts:")
-print(np.array(contexts).tolist())
-
-promp = ProMP(n_dims=n_dims, n_weights_per_dim=n_weights_per_dim)
-weights = np.empty((len(Ps), n_dims * n_weights_per_dim))
-for demo_idx in range(len(Ps)):
-    weights[demo_idx] = promp.weights(Ts[demo_idx], Ps[demo_idx])
-
-X = np.hstack((contexts, weights))
+X, Ts, Ps, contexts = generate_training_data(
+    pattern, n_weights_per_dim, context_names=context_names, verbose=2)
 
 random_state = np.random.RandomState(0)
-gmm = GMM(n_components=3, random_state=random_state)
+gmm = GMM(n_components=5, random_state=random_state)
 gmm.from_samples(X)
 
-mean_n_steps = int(np.mean([len(P) for P in Ps]))
-mean_T = np.linspace(0, 1, mean_n_steps)
+n_steps = 100
+T_query = np.linspace(0, 1, n_steps)
 
 fig = pv.figure(with_key_callbacks=True)
 fig.plot_transform(s=0.1)
@@ -111,12 +126,13 @@ class SelectContext:
 for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0]), range(3)):
     print("panel_width = %.2f, color = %s" % (panel_width, color))
 
-    context = np.array([panel_width, 1.0, 0.0])
-    conditional_weight_distribution = gmm.condition(np.arange(3), context).to_mvn()
+    context = np.array([panel_width, 0.0, 1.0])
+    conditional_weight_distribution = gmm.condition(np.arange(len(context)), context).to_mvn()
+    promp = ProMP(n_dims=n_dims, n_weights_per_dim=n_weights_per_dim)
     promp.from_weight_distribution(
         conditional_weight_distribution.mean,
         conditional_weight_distribution.covariance)
-    samples = promp.sample_trajectories(mean_T, 1000, random_state)
+    samples = promp.sample_trajectories(T_query, 100, random_state)
 
     pcl_points = []
     for P in samples:
@@ -130,7 +146,7 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
         #right = fig.plot_trajectory(P=P[:, 7:], s=0.02, c=color)
 
     pcl = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.array(pcl_points)))
-    pcl = pcl.uniform_down_sample(10)
+    #pcl = pcl.uniform_down_sample(10)
     colors = o3d.utility.Vector3dVector([color for _ in range(len(pcl.points))])
     pcl.colors = colors
     fig.add_geometry(pcl)
@@ -138,12 +154,10 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     key = ord(str((idx + 1) % 10))
     fig.visualizer.register_key_action_callback(key, SelectContext(fig, pcl))
 
-"""
 # plot training data
 for P in Ps:
     left = fig.plot_trajectory(P=P[:, :7], s=0.02)
     right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
-"""
 
 fig.view_init(azim=0, elev=25)
 fig.show()
