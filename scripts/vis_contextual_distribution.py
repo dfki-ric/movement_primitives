@@ -23,7 +23,7 @@ def generate_training_data(
     for demo_idx in range(n_demos):
         weights[demo_idx] = promp.weights(Ts[demo_idx], Ps[demo_idx])
 
-    return np.hstack((contexts, weights)), Ts, Ps, contexts
+    return weights, Ts, Ps, contexts
 
 
 def load_demos(pattern, context_names, verbose=0):
@@ -89,8 +89,9 @@ context_names = ["panel_width", "clockwise", "counterclockwise"]
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/*/*.csv"
 pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/*/*.csv"
 
-X, Ts, Ps, contexts = generate_training_data(
+weights, Ts, Ps, contexts = generate_training_data(
     pattern, n_weights_per_dim, context_names=context_names, verbose=2)
+X = np.hstack((contexts, weights))
 
 random_state = np.random.RandomState(0)
 gmm = GMM(n_components=5, random_state=random_state)
