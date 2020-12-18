@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sns
 import warnings
+from gmr import GMM
 
 
 tf.random.set_seed(42)
@@ -24,17 +25,17 @@ y_size = 4
 
 
 class MDN(tf.keras.Model):
-    def __init__(self, units=100, components=2):
+    def __init__(self, units=100, n_components=2):
         super(MDN, self).__init__(name="MDN")
         self.neurons = units
-        self.components = components
+        self.n_components = n_components
 
         self.h1 = Dense(units, activation="relu", name="h1")
         self.h2 = Dense(units, activation="relu", name="h2")
 
-        self.alphas = Dense(components, activation="softmax", name="alphas")
-        self.mus = Dense(components, name="mus")
-        self.sigmas = Dense(components, activation="nnelu", name="sigmas")
+        self.alphas = Dense(n_components, activation="softmax", name="alphas")
+        self.mus = Dense(n_components, name="mus")
+        self.sigmas = Dense(n_components, activation="nnelu", name="sigmas")
         self.pvec = Concatenate(name="pvec")
 
     def call(self, inputs, training=None, mask=None):
@@ -47,48 +48,59 @@ class MDN(tf.keras.Model):
 
         return self.pvec([alpha_v, mu_v, sigma_v])
 
+    def predict_parameters(self, x):
+        return slice_parameter_vectors(self.predict(x), self.n_components)
+
+    def predict_distribution(self, x):
+        alpha, mu, sigma = self.predict_parameters(x)
+        return tfd.MixtureSameFamily(
+            mixture_distribution=tfd.Categorical(probs=alpha),
+            components_distribution=tfd.Normal(loc=mu, scale=sigma))
+
+    def to_gmm(self, x):
+        n_features = len(x)
+        alpha, mu, sigma = self.predict_parameters(x)
+        covs = np.empty((self.n_components, n_features, n_features))
+        for i in range(self.n_components):
+            covs[i] = np.eye(n_features) * sigma
+        gmm = GMM(n_components=self.n_components, priors=alpha, means=mu, covariances=covs)
+        return gmm
+
 
 def nnelu(input):
     """Computes the Non-Negative Exponential Linear Unit"""
     return tf.add(tf.constant(1, dtype=tf.float32), tf.nn.elu(input))
 
 
-def slice_parameter_vectors(parameter_vector):
+def slice_parameter_vectors(parameter_vector, n_components):
     """Returns an unpacked list of parameter vectors."""
-    return [parameter_vector[:, i * components:(i + 1) * components] for i in range(no_parameters)]
+    return [parameter_vector[:, i * n_components:(i + 1) * n_components] for i in range(no_parameters)]
 
 
-def gnll_loss(y, parameter_vector):
-    """Computes the mean negative log-likelihood loss of y given the mixture parameters."""
-    alpha, mu, sigma = slice_parameter_vectors(parameter_vector)  # Unpack parameter vectors
+class GNLLLoss:
+    def __init__(self, n_components):
+        self.n_components = n_components
 
-    gm = tfd.MixtureSameFamily(
-        mixture_distribution=tfd.Categorical(probs=alpha),
-        components_distribution=tfd.Normal(loc=mu, scale=sigma))
+    def loss(self, y, parameter_vector):
+        """Computes the mean negative log-likelihood loss of y given the mixture parameters."""
+        alpha, mu, sigma = slice_parameter_vectors(parameter_vector, self.n_components)  # Unpack parameter vectors
 
-    log_likelihood = gm.log_prob(tf.transpose(y))  # Evaluate log-probability of y
+        gm = tfd.MixtureSameFamily(
+            mixture_distribution=tfd.Categorical(probs=alpha),
+            components_distribution=tfd.Normal(loc=mu, scale=sigma))
 
-    return -tf.reduce_mean(log_likelihood, axis=-1)
+        log_likelihood = gm.log_prob(tf.transpose(y))  # Evaluate log-probability of y
+
+        return -tf.reduce_mean(log_likelihood, axis=-1)
 
 
 def gnll_eval(y, alpha, mu, sigma):
     """Computes the mean negative log-likelihood loss of y given the mixture parameters."""
     gm = tfd.MixtureSameFamily(
         mixture_distribution=tfd.Categorical(probs=alpha),
-        components_distribution=tfd.Normal(
-            loc=mu,
-            scale=sigma))
+        components_distribution=tfd.Normal(loc=mu, scale=sigma))
     log_likelihood = gm.log_prob(tf.transpose(y))
     return -tf.reduce_mean(log_likelihood, axis=-1)
-
-
-def eval_mdn_model(x_test, y_test, mdn_model):
-    y_pred = mdn_model.predict(x_test)
-    alpha_pred, mu_pred, sigma_pred = slice_parameter_vectors(y_pred)
-
-    print("MDN-MSE: %s" %
-          (tf.losses.mean_squared_error(np.multiply(alpha_pred, mu_pred).sum(axis=-1)[:, np.newaxis], y_test).numpy(),))
-    print("MDN-NLL: %s\n" % (gnll_eval(y_test.astype(np.float32), alpha_pred, mu_pred, sigma_pred).numpy()[0],))
 
 
 tf.keras.utils.get_custom_objects().update({'nnelu': Activation(nnelu)})
@@ -115,16 +127,15 @@ no_parameters = 3
 components = 2
 units = 200
 
-mdn = MDN(units=units, components=components)
-mdn.compile(loss=gnll_loss, optimizer=tf.keras.optimizers.Adam(1e-3))
-
+mdn = MDN(units=units, n_components=components)
+mdn.compile(loss=GNLLLoss(n_components=components).loss, optimizer=tf.keras.optimizers.Adam(1e-3))
 mon = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
-
-mdn.fit(x=x_train, y=y_train, epochs=200, validation_data=(x_test, y_test), callbacks=[mon], batch_size=128, verbose=1)
+mdn.fit(x=x_train, y=y_train, epochs=200, validation_data=(x_test, y_test),
+        callbacks=[mon], batch_size=128, verbose=1)
 
 # Plot predictions
 s = np.linspace(-10, 10, 1000)[:, np.newaxis].astype(np.float32)
-alpha_pred, mu_pred, sigma_pred = slice_parameter_vectors(mdn.predict(s))
+alpha_pred, mu_pred, sigma_pred = mdn.predict_parameters(s)
 
 fig = plt.figure(figsize=(x_size, y_size))
 ax = plt.gca()
@@ -147,10 +158,8 @@ ax.legend(handles=[data_leg, data_mdn1, data_mdn2],
           bbox_to_anchor=(0.5, -0.05), ncol=6, shadow=True, frameon=False)
 
 # Plot pdf for x=8
-alpha, mu, sigma = slice_parameter_vectors(mdn.predict([8.]))
-gm = tfd.MixtureSameFamily(
-    mixture_distribution=tfd.Categorical(probs=alpha),
-    components_distribution=tfd.Normal(loc=mu, scale=sigma))
+gm = mdn.predict_distribution([8.0])
+#mdn.to_gmm([8.0])
 x = np.linspace(0, 1, 1000)
 pyx = gm.prob(x)
 
