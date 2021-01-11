@@ -1,5 +1,6 @@
 import numpy as np
 from dmp import DMP
+from functools import partial
 import timeit
 
 
@@ -13,7 +14,7 @@ dmp = DMP(n_dims=n_dims, execution_time=1.0, dt=dt, n_weights_per_dim=6, int_dt=
 dmp.configure(start_y=start_y, goal_y=goal_y)
 dmp.forcing_term.weights = 1000 * np.random.randn(*dmp.forcing_term.weights.shape)
 
-times = timeit.repeat(dmp.open_loop, repeat=10, number=1)
+times = timeit.repeat(partial(dmp.open_loop, step_function="rk4"), repeat=10, number=1)
 print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
 # Pure python
 # Mean: 0.58188; Std. dev.: 0.00225

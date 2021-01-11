@@ -163,14 +163,22 @@ class DMP(DMPBase):
             tracking_error=tracking_error)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
-    def open_loop(self, run_t=None, coupling_term=None):
+    def open_loop(self, run_t=None, coupling_term=None, step_function="rk4"):
+        if step_function == "rk4":
+            step_function = dmp_step_rk4
+        elif step_function == "euler":
+            step_function = dmp_step_euler
+        else:
+            raise ValueError("Step function must be 'rk4' or 'euler'.")
+
         return dmp_open_loop(
             self.execution_time, 0.0, self.dt,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,
             coupling_term,
-            run_t, self.int_dt)
+            run_t, self.int_dt,
+            step_function)
 
     def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
         self.forcing_term.weights[:, :] = dmp_imitate(
@@ -849,10 +857,13 @@ def dmp_quaternion_imitation(T, Y, n_weights_per_dim, regularization_coefficient
 def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670
     n_dims = 3
+
     DT = np.gradient(T)
+
     Yd = pr.quaternion_gradient(Y) / DT[:, np.newaxis]
     if not allow_final_velocity:
         Yd[-1, :] = 0.0
+
     Ydd = np.empty_like(Yd)
     for d in range(n_dims):
         Ydd[:, d] = np.gradient(Yd[:, d]) / DT
@@ -870,26 +881,40 @@ def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_w
     return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
 
 
-def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
+def dmp_open_loop(
+        goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
+        coupling_term=None, run_t=None, int_dt=0.001, step_function=dmp_step_rk4):
+    goal_yd = np.zeros_like(goal_y)
+    goal_ydd = np.zeros_like(goal_y)
+    start_yd = np.zeros_like(start_y)
+    start_ydd = np.zeros_like(start_y)
+
     t = start_t
     current_y = np.copy(start_y)
     current_yd = np.zeros_like(current_y)
+
     T = [start_t]
     Y = [np.copy(current_y)]
+
     if run_t is None:
         run_t = goal_t
     while t < run_t:
         last_t = t
         t += dt
-        dmp_step_rk4(
+
+        step_function(
             last_t, t, current_y, current_yd,
-            goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
-            start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
+            goal_y=goal_y, goal_yd=goal_yd, goal_ydd=goal_ydd,
+            start_y=start_y, start_yd=start_yd, start_ydd=start_ydd,
             goal_t=goal_t, start_t=start_t,
-            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term, coupling_term=coupling_term, int_dt=int_dt)
+            alpha_y=alpha_y, beta_y=beta_y,
+            forcing_term=forcing_term, coupling_term=coupling_term,
+            int_dt=int_dt)
+
         T.append(t)
         Y.append(np.copy(current_y))
-    return np.asarray(T), np.asarray(Y)
+
+    return np.array(T), np.array(Y)
 
 
 def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
