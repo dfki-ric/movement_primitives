@@ -1,5 +1,5 @@
 import numpy as np
-from movement_primitives import DualCartesianDMP
+from movement_primitives.dmp import DualCartesianDMP
 import timeit
 
 

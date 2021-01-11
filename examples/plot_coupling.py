@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from movement_primitives import DMP, CouplingTerm
+from movement_primitives.dmp import DMP, CouplingTerm
 
 dt = 0.01
 

@@ -1,5 +1,5 @@
 import numpy as np
-from movement_primitives import DMP
+from movement_primitives.dmp import DMP
 from functools import partial
 import timeit
 

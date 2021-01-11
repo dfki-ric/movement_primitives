@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from movement_primitives import StateFollowingDMP
+from movement_primitives.dmp import StateFollowingDMP
 
 start_y = np.array([0.0, 1.0])
 dt = 0.001

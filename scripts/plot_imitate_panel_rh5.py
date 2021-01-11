@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pytransform3d.plot_utils import make_3d_axis
 import pytransform3d.trajectories as ptr
 import pytransform3d.rotations as pr
-from movement_primitives import DualCartesianDMP, CouplingTermDualCartesianTrajectory
+from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianTrajectory
 
 path = "data/rh5/20200831-1541/csv_processed/dual_arm_anticlockwise/20200831-1541_2.csv"
 trajectory = pd.read_csv(path, sep=" ")
