@@ -744,7 +744,6 @@ except ImportError:
 try:
     from dmp_fast import dmp_dual_cartesian_step
 except ImportError:
-    # TODO cython implementation
     pps = [0, 1, 2, 7, 8, 9]
     pvs = [0, 1, 2, 6, 7, 8]
 
