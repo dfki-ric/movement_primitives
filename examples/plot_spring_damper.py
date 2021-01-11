@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from spring_damper import SpringDamper
+from movement_primitives.spring_damper import SpringDamper
 
 
 start_y = np.array([0.0])

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pytransform3d.rotations as pr
 import pytransform3d.trajectories as ptr
-from spring_damper import SpringDamperOrientation
+from movement_primitives.spring_damper import SpringDamperOrientation
 
 
 dt = 0.01
