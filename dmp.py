@@ -600,9 +600,10 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
 
 
 # https://math.stackexchange.com/questions/2023819/using-the-runge-kuttas-method-to-solve-a-2nd-derivative-question
-def dmp_step_rk4(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
-             alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-             k_tracking_error=0.0, tracking_error=0.0):
+def dmp_step_rk4(
+        last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+        alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
+        k_tracking_error=0.0, tracking_error=0.0):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -618,19 +619,29 @@ def dmp_step_rk4(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, st
 
     dt = t - last_t
 
+    T = np.array([t, t + 0.5 * dt, t + dt])
+
     Y = current_y
     V = current_yd
     C0 = current_yd
-    K0 = _dmp_acc(Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    K0 = _dmp_acc(
+        Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
     C1 = V + 0.5 * dt * K0
-    K1 = _dmp_acc(Y + 0.5 * dt * C0, C1, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    K1 = _dmp_acc(
+        Y + 0.5 * dt * C0, C1, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
     C2 = V + 0.5 * dt * K1
-    K2 = _dmp_acc(Y + 0.5 * dt * C1, C2, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    K2 = _dmp_acc(
+        Y + 0.5 * dt * C1, C2, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
     C3 = V + dt * K2
-    K3 = _dmp_acc(Y + dt * C2, C3, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    K3 = _dmp_acc(
+        Y + dt * C2, C3, t + dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
 
-    Y_step = dt * (C0 + 2 * C1 + 2 * C2 + C3) / 6.0
-    V_step = dt * (K0 + 2 * K1 + 2 * K2 + K3) / 6.0
+    Y_step = dt * (V + dt / 6.0 * (K0 + K1 + K2))
+    V_step = dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
 
     current_y += Y_step
     current_yd += V_step

@@ -30,7 +30,7 @@ def test_dmp1d_imitation():
     execution_time = 1.0
     dt = 0.001
 
-    dmp = DMP(n_dims=1, execution_time=execution_time, dt=dt, n_weights_per_dim=100)
+    dmp = DMP(n_dims=1, execution_time=execution_time, dt=dt, n_weights_per_dim=30)
 
     T_demo = np.arange(0.0, 1.0 + dt, dt)
     Y_demo = np.cos(2 * np.pi * T_demo)[:, np.newaxis]
@@ -50,7 +50,7 @@ def test_dmp1d_imitation():
 
 def test_dmp2d_imitation():
     execution_time = 1.0
-    dt = 0.0003
+    dt = 0.001
 
     dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt,
               n_weights_per_dim=100)
