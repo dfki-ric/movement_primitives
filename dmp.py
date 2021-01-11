@@ -23,6 +23,10 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     return b ** ((t - start_t) / int_dt)
 
 
+# uncomment to overwrite with Cython implementation
+#from dmp_fast import phase
+
+
 class ForcingTerm:
     def __init__(self, n_dims, n_weights_per_dim, goal_t, start_t, overlap, alpha_z):
         if n_weights_per_dim <= 0:
@@ -599,65 +603,62 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
             self.couple_position, self.couple_orientation)
 
 
-# https://math.stackexchange.com/questions/2023819/using-the-runge-kuttas-method-to-solve-a-2nd-derivative-question
 def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
         alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
         k_tracking_error=0.0, tracking_error=0.0):
-    if start_t >= goal_t:
-        raise ValueError("Goal must be chronologically after start!")
+    """Integrate DMP for one step."""
+    if coupling_term is None:
+        cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+    else:
+        cd, cdd = None, None  # will be computed in _dmp_acc()
 
-    if t <= start_t:
-        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+    # RK4 (Runge-Kutta) for 2nd order differential integration
+    # (faster and more accurate than Euler integration),
+    # implemented following https://math.stackexchange.com/a/2023862/64116
 
+    # precompute constants for following queries
     execution_time = goal_t - start_t
-
-    cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
-    if coupling_term_precomputed is not None:
-        cd += coupling_term_precomputed[0]
-        cdd += coupling_term_precomputed[1]
-
     dt = t - last_t
     dt_2 = 0.5 * dt
+    F = forcing_term(np.array([t, t + dt_2, t + dt]))
+    tdd = k_tracking_error * tracking_error / dt
 
-    T = np.array([t, t + dt_2, t + dt])
-    F = forcing_term(T)
-
-    Y = current_y
-    V = current_yd
     C0 = current_yd
     K0 = _dmp_acc(
-        Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 0], coupling_term, k_tracking_error,  tracking_error)
-    C1 = V + dt_2 * K0
+        current_y, C0, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 0], coupling_term, tdd)
+    C1 = current_yd + dt_2 * K0
     K1 = _dmp_acc(
-        Y + dt_2 * C0, C1, t + dt_2, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 1], coupling_term, k_tracking_error,  tracking_error)
-    C2 = V + dt_2 * K1
+        current_y + dt_2 * C0, C1, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 1], coupling_term, tdd)
+    C2 = current_yd + dt_2 * K1
     K2 = _dmp_acc(
-        Y + dt_2 * C1, C2, t + dt_2, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 1], coupling_term, k_tracking_error,  tracking_error)
-    C3 = V + dt * K2
+        current_y + dt_2 * C1, C2, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 1], coupling_term, tdd)
+    C3 = current_yd + dt * K2
     K3 = _dmp_acc(
-        Y + dt * C2, C3, t + dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 2], coupling_term, k_tracking_error,  tracking_error)
+        current_y + dt * C2, C3, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 2], coupling_term, tdd)
 
-    Y_step = dt * (V + dt / 6.0 * (K0 + K1 + K2))
-    V_step = dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
-
-    current_y += Y_step
-    current_yd += V_step
+    current_y += dt * (current_yd + dt / 6.0 * (K0 + K1 + K2))
+    current_yd += dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
 
     if coupling_term is not None:
-        cd, _ = coupling_term.coupling(Y, V)
+        cd, _ = coupling_term.coupling(current_y, current_yd)
         current_yd += cd / execution_time
 
 
-def _dmp_acc(Y, V, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, f, coupling_term, k_tracking_error,  tracking_error):
+def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, f, coupling_term, tdd):
+    """DMP acceleration."""
     if coupling_term is not None:
-        cd, cdd = coupling_term.coupling(Y, V)
-    coupling_sum = cdd + k_tracking_error * tracking_error / dt
-    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * goal_yd - execution_time * V) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
+        _, cdd = coupling_term.coupling(Y, V)
+    return ((alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
+             + f + cdd + tdd) / execution_time ** 2
+            + goal_ydd)
 
 
 def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,

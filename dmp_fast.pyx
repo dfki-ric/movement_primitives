@@ -9,6 +9,16 @@ from libc.math cimport sqrt, cos, sin, acos
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
+cpdef phase(t, double alpha, double goal_t, double start_t, double int_dt=0.001, double eps=1e-10):
+    cdef double execution_time = goal_t - start_t
+    cdef double b = max(1.0 - alpha * int_dt / execution_time, eps)
+    return b ** ((t - start_t) / int_dt)
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cpdef dmp_step(
         double last_t, double t, np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
