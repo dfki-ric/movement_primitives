@@ -48,6 +48,31 @@ def test_dmp1d_imitation():
     assert_array_almost_equal(Y[-1], new_goal, decimal=4)
 
 
+def test_dmp2d_imitation():
+    execution_time = 1.0
+    dt = 0.0003
+
+    dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt,
+              n_weights_per_dim=100)
+
+    T = np.arange(0.0, execution_time + dt, dt)
+    Y_demo = np.empty((len(T), 2))
+    Y_demo[:, 0] = np.cos(2.5 * np.pi * T)
+    Y_demo[:, 1] = 0.5 + np.cos(1.5 * np.pi * T)
+    dmp.imitate(T, Y_demo)
+
+    dmp.configure(start_y=Y_demo[0], goal_y=Y_demo[-1])
+    T, Y = dmp.open_loop()
+    assert_array_almost_equal(Y, Y_demo, decimal=2)
+
+    new_start = np.array([1.0, 1.5])
+    new_goal = np.array([0.2, 0.3])
+    dmp.configure(start_y=new_start, goal_y=new_goal)
+    T, Y = dmp.open_loop(run_t=execution_time)
+    assert_array_almost_equal(Y[0], new_start, decimal=4)
+    assert_array_almost_equal(Y[-1], new_goal, decimal=3)
+
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     start_y = np.array([0.0])
@@ -62,10 +87,14 @@ if __name__ == "__main__":
     T, Y = dmp.open_loop(run_t=2 * execution_time)
 
     plt.figure()
-    plt.plot(T, Y)
-    plt.scatter([0], start_y)
-    plt.scatter([execution_time], goal_y)
-    plt.scatter([2 * execution_time], goal_y)
+    plt.plot(T, Y, label="DMP")
+    plt.scatter([0], start_y, label="Start")
+    plt.scatter([execution_time], goal_y, label="Goal")
+    plt.scatter([2 * execution_time], goal_y, label="Goal")
+    plt.xlabel("T")
+    plt.ylabel("State")
+    plt.legend()
+    plt.tight_layout()
 
     dt = 0.01
 
@@ -89,5 +118,36 @@ if __name__ == "__main__":
     plt.plot(T, Y, label="Adaptation")
     plt.scatter([0.0, execution_time], [1.0, 0.5])
 
+    plt.xlabel("T")
+    plt.ylabel("State")
+    plt.tight_layout()
     plt.legend(loc="best")
+
+    execution_time = 1.0
+    dt = 0.01
+
+    dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt, n_weights_per_dim=10)
+
+    T = np.linspace(0.0, execution_time, 101)
+    Y = np.empty((len(T), 2))
+    Y[:, 0] = np.cos(2.5 * np.pi * T)
+    Y[:, 1] = 0.5 + np.cos(1.5 * np.pi * T)
+    dmp.imitate(T, Y)
+
+    plt.figure()
+    plt.scatter(Y[:, 0], Y[:, 1], label="Demo")
+
+    dmp.configure(start_y=Y[0], goal_y=Y[-1])
+    T, Y = dmp.open_loop()
+    plt.scatter(Y[:, 0], Y[:, 1], label="Reproduction")
+
+    dmp.configure(start_y=np.array([1.0, 1.5]), goal_y=np.array([0.2, 0.3]))
+    T, Y = dmp.open_loop(run_t=1.0)
+    plt.scatter(Y[:, 0], Y[:, 1], label="Adaptation")
+
+    plt.xlabel("State dimension 1")
+    plt.ylabel("State dimension 1")
+    plt.legend(loc="best")
+    plt.tight_layout()
+
     plt.show()
