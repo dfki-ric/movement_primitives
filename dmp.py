@@ -618,27 +618,29 @@ def dmp_step_rk4(
         cdd += coupling_term_precomputed[1]
 
     dt = t - last_t
+    dt_2 = 0.5 * dt
 
-    T = np.array([t, t + 0.5 * dt, t + dt])
+    T = np.array([t, t + dt_2, t + dt])
+    F = forcing_term(T)
 
     Y = current_y
     V = current_yd
     C0 = current_yd
     K0 = _dmp_acc(
         Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
-    C1 = V + 0.5 * dt * K0
+        execution_time, F[:, 0], coupling_term, k_tracking_error,  tracking_error)
+    C1 = V + dt_2 * K0
     K1 = _dmp_acc(
-        Y + 0.5 * dt * C0, C1, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
-    C2 = V + 0.5 * dt * K1
+        Y + dt_2 * C0, C1, t + dt_2, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 1], coupling_term, k_tracking_error,  tracking_error)
+    C2 = V + dt_2 * K1
     K2 = _dmp_acc(
-        Y + 0.5 * dt * C1, C2, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+        Y + dt_2 * C1, C2, t + dt_2, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+        execution_time, F[:, 1], coupling_term, k_tracking_error,  tracking_error)
     C3 = V + dt * K2
     K3 = _dmp_acc(
         Y + dt * C2, C3, t + dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+        execution_time, F[:, 2], coupling_term, k_tracking_error,  tracking_error)
 
     Y_step = dt * (V + dt / 6.0 * (K0 + K1 + K2))
     V_step = dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
@@ -651,11 +653,10 @@ def dmp_step_rk4(
         current_yd += cd / execution_time
 
 
-def _dmp_acc(Y, V, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error):
+def _dmp_acc(Y, V, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, f, coupling_term, k_tracking_error,  tracking_error):
     if coupling_term is not None:
         cd, cdd = coupling_term.coupling(Y, V)
     coupling_sum = cdd + k_tracking_error * tracking_error / dt
-    f = forcing_term(t).squeeze()
     return (alpha_y * (beta_y * (goal_y - Y) + execution_time * goal_yd - execution_time * V) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
 
 
