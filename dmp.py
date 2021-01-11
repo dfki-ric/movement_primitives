@@ -599,6 +599,7 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
             self.couple_position, self.couple_orientation)
 
 
+# https://math.stackexchange.com/questions/2023819/using-the-runge-kuttas-method-to-solve-a-2nd-derivative-question
 def dmp_step_rk4(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
              alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
              k_tracking_error=0.0, tracking_error=0.0):
