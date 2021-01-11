@@ -5,7 +5,7 @@ from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
-from promp import ProMP
+from movement_primitives.promp import ProMP
 
 
 def load_data(path):

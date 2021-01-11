@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from promp import ProMP
+from movement_primitives.promp import ProMP
 from gmr import GMM
 
 
