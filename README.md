@@ -1,12 +1,6 @@
 # Install Dependencies
 
 ```bash
-# Python packages
-git clone https://github.com/rock-learning/pytransform3d.git
-cd pytransform3d
-pip install -e .
-cd ..
-
 git clone https://github.com/AlexanderFabisch/gmr.git --branch feature/unscented_transform
 cd gmr
 pip install -e .
@@ -17,7 +11,24 @@ cd mocap
 pip install -e .
 cd ..
 
-# URDFs
+# optional: install pytransform3d from source
+git clone https://github.com/rock-learning/pytransform3d.git
+cd pytransform3d
+pip install -e .
+cd ..
+```
+
+# Install Library
+
+I recommend to install the library via pip in editable mode:
+
+```
+pip install -e .
+```
+
+# Get URDFs
+
+```
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 
 git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git
@@ -30,23 +41,10 @@ cp rh5_right_arm.urdf abstract-urdf-gripper/urdf/
 cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
 git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
-
-# optional:
-# install hyrodyn: https://git.hb.dfki.de/skumar/hyrodyn/
 ```
 
 # Optional: Build Cython extensions
 
 ```bash
 python setup.py build_ext --inplace
-```
-
-# Environment
-
-```bash
-export PYTHONPATH=.:$PYTHONPATH
-
-# optional:
-export PYTHONPATH=.:hyrodyn_dev/install/lib/python3.7/site-packages/hyrodyn-0.0.0-py3.7-linux-x86_64.egg:$PYTHONPATH  # HACK
-source hyrodyn_dev/env.sh
 ```

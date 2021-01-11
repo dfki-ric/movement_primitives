@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from setuptools import setup
 import warnings
 try:
@@ -8,18 +9,38 @@ except ImportError:
 
 
 if __name__ == "__main__":
+    with open("README.md", "r") as f:
+        long_description = f.read()
+    setup_config = dict(
+        name='movement_primitives',
+        version="0.0.dev",
+        author='Alexander Fabisch',
+        author_email='alexander.fabisch@dfki.de',
+        url='https://git.hb.dfki.de/dfki-learning/experimental/coupled_dmps',
+        description='Movement primitives',
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        classifiers=["Programming Language :: Python :: 3"],
+        license='no license',
+        packages=['movement_primitives'],
+        install_requires=["pytransform3d"],
+        extras_require={
+            "all": ["cython"],
+            "test": ["nose", "coverage"]
+        }
+    )
     if cython_available:
-        setup(
-            name="dmps",
+        cython_config = dict(
             ext_modules=cythonize("dmp_fast.pyx"),
             zip_safe=False,
             compiler_directives={'language_level': "3"},
             extra_compile_args=[
                 "-O3",
-                # disable warnings caused by Cython using the deprecated
-                # NumPy C-API
                 "-Wno-cpp", "-Wno-unused-function"
             ]
         )
+        setup_config.update(cython_config)
     else:
-        warnings.warn("Cython is not available. Please install it.")
+        warnings.warn("Cython is not available. Install it if you want fast DMPs.")
+
+    setup(**setup_config)
