@@ -676,16 +676,6 @@ def dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_
 
         f = forcing_term(current_t).squeeze()
 
-        """
-        # Schaal
-        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
-        # Pastor
-        #K, D = 100, 20
-        #z = phase(t, alpha=forcing_term.alpha_z, goal_t=forcing_term.goal_t, start_t=forcing_term.start_t, int_dt=int_dt)
-        #ydd = (K * (goal_y - last_y) - D * execution_time * last_yd - K * (goal_y - start_y) * z + K * f + cdd) / execution_time ** 2
-        current_y += dt * current_yd
-        current_yd += dt * ydd + cd / execution_time
-        """
         coupling_sum = cdd + k_tracking_error * tracking_error / dt
         ydd = (alpha_y * (beta_y * (goal_y - current_y) + execution_time * goal_yd - execution_time * current_yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
         current_yd += dt * ydd + cd / execution_time
