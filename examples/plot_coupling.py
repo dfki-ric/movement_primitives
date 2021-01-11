@@ -3,7 +3,7 @@ import numpy as np
 from dmp import DMP, CouplingTerm
 
 
-dt = 0.01
+dt = 0.001
 
 dmp = DMP(n_dims=2, execution_time=2.0, dt=0.01, n_weights_per_dim=10)
 

@@ -69,6 +69,74 @@ cpdef dmp_step(
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
+cpdef dmp_step_rk4(
+        double last_t, double t, np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,
+        np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
+        np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
+        np.ndarray[double, ndim=1] start_yd, np.ndarray[double, ndim=1] start_ydd,
+        double goal_t, double start_t, double alpha_y, double beta_y,
+        object forcing_term, object coupling_term=None,
+        tuple coupling_term_precomputed=None,
+        double int_dt=0.001, double k_tracking_error=0.0,
+        np.ndarray tracking_error=None):
+
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    cdef double execution_time = goal_t - start_t
+
+    cdef int n_dims = current_y.shape[0]
+
+    cdef np.ndarray[double, ndim=1] cd = np.zeros(n_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cdd = np.zeros(n_dims, dtype=np.float64)
+    if coupling_term_precomputed is not None:
+        cd += coupling_term_precomputed[0]
+        cdd += coupling_term_precomputed[1]
+
+    cdef double dt = t - last_t
+
+    cdef np.ndarray[double, ndim=1] Y = current_y
+    cdef np.ndarray[double, ndim=1] V = current_yd
+    cdef np.ndarray[double, ndim=1] C0 = current_yd
+    cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    cdef np.ndarray[double, ndim=1] C1 = V + 0.5 * dt * K0
+    cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(Y + 0.5 * dt * C0, C1, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    cdef np.ndarray[double, ndim=1] C2 = V + 0.5 * dt * K1
+    cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(Y + 0.5 * dt * C1, C2, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    cdef np.ndarray[double, ndim=1] C3 = V + dt * K2
+    cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(Y + dt * C2, C3, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+
+    cdef np.ndarray[double, ndim=1] Y_step = dt * (C0 + 2 * C1 + 2 * C2 + C3) / 6.0
+    cdef np.ndarray[double, ndim=1] V_step = dt * (K0 + 2 * K1 + 2 * K2 + K3) / 6.0
+
+    current_y += Y_step
+    current_yd += V_step
+
+    if coupling_term is not None:
+        cd[:], _ = coupling_term.coupling(Y, V)
+        current_yd += cd / execution_time
+
+
+cpdef _dmp_acc(
+        np.ndarray[double, ndim=1] Y, np.ndarray[double, ndim=1] V, double t, np.ndarray[double, ndim=1] cd,
+        np.ndarray[double, ndim=1] cdd, double dt, double alpha_y, double beta_y, np.ndarray[double, ndim=1] goal_y,
+        np.ndarray[double, ndim=1] goal_yd, np.ndarray[double, ndim=1] goal_ydd, double execution_time,
+        object forcing_term, object coupling_term, double k_tracking_error, np.ndarray[double, ndim=1] tracking_error):
+    if coupling_term is not None:
+        cd[:], cdd[:] = coupling_term.coupling(Y, V)
+    if tracking_error is not None:
+        cdd += k_tracking_error * tracking_error / dt
+    f = forcing_term(t).squeeze()
+    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * goal_yd - execution_time * V) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cpdef dmp_step_quaternion(
         double last_t, double t,
         np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,

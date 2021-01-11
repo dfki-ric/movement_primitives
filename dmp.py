@@ -145,7 +145,7 @@ class DMP(DMPBase):
         # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
         tracking_error = self.current_y - last_y
 
-        dmp_step(
+        dmp_step_rk4(
             self.last_t, self.t,
             self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
@@ -599,51 +599,100 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
             self.couple_position, self.couple_orientation)
 
 
-try:
-    from dmp_fast import dmp_step
-except ImportError:
-    def dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
-                 alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-                 k_tracking_error=0.0, tracking_error=0.0):
-        if start_t >= goal_t:
-            raise ValueError("Goal must be chronologically after start!")
+def dmp_step_rk4(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+             alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
+             k_tracking_error=0.0, tracking_error=0.0):
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
 
-        if t <= start_t:
-            return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
 
-        execution_time = goal_t - start_t
+    execution_time = goal_t - start_t
 
-        current_t = last_t
-        while current_t < t:
-            dt = int_dt
-            if t - current_t < int_dt:
-                dt = t - current_t
-            current_t += dt
+    cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
+    if coupling_term_precomputed is not None:
+        cd += coupling_term_precomputed[0]
+        cdd += coupling_term_precomputed[1]
 
-            if coupling_term is not None:
-                cd, cdd = coupling_term.coupling(current_y, current_yd)
-            else:
-                cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
-            if coupling_term_precomputed is not None:
-                cd += coupling_term_precomputed[0]
-                cdd += coupling_term_precomputed[1]
+    dt = t - last_t
 
-            f = forcing_term(current_t).squeeze()
+    Y = current_y
+    V = current_yd
+    C0 = current_yd
+    K0 = _dmp_acc(Y, C0, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    C1 = V + 0.5 * dt * K0
+    K1 = _dmp_acc(Y + 0.5 * dt * C0, C1, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    C2 = V + 0.5 * dt * K1
+    K2 = _dmp_acc(Y + 0.5 * dt * C1, C2, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
+    C3 = V + dt * K2
+    K3 = _dmp_acc(Y + dt * C2, C3, t + 0.5 * dt, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error)
 
-            """
-            # Schaal
-            ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
-            # Pastor
-            #K, D = 100, 20
-            #z = phase(t, alpha=forcing_term.alpha_z, goal_t=forcing_term.goal_t, start_t=forcing_term.start_t, int_dt=int_dt)
-            #ydd = (K * (goal_y - last_y) - D * execution_time * last_yd - K * (goal_y - start_y) * z + K * f + cdd) / execution_time ** 2
-            current_y += dt * current_yd
-            current_yd += dt * ydd + cd / execution_time
-            """
-            coupling_sum = cdd + k_tracking_error * tracking_error / dt
-            ydd = (alpha_y * (beta_y * (goal_y - current_y) + execution_time * goal_yd - execution_time * current_yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
-            current_yd += dt * ydd + cd / execution_time
-            current_y += dt * current_yd
+    Y_step = dt * (C0 + 2 * C1 + 2 * C2 + C3) / 6.0
+    V_step = dt * (K0 + 2 * K1 + 2 * K2 + K3) / 6.0
+
+    current_y += Y_step
+    current_yd += V_step
+
+    if coupling_term is not None:
+        cd, _ = coupling_term.coupling(Y, V)
+        current_yd += cd / execution_time
+
+
+def _dmp_acc(Y, V, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, forcing_term, coupling_term, k_tracking_error,  tracking_error):
+    if coupling_term is not None:
+        cd, cdd = coupling_term.coupling(Y, V)
+    coupling_sum = cdd + k_tracking_error * tracking_error / dt
+    f = forcing_term(t).squeeze()
+    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * goal_yd - execution_time * V) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
+
+
+def dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+             alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
+             k_tracking_error=0.0, tracking_error=0.0):
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y, current_yd)
+        else:
+            cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        f = forcing_term(current_t).squeeze()
+
+        """
+        # Schaal
+        ydd = (alpha_y * (beta_y * (goal_y - last_y) + execution_time * goal_yd - execution_time * last_yd) + goal_ydd * execution_time ** 2 + f + cdd) / execution_time ** 2
+        # Pastor
+        #K, D = 100, 20
+        #z = phase(t, alpha=forcing_term.alpha_z, goal_t=forcing_term.goal_t, start_t=forcing_term.start_t, int_dt=int_dt)
+        #ydd = (K * (goal_y - last_y) - D * execution_time * last_yd - K * (goal_y - start_y) * z + K * f + cdd) / execution_time ** 2
+        current_y += dt * current_yd
+        current_yd += dt * ydd + cd / execution_time
+        """
+        coupling_sum = cdd + k_tracking_error * tracking_error / dt
+        ydd = (alpha_y * (beta_y * (goal_y - current_y) + execution_time * goal_yd - execution_time * current_yd) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
+        current_yd += dt * ydd + cd / execution_time
+        current_y += dt * current_yd
+
+
+# uncomment to overwrite with cython implementation:
+#from dmp_fast import dmp_step, dmp_step_rk4
 
 
 try:
@@ -829,7 +878,7 @@ def dmp_open_loop(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing
     while t < run_t:
         last_t = t
         t += dt
-        dmp_step(
+        dmp_step_rk4(
             last_t, t, current_y, current_yd,
             goal_y=goal_y, goal_yd=np.zeros_like(goal_y), goal_ydd=np.zeros_like(goal_y),
             start_y=start_y, start_yd=np.zeros_like(start_y), start_ydd=np.zeros_like(start_y),
