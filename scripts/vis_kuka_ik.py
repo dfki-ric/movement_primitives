@@ -27,7 +27,7 @@ def animation_callback(step, right_chain, left_chain, graph, right_ee2base, left
 
 fig = pv.figure()
 fig.plot_basis(s=0.1)
-graph = fig.plot_graph(kin.tm, "kuka_lbr", show_visuals=True)
+graph = fig.plot_graph(kin.tm, "kuka_lbr", show_collision_objects=True)
 #graph = fig.plot_graph(kin.tm, "kuka_lbr", show_frames=True, s=0.1)
 fig.view_init()
 fig.animate(animation_callback, 1, loop=True, fargs=(right_chain, left_chain, graph, right_ee2base, left_ee2base, random_state))
