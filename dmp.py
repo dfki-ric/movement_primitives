@@ -314,7 +314,7 @@ class DualCartesianDMP(DMPBase):
         # TODO tracking error for orientation
         tracking_error = self.current_y - last_y
         self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_dual_cartesian_step(
+        dmp_step_dual_cartesian(
             self.last_t, self.t, self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
@@ -615,7 +615,7 @@ def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
         alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
         k_tracking_error=0.0, tracking_error=0.0):
-    """Integrate DMP for one step."""
+    """Integrate regular DMP for one step with RK4 integration."""
     if coupling_term is None:
         cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
         if coupling_term_precomputed is not None:
@@ -672,6 +672,7 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_ti
 def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
                    alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
                    k_tracking_error=0.0, tracking_error=0.0):
+    """Integrate regular DMP for one step with Euler integration."""
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -710,7 +711,6 @@ def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, 
 try:
     from dmp_fast import dmp_step_quaternion
 except ImportError:
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L754
     def dmp_step_quaternion(
             last_t, t,
             current_y, current_yd,
@@ -721,6 +721,7 @@ except ImportError:
             coupling_term=None,
             coupling_term_precomputed=None,
             int_dt=0.001):
+        """Integrate quaternion DMP for one step with Euler integration."""
         if start_t >= goal_t:
             raise ValueError("Goal must be chronologically after start!")
 
@@ -754,13 +755,13 @@ except ImportError:
 
 
 try:
-    from dmp_fast import dmp_dual_cartesian_step
+    from dmp_fast import dmp_step_dual_cartesian
 except ImportError:
     pps = [0, 1, 2, 7, 8, 9]
     pvs = [0, 1, 2, 6, 7, 8]
 
 
-    def dmp_dual_cartesian_step(
+    def dmp_step_dual_cartesian(
             last_t, t,
             current_y, current_yd,
             goal_y, goal_yd, goal_ydd,
@@ -768,6 +769,7 @@ except ImportError:
             goal_t, start_t, alpha_y, beta_y,
             forcing_term, coupling_term=None, int_dt=0.001,
             k_tracking_error=0.0, tracking_error=None):
+        """Integrate bimanual Cartesian DMP for one step with Euler integration."""
         if t <= start_t:
             current_y[:] = start_y
             current_yd[:] = start_yd

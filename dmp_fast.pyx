@@ -203,7 +203,7 @@ PVS = [0, 1, 2, 6, 7, 8]
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef dmp_dual_cartesian_step(
+cpdef dmp_step_dual_cartesian(
         double last_t, double t,
         np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd, np.ndarray[double, ndim=1] goal_ydd,
