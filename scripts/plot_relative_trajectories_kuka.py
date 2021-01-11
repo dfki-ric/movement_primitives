@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
-from dmp import DualCartesianDMP
+from movement_primitives import DualCartesianDMP
 
 
 def load_data(path):

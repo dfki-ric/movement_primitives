@@ -1,5 +1,5 @@
 import numpy as np
-from dmp import canonical_system_alpha, ForcingTerm, phase
+from movement_primitives import canonical_system_alpha, phase, ForcingTerm
 from nose.tools import assert_equal
 
 

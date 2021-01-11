@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from pytransform3d import plot_utils
 import numpy as np
-from dmp import DMP, CouplingTermCartesianPosition, CouplingTermCartesianDistance
-
+from movement_primitives import DMP, CouplingTermCartesianPosition, CouplingTermCartesianDistance
 
 dt = 0.01
 

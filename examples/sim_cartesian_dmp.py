@@ -1,5 +1,5 @@
 import numpy as np
-from dmp import DMP
+from movement_primitives import DMP
 from simulation import UR5Simulation
 
 

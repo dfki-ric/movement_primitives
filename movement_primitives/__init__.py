@@ -1,7 +1,7 @@
 import numpy as np
+from pytransform3d import rotations as pr, transformations as pt
 from scipy.interpolate import interp1d
-from pytransform3d import rotations as pr
-from pytransform3d import transformations as pt
+import warnings
 
 
 class DMPBase:
@@ -58,8 +58,6 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     execution_time = goal_t - start_t
     b = max(1.0 - alpha * int_dt / execution_time, eps)
     return b ** ((t - start_t) / int_dt)
-
-
 # uncomment to overwrite with Cython implementation
 #from dmp_fast import phase
 
@@ -470,104 +468,116 @@ def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, 
 #from dmp_fast import dmp_step_rk4, dmp_step as dmp_step_euler
 
 
+def dmp_step_quaternion(
+        last_t, t,
+        current_y, current_yd,
+        goal_y, goal_yd, goal_ydd,
+        start_y, start_yd, start_ydd,
+        goal_t, start_t, alpha_y, beta_y,
+        forcing_term,
+        coupling_term=None,
+        coupling_term_precomputed=None,
+        int_dt=0.001):
+    """Integrate quaternion DMP for one step with Euler integration."""
+    if start_t >= goal_t:
+        raise ValueError("Goal must be chronologically after start!")
+
+    if t <= start_t:
+        return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
+
+    execution_time = goal_t - start_t
+
+    current_ydd = np.empty_like(current_yd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y, current_yd)
+        else:
+            cd, cdd = np.zeros(3), np.zeros(3)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        f = forcing_term(current_t).squeeze()
+
+        current_ydd[:] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))) - execution_time * current_yd) + f + cdd) / execution_time ** 2
+        current_yd += dt * current_ydd + cd / execution_time
+        current_y[:] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
+
+
 try:
     from dmp_fast import dmp_step_quaternion
 except ImportError:
-    def dmp_step_quaternion(
-            last_t, t,
-            current_y, current_yd,
-            goal_y, goal_yd, goal_ydd,
-            start_y, start_yd, start_ydd,
-            goal_t, start_t, alpha_y, beta_y,
-            forcing_term,
-            coupling_term=None,
-            coupling_term_precomputed=None,
-            int_dt=0.001):
-        """Integrate quaternion DMP for one step with Euler integration."""
-        if start_t >= goal_t:
-            raise ValueError("Goal must be chronologically after start!")
+    warnings.warn(
+        "Could not import fast quaternion DMP. "
+        "Build Cython extension if you want it.",
+        UserWarning)
 
-        if t <= start_t:
-            return np.copy(start_y), np.copy(start_yd), np.copy(start_ydd)
 
-        execution_time = goal_t - start_t
+pps = [0, 1, 2, 7, 8, 9]
+pvs = [0, 1, 2, 6, 7, 8]
 
-        current_ydd = np.empty_like(current_yd)
 
-        current_t = last_t
-        while current_t < t:
-            dt = int_dt
-            if t - current_t < int_dt:
-                dt = t - current_t
-            current_t += dt
+def dmp_step_dual_cartesian(
+        last_t, t,
+        current_y, current_yd,
+        goal_y, goal_yd, goal_ydd,
+        start_y, start_yd, start_ydd,
+        goal_t, start_t, alpha_y, beta_y,
+        forcing_term, coupling_term=None, int_dt=0.001,
+        k_tracking_error=0.0, tracking_error=None):
+    """Integrate bimanual Cartesian DMP for one step with Euler integration."""
+    if t <= start_t:
+        current_y[:] = start_y
+        current_yd[:] = start_yd
 
-            if coupling_term is not None:
-                cd, cdd = coupling_term.coupling(current_y, current_yd)
-            else:
-                cd, cdd = np.zeros(3), np.zeros(3)
-            if coupling_term_precomputed is not None:
-                cd += coupling_term_precomputed[0]
-                cdd += coupling_term_precomputed[1]
+    execution_time = goal_t - start_t
 
-            f = forcing_term(current_t).squeeze()
+    current_ydd = np.empty_like(current_yd)
 
-            current_ydd[:] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))) - execution_time * current_yd) + f + cdd) / execution_time ** 2
-            current_yd += dt * current_ydd + cd / execution_time
-            current_y[:] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
+    cd, cdd = np.zeros_like(current_yd), np.zeros_like(current_ydd)
+
+    current_t = last_t
+    while current_t < t:
+        dt = int_dt
+        if t - current_t < int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
+
+        f = forcing_term(current_t).squeeze()
+        # TODO handle tracking error of orientation correctly
+        if tracking_error is not None:
+            cdd[pvs] += k_tracking_error * tracking_error[pps] / dt
+
+        # position components
+        current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * goal_yd[pvs] - execution_time * current_yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+        current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
+        current_y[pps] += dt * current_yd[pvs]
+
+        # TODO handle tracking error of orientation correctly
+        # orientation components
+        for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+            current_ydd[ovs] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops]))) - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+            current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
+            current_y[ops] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
 
 
 try:
     from dmp_fast import dmp_step_dual_cartesian
 except ImportError:
-    pps = [0, 1, 2, 7, 8, 9]
-    pvs = [0, 1, 2, 6, 7, 8]
-
-
-    def dmp_step_dual_cartesian(
-            last_t, t,
-            current_y, current_yd,
-            goal_y, goal_yd, goal_ydd,
-            start_y, start_yd, start_ydd,
-            goal_t, start_t, alpha_y, beta_y,
-            forcing_term, coupling_term=None, int_dt=0.001,
-            k_tracking_error=0.0, tracking_error=None):
-        """Integrate bimanual Cartesian DMP for one step with Euler integration."""
-        if t <= start_t:
-            current_y[:] = start_y
-            current_yd[:] = start_yd
-
-        execution_time = goal_t - start_t
-
-        current_ydd = np.empty_like(current_yd)
-
-        cd, cdd = np.zeros_like(current_yd), np.zeros_like(current_ydd)
-
-        current_t = last_t
-        while current_t < t:
-            dt = int_dt
-            if t - current_t < int_dt:
-                dt = t - current_t
-            current_t += dt
-
-            if coupling_term is not None:
-                cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
-
-            f = forcing_term(current_t).squeeze()
-            # TODO handle tracking error of orientation correctly
-            if tracking_error is not None:
-                cdd[pvs] += k_tracking_error * tracking_error[pps] / dt
-
-            # position components
-            current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * goal_yd[pvs] - execution_time * current_yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
-            current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
-            current_y[pps] += dt * current_yd[pvs]
-
-            # TODO handle tracking error of orientation correctly
-            # orientation components
-            for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
-                current_ydd[ovs] = (alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops]))) - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
-                current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
-                current_y[ops] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
+    warnings.warn(
+        "Could not import fast dual cartesian DMP. "
+        "Build Cython extension if you want it.",
+        UserWarning)
 
 
 def dmp_imitate(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
@@ -711,6 +721,7 @@ def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta
 # trajectory of DMP0, again at the distance dd and again only after learning.
 # Vice versa applies as well. Leader-follower relation can be determined by a
 # higher-level planner [..].
+
 
 class CouplingTerm:
     def __init__(self, desired_distance, lf, k=1.0, c1=100.0, c2=30.0):

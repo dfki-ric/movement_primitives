@@ -1,5 +1,6 @@
 import numpy as np
-from dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose
+from movement_primitives import DualCartesianDMP, CouplingTermDualCartesianDistance, \
+    CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.visualizer as vis

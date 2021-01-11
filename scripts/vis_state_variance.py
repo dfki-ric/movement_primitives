@@ -8,7 +8,7 @@ from mocap.conversion import array_from_dataframe
 from pytransform3d import transformations as pt
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
-from dmp import DualCartesianDMP
+from movement_primitives import DualCartesianDMP
 from gmr import MVN
 
 

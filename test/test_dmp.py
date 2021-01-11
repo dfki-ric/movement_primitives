@@ -1,5 +1,5 @@
 import numpy as np
-from dmp import DMP
+from movement_primitives import DMP
 from nose.tools import assert_almost_equal, assert_equal
 from numpy.testing import assert_array_almost_equal
 
