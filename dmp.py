@@ -211,7 +211,7 @@ class CartesianDMP(DMPBase):
         # TODO tracking error
 
         self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_step(
+        dmp_step_euler(
             self.last_t, self.t,
             self.current_y[:3], self.current_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
@@ -648,9 +648,9 @@ def _dmp_acc(Y, V, t, cd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, e
     return (alpha_y * (beta_y * (goal_y - Y) + execution_time * goal_yd - execution_time * V) + goal_ydd * execution_time ** 2 + f + coupling_sum) / execution_time ** 2
 
 
-def dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
-             alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-             k_tracking_error=0.0, tracking_error=0.0):
+def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
+                   alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
+                   k_tracking_error=0.0, tracking_error=0.0):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -683,7 +683,7 @@ def dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_
 
 
 # uncomment to overwrite with cython implementation:
-#from dmp_fast import dmp_step, dmp_step_rk4
+#from dmp_fast import dmp_step_rk4, dmp_step as dmp_step_euler
 
 
 try:
