@@ -42,6 +42,7 @@ def load_data(path):
         "right_pose.re", "right_pose.im[0]", "right_pose.im[1]", "right_pose.im[2]"])
     return T, P
 
+
 n_weights_per_dim = 5
 n_weights = 2 * 6 * n_weights_per_dim
 n_dims = 14
@@ -116,14 +117,13 @@ initial_cov = np.eye(n_features)
 mvn = MVN(initial_mean, initial_cov, random_state=42).estimate_from_sigma_points(
     trajectories, alpha=alpha, kappa=kappa)
 
+mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
+sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
+
+"""
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-mean_trajectory = mvn.mean_trajectory.reshape(-1, 2 * 7)
-sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
-n_steps = len(mean_trajectory)
-
-"""
 all_trajectories = []
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
@@ -169,10 +169,12 @@ left_chain = kin.create_chain(
     "kuka_lbr", "kuka_lbr_l_tcp", verbose=0)
 
 
-def animation_callback(step, left_chain, right_chain, graph, joint_trajectories):
-    k = step // len(joint_trajectories[0][0])
-    t = step % len(joint_trajectories[0][0])
-    print(k, t)
+def animation_callback(
+        step, left_chain, right_chain, graph, joint_trajectories,
+        n_samples, n_steps):
+    k = step // n_steps
+    t = step % n_steps
+    print("Demonstration %d/%d, step %d/%d" % (k + 1, n_samples, t + 1, n_steps))
     q_left = joint_trajectories[k][0][t]
     q_right = joint_trajectories[k][1][t]
     left_chain.forward(q_left)
@@ -186,12 +188,24 @@ fig.plot_basis(s=0.1)
 
 graph = fig.plot_graph(kin.tm, "kuka_lbr", show_visuals=True)
 
-sampled_trajectories = mvn.sample(20)
-sampled_trajectories = [trajectory.reshape(-1, 2 * 7) for trajectory in sampled_trajectories]
-joint_trajectories = []
+print("Sampling...")
+
+
+def sample_trajectories(mvn, n_samples, n_dims):
+    sampled_trajectories = mvn.sample(n_samples)
+    n_steps = sampled_trajectories.shape[1] // n_dims
+    return sampled_trajectories.reshape(n_samples, n_steps, n_dims)
+
+
+n_samples = 2
+n_dims = 2 * 7
+sampled_trajectories = sample_trajectories(mvn, n_samples, n_dims)
+n_steps = sampled_trajectories.shape[1]
+
+joint_trajectories = np.empty((n_samples, 2, n_steps, 7))
 random_state = np.random.RandomState(2)
-for k in range(len(sampled_trajectories)):
-    print(k)
+print("Inverse kinematics...")
+for k in tqdm(range(len(sampled_trajectories))):
     P = sampled_trajectories[k]
     H_left = np.empty((len(P), 4, 4))
     H_right = np.empty((len(P), 4, 4))
@@ -200,14 +214,15 @@ for k in range(len(sampled_trajectories)):
         H_right[t] = pt.transform_from_pq(P[t, 7:])
     Q_left = left_chain.inverse_trajectory(H_left, np.zeros(7), random_state=random_state)
     Q_right = right_chain.inverse_trajectory(H_right, np.zeros(7), random_state=random_state)
-    joint_trajectories.append((Q_left, Q_right))
-
+    joint_trajectories[k, 0] = Q_left
+    joint_trajectories[k, 1] = Q_right
 
 for P in sampled_trajectories:
     fig.plot_trajectory(P[:, :7], s=0.05, n_frames=3)
     fig.plot_trajectory(P[:, 7:], s=0.05, n_frames=3)
 
 fig.view_init()
-fig.animate(animation_callback, len(joint_trajectories) * len(joint_trajectories[0][0]), loop=True, fargs=(left_chain, right_chain, graph, joint_trajectories))
+fig.animate(animation_callback, len(joint_trajectories) * len(joint_trajectories[0][0]), loop=True,
+            fargs=(left_chain, right_chain, graph, joint_trajectories, n_samples, n_steps))
 fig.show()
 #"""
