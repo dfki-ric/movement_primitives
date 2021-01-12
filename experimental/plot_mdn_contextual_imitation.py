@@ -8,7 +8,7 @@ from pytransform3d import transformations as pt
 from pytransform3d import trajectories as ptr
 from pytransform3d.urdf import UrdfTransformManager
 from movement_primitives.promp import ProMP
-from gmr import GMM
+from gmr import GMM, MVN
 
 
 ########################################################################################################################
@@ -41,7 +41,7 @@ class MDN(tf.keras.Model):
         self.n_outputs = n_outputs
 
         self.h1 = Dense(units, activation="relu", name="h1")
-        self.h2 = Dense(units, activation="relu", name="h2")
+        #self.h2 = Dense(units, activation="relu", name="h2")
 
         self.alphas = Dense(n_components, activation="softmax", name="alphas")
         self.mus = Dense(n_components * n_outputs, name="mus")
@@ -51,7 +51,7 @@ class MDN(tf.keras.Model):
 
     def call(self, inputs, training=None, mask=None):
         x = self.h1(inputs)
-        x = self.h2(x)
+        #x = self.h2(x)
 
         alpha = self.alphas(x)
         mu = self.mus(x)
@@ -205,18 +205,23 @@ random_state = np.random.RandomState(0)
 
 X = np.array(contexts)
 Y = np.array(weights)
-print(X.shape)
-print(Y.shape)
+#print(X.shape)
+#print(Y.shape)
 
-min_max_scaler = MinMaxScaler()
-Y = min_max_scaler.fit_transform(Y)
+# preprocessing
+mmscale_input = MinMaxScaler()
+X = mmscale_input.fit_transform(X)
+mmscale_output = MinMaxScaler()
+Y = mmscale_output.fit_transform(Y)
 
-n_components = 5
-mdn = MDN(units=100, n_components=n_components, n_outputs=Y.shape[1])
+n_components = 3
+n_epochs = 200
+
+mdn = MDN(units=8, n_components=n_components, n_outputs=Y.shape[1])
 mdn.compile(loss=GNLLLoss(n_components=n_components, n_outputs=Y.shape[1]).loss, optimizer=tf.keras.optimizers.Adam(1e-3))
 mon = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
-mdn.fit(x=X, y=Y, epochs=200, validation_data=(X, Y),  # validation data
-        callbacks=[mon], batch_size=32, verbose=1)
+mdn.fit(x=X, y=Y, epochs=n_epochs, validation_data=(X, Y),  # validation data
+        callbacks=[mon], batch_size=16, verbose=1)
 
 """
 gmm = GMM(n_components=5, random_state=random_state)
@@ -229,25 +234,38 @@ T_query = np.linspace(0, 1, n_steps)
 
 fig = plt.figure()
 ax = pt.plot_transform(s=0.1)
+"""
 tm = UrdfTransformManager()
 with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
     tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
 tm.plot_visuals("kuka_lbr", ax=ax, convex_hull_of_mesh=True)
+"""
 
 
 for panel_width, color, idx in zip([0.3, 0.4, 0.5], ("r", "g", "b"), range(3)):
     print("panel_width = %.2f, color = %s" % (panel_width, color))
 
     context = np.array([panel_width, 0.0, 1.0])
-    conditional_weight_distribution = mdn.to_gmm(context).to_mvn()
+    weight_gmm = mdn.to_gmm(mmscale_input.transform([context]))
+
+    # TODO introduce function to extract MVN by index
+    mvn_idx = np.argmax(weight_gmm.priors)
+    weight_mvn = MVN(
+        mean=weight_gmm.means[mvn_idx],
+        covariance=weight_gmm.covariances[mvn_idx],
+        random_state=weight_gmm.random_state)
+
+    #conditional_weight_distribution = conditional_weight_distribution.to_mvn()
     #conditional_weight_distribution = gmm.condition(np.arange(len(context)), context).to_mvn()
+
     promp = ProMP(n_dims=n_dims, n_weights_per_dim=n_weights_per_dim)
-    # TODO scale weights
-    mean = min_max_scaler.inverse_transform([conditional_weight_distribution.mean])[0]
-    scale = np.diag(1.0 / min_max_scaler.scale_)
-    covariance = scale.dot(conditional_weight_distribution.covariance).dot(scale)  # .T for non-diagonal
+
+    mean = mmscale_output.inverse_transform([weight_mvn.mean])[0]
+    scale = np.diag(1.0 / mmscale_output.scale_)
+    covariance = scale.dot(weight_mvn.covariance).dot(scale)  # .T for non-diagonal
+
     promp.from_weight_distribution(mean, covariance)
-    samples = promp.sample_trajectories(T_query, 3, random_state)
+    samples = promp.sample_trajectories(T_query, 10, random_state)
 
     pcl_points = []
     for P in samples:
