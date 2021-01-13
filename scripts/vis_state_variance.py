@@ -52,11 +52,6 @@ def weight_space_to_state_space(pattern, n_weights_per_dim, random_state=np.rand
         if cache_filename is not None:
             np.savetxt(cache_filename, trajectories)
 
-    #axes = plot_trajectory_in_rows(trajectories[0].reshape(-1, 14), subplot_shape=(7, 2))
-    #trajectories2 = np.loadtxt("trajectories_backup.txt")
-    #plot_trajectory_in_rows(trajectories2[0].reshape(-1, 14), axes=axes)
-    #plt.show()
-
     return estimate_state_distribution(trajectories, alpha=alpha, kappa=kappa, n_weights_per_dim=n_weights_per_dim)
 
 
@@ -70,8 +65,6 @@ def estimate_parameter_distribution(pattern, n_weights_per_dim, random_state, ve
     all_execution_times = []
     for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
         T, P = load_data(path)
-        #plot_trajectory_in_rows(P, T, subplot_shape=(7, 2))
-        #plt.show()
 
         execution_time = T[-1]
         dt = np.mean(np.diff(T))
@@ -117,8 +110,6 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha, kapp
         dmp.configure(start_y=start, goal_y=goal)
         dmp.set_weights(weights)
         T, P = dmp.open_loop(run_t=execution_time)
-        #plot_trajectory_in_rows(P, T, subplot_shape=(7, 2))
-        #plt.show()
         trajectories.append(P.ravel())
 
     return np.vstack(trajectories)
@@ -152,9 +143,6 @@ def sample_trajectories(mvn, n_samples, n_dims):
     n_steps = sampled_trajectories.shape[1] // n_dims
     return sampled_trajectories.reshape(n_samples, n_steps, n_dims)
 
-#"""
-from scipy.interpolate import interp1d
-
 
 mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
 sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
@@ -165,6 +153,7 @@ sampled_trajectories = sample_trajectories(mvn, n_samples, n_dims)
 n_steps = sampled_trajectories.shape[1]
 
 normalized_length_trajectories = []
+from scipy.interpolate import interp1d
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
     new_trajectory = np.empty((n_steps, trajectory.shape[1]))
