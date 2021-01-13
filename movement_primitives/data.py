@@ -6,14 +6,18 @@ from mocap.pandas_utils import match_columns, rename_stream_groups
 from tqdm import tqdm
 
 
-def load_kuka_dataset(pattern):
+def load_kuka_dataset(pattern, verbose=0):
     """Load dataset obtained from kinesthetic teaching of dual arm Kuka system."""
-    print("Loading dataset...")
-    return [load_kuka_demo(path) for path in tqdm(list(glob.glob(pattern)))]
+    filenames = list(glob.glob(pattern))
+    if verbose:
+        print("Loading dataset...")
+        filenames = tqdm(filenames)
+    return [load_kuka_demo(f, verbose) for f in filenames]
 
 
-def load_kuka_demo(path):
-    trajectory = pd.read_csv(path, sep=" ")
+def load_kuka_demo(filename, verbose=0):
+    tqdm.write("Loading '%s'" % filename)
+    trajectory = pd.read_csv(filename, sep=" ")
     patterns = ["time\.microseconds",
                 "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*",
                 "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.re.*",

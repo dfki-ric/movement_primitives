@@ -16,7 +16,7 @@ pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms
 
 n_weights_per_dim = 5
 cache_filename = "trajectories.txt"
-dataset = load_kuka_dataset(pattern)
+dataset = load_kuka_dataset(pattern, verbose=1)
 
 mvn = propagate_weight_distribution_to_state_space(
     dataset, n_weights_per_dim, cache_filename=cache_filename,
