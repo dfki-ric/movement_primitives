@@ -63,15 +63,17 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     samples = promp.sample_trajectories(T_query, 100, random_state)
 
     pcl_points = []
+    distances = []
+    stds = []
     for P in samples:
         pcl_points.extend(P[:, :3])
         pcl_points.extend(P[:, 7:10])
 
         ee_distances = np.linalg.norm(P[:, :3] - P[:, 7:10], axis=1)
-        average_ee_distance = np.mean(ee_distances)
-        print("Average distance = %.2f" % average_ee_distance)
-        #left = fig.plot_trajectory(P=P[:, :7], s=0.02, c=color)
-        #right = fig.plot_trajectory(P=P[:, 7:], s=0.02, c=color)
+        distances.append(np.mean(ee_distances))
+        stds.append(np.std(ee_distances))
+    print("Mean average distance of end-effectors = %.2f, mean std. dev. = %.3f"
+          % (np.mean(distances), np.mean(stds)))
 
     pcl = plot_pointcloud(fig, pcl_points, color)
 
