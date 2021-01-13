@@ -7,7 +7,9 @@ from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
 from pytransform3d import transformations as pt
 from movement_primitives.dmp import DualCartesianDMP
+from movement_primitives.plot import plot_trajectory_in_rows
 from gmr import MVN
+import matplotlib.pyplot as plt
 
 
 def load_data(path):
@@ -45,11 +47,18 @@ def weight_space_to_state_space(pattern, n_weights_per_dim, random_state=np.rand
     if cache_filename is not None and os.path.exists(cache_filename):
         trajectories = np.loadtxt(cache_filename)
     else:
-        mvn, mean_execution_time = estimate_parameter_distribution(pattern, n_weights_per_dim, random_state, verbose)
-        trajectories = propagate_to_state_space(mvn, n_weights_per_dim, mean_execution_time, alpha, kappa, verbose)
+        mvn, mean_execution_time = estimate_parameter_distribution(pattern=pattern, n_weights_per_dim=n_weights_per_dim, random_state=random_state, verbose=verbose)
+        trajectories = propagate_to_state_space(mvn=mvn, n_weights_per_dim=n_weights_per_dim, execution_time=mean_execution_time, alpha=alpha, kappa=kappa, verbose=verbose)
+
         if cache_filename is not None:
             np.savetxt(cache_filename, trajectories)
-    return estimate_state_distribution(trajectories, alpha, kappa, n_weights_per_dim)
+
+    #axes = plot_trajectory_in_rows(trajectories[0].reshape(-1, 14), subplot_shape=(7, 2))
+    #trajectories2 = np.loadtxt("trajectories_backup.txt")
+    #plot_trajectory_in_rows(trajectories2[0].reshape(-1, 14), axes=axes)
+    #plt.show()
+
+    return estimate_state_distribution(trajectories, alpha=alpha, kappa=kappa, n_weights_per_dim=n_weights_per_dim)
 
 
 def estimate_parameter_distribution(pattern, n_weights_per_dim, random_state, verbose=0):
@@ -62,6 +71,8 @@ def estimate_parameter_distribution(pattern, n_weights_per_dim, random_state, ve
     all_execution_times = []
     for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
         T, P = load_data(path)
+        #plot_trajectory_in_rows(P, T, subplot_shape=(7, 2))
+        #plt.show()
 
         execution_time = T[-1]
         dt = np.mean(np.diff(T))
@@ -107,6 +118,8 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha, kapp
         dmp.configure(start_y=start, goal_y=goal)
         dmp.set_weights(weights)
         T, P = dmp.open_loop(run_t=execution_time)
+        #plot_trajectory_in_rows(P, T, subplot_shape=(7, 2))
+        #plt.show()
         trajectories.append(P.ravel())
 
     return np.vstack(trajectories)
@@ -128,7 +141,7 @@ pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
 #pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
 n_weights_per_dim = 5
-cache_filename = None  # "trajectories.txt"
+cache_filename = "trajectories.txt"
 mvn = weight_space_to_state_space(
     pattern, n_weights_per_dim, cache_filename=cache_filename,
     alpha=1e-3, kappa=10.0, verbose=1)
@@ -185,6 +198,12 @@ left_chain = kin.create_chain(
     "kuka_lbr", "kuka_lbr_l_tcp", verbose=0)
 
 
+fig = pv.figure()
+fig.plot_basis(s=0.1)
+
+graph = fig.plot_graph(kin.tm, "kuka_lbr", show_visuals=True)
+
+
 def animation_callback(
         step, left_chain, right_chain, graph, joint_trajectories,
         n_samples, n_steps):
@@ -197,12 +216,6 @@ def animation_callback(
     right_chain.forward(q_right)
     graph.set_data()
     return graph
-
-
-fig = pv.figure()
-fig.plot_basis(s=0.1)
-
-graph = fig.plot_graph(kin.tm, "kuka_lbr", show_visuals=True)
 
 
 def sample_trajectories(mvn, n_samples, n_dims):
@@ -222,6 +235,8 @@ random_state = np.random.RandomState(2)
 print("Inverse kinematics...")
 for k in tqdm(range(len(sampled_trajectories))):
     P = sampled_trajectories[k]
+    #plot_trajectory_in_rows(P, subplot_shape=(7, 2))
+    #plt.show()
     H_left = np.empty((len(P), 4, 4))
     H_right = np.empty((len(P), 4, 4))
     for t in range(len(P)):
