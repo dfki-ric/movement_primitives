@@ -195,10 +195,6 @@ cpdef dmp_step_quaternion(
         current_y[:] = concatenate_quaternions(quaternion_from_compact_axis_angle(dt * current_yd), current_y)
 
 
-PPS = [0, 1, 2, 7, 8, 9]
-PVS = [0, 1, 2, 6, 7, 8]
-
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -250,7 +246,7 @@ cpdef dmp_step_dual_cartesian(
 
         # position components
         for pps, pvs in POS_INDICES:
-            current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * goal_yd[pvs] - execution_time * current_yd[pvs]) + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+            current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * (goal_yd[pvs] - current_yd[pvs])) + f[pvs] + cdd[pvs]) / execution_time ** 2 + goal_ydd[pvs]
             current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
             current_y[pps] += dt * current_yd[pvs]
 
