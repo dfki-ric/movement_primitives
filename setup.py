@@ -25,7 +25,7 @@ if __name__ == "__main__":
         packages=['movement_primitives'],
         install_requires=["pytransform3d"],
         extras_require={
-            "all": ["cython", "seaborn"],
+            "all": ["cython", "numpy", "matplotlib", "open3d"],
             "test": ["nose", "coverage"]
         }
     )

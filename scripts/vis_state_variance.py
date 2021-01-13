@@ -5,9 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
-from pytransform3d import transformations as pt
 from movement_primitives.dmp import DualCartesianDMP
-from movement_primitives.plot import plot_trajectory_in_rows
+from movement_primitives.plot import plot_trajectory_in_rows, plot_distribution_in_rows
 from gmr import MVN
 import matplotlib.pyplot as plt
 
@@ -146,11 +145,26 @@ mvn = weight_space_to_state_space(
     pattern, n_weights_per_dim, cache_filename=cache_filename,
     alpha=1e-3, kappa=10.0, verbose=1)
 
-"""
-import matplotlib.pyplot as plt
+
+def sample_trajectories(mvn, n_samples, n_dims):
+    print("Sampling...")
+    sampled_trajectories = mvn.sample(n_samples)
+    n_steps = sampled_trajectories.shape[1] // n_dims
+    return sampled_trajectories.reshape(n_samples, n_steps, n_dims)
+
+#"""
 from scipy.interpolate import interp1d
 
-all_trajectories = []
+
+mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
+sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
+
+n_samples = 100
+n_dims = 2 * 7
+sampled_trajectories = sample_trajectories(mvn, n_samples, n_dims)
+n_steps = sampled_trajectories.shape[1]
+
+normalized_length_trajectories = []
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
     trajectory = load_data(path)[1]
     new_trajectory = np.empty((n_steps, trajectory.shape[1]))
@@ -158,33 +172,19 @@ for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
         fun = interp1d(np.arange(len(trajectory)), trajectory[:, d])
         x = np.linspace(0, 1, n_steps) * (len(trajectory) - 1)
         new_trajectory[:, d] = fun(x)
-    all_trajectories.append(new_trajectory)
+    normalized_length_trajectories.append(new_trajectory)
 
-mean_trajectory = mvn.mean.reshape(-1, 2 * 7)
-sigma = np.sqrt(np.diag(mvn.covariance).reshape(-1, 2 * 7))
-
-sampled_trajectories = mvn.sample(100)
-for d in range(3):
-    ax = plt.subplot(3, 1, 1 + d)
-    for f in [1, 2, 3]:
-        ax.fill_between(
-            np.arange(len(mean_trajectory)),
-            mean_trajectory[:, d] - f * sigma[:, d],
-            mean_trajectory[:, d] + f * sigma[:, d],
-            color="b", alpha=0.1)
-    for new_trajectory in all_trajectories:
-        ax.plot(new_trajectory[:, d], color="orange")
-    for trajectory in sampled_trajectories:
-        P = trajectory.reshape(-1, 14)
-        ax.plot(P[:, d], color="green", alpha=0.2)
-    for t in range(0, n_steps, 10):
-        mmvn = mvn.marginalize(np.array([2 * 7 * t + d]))
-        std = np.sqrt(mmvn.covariance[0, 0])
-        plt.scatter([t, t, t], [mmvn.mean[0] - 2 * std, mmvn.mean[0], mmvn.mean[0] + 2 * std], s=5, color="red")
+axes = None
+for i, trajectory in enumerate(sampled_trajectories):
+    axes = plot_trajectory_in_rows(trajectory, label="sampled" if i == 0 else None, color="r", alpha=0.1, axes=axes, subplot_shape=(7, 2))
+for i, trajectory in enumerate(normalized_length_trajectories):
+    plot_trajectory_in_rows(trajectory, label="demos" if i == 0 else None, color="orange", alpha=1, axes=axes)
+plot_distribution_in_rows(mean_trajectory, sigma, label="distribution", color="b", alpha=0.2, axes=axes)
+axes[0].legend()
 plt.show()
 #"""
 
-#"""
+"""
 import pytransform3d.visualizer as pv
 from kinematics import Kinematics
 
@@ -217,18 +217,6 @@ def animation_callback(
     graph.set_data()
     return graph
 
-
-def sample_trajectories(mvn, n_samples, n_dims):
-    print("Sampling...")
-    sampled_trajectories = mvn.sample(n_samples)
-    n_steps = sampled_trajectories.shape[1] // n_dims
-    return sampled_trajectories.reshape(n_samples, n_steps, n_dims)
-
-
-n_samples = 2
-n_dims = 2 * 7
-sampled_trajectories = sample_trajectories(mvn, n_samples, n_dims)
-n_steps = sampled_trajectories.shape[1]
 
 joint_trajectories = np.empty((n_samples, 2, n_steps, 7))
 random_state = np.random.RandomState(2)
