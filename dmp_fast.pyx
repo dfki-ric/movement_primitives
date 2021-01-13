@@ -286,6 +286,10 @@ cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, n
     for i in range(1, 4):
         q12[0] -= q1[i] * q2[i]
     q12[1:] = q1[0] * q2[1:] + q2[0] * q1[1:] + np.cross(q1[1:], q2[1:])
+
+    cdef double norm = sqrt(q12[0] * q12[0] + q12[1] * q12[1] + q12[2] * q12[2] + q12[3] * q12[3])
+    for i in range(4):
+        q12[i] /= norm
     return q12
 
 
@@ -306,11 +310,11 @@ cdef quaternion_from_compact_axis_angle(np.ndarray[double, ndim=1] a):
         Unit quaternion to represent rotation: (w, x, y, z)
     """
     cdef double angle = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
-    cdef np.ndarray[double, ndim=1] axis
     if angle == 0.0:
-        axis = np.array([1.0, 0.0, 0.0])
-    else:
-        axis = a / angle
+        return np.array([1.0, 0.0, 0.0, 0.0])
+
+    cdef np.ndarray[double, ndim=1] axis
+    axis = a / angle
 
     cdef np.ndarray[double, ndim=1] q = np.empty(4)
     q[0] = cos(angle / 2.0)
