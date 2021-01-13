@@ -1,17 +1,20 @@
-import os
 import glob
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from mocap.pandas_utils import match_columns, rename_stream_groups
 from mocap.conversion import array_from_dataframe
-from movement_primitives.dmp import DualCartesianDMP
+from movement_primitives.dmp_to_state_space_distribution import propagate_weight_distribution_to_state_space
 from movement_primitives.plot import plot_trajectory_in_rows, plot_distribution_in_rows
-from gmr import MVN
 import matplotlib.pyplot as plt
 
 
-def load_data(path):
+def load_dataset(pattern):
+    print("Loading dataset...")
+    return [load_kuka_demo(path) for path in tqdm(list(glob.glob(pattern)))]
+
+
+def load_kuka_demo(path):
     trajectory = pd.read_csv(path, sep=" ")
     patterns = ["time\.microseconds",
                 "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*",
@@ -42,98 +45,15 @@ def load_data(path):
     return T, P
 
 
-def weight_space_to_state_space(pattern, n_weights_per_dim, random_state=np.random.RandomState(0), cache_filename=None, alpha=1e-3, kappa=10.0, verbose=0):
-    if cache_filename is not None and os.path.exists(cache_filename):
-        trajectories = np.loadtxt(cache_filename)
-    else:
-        mvn, mean_execution_time = estimate_parameter_distribution(pattern=pattern, n_weights_per_dim=n_weights_per_dim, random_state=random_state, verbose=verbose)
-        trajectories = propagate_to_state_space(mvn=mvn, n_weights_per_dim=n_weights_per_dim, execution_time=mean_execution_time, alpha=alpha, kappa=kappa, verbose=verbose)
-
-        if cache_filename is not None:
-            np.savetxt(cache_filename, trajectories)
-
-    return estimate_state_distribution(trajectories, alpha=alpha, kappa=kappa, n_weights_per_dim=n_weights_per_dim)
-
-
-def estimate_parameter_distribution(pattern, n_weights_per_dim, random_state, verbose=0):
-    if verbose:
-        print("Load data and estimate DMP parameter distribution from dataset...")
-
-    all_weights = []
-    all_starts = []
-    all_goals = []
-    all_execution_times = []
-    for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
-        T, P = load_data(path)
-
-        execution_time = T[-1]
-        dt = np.mean(np.diff(T))
-        if dt < 0.005:  # HACK
-            continue
-        dmp = DualCartesianDMP(
-            execution_time=execution_time, dt=dt,
-            n_weights_per_dim=n_weights_per_dim, int_dt=0.01, k_tracking_error=0.0)
-        dmp.imitate(T, P)
-        weights = dmp.get_weights()
-        all_weights.append(weights)
-        all_starts.append(P[0])
-        all_goals.append(P[-1])
-        all_execution_times.append(execution_time)
-    all_parameters = np.vstack([
-        np.hstack((w, s, g, e)) for w, s, g, e in zip(
-            all_weights, all_starts, all_goals, all_execution_times)])
-
-    mvn = MVN(random_state=random_state)
-    mvn.from_samples(all_parameters)
-    return mvn, np.mean(all_execution_times)
-
-
-def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha, kappa, verbose=0):
-    if verbose:
-        print("Propagating to state space...")
-
-    n_weights = 2 * 6 * n_weights_per_dim
-    n_dims = 2 * 7
-    weight_indices = np.arange(n_weights)
-    start_indices = np.arange(n_weights, n_weights + n_dims)
-    goal_indices = np.arange(n_weights + n_dims, n_weights + 2 * n_dims)
-
-    points = mvn.sigma_points(alpha=alpha, kappa=kappa)
-    trajectories = []
-    for i, parameters in tqdm(list(enumerate(points))):
-        weights = parameters[weight_indices]
-        start = parameters[start_indices]
-        goal = parameters[goal_indices]
-        dmp = DualCartesianDMP(
-            execution_time=execution_time, dt=0.1,
-            n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
-        dmp.configure(start_y=start, goal_y=goal)
-        dmp.set_weights(weights)
-        T, P = dmp.open_loop(run_t=execution_time)
-        trajectories.append(P.ravel())
-
-    return np.vstack(trajectories)
-
-
-def estimate_state_distribution(trajectories, alpha, kappa, n_weights_per_dim):
-    print("Estimate distribution in state space...")
-    n_weights = 2 * 6 * n_weights_per_dim
-    n_dims = 2 * 7
-    n_features = n_weights + 2 * n_dims + 1
-    initial_mean = np.zeros(n_features)
-    initial_cov = np.eye(n_features)
-    return MVN(initial_mean, initial_cov, random_state=42).estimate_from_sigma_points(
-        trajectories, alpha=alpha, kappa=kappa)
-
-
-
 pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
 #pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
+
 n_weights_per_dim = 5
 cache_filename = "trajectories.txt"
-mvn = weight_space_to_state_space(
-    pattern, n_weights_per_dim, cache_filename=cache_filename,
+dataset = load_dataset(pattern)
+mvn = propagate_weight_distribution_to_state_space(
+    dataset, n_weights_per_dim, cache_filename=cache_filename,
     alpha=1e-3, kappa=10.0, verbose=1)
 
 
@@ -155,7 +75,7 @@ n_steps = sampled_trajectories.shape[1]
 normalized_length_trajectories = []
 from scipy.interpolate import interp1d
 for idx, path in tqdm(list(enumerate(glob.glob(pattern)))):
-    trajectory = load_data(path)[1]
+    trajectory = load_kuka_demo(path)[1]
     new_trajectory = np.empty((n_steps, trajectory.shape[1]))
     for d in range(trajectory.shape[1]):
         fun = interp1d(np.arange(len(trajectory)), trajectory[:, d])
