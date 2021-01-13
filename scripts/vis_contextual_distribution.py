@@ -1,14 +1,13 @@
 import numpy as np
-import open3d as o3d
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 
+from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
 from movement_primitives.data import load_kuka_dataset, transpose_dataset
 from movement_primitives.promp import ProMP
 from gmr import GMM
 
 
-# available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
 def generate_training_data(
         pattern, n_weights_per_dim, context_names, verbose=0):
     Ts, Ps, contexts = transpose_dataset(
@@ -27,7 +26,7 @@ def generate_training_data(
 
 n_dims = 14
 n_weights_per_dim = 10
-# omitted contexts: "left_arm", "right_arm"
+# available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
 context_names = ["panel_width", "clockwise", "counterclockwise"]
 
 #pattern = "data/kuka/20200129_peg_in_hole/csv_processed/*/*.csv"
@@ -52,23 +51,6 @@ with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
     tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
 fig.plot_graph(tm, "kuka_lbr", show_visuals=True)
 
-
-class SelectContext:
-    def __init__(self, fig, pcl):
-        self.fig = fig
-        self.pcl = pcl
-        self.show = True
-
-    def __call__(self, vis, key, modifier):  # sometimes we don't receive the correct keys, why?
-        self.show = not self.show
-        if self.show and modifier:
-            vis.remove_geometry(self.pcl)
-        elif not self.show and not modifier:
-            vis.add_geometry(self.pcl)
-        fig.view_init(azim=0, elev=25)
-        return True
-
-
 for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0]), range(3)):
     print("panel_width = %.2f, color = %s" % (panel_width, color))
 
@@ -91,14 +73,10 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
         #left = fig.plot_trajectory(P=P[:, :7], s=0.02, c=color)
         #right = fig.plot_trajectory(P=P[:, 7:], s=0.02, c=color)
 
-    pcl = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.array(pcl_points)))
-    #pcl = pcl.uniform_down_sample(10)
-    colors = o3d.utility.Vector3dVector([color for _ in range(len(pcl.points))])
-    pcl.colors = colors
-    fig.add_geometry(pcl)
+    pcl = plot_pointcloud(fig, pcl_points, color)
 
     key = ord(str((idx + 1) % 10))
-    fig.visualizer.register_key_action_callback(key, SelectContext(fig, pcl))
+    fig.visualizer.register_key_action_callback(key, ToggleGeometry(fig, pcl))
 
 # plot training data
 for P in Ps:
