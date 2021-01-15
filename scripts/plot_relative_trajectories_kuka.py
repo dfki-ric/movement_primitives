@@ -39,7 +39,6 @@ for T, P in dataset:
     all_execution_times.append(execution_time)
 
 
-
 all_parameters = np.vstack([
     np.hstack((w, s, g, e)) for w, s, g, e in zip(
         all_weights, all_starts, all_goals, all_execution_times)])
