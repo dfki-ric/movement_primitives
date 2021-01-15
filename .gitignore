@@ -1,3 +1,4 @@
+build/
 /data/
 /ur5_fts300_2f-140/
 /abstract-urdf-gripper/
@@ -5,3 +6,9 @@
 /media/
 /tmp/
 *.egg-info/
+*.idea
+__pycache__
+*.c
+*.so
+.coverage
+/cover/
