@@ -936,7 +936,7 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
         for t in range(len(Y)):
             distance[t] = self._right2left_pq(Y[t])
         self.desired_distance_per_dimension = [
-            interp1d(T, distance[:, d])
+            interp1d(T, distance[:, d], bounds_error=False, fill_value="extrapolate")
             for d in range(distance.shape[1])
         ]
         self.t = 0.0
