@@ -12,7 +12,7 @@ pip install -e .
 cd ..
 
 # optional: install pytransform3d from source
-git clone https://github.com/rock-learning/pytransform3d.git
+git clone https://github.com/rock-learning/pytransform3d.git --branch feature/batch_conversions
 cd pytransform3d
 pip install -e .
 cd ..
