@@ -3,7 +3,7 @@ import pytransform3d.visualizer as pv
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from pytransform3d.urdf import UrdfTransformManager
-from mocap.cleaning import smooth_quaternion_trajectory
+from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 
 from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
 from movement_primitives.data import load_kuka_dataset, transpose_dataset
@@ -20,6 +20,7 @@ def generate_training_data(
     for P in Ps:
         P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
         P[:, 10:] = smooth_quaternion_trajectory(P[:, 10:])
+        P[:, :] = median_filter(P, 5)
 
         E = np.empty((len(P), 2 * 6))
         #for t in range(len(P)):
@@ -30,22 +31,35 @@ def generate_training_data(
         for t in range(len(E)):
             E[t, :6] = pt.norm_exponential_coordinates(E[t, :6])
             E[t, 6:] = pt.norm_exponential_coordinates(E[t, 6:])
+        E[:, :] = median_filter(E, 5)
         Es.append(E)
 
         # TODO still a lot of discontinuities
         for i, j in zip(range(len(E) - 1), range(1, len(E))):
+            d = np.linalg.norm(E[i, :6] - E[j, :6])
+            if d > 0.5:
+                print(E[i, :6])
+                print(np.linalg.norm(E[i, :3]))
+                print(E[j, :6])
+                print(np.linalg.norm(E[j, :3]))
+                print(pt.transform_from_exponential_coordinates(E[i, :6]))
+                print(pt.transform_from_exponential_coordinates(E[j, :6]))
             d = np.linalg.norm(E[i, 6:] - E[j, 6:])
-            if d > 1:
+            if d > 0.5:
                 print(E[i, 6:])
+                print(np.linalg.norm(E[i, 6:9]))
                 print(E[j, 6:])
+                print(np.linalg.norm(E[j, 6:9]))
                 print(pt.transform_from_exponential_coordinates(E[i, 6:]))
                 print(pt.transform_from_exponential_coordinates(E[j, 6:]))
 
         #import matplotlib.pyplot as plt
         #from movement_primitives.plot import plot_trajectory_in_rows
         #plot_trajectory_in_rows(P, subplot_shape=(7, 2))
+        #plt.suptitle("PQ")
         #plt.show()
         #plot_trajectory_in_rows(E, subplot_shape=(6, 2))
+        #plt.suptitle("St")
         #plt.show()
 
     n_demos = len(Ts)

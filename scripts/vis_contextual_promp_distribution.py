@@ -1,7 +1,7 @@
 import numpy as np
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
-from mocap.cleaning import smooth_quaternion_trajectory
+from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 from gmr import GMM
 
 from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
@@ -16,11 +16,17 @@ def generate_training_data(
 
     if smooth_quaterions:
         for P in Ps:
+            #import matplotlib.pyplot as plt
+            #from movement_primitives.plot import plot_trajectory_in_rows
+            #axes = plot_trajectory_in_rows(P, subplot_shape=(7, 2), label="original")
+
             P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
             P[:, 10:] = smooth_quaternion_trajectory(P[:, 10:])
-            #from movement_primitives.plot import plot_trajectory_in_rows
-            #import matplotlib.pyplot as plt
-            #plot_trajectory_in_rows(P, subplot_shape=(7, 2))
+            #plot_trajectory_in_rows(P, axes=axes, label="singularity free")
+
+            P[:, :] = median_filter(P, window_size=5)
+            #plot_trajectory_in_rows(P, axes=axes, label="filtered")
+            #axes[0].legend(loc="upper left")
             #plt.show()
 
     n_demos = len(Ts)
