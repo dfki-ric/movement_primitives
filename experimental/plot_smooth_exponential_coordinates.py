@@ -4,7 +4,7 @@ from movement_primitives.plot import plot_trajectory_in_rows
 from pytransform3d import transformations as pt
 
 
-Sthetas = np.loadtxt("experimental/screw_trajectory.txt")
+Sthetas = np.loadtxt("experimental/screw_trajectory_outlier.txt")
 
 
 def smooth_exponential_coordinates(Sthetas):
@@ -27,9 +27,13 @@ def smooth_exponential_coordinates(Sthetas):
     before_jump_indices = before_jump_indices.tolist()
     before_jump_indices.append(len(Sthetas))
 
+    print(before_jump_indices)
+
     slices_to_correct = np.array(
         list(zip(before_jump_indices[:-1], before_jump_indices[1:])))[::2]
     for i, j in slices_to_correct:
+        if i + 1 == j:
+            continue
         Sthetas[i + 1:j] = mirror_screw_axis_direction(Sthetas[i + 1:j])
     return Sthetas
 
