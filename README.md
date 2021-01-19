@@ -1,10 +1,7 @@
 # Install Dependencies
 
 ```bash
-git clone https://github.com/AlexanderFabisch/gmr.git --branch feature/unscented_transform
-cd gmr
-pip install -e .
-cd ..
+pip install gmr
 
 git clone git@git.hb.dfki.de:dfki-interaction/experimental/mocap.git
 cd mocap
