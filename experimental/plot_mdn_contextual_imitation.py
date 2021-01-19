@@ -1,9 +1,7 @@
-import glob
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from mocap.pandas_utils import match_columns, rename_stream_groups
-from mocap.conversion import array_from_dataframe
+from movement_primitives.data import load_kuka_dataset, transpose_dataset
+from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 from pytransform3d import transformations as pt
 from pytransform3d import trajectories as ptr
 from pytransform3d.urdf import UrdfTransformManager
@@ -119,10 +117,25 @@ def slice_parameter_vectors(parameter_vector, n_components, n_outputs):
 ########################################################################################################################
 
 
-# available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
 def generate_training_data(
-        pattern, n_weights_per_dim, context_names, verbose=0):
-    Ts, Ps, contexts = load_demos(pattern, context_names, verbose=verbose)
+        pattern, n_weights_per_dim, context_names, smooth_quaterions, verbose=0):
+    Ts, Ps, contexts = transpose_dataset(
+        load_kuka_dataset(pattern, context_names, verbose=verbose))
+
+    if smooth_quaterions:
+        for P in Ps:
+            #import matplotlib.pyplot as plt
+            #from movement_primitives.plot import plot_trajectory_in_rows
+            #axes = plot_trajectory_in_rows(P, subplot_shape=(7, 2), label="original")
+
+            P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
+            P[:, 10:] = smooth_quaternion_trajectory(P[:, 10:])
+            #plot_trajectory_in_rows(P, axes=axes, label="singularity free")
+
+            P[:, :] = median_filter(P, window_size=5)
+            #plot_trajectory_in_rows(P, axes=axes, label="filtered")
+            #axes[0].legend(loc="upper left")
+            #plt.show()
 
     n_demos = len(Ts)
     n_dims = Ps[0].shape[1]
@@ -135,60 +148,6 @@ def generate_training_data(
     return weights, Ts, Ps, contexts
 
 
-def load_demos(pattern, context_names, verbose=0):
-    Ts = []
-    Ps = []
-    contexts = []
-    for idx, path in enumerate(list(glob.glob(pattern))):
-        if verbose:
-            print("Loading %s" % path)
-        T, P, context = load_demo(path, context_names, verbose=verbose - 1)
-        Ts.append(T)
-        Ps.append(P)
-        contexts.append(context)
-    return Ts, Ps, contexts
-
-
-def load_demo(path, context_names, verbose=0):
-    trajectory = pd.read_csv(path, sep=" ")
-
-    context = trajectory[list(context_names)].iloc[0].to_numpy()
-    if verbose:
-        print("Context: %s" % (context,))
-
-    patterns = ["time\.microseconds",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.re.*",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.im.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.re.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.im.*"]
-    columns = match_columns(trajectory, patterns)
-    trajectory = trajectory[columns]
-
-    group_rename = {
-        "(time\.microseconds)": "Time",
-        "(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data).*": "left_pose",
-        "(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation).*": "left_pose",
-        "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data).*": "right_pose",
-        "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation).*": "right_pose"
-    }
-    trajectory = rename_stream_groups(trajectory, group_rename)
-
-    trajectory["Time"] = trajectory["Time"] / 1e6
-    trajectory["Time"] -= trajectory["Time"].iloc[0]
-    T = trajectory["Time"].to_numpy()
-
-    P = array_from_dataframe(
-        trajectory,
-        ["left_pose[0]", "left_pose[1]", "left_pose[2]",
-         "left_pose.re", "left_pose.im[0]", "left_pose.im[1]", "left_pose.im[2]",
-         "right_pose[0]", "right_pose[1]", "right_pose[2]",
-         "right_pose.re", "right_pose.im[0]", "right_pose.im[1]", "right_pose.im[2]"])
-
-    return T, P, context
-
-
 n_dims = 14
 n_weights_per_dim = 10
 # omitted contexts: "left_arm", "right_arm"
@@ -199,7 +158,8 @@ context_names = ["panel_width", "clockwise", "counterclockwise"]
 pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/*/*.csv"
 
 weights, Ts, Ps, contexts = generate_training_data(
-    pattern, n_weights_per_dim, context_names=context_names, verbose=2)
+    pattern, n_weights_per_dim, context_names=context_names,
+    smooth_quaterions=True, verbose=2)
 
 random_state = np.random.RandomState(0)
 
@@ -215,9 +175,9 @@ mmscale_output = MinMaxScaler()
 Y = mmscale_output.fit_transform(Y)
 
 n_components = 3
-n_epochs = 200
+n_epochs = 300
 
-mdn = MDN(units=8, n_components=n_components, n_outputs=Y.shape[1])
+mdn = MDN(units=3, n_components=n_components, n_outputs=Y.shape[1])
 mdn.compile(loss=GNLLLoss(n_components=n_components, n_outputs=Y.shape[1]).loss, optimizer=tf.keras.optimizers.Adam(1e-3))
 mon = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
 mdn.fit(x=X, y=Y, epochs=n_epochs, validation_data=(X, Y),  # validation data
