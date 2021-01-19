@@ -1,8 +1,6 @@
 # Install Dependencies
 
 ```bash
-pip install gmr
-
 git clone git@git.hb.dfki.de:dfki-interaction/experimental/mocap.git
 cd mocap
 pip install -e .
