@@ -77,6 +77,8 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     promp.from_weight_distribution(
         conditional_weight_distribution.mean,
         conditional_weight_distribution.covariance)
+    mean = promp.mean_trajectory(T_query)
+    var = promp.var_trajectory(T_query)
     samples = promp.sample_trajectories(T_query, 100, random_state)
 
     pcl_points = []

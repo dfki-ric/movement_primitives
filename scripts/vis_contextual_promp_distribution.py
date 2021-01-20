@@ -40,6 +40,7 @@ def generate_training_data(
     return weights, Ts, Ps, contexts
 
 
+plot_training_data = False
 n_dims = 14
 n_weights_per_dim = 10
 # available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
@@ -82,6 +83,19 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
         conditional_weight_distribution.covariance)
     samples = promp.sample_trajectories(T_query, n_validation_samples, random_state)
 
+    # mean and standard deviation in state space
+    mean = promp.mean_trajectory(T_query)
+    std = np.sqrt(promp.var_trajectory(T_query))
+
+    c = [0, 0, 0]
+    c[idx] = 1
+    fig.plot_trajectory(mean[:, :7], s=0.05, c=tuple(c))
+    fig.plot_trajectory(mean[:, 7:], s=0.05, c=tuple(c))
+    #fig.plot_trajectory(mean[:, :7] + std[:, :7], s=0.02, c=tuple(c))
+    #fig.plot_trajectory(mean[:, 7:] + std[:, :7], s=0.02, c=tuple(c))
+    #fig.plot_trajectory(mean[:, :7] - std[:, :7], s=0.02, c=tuple(c))
+    #fig.plot_trajectory(mean[:, 7:] - std[:, :7], s=0.02, c=tuple(c))
+
     pcl_points = []
     distances = []
     stds = []
@@ -102,10 +116,10 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     key = ord(str((idx + 1) % 10))
     fig.visualizer.register_key_action_callback(key, ToggleGeometry(fig, pcl))
 
-# plot training data
-for P in Ps:
-    left = fig.plot_trajectory(P=P[:, :7], s=0.02)
-    right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
+if plot_training_data:
+    for P in Ps:
+        left = fig.plot_trajectory(P=P[:, :7], s=0.02)
+        right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
 
 fig.view_init(azim=0, elev=25)
 fig.show()
