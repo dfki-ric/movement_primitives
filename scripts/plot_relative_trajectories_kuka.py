@@ -1,8 +1,9 @@
-import glob
 import numpy as np
 import matplotlib.pyplot as plt
 from movement_primitives.data import load_kuka_dataset
-from movement_primitives.dmp import DualCartesianDMP
+from movement_primitives.plot import plot_trajectory_in_rows
+from mocap.cleaning import smooth_quaternion_trajectory, median_filter
+from pytransform3d import trajectories as ptr
 
 
 n_weights_per_dim = 10
@@ -13,76 +14,30 @@ pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450m
 
 dataset = load_kuka_dataset(pattern, verbose=1)
 
-all_T = []
-all_P = []
-all_weights = []
-all_starts = []
-all_goals = []
-all_execution_times = []
-for T, P in dataset:
-    execution_time = T[-1]
-    dt = np.mean(np.diff(T))
-    if dt < 0.005:  # HACK
-        continue
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=dt,
-        n_weights_per_dim=n_weights_per_dim, int_dt=0.01, k_tracking_error=0.0)
-    dmp.imitate(T, P)
-    weights = dmp.get_weights()
-
-    all_T.append(T)
-    all_P.append(P)
-
-    all_weights.append(weights)
-    all_starts.append(P[0])
-    all_goals.append(P[-1])
-    all_execution_times.append(execution_time)
-
-
-all_parameters = np.vstack([
-    np.hstack((w, s, g, e)) for w, s, g, e in zip(
-        all_weights, all_starts, all_goals, all_execution_times)])
-mean_parameters = np.mean(all_parameters, axis=0)
-cov_parameters = np.cov(all_parameters, rowvar=False)
-
-all_T = np.asarray(all_T)
-all_P = np.asarray(all_P)
-
 plt.figure()
-axes = [plt.subplot(2, 3, d) for d in range(1, 7)]
+axes = None
+for T, P in dataset:
+    P_left = P[:, :7]
+    P_right = P[:, 7:]
 
-for T, P in zip(all_T, all_P):
-    dP = P[:, :3] - P[:, 7:10]
-    axes[0].plot(T, dP[:, 0], color="k", alpha=0.3)
-    axes[1].plot(T, dP[:, 1], color="k", alpha=0.3)
-    axes[2].plot(T, dP[:, 2], color="k", alpha=0.3)
+    P_left[:, 3:] = smooth_quaternion_trajectory(P_left[:, 3:])
+    P_right[:, 3:] = smooth_quaternion_trajectory(P_right[:, 3:])
+    P_left[:, :] = median_filter(P_left, window_size=5)
+    P_right[:, :] = median_filter(P_right, window_size=5)
 
-# next trajectories are sampled from Gaussian DMP
-random_state = np.random.RandomState(0)
-for idx in range(5):
-    print("Reproduce #%d" % (idx + 1))
+    left2base = ptr.transforms_from_pqs(P_left)
+    right2base = ptr.transforms_from_pqs(P_right)
 
-    params = random_state.multivariate_normal(mean_parameters, cov_parameters)
-    n_weights = 2 * 6 * n_weights_per_dim
-    weights = params[:n_weights]
-    start = params[n_weights:n_weights + 14]
-    goal = params[n_weights + 14:n_weights + 2 * 14]
-    execution_time = params[-1]
+    left2right = np.empty_like(left2base)
+    for t in range(len(left2right)):
+        left2right[t] = left2base[t].dot(np.linalg.inv(right2base[t]))
+    P_diff = ptr.pqs_from_transforms(left2right)
 
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=0.01,
-        n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
-    dmp.set_weights(weights)
-    dmp.configure(start_y=start, goal_y=goal)
-    T, P = dmp.open_loop(run_t=execution_time)
+    P_diff[:, 3:] = smooth_quaternion_trajectory(P_diff[:, 3:])
+    P_diff[:, :] = median_filter(P_diff, window_size=5)
 
-    axes[3].plot(T, P[:, 0] - P[:, 7], color="k")
-    axes[4].plot(T, P[:, 1] - P[:, 8], color="k")
-    axes[5].plot(T, P[:, 2] - P[:, 9], color="k")
+    P = np.hstack((P_left, P_right, P_diff))
 
-for d in range(3):
-    ylim = axes[d].get_ylim()
-    axes[d].set_ylim((ylim[0] - 0.05, ylim[1] + 0.05))
-    axes[3 + d].set_ylim((ylim[0] - 0.05, ylim[1] + 0.05))
-
+    axes = plot_trajectory_in_rows(P, T, axes=axes, subplot_shape=(7, 3), transpose=True)
+plt.tight_layout()
 plt.show()
