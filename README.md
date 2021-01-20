@@ -43,3 +43,8 @@ git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 ```bash
 python setup.py build_ext --inplace
 ```
+
+# Data
+
+I assume that your data is located in the folder `data/` in most scripts.
+You should put a symlink there to point to your actual data folder.
