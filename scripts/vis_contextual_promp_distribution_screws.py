@@ -41,6 +41,7 @@ def generate_training_data(
     return weights, Ts, Es, contexts
 
 
+plot_training_data = False
 n_dims = 12
 n_weights_per_dim = 10
 # available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
@@ -81,6 +82,11 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     var = promp.var_trajectory(T_query)
     samples = promp.sample_trajectories(T_query, 100, random_state)
 
+    c = [0, 0, 0]
+    c[idx] = 1
+    fig.plot_trajectory(ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(mean[:, :6])), s=0.05, c=tuple(c))
+    fig.plot_trajectory(ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(mean[:, 6:])), s=0.05, c=tuple(c))
+
     pcl_points = []
     distances = []
     stds = []
@@ -103,12 +109,12 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     key = ord(str((idx + 1) % 10))
     fig.visualizer.register_key_action_callback(key, ToggleGeometry(fig, pcl))
 
-# plot training data
-for E in Es:
-    left2base_trajectory = ptr.transforms_from_exponential_coordinates(E[:, :6])
-    right2base_trajectory = ptr.transforms_from_exponential_coordinates(E[:, 6:])
-    pv.Trajectory(left2base_trajectory, s=0.02).add_artist(fig)
-    pv.Trajectory(right2base_trajectory, s=0.02).add_artist(fig)
+if plot_training_data:
+    for E in Es:
+        left2base_trajectory = ptr.transforms_from_exponential_coordinates(E[:, :6])
+        right2base_trajectory = ptr.transforms_from_exponential_coordinates(E[:, 6:])
+        pv.Trajectory(left2base_trajectory, s=0.02).add_artist(fig)
+        pv.Trajectory(right2base_trajectory, s=0.02).add_artist(fig)
 
 fig.view_init(azim=0, elev=25)
 fig.show()
