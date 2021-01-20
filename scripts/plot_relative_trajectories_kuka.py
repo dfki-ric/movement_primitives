@@ -10,7 +10,9 @@ n_weights_per_dim = 10
 
 #pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"
 #pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/01_heavy_load_no_tilt_0cm_dual_arm/*.csv"
-pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
+#pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/panel_450mm_counterclockwise/*.csv"
+#pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/*/*.csv"
+pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/*counterclockwise/*.csv"
 
 dataset = load_kuka_dataset(pattern, verbose=1)
 
