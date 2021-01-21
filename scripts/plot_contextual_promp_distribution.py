@@ -130,12 +130,18 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], sns.palettes.SEABORN_PALETTE
     #for i in range(n_validation_samples):
     #    plot_trajectory_in_rows(samples[i], T_query, axes=axes, color=color)
 
+    for i in range(mean.shape[1]):
+        m = np.mean(mean[:, i])
+        axes[i].set_ylim((m - 0.25, m + 0.25))
+
+    """# handle quaternions differently 
     for i in [0, 1, 2, 7, 8, 9, 14, 15, 16]:
         m = np.mean(mean[:, i])
-        axes[i].set_ylim((m - 0.5, m + 0.5))
+        axes[i].set_ylim((m - 0.25, m + 0.25))
 
     for i in [3, 4, 5, 6, 10, 11, 12, 13, 17, 18, 19, 20]:
         axes[i].set_ylim((-1.1, 1.1))
+    """
 
     axes[-1].legend(loc="upper left")
 
