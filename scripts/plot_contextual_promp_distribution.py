@@ -65,8 +65,6 @@ random_state = np.random.RandomState(0)
 # available contexts: "panel_width", "clockwise", "counterclockwise", "left_arm", "right_arm"
 context_names = ["panel_width", "clockwise", "counterclockwise"]
 
-#pattern = "data/kuka/20200129_peg_in_hole/csv_processed/*/*.csv"
-#pattern = "data/kuka/20191213_carry_heavy_load/csv_processed/*/*.csv"
 pattern = "data/kuka/20191023_rotate_panel_varying_size/csv_processed/*/*.csv"
 
 weights_left, weights_right, weights_diff, Ts, Ps_left, Ps_right, Ps_diff, contexts = generate_training_data(
