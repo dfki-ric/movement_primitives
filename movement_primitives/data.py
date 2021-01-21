@@ -12,6 +12,22 @@ def transpose_dataset(dataset):
     For example, one entry might contain time steps and poses so that we
     generate one list for all time steps and one list for all poses
     (trajectories).
+
+    Parameters
+    ----------
+    dataset : list of tuples
+        There are n_demos entries. Each entry describes one demonstration
+        completely. An entry might, for example, contain an array of time
+        (T, shape (n_steps,)) or the dual arm trajectories
+        (P, shape (n_steps, 14)).
+
+    Returns
+    -------
+    dataset : tuple of lists
+        Each entry contains a list of length n_demos, where the i-th entry
+        corresponds to an attribute of the i-th demo. For example, the first
+        list might contain to all time arrays of the demonstrations and the
+        second entry might correspond to all trajectories.
     """
     n_samples = len(dataset)
     if n_samples == 0:
@@ -26,7 +42,28 @@ def transpose_dataset(dataset):
 
 
 def load_kuka_dataset(pattern, context_names=None, verbose=0):
-    """Load dataset obtained from kinesthetic teaching of dual arm Kuka system."""
+    """Load dataset obtained from kinesthetic teaching of dual arm Kuka system.
+
+    Parameters
+    ----------
+    pattern : str
+        Pattern that defines csv files that should be loaded, e.g., *.csv
+
+    context_names : list, optional (default: None)
+        Contexts that should be loaded
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    dataset : list of tuples
+        Each entry contains either an array of time (T, shape (n_steps,)),
+        the dual arm trajectories (P, shape (n_steps, 14)) represented by
+        positions of the left arm, orientation quaternion of the left arm,
+        positions of the right arm, and the orientation quaternion of the
+        right arm, or T, P, and the context (shape, (n_context_dims,)).
+    """
     filenames = list(glob.glob(pattern))
     if verbose:
         print("Loading dataset...")
@@ -35,7 +72,35 @@ def load_kuka_dataset(pattern, context_names=None, verbose=0):
 
 
 def load_kuka_demo(filename, context_names=None, verbose=0):
-    tqdm.write("Loading '%s'" % filename)
+    """Load a single demonstration from the dual arm Kuka system from csv.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the csv file.
+
+    context_names : list, optional (default: None)
+        Name of context variables that should be loaded.
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Time steps
+
+    P : array, shape (n_steps, 14)
+        Dual arm trajectories represented by position of the left arm,
+        orientation quaternion of the left arm, position of the right arm,
+        and orientation quaternion of the right arm.
+
+    context : array, shape (len(context_names),), optional
+        Values of context variables. These will only be returned if
+        context_names are given.
+    """
+    if verbose:
+        tqdm.write("Loading '%s'" % filename)
     trajectory = pd.read_csv(filename, sep=" ")
 
     if context_names is not None:
@@ -79,8 +144,30 @@ def load_kuka_demo(filename, context_names=None, verbose=0):
         return T, P, context
 
 
-def load_rh5_demo(path):
-    trajectory = pd.read_csv(path, sep=" ")
+def load_rh5_demo(filename, verbose=0):
+    """Load a single demonstration from the RH5 robot from csv.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the csv file.
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Time steps
+
+    P : array, shape (n_steps, 14)
+        Dual arm trajectories represented by position of the left arm,
+        orientation quaternion of the left arm, position of the right arm,
+        and orientation quaternion of the right arm.
+    """
+    if verbose:
+        tqdm.write("Loading '%s'" % filename)
+    trajectory = pd.read_csv(filename, sep=" ")
     patterns = ["time\.microseconds",
                 "rh5_left_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*",
                 "rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*",
