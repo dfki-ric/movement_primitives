@@ -146,6 +146,7 @@ class ProMP:
         """
         self.weight_mean = mean
         self.weight_cov = cov
+        return self
 
     def imitate(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
         """Learn ProMP from demonstrations.
