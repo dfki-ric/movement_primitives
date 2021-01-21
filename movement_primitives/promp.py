@@ -39,6 +39,24 @@ class ProMP:
         self.weight_cov = np.eye(self.n_weights)
 
     def weights(self, T, Y, lmbda=1e-12):
+        """Obtain ProMP weights by linear regression.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Y : array-like, shape (n_steps, n_dims)
+            Demonstrated trajectory
+
+        lmbda : float, optional (default: 1e-12)
+            Regularization coefficient
+
+        Returns
+        -------
+        weights : array, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+        """
         activations = self._bf(T).T
         weights = np.linalg.pinv(
             activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
@@ -46,19 +64,74 @@ class ProMP:
         return weights
 
     def trajectory_from_weights(self, T, weights):
+        """Generate trajectory from ProMP weights.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        weights : array-like, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Trajectory
+        """
         return self._bf(T).T.dot(weights).reshape(self.n_dims, len(T)).T
 
     def mean_trajectory(self, T):
+        """Get mean trajectory of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Mean trajectory
+        """
         return self.trajectory_from_weights(T, self.weight_mean)
 
     def cov_trajectory(self, T):
+        """Get trajectory covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape TODO
+            Covariance
+        """
         activations = self._bf(T)
         return activations.T.dot(self.weight_cov).dot(activations)
 
     def var_trajectory(self, T):
+        """Get trajectory variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        """
         return np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T
 
     def sample_trajectories(self, T, n_samples, random_state):
+        """Sample trajectories from ProMP.
+
+        TODO
+        """
         weight_samples = random_state.multivariate_normal(
             self.weight_mean, self.weight_cov, n_samples)
         samples = np.empty((n_samples, len(T), self.n_dims))
@@ -67,10 +140,18 @@ class ProMP:
         return samples
 
     def from_weight_distribution(self, mean, cov):
+        """Initialize ProMP from mean and covariance.
+
+        TODO
+        """
         self.weight_mean = mean
         self.weight_cov = cov
 
     def imitate(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
+        """Learn ProMP from demonstrations.
+
+        TODO
+        """
         # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
         # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
         # Section 3.2 of https://hal.inria.fr/inria-00475214/document
