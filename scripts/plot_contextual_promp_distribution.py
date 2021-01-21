@@ -36,8 +36,9 @@ def generate_training_data(
             left2right[t] = pt.concat(left2base[t], pt.invert_transform(right2base[t], check=False), check=False)
         P_diff = ptr.pqs_from_transforms(left2right)
 
-        P_diff[:, 3:] = smooth_quaternion_trajectory(P_diff[:, 3:])
-        P_diff[:, :] = median_filter(P_diff, window_size=5)
+        if smooth_quaterions:
+            P_diff[:, 3:] = smooth_quaternion_trajectory(P_diff[:, 3:])
+            P_diff[:, :] = median_filter(P_diff, window_size=5)
 
         Ps_left.append(P_left)
         Ps_right.append(P_right)
