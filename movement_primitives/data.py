@@ -3,7 +3,30 @@ import glob
 import pandas as pd
 from mocap import array_from_dataframe
 from mocap.pandas_utils import match_columns, rename_stream_groups
+from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 from tqdm import tqdm
+
+
+def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
+    """Make orientation representation smooth.
+
+    Note that the argument Ps will be manipulated and the function does not
+    return anything.
+
+    Parameters
+    ----------
+    Ps : list
+        List of dual arm trajectories represented by position of the left arm,
+        orientation quaternion of the left arm, position of the right arm,
+        and orientation quaternion of the right arm.
+
+    median_filter_window : int, optional (default: 5)
+        Window size of the median filter
+    """
+    for P in Ps:
+        P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
+        P[:, 10:] = smooth_quaternion_trajectory(P[:, 10:])
+        P[:, :] = median_filter(P, window_size=median_filter_window)
 
 
 def transpose_dataset(dataset):
