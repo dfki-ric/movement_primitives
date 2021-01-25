@@ -40,8 +40,12 @@ right_arm = kin.create_chain(
     ["ARShoulder1", "ARShoulder2", "ARShoulder3",
      "ARElbow", "ARWristRoll", "ARWristPitch"],
     "BodyBase_Link", "RTCP_Link")
-q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0.8])
-q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0.8])
+
+#q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0.8])
+#q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0.8])
+q0_left = np.array([-1.57, 0.7, 0, -0.82, 0, 0])
+q0_right = np.array([1.57, -0.7, 0, 0.82, 0, 0])
+
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
 
