@@ -22,6 +22,8 @@ with open("abstract-urdf-gripper/urdf/rh5_fixed.urdf", "r") as f:
 fig = pv.figure()
 fig.plot_transform(s=0.2)
 fig.add_geometry(solar_panel)
-fig.plot_graph(tm, "RH5", show_visuals=True, show_frames=True, whitelist=["ALWristPitch_Link", "ARWristPitch_Link"])
+fig.plot_graph(tm, "RH5", show_visuals=True, show_frames=True,
+               whitelist=["ALWristPitch_Link", "ARWristPitch_Link", "LTCP_Link", "RTCP_Link"],
+               s=0.1)
 fig.view_init()
 fig.show()

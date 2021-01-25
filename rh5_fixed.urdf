@@ -2113,6 +2113,26 @@
       <limit lower="-0.026" upper="1.43" effort="352.0" velocity="2.321"/>
     </joint>
 
+    <link name="LTCP_Link" />
+
+    <joint name="LTCP" type="fixed">
+      <origin xyz="0 0 -0.15" rpy="3.1415926 0 1.57"/>
+      <parent link="ALWristPitch_Link"/>
+      <child link="LTCP_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
+    <link name="RTCP_Link" />
+
+    <joint name="RTCP" type="fixed">
+      <origin xyz="0 0 -0.15" rpy="3.1415926 0 1.57"/>
+      <parent link="ARWristPitch_Link"/>
+      <child link="RTCP_Link"/>
+      <axis xyz="0 0 1.0"/>
+      <limit lower="-1.0" upper="1.0" effort="0" velocity="0"/>
+    </joint>
+
     <material name="Steel">
       <color rgba="0.249 0.249 0.249 1.0"/>
     </material>
