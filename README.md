@@ -36,6 +36,8 @@ cp rh5_right_arm.urdf abstract-urdf-gripper/urdf/
 cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
 git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+
+git@git.hb.dfki.de:models-objects/solar_panels.git
 ```
 
 # Optional: Build Cython extensions
