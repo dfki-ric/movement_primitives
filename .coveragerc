@@ -3,12 +3,12 @@ branch = True
 source = movement_primitives
 omit =
     */setup.py
-    movement_primitives/plotting.py
+    movement_primitives/plot.py
     movement_primitives/visualization.py
 
 [report]
 omit =
-    movement_primitives/plotting.py
+    movement_primitives/plot.py
     movement_primitives/visualization.py
 exclude_lines =
     pragma: no cover
