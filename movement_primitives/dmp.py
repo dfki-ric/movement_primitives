@@ -185,6 +185,7 @@ class DMP(DMPBase):
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.configure(start_y=Y[0], goal_y=Y[-1])
 
 
 class CartesianDMP(DMPBase):
@@ -275,6 +276,8 @@ class CartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot.overlap,
             alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
 
+        self.configure(start_y=Y[0], goal_y=Y[-1])
+
 
 class DualCartesianDMP(DMPBase):
     def __init__(self, execution_time, dt=0.01,
@@ -363,6 +366,8 @@ class DualCartesianDMP(DMPBase):
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+
+        self.configure(start_y=Y[0], goal_y=Y[-1])
 
     def get_weights(self):
         return self.forcing_term.weights.ravel()
