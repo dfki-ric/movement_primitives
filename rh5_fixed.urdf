@@ -60,7 +60,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="ALvisual_0_Shoulder3_Link">
+      <collision name="ALcollision_0_Shoulder3_Link">
         <origin xyz="0 0 0.197" rpy="3.142 0 0"/>
         <geometry>
           <box size="0.078 0.1 0.227"/>
@@ -144,7 +144,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="ALvisual_0_WristRoll_Link">
+      <collision name="ALcollision_0_WristRoll_Link">
         <origin xyz="0.015 0 0.162" rpy="0 0 3.13"/>
         <geometry>
           <box size="0.141 0.12 0.308"/>
@@ -233,7 +233,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="ARvisual_0_Shoulder3_Link">
+      <collision name="ARcollision_0_Shoulder3_Link">
         <origin xyz="0 0 0.197" rpy="3.142 0 0"/>
         <geometry>
           <box size="0.078 0.1 0.227"/>
@@ -317,7 +317,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="ARvisual_0_WristRoll_Link">
+      <collision name="ARcollision_0_WristRoll_Link">
         <origin xyz="0.015 0 0.162" rpy="0 0 -0.012"/>
         <geometry>
           <box size="0.141 0.12 0.308"/>
@@ -1185,7 +1185,7 @@
         </geometry>
         <material name="WhitePlastic"/>
       </visual>
-      <collision name="visual_0_HeadYaw_Link">
+      <collision name="collision_0_HeadYaw_Link">
         <origin xyz="0.017 0 0.05" rpy="0 0 -1.571"/>
         <geometry>
           <sphere radius="0.129"/>
@@ -1403,7 +1403,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="LLvisual_0_Knee_Link">
+      <collision name="LLcollision_0_Knee_Link">
         <origin xyz="0.212 -0.004 0.001" rpy="0.589 1.571 -2.537"/>
         <geometry>
           <box size="0.122 0.13 0.341"/>
@@ -1629,7 +1629,7 @@
         </geometry>
         <material name="Steel"/>
       </visual>
-      <collision name="LRvisual_0_Knee_Link">
+      <collision name="LRcollision_0_Knee_Link">
         <origin xyz="0.212 -0.004 0.001" rpy="-2.53 1.571 0.597"/>
         <geometry>
           <box size="0.123 0.131 0.341"/>
