@@ -4,16 +4,6 @@ import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from kinematics import Kinematics
-import open3d as o3d
-
-
-def load_solar_panels():
-    solar_panels = [o3d.io.read_triangle_mesh(f) for f in
-                    ["solar_panels/solar_panel_02/meshes/stl/base link.stl",
-                     "solar_panels/solar_panel_03/meshes/stl/base link.stl"]]
-    for sp in solar_panels:
-        sp.compute_vertex_normals()
-    return solar_panels
 
 
 def panel_pose(tm):
@@ -28,11 +18,17 @@ def panel_pose(tm):
     return pt.transform_from(R_panel, tcp_middle)
 
 
+def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory, panel_mesh):
+    left_arm.forward(left_joint_trajectory[step])
+    right_arm.forward(right_joint_trajectory[step])
+    graph.set_data()
+    panel_mesh.set_data(panel_pose(graph.tm))
+    return graph, panel_mesh
+
+
 solar_panel_idx = 0
 panel_rotation_angle = np.deg2rad(60)
-n_steps = 101
-
-solar_panel = load_solar_panels()[solar_panel_idx]
+n_steps = 51
 
 with open("abstract-urdf-gripper/urdf/rh5_fixed.urdf", "r") as f:
     kin = Kinematics(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
@@ -78,14 +74,21 @@ right_trajectory = start_right[np.newaxis] + t[:, np.newaxis] * (end_right[np.ne
 left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
 right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 
+random_state = np.random.RandomState(0)
+left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
+right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
+
 fig = pv.figure()
 fig.plot_transform(s=0.3)
-fig.add_geometry(solar_panel)
-fig.plot_graph(kin.tm, "BodyBase_Link", show_visuals=True, show_frames=True,
-               whitelist=["ALWristPitch_Link", "ARWristPitch_Link", "LTCP_Link", "RTCP_Link"],
-               s=0.1)
 
-solar_panel.transform(panel2base_start)
+# "solar_panels/solar_panel_02/meshes/stl/base link.stl"
+# "solar_panels/solar_panel_03/meshes/stl/base link.stl"
+panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)
+
+graph = fig.plot_graph(
+    kin.tm, "BodyBase_Link", show_visuals=True, show_frames=True, s=0.1,
+    whitelist=["ALWristPitch_Link", "ARWristPitch_Link", "LTCP_Link", "RTCP_Link"])
+
 fig.plot_transform(panel2base_start, s=0.2)
 
 fig.plot_transform(left2base_start, s=0.15)
@@ -97,4 +100,7 @@ pv.Trajectory(left_trajectory, s=0.05).add_artist(fig)
 pv.Trajectory(right_trajectory, s=0.05).add_artist(fig)
 
 fig.view_init()
+fig.animate(
+    animation_callback, len(left_joint_trajectory), loop=True,
+    fargs=(graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory, panel_mesh))
 fig.show()
