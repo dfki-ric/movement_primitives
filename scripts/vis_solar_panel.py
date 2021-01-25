@@ -4,6 +4,7 @@ import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from kinematics import Kinematics
+from movement_primitives.dmp import DualCartesianDMP
 
 
 def panel_pose(tm):
@@ -78,6 +79,17 @@ right_trajectory = start_right[np.newaxis] + t[:, np.newaxis] * (end_right[np.ne
 left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
 right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 
+print("Imitation...")
+P = np.hstack((ptr.pqs_from_transforms(left_trajectory),
+               ptr.pqs_from_transforms(right_trajectory)))
+dmp = DualCartesianDMP(execution_time=t[-1], dt=0.01, n_weights_per_dim=10)
+dmp.imitate(t, P)
+_, P = dmp.open_loop()
+
+left_trajectory = ptr.transforms_from_pqs(P[:, :7])
+right_trajectory = ptr.transforms_from_pqs(P[:, 7:])
+
+print("Inverse kinematics...")
 random_state = np.random.RandomState(0)
 left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
