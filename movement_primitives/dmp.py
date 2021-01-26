@@ -983,7 +983,54 @@ class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for
             self.couple_position, self.couple_orientation)
 
 
+class StateFollowingDMP(DMPBase):
+    """State following DMP (highly experimental)."""
+    def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
+        super(StateFollowingDMP, self).__init__(n_dims, n_dims)
+        self.execution_time = execution_time
+        self.dt = dt
+        self.n_viapoints = n_viapoints
+        self.int_dt = int_dt
+
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+        self.forcing_term = StateFollowingForcingTerm(
+            self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1, alpha_z)
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        assert len(last_y) == self.n_dims
+        assert len(last_yd) == self.n_dims
+
+        self.last_t = self.t
+        self.t += self.dt
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        state_following_dmp_step(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y, self.goal_yd, self.goal_ydd,
+            self.start_y, self.start_yd, self.start_ydd,
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            forcing_term=self.forcing_term,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return self.current_y, self.current_yd
+
+    def open_loop(self, run_t=None, coupling_term=None):
+        return state_following_dmp_open_loop(self.execution_time, 0.0, self.dt, self.start_y, self.goal_y, self.alpha_y, self.beta_y, self.forcing_term, coupling_term, run_t, self.int_dt)
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        raise NotImplementedError("imitation is not yet implemented")
+
+
 class StateFollowingForcingTerm:
+    """Defines the shape of the motion."""
     def __init__(self, n_dims, n_viapoints, goal_t, start_t, overlap, alpha_z):
         if n_viapoints <= 0:
             raise ValueError("The number of viapoints must be > 0!")
@@ -1030,52 +1077,6 @@ class StateFollowingForcingTerm:
         z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t, start_t=self.start_t, int_dt=int_dt)
         z = np.atleast_1d(z)
         return self._activations(z, normalized=True).T
-
-
-class StateFollowingDMP(DMPBase):
-    """State following DMP (highly experimental)."""
-    def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
-        super(StateFollowingDMP, self).__init__(n_dims, n_dims)
-        self.execution_time = execution_time
-        self.dt = dt
-        self.n_viapoints = n_viapoints
-        self.int_dt = int_dt
-
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
-
-        self.forcing_term = StateFollowingForcingTerm(
-            self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1, alpha_z)
-
-    def step(self, last_y, last_yd, coupling_term=None):
-        assert len(last_y) == self.n_dims
-        assert len(last_yd) == self.n_dims
-
-        self.last_t = self.t
-        self.t += self.dt
-
-        self.current_y[:], self.current_yd[:] = last_y, last_yd
-        state_following_dmp_step(
-            self.last_t, self.t,
-            self.current_y, self.current_yd,
-            self.goal_y, self.goal_yd, self.goal_ydd,
-            self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            forcing_term=self.forcing_term,
-            coupling_term=coupling_term,
-            int_dt=self.int_dt)
-        return self.current_y, self.current_yd
-
-    def open_loop(self, run_t=None, coupling_term=None):
-        return state_following_dmp_open_loop(self.execution_time, 0.0, self.dt, self.start_y, self.goal_y, self.alpha_y, self.beta_y, self.forcing_term, coupling_term, run_t, self.int_dt)
-
-    def imitate(self, T, Y, regularization_coefficient=0.0,
-                allow_final_velocity=False):
-        raise NotImplementedError("imitation is not yet implemented")
 
 
 def state_following_dmp_step(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
