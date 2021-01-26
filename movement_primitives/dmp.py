@@ -5,6 +5,25 @@ import warnings
 
 
 class DMPBase:
+    def __init__(self, n_pos_dims, n_vel_dims):
+        self.n_dims = n_pos_dims
+        self.n_vel_dims = n_vel_dims
+
+        self.t = 0.0
+
+        self.start_y = np.zeros(n_pos_dims)
+        self.start_yd = np.zeros(n_vel_dims)
+        self.start_ydd = np.zeros(n_vel_dims)
+
+        self.goal_y = np.zeros(n_pos_dims)
+        self.goal_yd = np.zeros(n_vel_dims)
+        self.goal_ydd = np.zeros(n_vel_dims)
+
+        self.initialized = False
+
+        self.current_y = np.zeros(n_pos_dims)
+        self.current_yd = np.zeros(n_vel_dims)
+
     def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
         if last_t is not None:
             self.last_t = last_t
@@ -22,23 +41,6 @@ class DMPBase:
             self.goal_yd = goal_yd
         if goal_ydd is not None:
             self.goal_ydd = goal_ydd
-
-    def _initialize(self, n_pos_dims, n_vel_dims):
-        self.last_t = None
-        self.t = 0.0
-
-        self.start_y = np.zeros(n_pos_dims)
-        self.start_yd = np.zeros(n_vel_dims)
-        self.start_ydd = np.zeros(n_vel_dims)
-
-        self.goal_y = np.zeros(n_pos_dims)
-        self.goal_yd = np.zeros(n_vel_dims)
-        self.goal_ydd = np.zeros(n_vel_dims)
-
-        self.initialized = False
-
-        self.current_y = np.zeros(n_pos_dims)
-        self.current_yd = np.zeros(n_vel_dims)
 
 
 def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
@@ -118,7 +120,7 @@ class ForcingTerm:
 
 class DMP(DMPBase):
     def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
-        self.n_dims = n_dims
+        super(DMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
@@ -130,10 +132,6 @@ class DMP(DMPBase):
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
-
-        self._initialize(n_dims, n_dims)
-
-        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
@@ -191,7 +189,7 @@ class DMP(DMPBase):
 class CartesianDMP(DMPBase):
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001):
-        self.n_dims = 7
+        super(CartesianDMP, self).__init__(7, 6)
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
@@ -207,10 +205,6 @@ class CartesianDMP(DMPBase):
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
-
-        self._initialize(self.n_dims, 6)
-
-        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == 7
@@ -282,7 +276,7 @@ class CartesianDMP(DMPBase):
 class DualCartesianDMP(DMPBase):
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
-        self.n_dims = 14
+        super(DualCartesianDMP, self).__init__(14, 12)
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
@@ -296,9 +290,6 @@ class DualCartesianDMP(DMPBase):
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
-
-        self._initialize(self.n_dims, 12)
-        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == self.n_dims
@@ -1009,7 +1000,7 @@ class StateFollowingForcingTerm:
 class StateFollowingDMP(DMPBase):
     """State following DMP (highly experimental)."""
     def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
-        self.n_dims = n_dims
+        super(StateFollowingDMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt = dt
         self.n_viapoints = n_viapoints
@@ -1023,16 +1014,6 @@ class StateFollowingDMP(DMPBase):
 
         self.forcing_term = StateFollowingForcingTerm(
             self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1, alpha_z)
-
-        self._initialize(self.n_dims, self.n_dims)
-
-        self.start_y = np.zeros(self.n_dims)
-        self.start_yd = np.zeros(self.n_dims)
-        self.start_ydd = np.zeros(self.n_dims)
-        self.goal_y = np.zeros(self.n_dims)
-        self.goal_yd = np.zeros(self.n_dims)
-        self.goal_ydd = np.zeros(self.n_dims)
-        self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
         assert len(last_y) == self.n_dims
