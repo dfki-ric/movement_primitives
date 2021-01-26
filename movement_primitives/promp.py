@@ -130,7 +130,21 @@ class ProMP:
     def sample_trajectories(self, T, n_samples, random_state):
         """Sample trajectories from ProMP.
 
-        TODO
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        n_samples : int
+            Number of trajectories that will be sampled
+
+        random_state : np.random.RandomState
+            State of random number generator
+
+        Returns
+        -------
+        samples : array, shape (n_samples, n_steps, n_dims)
+            Sampled trajectories
         """
         weight_samples = random_state.multivariate_normal(
             self.weight_mean, self.weight_cov, n_samples)
@@ -140,18 +154,47 @@ class ProMP:
         return samples
 
     def from_weight_distribution(self, mean, cov):
-        """Initialize ProMP from mean and covariance.
+        """Initialize ProMP from mean and covariance in weight space.
 
-        TODO
+        Parameters
+        ----------
+        mean : array, shape (n_dims * n_weights_per_dim)
+            Mean of weight distribution
+
+        cov : array, shape (n_dims * n_weights_per_dim, n_dims * n_weights_per_dim)
+            Covariance of weight distribution
+
+        Returns
+        -------
+        self : ProMP
+            This object
         """
         self.weight_mean = mean
         self.weight_cov = cov
         return self
 
     def imitate(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
-        """Learn ProMP from demonstrations.
+        """Learn ProMP from multiple demonstrations.
 
-        TODO
+        Parameters
+        ----------
+        Ts : array, shape (n_demos, n_steps,)
+            Time steps of demonstrations
+
+        Ys : array, shape (n_demos, n_steps, n_dims)
+            Demonstrations
+
+        gamma : float, optional (default: 0.7)
+            TODO
+
+        n_iter : int, optional (default: 1000)
+            Maximum number of iterations
+
+        min_delta : float, optional (default: 1e-5)
+            Minimum delta between means to continue iteration
+
+        verbose : int, optional (default: 0)
+            Verbosity level
         """
         # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
         # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
