@@ -28,24 +28,24 @@ def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, 
 
 
 solar_panel_idx = 0
-panel_rotation_angle = np.deg2rad(60)
+panel_rotation_angle = np.deg2rad(90)
 n_steps = 51
 
 with open("abstract-urdf-gripper/urdf/rh5_fixed.urdf", "r") as f:
     kin = Kinematics(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
 left_arm = kin.create_chain(
     ["ALShoulder1", "ALShoulder2", "ALShoulder3",
-     "ALElbow", "ALWristRoll", "ALWristPitch"],
+     "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"],
     "BodyBase_Link", "LTCP_Link")
 right_arm = kin.create_chain(
     ["ARShoulder1", "ARShoulder2", "ARShoulder3",
-     "ARElbow", "ARWristRoll", "ARWristPitch"],
+     "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"],
     "BodyBase_Link", "RTCP_Link")
 
-#q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0.8])
-#q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0.8])
-q0_left = np.array([-1.57, 0.7, 0, -0.82, 0, 0])
-q0_right = np.array([1.57, -0.7, 0, 0.82, 0, 0])
+q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
+q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
+#q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
+#q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
 
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
