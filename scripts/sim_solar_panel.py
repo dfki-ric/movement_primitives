@@ -1,10 +1,10 @@
 import numpy as np
-import pytransform3d.visualizer as pv
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from kinematics import Kinematics
 from movement_primitives.dmp import DualCartesianDMP
+from simulation import RH5Simulation
 
 
 def panel_pose(tm):
@@ -28,7 +28,7 @@ def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, 
 
 
 solar_panel_idx = 0
-panel_rotation_angle = np.deg2rad(90)
+panel_rotation_angle = np.deg2rad(60)
 n_steps = 51
 
 with open("abstract-urdf-gripper/urdf/rh5_fixed.urdf", "r") as f:
@@ -42,10 +42,10 @@ right_arm = kin.create_chain(
      "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"],
     "BodyBase_Link", "RTCP_Link")
 
-q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
-q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
-#q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
-#q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
+#q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
+#q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
+q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
+q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
 
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
@@ -80,51 +80,33 @@ left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
 right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 
 print("Imitation...")
+dt = 0.001
 P = np.hstack((ptr.pqs_from_transforms(left_trajectory),
                ptr.pqs_from_transforms(right_trajectory)))
-dmp = DualCartesianDMP(execution_time=t[-1], dt=0.01, n_weights_per_dim=10)
+dmp = DualCartesianDMP(execution_time=t[-1], dt=dt, n_weights_per_dim=10)
 dmp.imitate(t, P)
 _, P = dmp.open_loop()
 
 left_trajectory = ptr.transforms_from_pqs(P[:, :7])
 right_trajectory = ptr.transforms_from_pqs(P[:, 7:])
 
+"""
 print("Inverse kinematics...")
 random_state = np.random.RandomState(0)
 left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
+"""
 
-import matplotlib.pyplot as plt
-from movement_primitives.plot import plot_trajectory_in_rows
-axes = plot_trajectory_in_rows(np.hstack((left_joint_trajectory, right_joint_trajectory)))
-for i, jn in  enumerate(left_arm.joint_names + right_arm.joint_names):
-    joint_limits = kin.tm._joints[jn][-2]
-    axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[0]] * 2, c="r")
-    axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[1]] * 2, c="r")
-plt.show()
-
-fig = pv.figure()
-fig.plot_transform(s=0.3)
+rh5 = RH5Simulation(
+    dt=dt, gui=True, real_time=False,
+    left_arm_ee_idx_ik=12, right_arm_ee_idx_ik=12)
+rh5.set_desired_joint_state(np.hstack((q0_left, q0_right)), position_control=True)
+rh5.sim_loop(1001)
+rh5.goto_ee_state(P[0])
+rh5.sim_loop()
+desired_positions, positions, desired_velocities, velocities = \
+    rh5.step_through_cartesian(dmp, P[0], np.zeros(12), t[-1])
 
 # "solar_panels/solar_panel_02/meshes/stl/base link.stl"
 # "solar_panels/solar_panel_03/meshes/stl/base link.stl"
-panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)
-
-graph = fig.plot_graph(
-    kin.tm, "BodyBase_Link", show_visuals=True, show_frames=True, s=0.1,
-    whitelist=["ALWristPitch_Link", "ARWristPitch_Link", "LTCP_Link", "RTCP_Link"])
-
-fig.plot_transform(panel2base_start, s=0.2)
-
-fig.plot_transform(left2base_start, s=0.15)
-fig.plot_transform(right2base_start, s=0.15)
-fig.plot_transform(left2base_end, s=0.15)
-fig.plot_transform(right2base_end, s=0.15)
-
-pv.Trajectory(left_trajectory, s=0.05).add_artist(fig)
-pv.Trajectory(right_trajectory, s=0.05).add_artist(fig)
-
-fig.animate(
-    animation_callback, len(left_joint_trajectory), loop=True,
-    fargs=(graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory, panel_mesh))
-fig.show()
+#panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)

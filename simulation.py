@@ -18,11 +18,13 @@ class PybulletSimulation:
         pybullet.setRealTimeSimulation(1 if real_time else 0)
         pybullet.setGravity(0, 0, -9.81)
 
+
 def _pybullet_pose(pose):
     pos = pose[:3]
     rot = pose[3:]
     rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
     return pos, rot
+
 
 def _pytransform_pose(pos, rot):
     return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
@@ -181,14 +183,16 @@ class UR5Simulation(PybulletSimulation):
 
 
 class LeftArmKinematics:
-    def __init__(self, left_arm_pos=(-1, 0, 5)):
+    def __init__(self, left_arm_pos=(-1, 0, 5), left_arm_ee_idx_ik=10):
         self.left_arm_pos = left_arm_pos
         self.left_arm = pybullet.loadURDF(
             "abstract-urdf-gripper/urdf/rh5_left_arm.urdf", self.left_arm_pos, useFixedBase=1)
         self.left_arm_pose = self.left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
         self.left_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
         self.n_joints = len(self.left_arm_joint_indices)
-        self.left_arm_ee_idx_ik = 10
+        self.left_arm_ee_idx_ik = left_arm_ee_idx_ik
+        for i in range(pybullet.getNumJoints(self.left_arm)):
+            print(pybullet.getJointInfo(self.left_arm, i))
 
     def inverse(self, left_ee_state, q_current=None):
         left_pos, left_rot = _pybullet_pose(left_ee_state)
@@ -206,14 +210,16 @@ class LeftArmKinematics:
 
 
 class RightArmKinematics:
-    def __init__(self, right_arm_pos=(1, 0, 5)):
+    def __init__(self, right_arm_pos=(1, 0, 5), right_arm_ee_idx_ik=10):
         self.right_arm_pos = right_arm_pos
         self.right_arm = pybullet.loadURDF(
             "abstract-urdf-gripper/urdf/rh5_right_arm.urdf", self.right_arm_pos, useFixedBase=1)
         self.right_arm_pose = self.right_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.right_arm)
         self.right_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
         self.n_joints = len(self.right_arm_joint_indices)
-        self.right_arm_ee_idx_ik = 10
+        self.right_arm_ee_idx_ik = right_arm_ee_idx_ik
+        for i in range(pybullet.getNumJoints(self.right_arm)):
+            print(pybullet.getJointInfo(self.right_arm, i))
 
     def inverse(self, right_ee_state, q_current=None):
         right_pos, right_rot = _pybullet_pose(right_ee_state)
@@ -231,7 +237,7 @@ class RightArmKinematics:
 
 
 class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
-    def __init__(self, dt, gui=True, real_time=False):
+    def __init__(self, dt, gui=True, real_time=False, left_arm_ee_idx_ik=10, right_arm_ee_idx_ik=10):
         super(RH5Simulation, self).__init__(dt, gui, real_time)
 
         pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -240,14 +246,14 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
             "plane.urdf", [0, 0, -1], useFixedBase=1)
         self.robot = pybullet.loadURDF(
             "abstract-urdf-gripper/urdf/rh5_fixed.urdf", self.base_pos, useFixedBase=1)
-        self.left_arm_kin = LeftArmKinematics()
-        self.right_arm_kin = RightArmKinematics()
+        self.left_arm_kin = LeftArmKinematics(left_arm_ee_idx_ik=left_arm_ee_idx_ik)
+        self.right_arm_kin = RightArmKinematics(right_arm_ee_idx_ik=right_arm_ee_idx_ik)
 
         self.base_pose = self.base_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.robot)
         self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
 
-        self.left_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
-        self.right_arm_joint_indices = [21, 22, 23, 24, 25, 26, 27]
+        self.left_arm_joint_indices = list(range(4, 11))
+        self.right_arm_joint_indices = list(range(22, 29))
         # base link of the joint after the last joint
         self.left_ee_link_index = pybullet.getJointInfo(
             self.robot, max(self.left_arm_joint_indices) + 1)[16]
