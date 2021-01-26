@@ -5,11 +5,13 @@ import warnings
 
 
 class DMPBase:
+    """Base class of Dynamical Movement Primitives (DMPs)."""
     def __init__(self, n_pos_dims, n_vel_dims):
         self.n_dims = n_pos_dims
         self.n_vel_dims = n_vel_dims
 
         self.t = 0.0
+        self.last_t = None
 
         self.start_y = np.zeros(n_pos_dims)
         self.start_yd = np.zeros(n_vel_dims)
@@ -24,7 +26,37 @@ class DMPBase:
         self.current_y = np.zeros(n_pos_dims)
         self.current_yd = np.zeros(n_vel_dims)
 
-    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None, goal_yd=None, goal_ydd=None):
+    def configure(self, last_t=None, t=None,
+                  start_y=None, start_yd=None, start_ydd=None,
+                  goal_y=None, goal_yd=None, goal_ydd=None):
+        """Set meta parameters of DMP.
+
+        Parameters
+        ----------
+        last_t : float, optional
+            Time at last step
+
+        t : float, optional
+            Time at current step
+
+        start_y : array, shape (n_dims,)
+            Initial state
+
+        start_yd : array, shape (n_vel_dims,)
+            Initial velocity
+
+        start_ydd : array, shape (n_vel_dims,)
+            Initial acceleration
+
+        goal_y : array, shape (n_dims,)
+            Goal state
+
+        goal_yd : array, shape (n_vel_dims,)
+            Goal velocity
+
+        goal_ydd : array, shape (n_vel_dims,)
+            Goal acceleration
+        """
         if last_t is not None:
             self.last_t = last_t
         if t is not None:
@@ -44,6 +76,7 @@ class DMPBase:
 
 
 def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
+    """Compute parameter alpha of canonical system."""
     if goal_z <= 0.0:
         raise ValueError("Final phase must be > 0!")
     if start_t >= goal_t:
@@ -57,6 +90,7 @@ def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
 
 
 def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
+    """Map time to phase."""
     execution_time = goal_t - start_t
     b = max(1.0 - alpha * int_dt / execution_time, eps)
     return b ** ((t - start_t) / int_dt)
@@ -65,6 +99,7 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
 
 
 class ForcingTerm:
+    """Defines the shape of a DMP."""
     def __init__(self, n_dims, n_weights_per_dim, goal_t, start_t, overlap, alpha_z):
         if n_weights_per_dim <= 0:
             raise ValueError("The number of weights per dimension must be > 1!")
