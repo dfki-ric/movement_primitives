@@ -5,7 +5,7 @@ from simulation import analyze_robot, _pytransform_pose, _pybullet_pose
 
 
 class LeftArmKinematics:
-    def __init__(self, left_arm_pos=(-1, 0, 5), ee_frame="LTCP_Link",
+    def __init__(self, ee_frame="LTCP_Link",
                  joints=("ALShoulder1", "ALShoulder2", "ALShoulder3",
                          "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"),
                  debug_gui=True):
@@ -15,7 +15,7 @@ class LeftArmKinematics:
             self.client_id = pybullet.connect(pybullet.DIRECT)
         pybullet.resetSimulation(physicsClientId=self.client_id)
         self.left_arm = pybullet.loadURDF(
-            "pybullet-only-arms-urdf/submodels/left_arm.urdf", left_arm_pos,
+            "pybullet-only-arms-urdf/submodels/left_arm.urdf",
             useFixedBase=1, physicsClientId=self.client_id)
         self.joint_indices, self.link_indices = analyze_robot(robot=self.left_arm, physicsClientId=self.client_id)
 
@@ -28,14 +28,14 @@ class LeftArmKinematics:
         self.com2world = com2w_p, com2w_q
         self.world2com = pybullet.invertTransform(*self.com2world)
 
-        self.robot2world = left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
-        self.world2robot = pybullet.invertTransform(*self.robot2world)
+        #self.robot2world = (0, 0, 0), (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
+        #self.world2robot = pybullet.invertTransform(*self.robot2world)
 
     def inverse(self, left_ee_state, q_current=None):
         left_pos, left_rot = _pybullet_pose(left_ee_state)
         # ee2world
-        left_pos, left_rot = pybullet.multiplyTransforms(
-            left_pos, left_rot, *self.robot2world)
+        #left_pos, left_rot = pybullet.multiplyTransforms(
+        #    left_pos, left_rot, *self.robot2world)
         if q_current is not None:  # not effective in this step yet
             pybullet.setJointMotorControlArray(
                 self.left_arm, self.left_arm_joint_indices,
@@ -48,7 +48,7 @@ class LeftArmKinematics:
         return q
 
 
-left_arm_kin = LeftArmKinematics(left_arm_pos=(0, 0, 0), debug_gui=True)  # TODO breaks as soon as it is not at (0, 0, 0)
+left_arm_kin = LeftArmKinematics(debug_gui=True)  # TODO breaks as soon as it is not at (0, 0, 0)
 q = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
 pybullet.setTimeStep(0.001, physicsClientId=left_arm_kin.client_id)
 pybullet.setJointMotorControlArray(
@@ -89,21 +89,15 @@ q = get_joint_state(left_arm_kin)
 
 print(f"Actual joint state: {np.round(q, 2)}")
 
-left_ee_state = pybullet.getLinkState(
+_, _, _, _, left_pos, left_rot, _, _ = pybullet.getLinkState(
     left_arm_kin.left_arm, left_arm_kin.left_arm_ee_idx_ik, computeLinkVelocity=1,
     computeForwardKinematics=1, physicsClientId=left_arm_kin.client_id)
-left_pos = left_ee_state[4]
-left_rot = left_ee_state[5]
 pybullet.addUserDebugLine(left_pos, [0, 0, 0], [1, 0, 0], 2, physicsClientId=left_arm_kin.client_id)
-left_pos, left_rot = pybullet.multiplyTransforms(
-    left_pos, left_rot, *left_arm_kin.robot2world)
 left_pose = _pytransform_pose(left_pos, left_rot)
 print(f"Actual pose: {np.round(left_pose, 3)}")
 
 print(f"Desired pose: {np.round(desired_pose, 3)}")
 desired_pos, desired_rot = _pybullet_pose(desired_pose)
-desired_pos, desired_rot = pybullet.multiplyTransforms(
-    desired_pos, desired_rot, *left_arm_kin.world2robot)
 pybullet.addUserDebugLine(desired_pos, [0, 0, 0], [0, 1, 0], 2, physicsClientId=left_arm_kin.client_id)
 
 while True:
