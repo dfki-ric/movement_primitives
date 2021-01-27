@@ -153,6 +153,7 @@ fig.plot_transform(right_trajectory[-1], s=0.15)
 pv.Trajectory(left_trajectory, s=0.05).add_artist(fig)
 pv.Trajectory(right_trajectory, s=0.05).add_artist(fig)
 
+fig.view_init()
 fig.animate(
     animation_callback, len(left_joint_trajectory), loop=True,
     fargs=(graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory, panel_mesh))
