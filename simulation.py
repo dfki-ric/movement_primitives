@@ -398,15 +398,15 @@ class SimulationMockup:  # runs steppables open loop
                 np.asarray(velocities))
 
 
-def analyze_robot(urdf_path=None, robot=None, verbose=0):
+def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
     if urdf_path is not None:
         assert robot is None
-        pybullet.connect(pybullet.DIRECT)
-        pybullet.resetSimulation()
-        robot = pybullet.loadURDF(urdf_path)
+        physicsClientId = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=physicsClientId)
+        robot = pybullet.loadURDF(urdf_path, physicsClientId=physicsClientId)
     assert robot is not None
 
-    base_link, robot_name = pybullet.getBodyInfo(robot)
+    base_link, robot_name = pybullet.getBodyInfo(robot, physicsClientId=physicsClientId)
 
     if verbose:
         print()
@@ -414,7 +414,7 @@ def analyze_robot(urdf_path=None, robot=None, verbose=0):
         print(f"Robot name: {robot_name}")
         print(f"Base link: {base_link}")
 
-    n_joints = pybullet.getNumJoints(robot)
+    n_joints = pybullet.getNumJoints(robot, physicsClientId=physicsClientId)
 
     last_link_idx = -1
     link_id_to_link_name = {last_link_idx: base_link}
@@ -426,7 +426,8 @@ def analyze_robot(urdf_path=None, robot=None, verbose=0):
     for joint_idx in range(n_joints):
         _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
             max_force, max_vel, child_link_name, ja, parent_pos,\
-            parent_orient, parent_idx = pybullet.getJointInfo(robot, joint_idx)
+            parent_orient, parent_idx = pybullet.getJointInfo(
+            robot, joint_idx, physicsClientId=physicsClientId)
 
         child_link_name = child_link_name.decode("utf-8")
         joint_name = joint_name.decode("utf-8")
