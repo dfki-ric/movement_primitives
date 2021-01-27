@@ -9,7 +9,7 @@ class LeftArmKinematics:
                  joints=("ALShoulder1", "ALShoulder2", "ALShoulder3",
                          "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch")):
         self.left_arm = pybullet.loadURDF(
-            "pybullet-only-arms-urdf/urdf/LeftArm.urdf", left_arm_pos, useFixedBase=1)
+            "pybullet-only-arms-urdf/submodels/left_arm.urdf", left_arm_pos, useFixedBase=1)
         self.joint_indices, self.link_indices = analyze_robot(robot=self.left_arm)
 
         self.left_arm_joint_indices = [self.joint_indices[jn] for jn in joints]
