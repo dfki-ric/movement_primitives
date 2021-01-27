@@ -437,3 +437,68 @@ class SimulationMockup:  # runs steppables open loop
                 np.asarray(positions),
                 np.asarray(desired_velocities),
                 np.asarray(velocities))
+
+
+def analyze_robot(urdf_path):
+    pybullet.connect(pybullet.DIRECT)
+
+    pybullet.resetSimulation()
+    pybullet.setTimeStep(0.001)
+    pybullet.setRealTimeSimulation(0)
+    pybullet.setGravity(0, 0, -9.81)
+
+    robot = pybullet.loadURDF(urdf_path)
+
+    base_link, robot_name = pybullet.getBodyInfo(robot)
+
+    print()
+    print("=" * 80)
+    print(f"Robot name: {robot_name}")
+    print(f"Base link: {base_link}")
+
+    n_joints = pybullet.getNumJoints(robot)
+
+    last_link = base_link
+    link_id_to_link_name = dict()
+
+    print(f"Number of joints: {n_joints}")
+
+    for joint_idx in range(n_joints):
+        _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
+            max_force, max_vel, child_link_name, ja, parent_pos,\
+            parent_orient, parent_idx = pybullet.getJointInfo(robot, joint_idx)
+
+        if parent_idx not in link_id_to_link_name:
+            link_id_to_link_name[parent_idx] = last_link
+        last_link = child_link_name
+
+        joint_type = _joint_type(joint_type)
+
+        print(f"Joint #{joint_idx}: {joint_name} ({joint_type}), "
+              f"child link: {child_link_name}, parent link index: {parent_idx}")
+        if joint_type == "fixed":
+            continue
+        print("=" * 80)
+        print(f"Index in positional state variables: {q_index}, "
+              f"Index in velocity state variables: {u_index}")
+        print(f"Joint limits: [{lo}, {hi}], max. force: {max_force}, "
+              f"max. velocity: {max_vel}")
+        print("=" * 80)
+
+    for link_idx in sorted(link_id_to_link_name.keys()):
+        print(f"Link #{link_idx}: {link_id_to_link_name[link_idx]}")
+
+
+def _joint_type(id):
+    if id == pybullet.JOINT_REVOLUTE:
+        return "revolute"
+    elif id == pybullet.JOINT_PRISMATIC:
+        return "prismatic"
+    elif id == pybullet.JOINT_SPHERICAL:
+        return "spherical"
+    elif id == pybullet.JOINT_PLANAR:
+        return "planar"
+    elif id == pybullet.JOINT_FIXED:
+        return "fixed"
+    else:
+        raise ValueError(f"Unknown joint type id {id}")
