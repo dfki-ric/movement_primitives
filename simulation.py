@@ -183,29 +183,39 @@ class UR5Simulation(PybulletSimulation):
 
 
 class LeftArmKinematics:
-    def __init__(self, left_arm_pos=(-1, 0, 5), left_arm_ee_idx_ik=10):
-        self.left_arm_pos = left_arm_pos
+    def __init__(self, left_arm_pos=(-1, 0, 5), ee_frame="LTCP_Link",
+                 joints=("ALShoulder1", "ALShoulder2", "ALShoulder3",
+                         "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch")):
         self.left_arm = pybullet.loadURDF(
-            "abstract-urdf-gripper/urdf/rh5_left_arm.urdf", self.left_arm_pos, useFixedBase=1)
-        self.left_arm_pose = self.left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
-        self.left_arm_joint_indices = [4, 5, 6, 7, 8, 9, 10]
+            "pybullet-only-arms-urdf/urdf/LeftArm.urdf", left_arm_pos, useFixedBase=1)
+        self.joint_indices, self.link_indices = analyze_robot(robot=self.left_arm)
+
+        self.left_arm_joint_indices = [self.joint_indices[jn] for jn in joints]
         self.n_joints = len(self.left_arm_joint_indices)
-        self.left_arm_ee_idx_ik = left_arm_ee_idx_ik
-        for i in range(pybullet.getNumJoints(self.left_arm)):
-            print(pybullet.getJointInfo(self.left_arm, i))
+        self.left_arm_ee_idx_ik = self.link_indices[ee_frame]
+
+        com2w_p, com2w_q, _, _, _, _ = pybullet.getLinkState(
+            self.left_arm, 0, computeForwardKinematics=True)
+        self.com2world = com2w_p, com2w_q
+        self.world2com = pybullet.invertTransform(*self.com2world)
+
+        self.robot2world = left_arm_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
+        self.world2robot = pybullet.invertTransform(*self.robot2world)
 
     def inverse(self, left_ee_state, q_current=None):
         left_pos, left_rot = _pybullet_pose(left_ee_state)
         # ee2world
-        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.left_arm_pose)
+        left_pos, left_rot = pybullet.multiplyTransforms(
+            left_pos, left_rot, *self.world2robot)
         if q_current is not None:  # not effective in this step yet
             pybullet.setJointMotorControlArray(
                 self.left_arm, self.left_arm_joint_indices,
                 pybullet.POSITION_CONTROL,
                 targetPositions=q_current)
         q = pybullet.calculateInverseKinematics(
-            self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot, maxNumIterations=100,
-            residualThreshold=0.001, jointDamping=[0.1] * self.n_joints)
+            self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot,
+            maxNumIterations=100, residualThreshold=0.001,
+            jointDamping=[0.1] * self.n_joints)
         return q
 
 
@@ -439,54 +449,65 @@ class SimulationMockup:  # runs steppables open loop
                 np.asarray(velocities))
 
 
-def analyze_robot(urdf_path):
-    pybullet.connect(pybullet.DIRECT)
-
-    pybullet.resetSimulation()
-    pybullet.setTimeStep(0.001)
-    pybullet.setRealTimeSimulation(0)
-    pybullet.setGravity(0, 0, -9.81)
-
-    robot = pybullet.loadURDF(urdf_path)
+def analyze_robot(urdf_path=None, robot=None, verbose=0):
+    if urdf_path is not None:
+        assert robot is None
+        pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation()
+        robot = pybullet.loadURDF(urdf_path)
+    assert robot is not None
 
     base_link, robot_name = pybullet.getBodyInfo(robot)
 
-    print()
-    print("=" * 80)
-    print(f"Robot name: {robot_name}")
-    print(f"Base link: {base_link}")
+    if verbose:
+        print()
+        print("=" * 80)
+        print(f"Robot name: {robot_name}")
+        print(f"Base link: {base_link}")
 
     n_joints = pybullet.getNumJoints(robot)
 
-    last_link = base_link
-    link_id_to_link_name = dict()
+    last_link_idx = -1
+    link_id_to_link_name = {last_link_idx: base_link}
+    joint_name_to_joint_id = {}
 
-    print(f"Number of joints: {n_joints}")
+    if verbose:
+        print(f"Number of joints: {n_joints}")
 
     for joint_idx in range(n_joints):
         _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
             max_force, max_vel, child_link_name, ja, parent_pos,\
             parent_orient, parent_idx = pybullet.getJointInfo(robot, joint_idx)
 
-        if parent_idx not in link_id_to_link_name:
-            link_id_to_link_name[parent_idx] = last_link
-        last_link = child_link_name
+        child_link_name = child_link_name.decode("utf-8")
+        joint_name = joint_name.decode("utf-8")
+
+        if child_link_name not in link_id_to_link_name.values():
+            last_link_idx += 1
+            link_id_to_link_name[last_link_idx] = child_link_name
+        assert parent_idx in link_id_to_link_name
+
+        joint_name_to_joint_id[joint_name] = joint_idx
 
         joint_type = _joint_type(joint_type)
 
-        print(f"Joint #{joint_idx}: {joint_name} ({joint_type}), "
-              f"child link: {child_link_name}, parent link index: {parent_idx}")
-        if joint_type == "fixed":
-            continue
-        print("=" * 80)
-        print(f"Index in positional state variables: {q_index}, "
-              f"Index in velocity state variables: {u_index}")
-        print(f"Joint limits: [{lo}, {hi}], max. force: {max_force}, "
-              f"max. velocity: {max_vel}")
-        print("=" * 80)
+        if verbose:
+            print(f"Joint #{joint_idx}: {joint_name} ({joint_type}), "
+                  f"child link: {child_link_name}, parent link index: {parent_idx}")
+            if joint_type == "fixed":
+                continue
+            print("=" * 80)
+            print(f"Index in positional state variables: {q_index}, "
+                  f"Index in velocity state variables: {u_index}")
+            print(f"Joint limits: [{lo}, {hi}], max. force: {max_force}, "
+                  f"max. velocity: {max_vel}")
+            print("=" * 80)
 
-    for link_idx in sorted(link_id_to_link_name.keys()):
-        print(f"Link #{link_idx}: {link_id_to_link_name[link_idx]}")
+    if verbose:
+        for link_idx in sorted(link_id_to_link_name.keys()):
+            print(f"Link #{link_idx}: {link_id_to_link_name[link_idx]}")
+
+    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}
 
 
 def _joint_type(id):
