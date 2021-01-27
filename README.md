@@ -27,7 +27,7 @@ pip install -e .
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 
 git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --branch develop
-cd pybullet-only-arms-urdf.git
+cd pybullet-only-arms-urdf
 git submodule init
 git submodule update
 cd ..
