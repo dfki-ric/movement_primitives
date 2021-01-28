@@ -78,14 +78,14 @@ You should put a symlink there to point to your actual data folder.
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="400px" />
 <img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="400px" />
 
-[Open3D](scripts/vis_solar_panel.py) [PyBullet](scripts/sim_solar_panel.py)
+Scripts: [Open3D](scripts/vis_solar_panel.py), [PyBullet](scripts/sim_solar_panel.py)
 
 ### Coupled Dual Cartesian DMP
 
 <img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="550px" />
 <img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="250px" />
 
-[Open3D](scripts/vis_cartesian_dual_dmp.py) [PyBullet](scripts/sim_cartesian_dual_dmp.py)
+Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_cartesian_dual_dmp.py)
 
 ### Propagation of DMP Distribution to State Space
 
