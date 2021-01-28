@@ -72,8 +72,6 @@ P = np.hstack((ptr.pqs_from_transforms(left_trajectory),
                ptr.pqs_from_transforms(right_trajectory)))
 dmp = DualCartesianDMP(execution_time=T[-1], dt=dt, n_weights_per_dim=10)
 dmp.imitate(T, P)
-from time import sleep
-sleep(10)
 
 desired_positions, positions, desired_velocities, velocities = \
     rh5.step_through_cartesian(dmp, P[0], np.zeros(12), t[-1])
