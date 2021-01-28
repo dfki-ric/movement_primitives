@@ -64,16 +64,25 @@ python setup.py build_ext --inplace
 I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
 
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
+## Examples
 
+### Contextual ProMPs
+
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
 
-<img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="400px" />
+[Script](scripts/vis_contextual_promp_distribution.py)
 
-<img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="400px" />
-
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="400px" />
+### Dual Cartesian DMP
 
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="400px" />
-
 <img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="400px" />
+
+### Coupled Dual Cartesian DMP
+
+<img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="400px" />
+<img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="400px" />
+
+### Propagation of DMP Distribution to State Space
+
+<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="400px" />
