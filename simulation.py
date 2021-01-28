@@ -260,7 +260,10 @@ class KinematicsChain:
         self.ee_idx = self.link_indices[ee_frame]
 
     def inverse(self, desired_ee_state, q_current=None):
-        self._goto_joint_state(q_current)
+        if q_current is not None:
+            # we have to actively go to the current joint state
+            # before computing inverse kinematics
+            self._goto_joint_state(q_current)
         ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
         q = pybullet.calculateInverseKinematics(
             self.chain, self.ee_idx, ee_pos, ee_rot,
@@ -270,20 +273,17 @@ class KinematicsChain:
         return q
 
     def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
-        if q_current is not None:
-            # we have to actively go to the current joint state
-            # before computing inverse kinematics
-            pybullet.setJointMotorControlArray(
+        pybullet.setJointMotorControlArray(
+            self.chain, self.chain_joint_indices,
+            pybullet.POSITION_CONTROL,
+            targetPositions=q_current, physicsClientId=self.client_id)
+        for _ in range(max_steps_to_joint_state):
+            pybullet.stepSimulation(physicsClientId=self.client_id)
+            q_internal = np.array([js[0] for js in pybullet.getJointStates(
                 self.chain, self.chain_joint_indices,
-                pybullet.POSITION_CONTROL,
-                targetPositions=q_current, physicsClientId=self.client_id)
-            for iter in range(max_steps_to_joint_state):
-                pybullet.stepSimulation(physicsClientId=self.client_id)
-                q_internal = np.array([js[0] for js in pybullet.getJointStates(
-                    self.chain, self.chain_joint_indices,
-                    physicsClientId=self.client_id)])
-                if np.linalg.norm(q_current - q_internal) < joint_state_eps:
-                    break
+                physicsClientId=self.client_id)])
+            if np.linalg.norm(q_current - q_internal) < joint_state_eps:
+                break
 
 
 class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
