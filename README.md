@@ -13,6 +13,7 @@
 ## Install Dependencies
 
 ```bash
+# untested: pip install git+https://git.hb.dfki.de/dfki-interaction/experimental/mocap.git
 git clone git@git.hb.dfki.de:dfki-interaction/experimental/mocap.git
 cd mocap
 pip install -e .
