@@ -74,7 +74,7 @@ dmp = DualCartesianDMP(execution_time=T[-1], dt=dt, n_weights_per_dim=10)
 dmp.imitate(T, P)
 
 desired_positions, positions, desired_velocities, velocities = \
-    rh5.step_through_cartesian(dmp, P[0], np.zeros(12), t[-1])
+    rh5.step_through_cartesian(dmp, P[0], np.zeros(12), T[-1])
 
 rh5.stop()
 rh5.sim_loop()
