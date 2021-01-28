@@ -63,3 +63,5 @@ python setup.py build_ext --inplace
 
 I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
+
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="200px" />
