@@ -3,7 +3,6 @@ from movement_primitives.dmp import DMP
 from simulation import UR5Simulation
 
 
-
 dt = 0.01
 execution_time = 1.0
 

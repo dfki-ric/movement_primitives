@@ -26,14 +26,11 @@ pip install -e .
 ```
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 
-git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git
-cd abstract-urdf-gripper
+git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --branch develop
+cd pybullet-only-arms-urdf
 git submodule init
 git submodule update
 cd ..
-cp rh5_left_arm.urdf abstract-urdf-gripper/urdf/
-cp rh5_right_arm.urdf abstract-urdf-gripper/urdf/
-cp rh5_fixed.urdf abstract-urdf-gripper/urdf/
 
 git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 
