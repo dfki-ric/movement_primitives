@@ -65,7 +65,7 @@ def draw_pose(pose2origin, s, client_id, lw=1):
 
     Parameters
     ----------
-    pose2origin : array-like, shape (7)
+    pose2origin : array-like, shape (7,)
         Position and quaternion: (x, y, z, qw, qx, qy, qz)
 
     s : float
@@ -277,6 +277,7 @@ class KinematicsChain:
             self.chain, self.chain_joint_indices,
             pybullet.POSITION_CONTROL,
             targetPositions=q_current, physicsClientId=self.client_id)
+
         for _ in range(max_steps_to_joint_state):
             pybullet.stepSimulation(physicsClientId=self.client_id)
             q_internal = np.array([js[0] for js in pybullet.getJointStates(
