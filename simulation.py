@@ -89,6 +89,36 @@ def draw_pose(pose2origin, s, client_id, lw=1):
         [0, 0, 1], lw, physicsClientId=client_id)
 
 
+def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
+    """Draw transformation matrix.
+
+    Parameters
+    ----------
+    A2Bs : array-like, shape (n_steps, 4, 4)
+        Homogeneous transformation matrices
+
+    client_id : int
+        Physics client ID
+
+    n_key_frames : int, optional (default: 10)
+        Number of coordinate frames
+
+    s : float, optional (default: 1)
+        Scale, length of the coordinate axes
+
+    lw : int, optional (default: 1)
+        Line width
+    """
+    key_frames_indices = np.linspace(
+        0, len(A2Bs) - 1, n_key_frames, dtype=np.int)
+    for idx in key_frames_indices:
+        draw_transform(A2Bs[idx], s=s, client_id=client_id)
+    for idx in range(len(A2Bs) - 1):
+        pybullet.addUserDebugLine(
+            A2Bs[idx, :3, 3], A2Bs[idx + 1, :3, 3], [0, 0, 0], lw,
+            physicsClientId=client_id)
+
+
 class UR5Simulation(PybulletSimulation):
     def __init__(self, dt, gui=True, real_time=False):
         super(UR5Simulation, self).__init__(dt, gui, real_time)

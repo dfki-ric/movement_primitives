@@ -2,65 +2,50 @@ import numpy as np
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-from kinematics import Kinematics
 from movement_primitives.dmp import DualCartesianDMP
-from simulation import RH5Simulation
+from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose
 
 
-def panel_pose(tm):
-    tcp_left = tm.get_transform("LTCP_Link", "BodyBase_Link")
-    tcp_right = tm.get_transform("RTCP_Link", "BodyBase_Link")
+def panel_pose(tcp_left, tcp_right):
     tcp_left_pos = tcp_left[:3, 3]
     tcp_right_pos = tcp_right[:3, 3]
     tcp_middle = 0.5 * (tcp_left_pos + tcp_right_pos)
     x_axis = pr.norm_vector(tcp_right_pos - tcp_left_pos)
-    y_axis = pr.norm_vector(0.5 * (tcp_left[:3, 1] + tcp_right[:3, 1]))
+    y_axis = -pr.norm_vector(0.5 * (tcp_left[:3, 1] + tcp_right[:3, 1]))
     R_panel = pr.matrix_from_two_vectors(x_axis, y_axis)
     return pt.transform_from(R_panel, tcp_middle)
 
 
-def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory, panel_mesh):
-    left_arm.forward(left_joint_trajectory[step])
-    right_arm.forward(right_joint_trajectory[step])
-    graph.set_data()
-    panel_mesh.set_data(panel_pose(graph.tm))
-    return graph, panel_mesh
-
-
-solar_panel_idx = 0
 panel_rotation_angle = np.deg2rad(60)
 n_steps = 51
+dt = 0.00001
 
-with open("abstract-urdf-gripper/urdf/rh5_fixed.urdf", "r") as f:
-    kin = Kinematics(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
-left_arm = kin.create_chain(
-    ["ALShoulder1", "ALShoulder2", "ALShoulder3",
-     "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"],
-    "BodyBase_Link", "LTCP_Link")
-right_arm = kin.create_chain(
-    ["ARShoulder1", "ARShoulder2", "ARShoulder3",
-     "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"],
-    "BodyBase_Link", "RTCP_Link")
+#q0 = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8, 1.57, -1.25, 0, 1.75, 0, 0, 0.8])
+q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, 1.57, -0.76, 0, 1.3, 0, 0, -0.55])
 
-#q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
-#q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
-q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
-q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
+rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
+rh5.set_desired_joint_state(q0, position_control=True)
+rh5.sim_loop(int(0.1 / dt))
+ee_state = rh5.get_ee_state()
+left2base_start = pt.transform_from_pq(ee_state[:7])
+right2base_start = pt.transform_from_pq(ee_state[7:])
+draw_transform(left2base_start, s=0.1, client_id=rh5.client_id)
+draw_transform(right2base_start, s=0.1, client_id=rh5.client_id)
 
-left_arm.forward(q0_left)
-right_arm.forward(q0_right)
+panel2base_start = panel_pose(left2base_start, right2base_start)
+draw_transform(panel2base_start, s=0.1, client_id=rh5.client_id)
+panel2base_start_pq = pt.pq_from_transform(panel2base_start)
+p, q = _pybullet_pose(panel2base_start_pq)
 
-left2base_start = kin.tm.get_transform("LTCP_Link", "BodyBase_Link")
-right2base_start = kin.tm.get_transform("RTCP_Link", "BodyBase_Link")
-tcp_left_pos = left2base_start[:3, 3]
-tcp_right_pos = right2base_start[:3, 3]
+# TODO update grippers to manipulate solar panel
+#import pybullet
+#pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
 
-panel2base_start = panel_pose(kin.tm)
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
 right2panel_start = pt.concat(right2base_start, pt.invert_transform(panel2base_start))
 
 
-rotation_axis = pr.unity
+rotation_axis = -pr.unity
 start2end = pt.rotate_transform(np.eye(4), pr.matrix_from_compact_axis_angle(rotation_axis * panel_rotation_angle))
 left2panel_end = pt.concat(left2panel_start, start2end)
 right2panel_end = pt.concat(right2panel_start, start2end)
@@ -78,6 +63,11 @@ left_trajectory = start_left[np.newaxis] + t[:, np.newaxis] * (end_left[np.newax
 right_trajectory = start_right[np.newaxis] + t[:, np.newaxis] * (end_right[np.newaxis] - start_right[np.newaxis])
 left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
 right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
+
+draw_trajectory(left_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
+draw_trajectory(right_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
+
+rh5.sim_loop()
 
 print("Imitation...")
 dt = 0.001
@@ -97,13 +87,6 @@ left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, ra
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
 """
 
-rh5 = RH5Simulation(
-    dt=dt, gui=True, real_time=False,
-    left_arm_ee_idx_ik=12, right_arm_ee_idx_ik=12)
-rh5.set_desired_joint_state(np.hstack((q0_left, q0_right)), position_control=True)
-rh5.sim_loop(1001)
-rh5.goto_ee_state(P[0])
-rh5.sim_loop()
 desired_positions, positions, desired_velocities, velocities = \
     rh5.step_through_cartesian(dmp, P[0], np.zeros(12), t[-1])
 
