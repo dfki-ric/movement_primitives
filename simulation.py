@@ -32,6 +32,35 @@ def _pytransform_pose(pos, rot):
     return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
 
 
+def draw_transform(pose2origin, s, client_id, lw=1):
+    """Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (4, 4)
+        Homogeneous transformation matrix
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    """
+    pose2origin = pt.check_transform(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)
+
+
 class UR5Simulation(PybulletSimulation):
     def __init__(self, dt, gui=True, real_time=False):
         super(UR5Simulation, self).__init__(dt, gui, real_time)
