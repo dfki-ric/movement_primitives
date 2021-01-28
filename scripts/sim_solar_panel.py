@@ -18,14 +18,14 @@ def panel_pose(tcp_left, tcp_right):
 
 panel_rotation_angle = np.deg2rad(60)
 n_steps = 51
-dt = 0.00001
+dt = 0.01
 
 #q0 = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8, 1.57, -1.25, 0, 1.75, 0, 0, 0.8])
 q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, 1.57, -0.76, 0, 1.3, 0, 0, -0.55])
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
 rh5.set_desired_joint_state(q0, position_control=True)
-rh5.sim_loop(int(0.1 / dt))
+rh5.sim_loop(int(1.0 / dt))
 ee_state = rh5.get_ee_state()
 left2base_start = pt.transform_from_pq(ee_state[:7])
 right2base_start = pt.transform_from_pq(ee_state[7:])
@@ -43,7 +43,6 @@ p, q = _pybullet_pose(panel2base_start_pq)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
 right2panel_start = pt.concat(right2base_start, pt.invert_transform(panel2base_start))
-
 
 rotation_axis = -pr.unity
 start2end = pt.rotate_transform(np.eye(4), pr.matrix_from_compact_axis_angle(rotation_axis * panel_rotation_angle))
@@ -67,29 +66,17 @@ right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 draw_trajectory(left_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
 draw_trajectory(right_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
 
-rh5.sim_loop()
-
 print("Imitation...")
-dt = 0.001
+T = np.linspace(0, (n_steps - 1) * dt, n_steps)
 P = np.hstack((ptr.pqs_from_transforms(left_trajectory),
                ptr.pqs_from_transforms(right_trajectory)))
-dmp = DualCartesianDMP(execution_time=t[-1], dt=dt, n_weights_per_dim=10)
-dmp.imitate(t, P)
-_, P = dmp.open_loop()
-
-left_trajectory = ptr.transforms_from_pqs(P[:, :7])
-right_trajectory = ptr.transforms_from_pqs(P[:, 7:])
-
-"""
-print("Inverse kinematics...")
-random_state = np.random.RandomState(0)
-left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
-right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
-"""
+dmp = DualCartesianDMP(execution_time=T[-1], dt=dt, n_weights_per_dim=10)
+dmp.imitate(T, P)
+from time import sleep
+sleep(10)
 
 desired_positions, positions, desired_velocities, velocities = \
     rh5.step_through_cartesian(dmp, P[0], np.zeros(12), t[-1])
 
-# "solar_panels/solar_panel_02/meshes/stl/base link.stl"
-# "solar_panels/solar_panel_03/meshes/stl/base link.stl"
-#panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)
+rh5.stop()
+rh5.sim_loop()

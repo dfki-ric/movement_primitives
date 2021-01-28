@@ -454,11 +454,8 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def stop(self):
-        pybullet.setJointMotorControlArray(
-            self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
-            pybullet.VELOCITY_CONTROL,
-            targetVelocities=np.zeros(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices)),
-            physicsClientId=self.client_id)
+        ee_state = self.get_ee_state(return_velocity=False)
+        self.goto_ee_state(ee_state)
         self.step()
 
     def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
