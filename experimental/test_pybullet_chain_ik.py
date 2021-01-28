@@ -28,19 +28,13 @@ class LeftArmKinematics:
         self.com2world = com2w_p, com2w_q
         self.world2com = pybullet.invertTransform(*self.com2world)
 
-        #self.robot2world = (0, 0, 0), (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.left_arm)
-        #self.world2robot = pybullet.invertTransform(*self.robot2world)
-
     def inverse(self, left_ee_state, q_current=None):
-        left_pos, left_rot = _pybullet_pose(left_ee_state)
-        # ee2world
-        #left_pos, left_rot = pybullet.multiplyTransforms(
-        #    left_pos, left_rot, *self.robot2world)
         if q_current is not None:  # not effective in this step yet
             pybullet.setJointMotorControlArray(
                 self.left_arm, self.left_arm_joint_indices,
                 pybullet.POSITION_CONTROL,
                 targetPositions=q_current, physicsClientId=self.client_id)
+        left_pos, left_rot = _pybullet_pose(left_ee_state)
         q = pybullet.calculateInverseKinematics(
             self.left_arm, self.left_arm_ee_idx_ik, left_pos, left_rot,
             maxNumIterations=100, residualThreshold=0.001,
