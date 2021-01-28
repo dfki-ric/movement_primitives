@@ -37,17 +37,20 @@ pip install -e .
 ## Get URDFs
 
 ```
+# UR5
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 
-git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --branch develop
-cd pybullet-only-arms-urdf
-git submodule init
-git submodule update
-cd ..
+# RH5
+git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --branch develop --recursive
 
+# Kuka
 git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 
-git@git.hb.dfki.de:models-objects/solar_panels.git
+# Solar panel
+git clone git@git.hb.dfki.de:models-objects/solar_panels.git
+
+# RH5 Gripper
+git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
 ```
 
 ## Optional: Build Cython extensions
