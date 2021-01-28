@@ -1,5 +1,5 @@
 import numpy as np
-from simulation import RH5Simulation
+from simulation import RH5Simulation, draw_pose
 import pybullet
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
@@ -27,24 +27,31 @@ q = np.array([-1.57, 0.9, 0, -1.3, 0, 0, -0.55, 1.57, -0.9, 0, 1.3, 0, 0, -0.55]
 sim.set_desired_joint_state(q, position_control=True)
 sim.sim_loop(10000)
 
-left2base = sim.left_chain.forward(q[:7])
-right2base = sim.right_chain.forward(q[7:])
+js = sim.get_joint_state()
+print(f"Joint positions: {np.round(js[0], 2)}")
 
-print(np.round(left2base, 2))
-print(np.round(right2base, 2))
+ee_state = sim.get_ee_state()
+draw_pose(ee_state[:7], s=0.1, client_id=sim.client_id)
+draw_pose(ee_state[7:], s=0.1, client_id=sim.client_id)
 
-left2base[0, 3] += 0.1
-right2base[0, 3] += 0.1
+print(f"End-effector states: {np.round(ee_state, 2)}")
 
-print(np.round(left2base, 2))
-print(np.round(right2base, 2))
+q = sim.inverse_kinematics(ee_state)
+print(f"Desired joint positions: {np.round(q, 2)}")
 
-sim.set_desired_ee_state(
-    np.hstack((pt.pq_from_transform(left2base),
-               pt.pq_from_transform(right2base))),
-    position_control=False)
-sim.sim_loop(10000)
-sim.stop()
-#panel, p = load_panel(sim.kin.tm)
-#pybullet.addUserDebugLine(p, [0, 0, 0], [0, 0, 0], 5)
+sim.set_desired_ee_state(ee_state, position_control=True)
+
+sim.sim_loop(100)
+
+js = sim.get_joint_state()
+print(f"Actual joint positions: {np.round(js[0], 2)}")
+
+ee_state[1] *= 0.8
+ee_state[8] *= 0.8
+
+draw_pose(ee_state[:7], s=0.1, client_id=sim.client_id)
+draw_pose(ee_state[7:], s=0.1, client_id=sim.client_id)
+
+sim.set_desired_ee_state(ee_state, position_control=True)
+
 sim.sim_loop()

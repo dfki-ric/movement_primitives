@@ -1,7 +1,6 @@
 import numpy as np
 import pybullet
 import pybullet_data
-import kinematics
 import pytransform3d.transformations as pt
 
 
@@ -11,14 +10,14 @@ class PybulletSimulation:
     def __init__(self, dt, gui=True, real_time=False):
         self.dt = dt
         if gui:
-            pybullet.connect(pybullet.GUI)
+            self.client_id = pybullet.connect(pybullet.GUI)
         else:
-            pybullet.connect(pybullet.DIRECT)
+            self.client_id = pybullet.connect(pybullet.DIRECT)
 
-        pybullet.resetSimulation()
-        pybullet.setTimeStep(dt)
-        pybullet.setRealTimeSimulation(1 if real_time else 0)
-        pybullet.setGravity(0, 0, -9.81)
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(dt, physicsClientId=self.client_id)
+        pybullet.setRealTimeSimulation(1 if real_time else 0, physicsClientId=self.client_id)
+        pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
 
 
 def _pybullet_pose(pose):
@@ -50,6 +49,35 @@ def draw_transform(pose2origin, s, client_id, lw=1):
         Line width
     """
     pose2origin = pt.check_transform(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)
+
+
+def draw_pose(pose2origin, s, client_id, lw=1):
+    """Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (7)
+        Position and quaternion: (x, y, z, qw, qx, qy, qz)
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    """
+    pose2origin = pt.transform_from_pq(pose2origin)
     pybullet.addUserDebugLine(
         pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
         [1, 0, 0], lw, physicsClientId=client_id)
@@ -213,6 +241,51 @@ class UR5Simulation(PybulletSimulation):
         pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
 
 
+class KinematicsChain:
+    def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
+        if debug_gui:
+            self.client_id = pybullet.connect(pybullet.GUI)
+        else:
+            self.client_id = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+
+        self.chain = pybullet.loadURDF(
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id)
+
+        self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
+        self.n_chain_joints = len(self.chain_joint_indices)
+        self.ee_idx = self.link_indices[ee_frame]
+
+    def inverse(self, desired_ee_state, q_current=None):
+        self._goto_joint_state(q_current)
+        ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
+        q = pybullet.calculateInverseKinematics(
+            self.chain, self.ee_idx, ee_pos, ee_rot,
+            maxNumIterations=100, residualThreshold=0.001,
+            jointDamping=[0.1] * self.n_chain_joints,
+            physicsClientId=self.client_id)
+        return q
+
+    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+        if q_current is not None:
+            # we have to actively go to the current joint state
+            # before computing inverse kinematics
+            pybullet.setJointMotorControlArray(
+                self.chain, self.chain_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=q_current, physicsClientId=self.client_id)
+            for iter in range(max_steps_to_joint_state):
+                pybullet.stepSimulation(physicsClientId=self.client_id)
+                q_internal = np.array([js[0] for js in pybullet.getJointStates(
+                    self.chain, self.chain_joint_indices,
+                    physicsClientId=self.client_id)])
+                if np.linalg.norm(q_current - q_internal) < joint_state_eps:
+                    break
+
+
 class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
     def __init__(self, dt, gui=True, real_time=False,
                  left_ee_frame="LTCP_Link", right_ee_frame="RTCP_Link",
@@ -225,10 +298,13 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
 
         pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.plane = pybullet.loadURDF(
-            "plane.urdf", (0, 0, -1), useFixedBase=1)
+            "plane.urdf", (0, 0, -1), useFixedBase=1,
+            physicsClientId=self.client_id)
         self.robot = pybullet.loadURDF(
-            urdf_path, self.base_pos, useFixedBase=1)
-        self.joint_indices, self.link_indices = analyze_robot(robot=self.robot)
+            urdf_path, self.base_pos, useFixedBase=1,
+            physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.robot, physicsClientId=self.client_id)
 
         self.base_pose = self.base_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.robot)
         self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
@@ -240,35 +316,35 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
         self.left_ee_link_index = self.link_indices[left_ee_frame]
         self.right_ee_link_index = self.link_indices[right_ee_frame]
 
-        with open(urdf_path, "r") as f:
-            self.kin = kinematics.Kinematics(f.read())
-        self.left_chain = self.kin.create_chain(left_joints, "RH5_Root_Link", left_ee_frame)
-        self.right_chain = self.kin.create_chain(right_joints, "RH5_Root_Link", right_ee_frame)
+        self.left_ik = KinematicsChain(
+            left_ee_frame, left_joints,
+            "pybullet-only-arms-urdf/submodels/left_arm.urdf")
+        self.right_ik = KinematicsChain(
+            right_ee_frame, right_joints,
+            "pybullet-only-arms-urdf/submodels/right_arm.urdf")
 
     def inverse_kinematics(self, ee2robot):
         q = np.empty(self.n_joints)
 
-        left_pq = ee2robot[:7]
-        left = pt.transform_from_pq(left_pq)
-        left_q = np.array([js[0] for js in pybullet.getJointStates(self.robot, self.left_arm_joint_indices)])
-        q[:self.n_left_joints] = self.left_chain.inverse(left, left_q)
+        left_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices, physicsClientId=self.client_id)])
+        q[:self.n_left_joints] = self.left_ik.inverse(ee2robot[:7], left_q)
 
-        right_pq = ee2robot[7:]
-        right = pt.transform_from_pq(right_pq)
-        right_q = np.array([js[0] for js in pybullet.getJointStates(self.robot, self.right_arm_joint_indices)])
-        q[self.n_left_joints:] = self.right_chain.inverse(right, right_q)
+        right_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.right_arm_joint_indices, physicsClientId=self.client_id)])
+        q[self.n_left_joints:] = self.right_ik.inverse(ee2robot[7:], right_q)
 
         return q
 
     def get_joint_state(self):
-        joint_states = pybullet.getJointStates(self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices)
-        positions = []
-        velocities = []
-        for joint_state in joint_states:
-            pos, vel, forces, torque = joint_state
-            positions.append(pos)
-            velocities.append(vel)
-        return np.asarray(positions), np.asarray(velocities)
+        joint_states = pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
+            physicsClientId=self.client_id)
+        positions = np.empty(self.n_joints)
+        velocities = np.empty(self.n_joints)
+        for joint_idx, joint_state in enumerate(joint_states):
+            positions[joint_idx], velocities[joint_idx], forces, torque = joint_state
+        return positions, velocities
 
     def set_desired_joint_state(self, joint_state, position_control=False):
         left_joint_state, right_joint_state = np.split(joint_state, (len(self.left_arm_joint_indices),))
@@ -276,24 +352,28 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
             pybullet.setJointMotorControlArray(
                 self.robot, self.left_arm_joint_indices,
                 pybullet.POSITION_CONTROL,
-                targetPositions=left_joint_state)
+                targetPositions=left_joint_state,
+                physicsClientId=self.client_id)
             pybullet.setJointMotorControlArray(
                 self.robot, self.right_arm_joint_indices,
                 pybullet.POSITION_CONTROL,
-                targetPositions=right_joint_state)
+                targetPositions=right_joint_state,
+                physicsClientId=self.client_id)
         else:  # velocity control
             pybullet.setJointMotorControlArray(
                 self.robot, self.left_arm_joint_indices,
-                pybullet.VELOCITY_CONTROL, targetVelocities=left_joint_state)
+                pybullet.VELOCITY_CONTROL, targetVelocities=left_joint_state,
+                physicsClientId=self.client_id)
             pybullet.setJointMotorControlArray(
                 self.robot, self.right_arm_joint_indices,
-                pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state)
+                pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state,
+                physicsClientId=self.client_id)
 
     def get_ee_state(self, return_velocity=False):
         # TODO get state from kinematics?
         left_ee_state = pybullet.getLinkState(
             self.robot, self.left_ee_link_index, computeLinkVelocity=1,
-            computeForwardKinematics=1)
+            computeForwardKinematics=1, physicsClientId=self.client_id)
         left_pos = left_ee_state[4]
         left_rot = left_ee_state[5]
         left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.inv_base_pose)
@@ -301,7 +381,7 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
 
         right_ee_state = pybullet.getLinkState(
             self.robot, self.right_ee_link_index, computeLinkVelocity=1,
-            computeForwardKinematics=1)
+            computeForwardKinematics=1, physicsClientId=self.client_id)
         right_pos = right_ee_state[4]
         right_rot = right_ee_state[5]
         right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.inv_base_pose)
@@ -332,21 +412,22 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 (q - last_q) / self.dt, position_control=False)
 
     def step(self):
-        pybullet.stepSimulation()
+        pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def sim_loop(self, n_steps=None):
         if n_steps is None:
             while True:
-                pybullet.stepSimulation()
+                pybullet.stepSimulation(physicsClientId=self.client_id)
         else:
             for _ in range(n_steps):
-                pybullet.stepSimulation()
+                pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def stop(self):
         pybullet.setJointMotorControlArray(
             self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
             pybullet.VELOCITY_CONTROL,
-            targetVelocities=np.zeros(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices)))
+            targetVelocities=np.zeros(len(self.left_arm_joint_indices) + len(self.right_arm_joint_indices)),
+            physicsClientId=self.client_id)
         self.step()
 
     def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
@@ -391,8 +472,8 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 np.asarray(velocities))
 
     def write(self, pos, text):
-        pybullet.addUserDebugText(text, pos, [0, 0, 0])
-        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
+        pybullet.addUserDebugText(text, pos, [0, 0, 0], physicsClientId=self.client_id)
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2, physicsClientId=self.client_id)
 
 
 class SimulationMockup:  # runs steppables open loop
@@ -428,6 +509,7 @@ class SimulationMockup:  # runs steppables open loop
 
 
 def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
+    """Compute mappings between joint and link names and their indices."""
     if urdf_path is not None:
         assert robot is None
         physicsClientId = pybullet.connect(pybullet.DIRECT)
