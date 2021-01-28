@@ -89,7 +89,7 @@ Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_car
 
 ### Propagation of DMP Distribution to State Space
 
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="450px" />
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="350px" />
+<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="500px" />
+<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="300px" />
 
 [Script](scripts/vis_dmp_to_state_variance.py)
