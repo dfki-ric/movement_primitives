@@ -1,4 +1,16 @@
-# Install Dependencies
+# Movement Primitives
+
+## Features
+
+* Dynamical Movement Primitives (DMPs) for
+    * positions (with fast Runge-Kutta integration)
+    * Cartesian position and orientation (with fast Cython implementation)
+    * Dual Cartesian position and orientation (with fast Cython implementation)
+* Coupling terms for synchronization of position and/or orientation of dual Cartesian DMPs
+* Propagation of DMP weight distribution to state space distribution
+* Probabilistic Movement Primitives (ProMPs)
+
+## Install Dependencies
 
 ```bash
 git clone git@git.hb.dfki.de:dfki-interaction/experimental/mocap.git
@@ -13,7 +25,7 @@ pip install -e .
 cd ..
 ```
 
-# Install Library
+## Install Library
 
 I recommend to install the library via pip in editable mode:
 
@@ -21,7 +33,7 @@ I recommend to install the library via pip in editable mode:
 pip install -e .
 ```
 
-# Get URDFs
+## Get URDFs
 
 ```
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
@@ -37,13 +49,13 @@ git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
 git@git.hb.dfki.de:models-objects/solar_panels.git
 ```
 
-# Optional: Build Cython extensions
+## Optional: Build Cython extensions
 
 ```bash
 python setup.py build_ext --inplace
 ```
 
-# Data
+## Data
 
 I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
