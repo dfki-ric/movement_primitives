@@ -1,4 +1,5 @@
 import numpy as np
+import pybullet
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
@@ -21,7 +22,8 @@ n_steps = 51
 dt = 0.01
 
 #q0 = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8, 1.57, -1.25, 0, 1.75, 0, 0, 0.8])
-q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, 1.57, -0.76, 0, 1.3, 0, 0, -0.55])
+#q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, 1.57, -0.76, 0, 1.3, 0, 0, -0.55])
+q0 = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55, 1.57, -0.88, 0, 1.3, 0, 0, -0.55])
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False)
 rh5.set_desired_joint_state(q0, position_control=True)
@@ -37,9 +39,7 @@ draw_transform(panel2base_start, s=0.1, client_id=rh5.client_id)
 panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
-# TODO update grippers to manipulate solar panel
-#import pybullet
-#pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
+pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
 right2panel_start = pt.concat(right2base_start, pt.invert_transform(panel2base_start))

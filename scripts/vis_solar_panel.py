@@ -34,6 +34,7 @@ n_steps = 51
 
 with open("pybullet-only-arms-urdf/urdf/RH5.urdf", "r") as f:
     kin = Kinematics(f.read(), mesh_path="pybullet-only-arms-urdf/urdf/")
+#kin.tm.write_png("graph.png", "twopi")
 left_arm = kin.create_chain(
     ["ALShoulder1", "ALShoulder2", "ALShoulder3",
      "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"],

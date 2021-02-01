@@ -401,7 +401,6 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                 physicsClientId=self.client_id)
 
     def get_ee_state(self, return_velocity=False):
-        # TODO get state from kinematics?
         left_ee_state = pybullet.getLinkState(
             self.robot, self.left_ee_link_index, computeLinkVelocity=1,
             computeForwardKinematics=1, physicsClientId=self.client_id)
