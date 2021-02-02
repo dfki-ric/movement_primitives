@@ -17,7 +17,7 @@ def panel_pose(tcp_left, tcp_right):
     return pt.transform_from(R_panel, tcp_middle)
 
 
-panel_rotation_angle = np.deg2rad(60)
+panel_rotation_angle = np.deg2rad(70)
 n_steps = 51
 dt = 0.01
 

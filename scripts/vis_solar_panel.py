@@ -44,10 +44,10 @@ right_arm = kin.create_chain(
      "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"],
     "RH5_Root_Link", "RTCP_Link")
 
-q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
-q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
-#q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
-#q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
+#q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
+#q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
+q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
+q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
 
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
@@ -122,7 +122,7 @@ random_state = np.random.RandomState(0)
 left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
 
-"""
+#"""
 import matplotlib.pyplot as plt
 from movement_primitives.plot import plot_trajectory_in_rows
 axes = plot_trajectory_in_rows(np.hstack((left_joint_trajectory, right_joint_trajectory)))
@@ -131,7 +131,7 @@ for i, jn in  enumerate(left_arm.joint_names + right_arm.joint_names):
     axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[0]] * 2, c="r")
     axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[1]] * 2, c="r")
 plt.show()
-"""
+#"""
 
 fig = pv.figure()
 fig.plot_transform(s=0.3)
