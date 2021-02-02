@@ -3,6 +3,9 @@ build/
 /ur5_fts300_2f-140/
 /abstract-urdf-gripper/
 /kuka_lbr/
+/solar_panels/
+/pybullet-only-arms-urdf/
+/hyrodyn_dev/
 /media/
 /tmp/
 *.egg-info/
@@ -11,4 +14,5 @@ __pycache__
 *.c
 *.so
 .coverage
+.ipynb_checkpoints/
 /cover/
