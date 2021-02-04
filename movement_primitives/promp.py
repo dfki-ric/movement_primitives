@@ -123,7 +123,6 @@ class ProMP:
 
         conditional_promp = ProMP(self.n_dims, self.n_weights_per_dim)
         conditional_promp.from_weight_distribution(weight_mean, weight_cov)
-        # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L245
         return conditional_promp
 
     def mean_trajectory(self, T):
