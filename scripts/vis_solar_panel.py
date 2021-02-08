@@ -46,8 +46,8 @@ right_arm = kin.create_chain(
 
 #q0_left = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8])
 #q0_right = np.array([1.57, -1.25, 0, 1.75, 0, 0, 0.8])
-q0_left = np.array([-1.57, 0.88, 0, -1.3, 0, 0, -0.55])
-q0_right = np.array([1.57, -0.88, 0, 1.3, 0, 0, -0.55])
+q0_left = np.array([-1.57, 0.9, 0, -1.3, 0, 0, -0.55])
+q0_right = np.array([1.57, -0.9, 0, 1.3, 0, 0, -0.55])
 
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
