@@ -1,0 +1,84 @@
+diff --git a/submodels/left_arm.urdf b/submodels/left_arm.urdf
+index 4ced38d..1670929 100644
+--- a/submodels/left_arm.urdf
++++ b/submodels/left_arm.urdf
+@@ -108,7 +108,7 @@
+     <axis xyz="0.0 1.0 0.0"/>
+     <parent link="ALWristYaw_Link"/>
+     <child link="ALWristPitch_Link"/>
+-    <limit effort="400.0" lower="-1.256" upper="0.785" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.5" upper="0.5" velocity="3.14159"/>
+   </joint>
+   <link name="ALWristPitch_Link">
+     <inertial>
+@@ -241,7 +241,7 @@
+     <axis xyz="1.0 0.0 0.0"/>
+     <parent link="ALWristRoll_Link"/>
+     <child link="ALWristYaw_Link"/>
+-    <limit effort="400.0" lower="-1.221" upper="1.2217" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.7" upper="0.7" velocity="3.14159"/>
+   </joint>
+   <link name="ALWristYaw_Link">
+     <inertial>
+diff --git a/submodels/right_arm.urdf b/submodels/right_arm.urdf
+index 007168b..93db671 100644
+--- a/submodels/right_arm.urdf
++++ b/submodels/right_arm.urdf
+@@ -108,7 +108,7 @@
+     <axis xyz="0.0 1.0 0.0"/>
+     <parent link="ARWristYaw_Link"/>
+     <child link="ARWristPitch_Link"/>
+-    <limit effort="400.0" lower="-1.256" upper="0.785" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.5" upper="0.5" velocity="3.14159"/>
+   </joint>
+   <link name="ARWristPitch_Link">
+     <inertial>
+@@ -241,7 +241,7 @@
+     <axis xyz="1.0 0.0 0.0"/>
+     <parent link="ARWristRoll_Link"/>
+     <child link="ARWristYaw_Link"/>
+-    <limit effort="400.0" lower="-1.221" upper="1.221" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.7" upper="0.7" velocity="3.14159"/>
+   </joint>
+   <link name="ARWristYaw_Link">
+     <inertial>
+diff --git a/urdf/RH5.urdf b/urdf/RH5.urdf
+index c2cc526..2b4ddb5 100644
+--- a/urdf/RH5.urdf
++++ b/urdf/RH5.urdf
+@@ -108,7 +108,7 @@
+     <axis xyz="0.0 1.0 0.0"/>
+     <parent link="ALWristYaw_Link"/>
+     <child link="ALWristPitch_Link"/>
+-    <limit effort="400.0" lower="-1.256" upper="0.785" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.5" upper="0.5" velocity="3.14159"/>
+   </joint>
+   <link name="ALWristPitch_Link">
+     <inertial>
+@@ -241,7 +241,7 @@
+     <axis xyz="1.0 0.0 0.0"/>
+     <parent link="ALWristRoll_Link"/>
+     <child link="ALWristYaw_Link"/>
+-    <limit effort="400.0" lower="-1.221" upper="1.2217" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.7" upper="0.7" velocity="3.14159"/>
+   </joint>
+   <link name="ALWristYaw_Link">
+     <inertial>
+@@ -401,7 +401,7 @@
+     <axis xyz="0.0 1.0 0.0"/>
+     <parent link="ARWristYaw_Link"/>
+     <child link="ARWristPitch_Link"/>
+-    <limit effort="400.0" lower="-1.256" upper="0.785" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.5" upper="0.5" velocity="3.14159"/>
+   </joint>
+   <link name="ARWristPitch_Link">
+     <inertial>
+@@ -534,7 +534,7 @@
+     <axis xyz="1.0 0.0 0.0"/>
+     <parent link="ARWristRoll_Link"/>
+     <child link="ARWristYaw_Link"/>
+-    <limit effort="400.0" lower="-1.221" upper="1.221" velocity="3.14159"/>
++    <limit effort="400.0" lower="-0.7" upper="0.7" velocity="3.14159"/>
+   </joint>
+   <link name="ARWristYaw_Link">
+     <inertial>

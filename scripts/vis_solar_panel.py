@@ -30,7 +30,7 @@ def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, 
 
 solar_panel_idx = 0
 panel_rotation_angle = np.deg2rad(90)
-n_steps = 51
+n_steps = 201
 
 with open("pybullet-only-arms-urdf/urdf/RH5.urdf", "r") as f:
     kin = Kinematics(f.read(), mesh_path="pybullet-only-arms-urdf/urdf/")
@@ -122,6 +122,36 @@ random_state = np.random.RandomState(0)
 left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
 
+########################################################################################################################
+# Data export
+lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
+rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+
+lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
+rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])
+
+left_trajectory_pq = ptr.pqs_from_transforms(lwp_trajectory)
+right_trajectory_pq = ptr.pqs_from_transforms(rwp_trajectory)
+
+import pandas as pd
+data_export = np.hstack((
+    left_trajectory_pq,
+    right_trajectory_pq
+))
+df = pd.DataFrame(
+    data=data_export, columns=[
+    "left_pos_x", "left_pos_y", "left_pos_z", "left_ori_w", "left_ori_x", "left_ori_y", "left_ori_z",
+    "right_pos_x", "right_pos_y", "right_pos_z", "right_ori_w", "right_ori_x", "right_ori_y", "right_ori_z"],
+    index=pd.Index(np.linspace(0, execution_time, len(left_trajectory_pq)), name="Time"))
+df.to_csv("rh5_dual_arm_rotate_panel_posquat.csv")
+
+data_export = np.hstack((left_joint_trajectory, right_joint_trajectory))
+df = pd.DataFrame(
+    data=data_export, columns=left_arm.joint_names + right_arm.joint_names,
+    index=pd.Index(np.linspace(0, execution_time, len(left_trajectory_pq)), name="Time"))
+df.to_csv("rh5_dual_arm_rotate_panel_joints.csv")# float_format="%.20f"
+########################################################################################################################
+
 #"""
 import matplotlib.pyplot as plt
 from movement_primitives.plot import plot_trajectory_in_rows
@@ -151,8 +181,11 @@ fig.plot_transform(right2base_start, s=0.15)
 fig.plot_transform(left_trajectory[-1], s=0.15)
 fig.plot_transform(right_trajectory[-1], s=0.15)
 
-pv.Trajectory(left_trajectory, s=0.05).add_artist(fig)
-pv.Trajectory(right_trajectory, s=0.05).add_artist(fig)
+#pv.Trajectory(left_trajectory, s=0.05).add_artist(fig)
+#pv.Trajectory(right_trajectory, s=0.05).add_artist(fig)
+
+pv.Trajectory(lwp_trajectory, s=0.05).add_artist(fig)
+pv.Trajectory(rwp_trajectory, s=0.05).add_artist(fig)
 
 fig.view_init()
 fig.animate(
