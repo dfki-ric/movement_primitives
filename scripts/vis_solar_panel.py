@@ -171,7 +171,7 @@ fig.plot_transform(s=0.3)
 panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)
 
 graph = fig.plot_graph(
-    kin.tm, "RH5_Root_Link", show_visuals=True, show_frames=True, s=0.1,
+    kin.tm, "RH5_Root_Link", show_visuals=True, show_collision_objects=False, show_frames=True, s=0.1,
     whitelist=["ALWristPitch_Link", "ARWristPitch_Link", "LTCP_Link", "RTCP_Link"])
 
 fig.plot_transform(panel2base_start, s=0.2)

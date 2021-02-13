@@ -5,6 +5,9 @@ from libcpp cimport bool
 from libc.math cimport sqrt, cos, sin, acos
 
 
+np.import_array()
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
