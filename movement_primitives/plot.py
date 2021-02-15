@@ -1,18 +1,36 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
 
 def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_shape=None, transpose=False, **kwargs):
-    """TODO doc
+    """Plot trajectories of N dimensions in N 2D subplots.
 
     Note that you have to manually activate the legend for one plot if you
     need it.
 
     Parameters
     ----------
-    transpose : optional (default: False)
+    trajectory : array, shape (n_steps, n_dims)
+        Trajectory
+
+    t : array, shape (n_steps,), optional (default: step indices)
+        Time of each step
+
+    label : str, optional (default: None)
+        Label that will appear in the legend for this trajectory
+
+    axes : list
+        Matplotlib axes on which the trajectory should be plotted in each
+        dimension.
+
+    subplot_shape : tuple
+        Number of rows and number of columns.
+
+    transpose : bool, optional (default: False)
         Fill first column first, then second column and so on. Typically
         matplotlib fills rows before columns.
+
+    **kwargs : dict, optional
+        Additional arguments for the plot function.
     """
     n_steps, n_dims = trajectory.shape
 
@@ -38,11 +56,48 @@ def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_s
     return axes
 
 
-def plot_distribution_in_rows(mean, std_dev, t=None, label=None, axes=None, std_factors=[1, 2, 3], fill_between=True, subplot_shape=None, transpose=False, **kwargs):
-    """TODO doc
+def plot_distribution_in_rows(mean, std_dev, t=None, label=None, axes=None, std_factors=(1, 2, 3), fill_between=True,
+                              subplot_shape=None, transpose=False, **kwargs):
+    """Plot distribution of N dimensions in N 2D subplots.
 
     Note that you have to manually activate the legend for one plot if you
     need it.
+
+    Parameters
+    ----------
+    mean : array, shape (n_steps, n_dims)
+        Mean in each dimension
+
+    std_dev : array, shape (n_steps, n_dims)
+        Standard deviation in each dimension
+
+    t : array, shape (n_steps,), optional (default: step indices)
+        Time of each step
+
+    label : str, optional (default: None)
+        Label that will appear in the legend for this trajectory
+
+    axes : list
+        Matplotlib axes on which the trajectory should be plotted in each
+        dimension.
+
+    std_factors : tuple, optional (default: (1, 2, 3))
+        Multiples of the standard deviation that will be indicates by
+        area around the mean.
+
+    fill_between : bool, optional (default: True)
+        Fill area around mean. Multiples of standard deviation will be
+        indicated by dashed lines otherwise.
+
+    subplot_shape : tuple
+        Number of rows and number of columns.
+
+    transpose : bool, optional (default: False)
+        Fill first column first, then second column and so on. Typically
+        matplotlib fills rows before columns.
+
+    **kwargs : dict, optional
+        Additional arguments for the plot function.
     """
     n_steps, n_dims = mean.shape
 
