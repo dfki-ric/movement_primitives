@@ -171,6 +171,52 @@ class ProMP:
         """
         return np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T
 
+    def mean_velocities(self, T):
+        """Get mean velocities of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Yd : array, shape (n_steps, n_dims)
+            Mean velocities
+        """
+        return self._bfs_derivative_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
+
+    def cov_velocities(self, T):
+        """Get velocity covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+            Covariance
+        """
+        activations = self._bfs_derivative_sequence(T)
+        return activations.T.dot(self.weight_cov).dot(activations)
+
+    def var_velocities(self, T):
+        """Get velocity variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        """
+        return np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T
+
     def sample_trajectories(self, T, n_samples, random_state):
         """Sample trajectories from ProMP.
 
@@ -420,7 +466,7 @@ class ProMP:
                 d * n_steps:(d + 1) * n_steps] = self._rbfs_sequence(T, overlap)
         return ret
 
-    def _rbfs_sequence(self, T, overlap=0.7):
+    def _rbfs_sequence(self, T, overlap=0.7, normalize=True):
         """Radial basis functions per dimension for a sequence.
 
         Parameters
@@ -432,6 +478,9 @@ class ProMP:
 
         overlap : float, optional (default: 0.7)
             Indicates how much the RBFs are allowed to overlap.
+
+        normalize : bool, optional (default: True)
+            Normalize activations to sum up to one in each step
 
         Returns
         -------
@@ -450,12 +499,85 @@ class ProMP:
         T /= np.max(T)
 
         activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
-        activations /= activations.sum(axis=0)  # normalize activations for each step
+        if normalize:
+            activations /= activations.sum(axis=0)
 
         assert activations.shape[0] == self.n_weights_per_dim
         assert activations.shape[1] == n_steps
 
         return activations
+
+    def _bfs_derivative_sequence(self, T, overlap=0.7):
+        """Derivative of radial basis functions for all dimensions for a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
+            Activations of derivatives of RBFs for each time step and in each dimension.
+            All activations for dimension d can be found in
+            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d * n_steps:(d + 1) * n_steps]
+            so that the inner indices run over time / basis function and the
+            outer index over dimensions.
+        """
+        n_steps = len(T)
+        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
+        for d in range(self.n_dims):
+            ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
+                d * n_steps:(d + 1) * n_steps] = self._rbfs_derivative_sequence(T, overlap)
+        return ret
+
+    def _rbfs_derivative_sequence(self, T, overlap=0.7):
+        """Derivative of radial basis functions per dimension for a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of derivative of RBFs for each time step.
+        """
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
+        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        rbfs = self._rbfs_sequence(T, overlap, normalize=False)
+        rbfs_sum_per_step = rbfs.sum(axis=0)
+
+        # normalize time to interval [0, 1]
+        T = np.atleast_2d(T)
+        T /= np.max(T)
+
+        rbfs_deriv = (self.centers[:, np.newaxis] - T) / h
+        rbfs_deriv *= rbfs
+        rbfs_deriv_sum_per_step = rbfs_deriv.sum(axis=0)
+        rbfs_deriv = (rbfs_deriv * rbfs_sum_per_step
+                      - rbfs * rbfs_deriv_sum_per_step) / (rbfs_sum_per_step ** 2)
+
+        assert rbfs_deriv.shape[0] == self.n_weights_per_dim
+        assert rbfs_deriv.shape[1] == n_steps
+
+        return rbfs_deriv
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):
         cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
