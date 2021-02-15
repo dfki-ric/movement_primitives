@@ -26,6 +26,13 @@ class DMPBase:
         self.current_y = np.zeros(n_pos_dims)
         self.current_yd = np.zeros(n_vel_dims)
 
+    def reset(self):
+        """Reset DMP to initial state and time."""
+        self.t = 0.0
+        self.last_t = None
+        self.current_y = np.copy(self.start_y)
+        self.current_yd = np.copy(self.start_yd)
+
     def configure(self, last_t=None, t=None,
                   start_y=None, start_yd=None, start_ydd=None,
                   goal_y=None, goal_yd=None, goal_ydd=None):

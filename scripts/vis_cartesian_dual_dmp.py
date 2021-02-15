@@ -55,18 +55,26 @@ for i, t in enumerate(sigmoid):
     Y[i, 10:] = pr.quaternion_slerp(q_start, q_end, t)
 
 
+dmp = DualCartesianDMP(
+    execution_time=execution_time, dt=dt,
+    n_weights_per_dim=10, int_dt=int_dt, k_tracking_error=0.0)
+dmp.imitate(T, Y)
+dmp.configure(start_y=Y[0], goal_y=Y[-1])
+
 recorded_trajectories = []
-for coupling_term in [
-        CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000, verbose=0),
-        #CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=False, couple_orientation=True, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000, verbose=0),
-        #CouplingTermDualCartesianPose(desired_distance=desired_distance, couple_position=True, couple_orientation=False, lf=(1.0, 0.0), k=1, c1=0.1, c2=10000, verbose=0),
-        None]:
-    # TODO reset DMP properly
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=int_dt, k_tracking_error=0.0)
-    dmp.imitate(T, Y)
-    dmp.configure(start_y=Y[0], goal_y=Y[-1])
+lf = (1.0, 0.0)
+controller_args = dict(k=1, c1=0.1, c2=10000, verbose=0)
+couple_both = CouplingTermDualCartesianPose(
+    desired_distance=desired_distance, couple_position=True, couple_orientation=True,
+    lf=lf, **controller_args)
+couple_orientation = CouplingTermDualCartesianPose(
+    desired_distance=desired_distance, couple_position=False, couple_orientation=True,
+    lf=lf, **controller_args)
+couple_position = CouplingTermDualCartesianPose(
+    desired_distance=desired_distance, couple_position=True, couple_orientation=False,
+    lf=lf, **controller_args)
+for coupling_term in [couple_both, couple_orientation, couple_position, None]:
+    dmp.reset()
 
     rh5.goto_ee_state(Y[0])
     desired_positions, positions, desired_velocities, velocities = \
