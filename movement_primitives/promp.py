@@ -109,7 +109,7 @@ class ProMP:
         [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
         https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
         """
-        Psi_t = self._rbfs_nd_point(t, t_max)
+        Psi_t = _nd_block_diagonal(self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
         if y_cov is None:
             y_cov = 0.0
 
@@ -368,32 +368,6 @@ class ProMP:
             if delta < min_delta:
                 break
 
-    def _rbfs_nd_point(self, t, t_max=1.0, overlap=0.7):
-        """Radial basis functions for all dimensions and a point.
-
-        Parameters
-        ----------
-        t : float
-            Time at which the activations of RBFs will be queried. Note that
-            we internally normalize the time so that t_max == 1.
-
-        t_max : float, optional (default: 1)
-            Duration of the ProMP
-
-        overlap : float, optional (default: 0.7)
-            Indicates how much the RBFs are allowed to overlap.
-
-        Returns
-        -------
-        activations : array, shape (n_dims * n_weights_per_dim, n_dims)
-            Activations of RBFs for each dimension. All activations for
-            dimension d can be found in
-            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d]
-            so that the inner indices run over basis function and the
-            outer index over dimensions.
-        """
-        return _nd_block_diagonal(self._rbfs_1d_point(t, t_max, overlap)[:, np.newaxis], self.n_dims)
-
     def _rbfs_1d_point(self, t, t_max=1.0, overlap=0.7):
         """Radial basis functions for one dimension and a point.
 
@@ -429,27 +403,7 @@ class ProMP:
         return activations
 
     def _rbfs_nd_sequence(self, T, overlap=0.7):
-        """Radial basis functions for n_dims dimensions and a sequence.
-
-        Parameters
-        ----------
-        T : array-like, shape (n_steps,)
-            Times at which the activations of RBFs will be queried. Note that
-            we assume that T[0] == 0.0 and the times will be normalized
-            internally so that T[-1] == 1.0.
-
-        overlap : float, optional (default: 0.7)
-            Indicates how much the RBFs are allowed to overlap.
-
-        Returns
-        -------
-        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
-            Activations of RBFs for each time step and in each dimension.
-            All activations for dimension d can be found in
-            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d * n_steps:(d + 1) * n_steps]
-            so that the inner indices run over time / basis function and the
-            outer index over dimensions.
-        """
+        """Radial basis functions for n_dims dimensions and a sequence."""
         return _nd_block_diagonal(self._rbfs_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
@@ -494,27 +448,7 @@ class ProMP:
         return activations
 
     def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
-        """Derivative of radial basis functions for n_dims dimensions and a sequence.
-
-        Parameters
-        ----------
-        T : array-like, shape (n_steps,)
-            Times at which the activations of RBFs will be queried. Note that
-            we assume that T[0] == 0.0 and the times will be normalized
-            internally so that T[-1] == 1.0.
-
-        overlap : float, optional (default: 0.7)
-            Indicates how much the RBFs are allowed to overlap.
-
-        Returns
-        -------
-        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
-            Activations of derivatives of RBFs for each time step and in each dimension.
-            All activations for dimension d can be found in
-            activations[d * n_weights_per_dim:(d + 1) * n_weights_per_dim, d * n_steps:(d + 1) * n_steps]
-            so that the inner indices run over time / basis function and the
-            outer index over dimensions.
-        """
+        """Derivative of radial basis functions for n_dims dimensions and a sequence."""
         return _nd_block_diagonal(self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
