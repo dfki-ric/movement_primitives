@@ -57,7 +57,7 @@ class ProMP:
         weights : array, shape (n_steps * n_weights_per_dim)
             ProMP weights
         """
-        activations = self._bfs_sequence(T).T
+        activations = self._rbfs_nd_sequence(T).T
         weights = np.linalg.pinv(
             activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
         ).dot(activations.T).dot(Y.T.ravel())
@@ -79,7 +79,7 @@ class ProMP:
         Y : array, shape (n_steps, n_dims)
             Trajectory
         """
-        return self._bfs_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T
+        return self._rbfs_nd_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T
 
     def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
         """Condition ProMP on a specific position (see page 4 of [1]).
@@ -109,7 +109,7 @@ class ProMP:
         [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
         https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
         """
-        Psi_t = self._bfs_point(t, t_max)
+        Psi_t = self._rbfs_nd_point(t, t_max)
         if y_cov is None:
             y_cov = 0.0
 
@@ -153,7 +153,7 @@ class ProMP:
         cov : array, shape (n_dims * n_steps, n_dims * n_steps)
             Covariance
         """
-        activations = self._bfs_sequence(T)
+        activations = self._rbfs_nd_sequence(T)
         return activations.T.dot(self.weight_cov).dot(activations)
 
     def var_trajectory(self, T):
@@ -184,7 +184,7 @@ class ProMP:
         Yd : array, shape (n_steps, n_dims)
             Mean velocities
         """
-        return self._bfs_derivative_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
+        return self._rbfs_derivative_nd_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
 
     def cov_velocities(self, T):
         """Get velocity covariance of ProMP.
@@ -199,7 +199,7 @@ class ProMP:
         cov : array, shape (n_dims * n_steps, n_dims * n_steps)
             Covariance
         """
-        activations = self._bfs_derivative_sequence(T)
+        activations = self._rbfs_derivative_nd_sequence(T)
         return activations.T.dot(self.weight_cov).dot(activations)
 
     def var_velocities(self, T):
@@ -338,7 +338,7 @@ class ProMP:
         # BH in original code
         PhiHTs = []
         for demo_idx in range(n_demos):
-            PhiHT = self._bfs_sequence(Ts[demo_idx]).dot(Hs[demo_idx].T)
+            PhiHT = self._rbfs_nd_sequence(Ts[demo_idx]).dot(Hs[demo_idx].T)
             PhiHTs.append(PhiHT)
 
         # n_demos x self.n_dims*self.n_weights_per_dim
@@ -372,8 +372,8 @@ class ProMP:
             if delta < min_delta:
                 break
 
-    def _bfs_point(self, t, t_max=1.0, overlap=0.7):
-        """Radial basis functions for all dimensions for a point.
+    def _rbfs_nd_point(self, t, t_max=1.0, overlap=0.7):
+        """Radial basis functions for all dimensions and a point.
 
         Parameters
         ----------
@@ -399,12 +399,12 @@ class ProMP:
         ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims))
         for d in range(self.n_dims):
             ret[d * self.n_weights_per_dim:
-                (d + 1) * self.n_weights_per_dim, d] = self._rbfs_point(
+                (d + 1) * self.n_weights_per_dim, d] = self._rbfs_1d_point(
                 t, t_max, overlap)
         return ret
 
-    def _rbfs_point(self, t, t_max=1.0, overlap=0.7):
-        """Radial basis functions per dimension for a point.
+    def _rbfs_1d_point(self, t, t_max=1.0, overlap=0.7):
+        """Radial basis functions for one dimension and a point.
 
         Parameters
         ----------
@@ -437,8 +437,8 @@ class ProMP:
 
         return activations
 
-    def _bfs_sequence(self, T, overlap=0.7):
-        """Radial basis functions for all dimensions for a sequence.
+    def _rbfs_nd_sequence(self, T, overlap=0.7):
+        """Radial basis functions for n_dims dimensions and a sequence.
 
         Parameters
         ----------
@@ -463,11 +463,11 @@ class ProMP:
         ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
         for d in range(self.n_dims):
             ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
-                d * n_steps:(d + 1) * n_steps] = self._rbfs_sequence(T, overlap)
+                d * n_steps:(d + 1) * n_steps] = self._rbfs_1d_sequence(T, overlap)
         return ret
 
-    def _rbfs_sequence(self, T, overlap=0.7, normalize=True):
-        """Radial basis functions per dimension for a sequence.
+    def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
+        """Radial basis functions for one dimension and a sequence.
 
         Parameters
         ----------
@@ -507,8 +507,8 @@ class ProMP:
 
         return activations
 
-    def _bfs_derivative_sequence(self, T, overlap=0.7):
-        """Derivative of radial basis functions for all dimensions for a sequence.
+    def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
+        """Derivative of radial basis functions for n_dims dimensions and a sequence.
 
         Parameters
         ----------
@@ -533,11 +533,11 @@ class ProMP:
         ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
         for d in range(self.n_dims):
             ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
-                d * n_steps:(d + 1) * n_steps] = self._rbfs_derivative_sequence(T, overlap)
+                d * n_steps:(d + 1) * n_steps] = self._rbfs_derivative_1d_sequence(T, overlap)
         return ret
 
-    def _rbfs_derivative_sequence(self, T, overlap=0.7):
-        """Derivative of radial basis functions per dimension for a sequence.
+    def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
+        """Derivative of radial basis functions for one dimension and a sequence.
 
         Parameters
         ----------
@@ -561,7 +561,7 @@ class ProMP:
         self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
-        rbfs = self._rbfs_sequence(T, overlap, normalize=False)
+        rbfs = self._rbfs_1d_sequence(T, overlap, normalize=False)
         rbfs_sum_per_step = rbfs.sum(axis=0)
 
         # normalize time to interval [0, 1]
