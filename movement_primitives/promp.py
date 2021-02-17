@@ -263,7 +263,7 @@ class ProMP:
         self.weight_cov = cov
         return self
 
-    def imitate(self, Ts, Ys, gamma=0.7, n_iter=1000, min_delta=1e-5, verbose=0):
+    def imitate(self, Ts, Ys, n_iter=1000, min_delta=1e-5, verbose=0):
         """Learn ProMP from multiple demonstrations.
 
         Parameters
@@ -273,9 +273,6 @@ class ProMP:
 
         Ys : array, shape (n_demos, n_steps, n_dims)
             Demonstrations
-
-        gamma : float, optional (default: 0.7)
-            TODO
 
         n_iter : int, optional (default: 1000)
             Maximum number of iterations
@@ -297,6 +294,7 @@ class ProMP:
         # Sigma_0 = 0
         # alpha_0 = 0
         # beta_0 = 0
+        gamma = 0.7
 
         n_demos = len(Ts)
         self.variance = 1.0
@@ -313,9 +311,7 @@ class ProMP:
             H_partial = np.eye(n_steps)
             for y in range(n_steps - 1):
                 H_partial[y, y + 1] = -gamma
-            H = np.zeros((n_steps * self.n_dims, n_steps * self.n_dims))
-            for j in range(self.n_dims):
-                H[n_steps * j:n_steps * (j + 1), n_steps * j:n_steps * (j + 1)] = H_partial
+            H = _nd_block_diagonal(H_partial, self.n_dims)
             Hs.append(H)
 
         # n_demos x n_steps*n_dims
@@ -396,12 +392,7 @@ class ProMP:
             so that the inner indices run over basis function and the
             outer index over dimensions.
         """
-        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims))
-        for d in range(self.n_dims):
-            ret[d * self.n_weights_per_dim:
-                (d + 1) * self.n_weights_per_dim, d] = self._rbfs_1d_point(
-                t, t_max, overlap)
-        return ret
+        return _nd_block_diagonal(self._rbfs_1d_point(t, t_max, overlap)[:, np.newaxis], self.n_dims)
 
     def _rbfs_1d_point(self, t, t_max=1.0, overlap=0.7):
         """Radial basis functions for one dimension and a point.
@@ -459,12 +450,7 @@ class ProMP:
             so that the inner indices run over time / basis function and the
             outer index over dimensions.
         """
-        n_steps = len(T)
-        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
-        for d in range(self.n_dims):
-            ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
-                d * n_steps:(d + 1) * n_steps] = self._rbfs_1d_sequence(T, overlap)
-        return ret
+        return _nd_block_diagonal(self._rbfs_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
         """Radial basis functions for one dimension and a sequence.
@@ -529,12 +515,7 @@ class ProMP:
             so that the inner indices run over time / basis function and the
             outer index over dimensions.
         """
-        n_steps = len(T)
-        ret = np.zeros((self.n_dims * self.n_weights_per_dim, self.n_dims * n_steps))
-        for d in range(self.n_dims):
-            ret[d * self.n_weights_per_dim:(d + 1) * self.n_weights_per_dim,
-                d * n_steps:(d + 1) * n_steps] = self._rbfs_derivative_1d_sequence(T, overlap)
-        return ret
+        return _nd_block_diagonal(self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
         """Derivative of radial basis functions for one dimension and a sequence.
@@ -608,3 +589,18 @@ class ProMP:
         self.variance /= np.linalg.norm(means) * M * self.n_dims * n_samples + 2.0  # TODO why these factors?
         #self.variance /= self.n_dims * n_samples + 2.0
 
+
+def _nd_block_diagonal(partial_1d, n_dims):
+    """Replicates matrix n_dims times to form a block-diagonal matrix.
+
+    We also accept matrices of rectangular shape. In this case the result is
+    not officially called a block-diagonal matrix anymore.
+    """
+    assert partial_1d.ndim == 2
+    n_block_rows, n_block_cols = partial_1d.shape
+
+    full_nd = np.zeros((n_block_rows * n_dims, n_block_cols * n_dims))
+    for j in range(n_dims):
+        full_nd[n_block_rows * j:n_block_rows * (j + 1),
+                n_block_cols * j:n_block_cols * (j + 1)] = partial_1d
+    return full_nd
