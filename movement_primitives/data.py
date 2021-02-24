@@ -1,5 +1,6 @@
 import glob
 
+import numpy as np
 import pandas as pd
 from mocap import array_from_dataframe
 from mocap.pandas_utils import match_columns, rename_stream_groups
@@ -222,3 +223,52 @@ def load_rh5_demo(filename, verbose=0):
          "right_pose.im[2]"])
 
     return T, P
+
+
+def generate_1d_trajectory_distribution(n_demos, n_steps, random_state=np.random.RandomState(0)):
+    """Generates toy data for testing and demonstration.
+
+    Parameters
+    ----------
+    n_demos : int
+        Number of demonstrations
+
+    n_steps : int
+        Number of steps
+
+    random_state : RandomState, optional (default: seed 0)
+        Random state
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Times
+
+    Y : array, shape (n_demos, n_steps, 1)
+        Demonstrations (positions)
+    """
+    T = np.linspace(0, 1, n_steps)
+    Y = np.empty((n_demos, n_steps, 1))
+
+    A = create_finite_differences_matrix_1d(n_steps, dt=1.0 / (n_steps - 1))
+    cov = np.linalg.inv(A.T.dot(A))
+    L = np.linalg.cholesky(cov)
+
+    for demo_idx in range(n_demos):
+        initial_offset = 3.0 * (random_state.rand() - 0.5)
+        final_offset = 0.1 * (random_state.rand() - 0.5)
+        noise_per_step = 20.0 * L.dot(random_state.randn(n_steps))
+        Y[demo_idx, :, 0] = np.linspace(initial_offset, final_offset, n_steps) + np.cos(2 * np.pi * T) + noise_per_step
+    return T, Y
+
+
+def create_finite_differences_matrix_1d(n_steps, dt):
+    """Finite difference matrix to compute accelerations from positions."""
+    A = np.zeros((n_steps + 2, n_steps), dtype=np.float)
+    super_diagonal = (np.arange(n_steps), np.arange(n_steps))
+    sub_diagonal = (np.arange(2, n_steps + 2), np.arange(n_steps))
+    A[super_diagonal] = np.ones(n_steps)
+    A[sub_diagonal] = np.ones(n_steps)
+    main_diagonal = (np.arange(1, n_steps + 1), np.arange(n_steps))
+    A[main_diagonal] = -2 * np.ones(n_steps)
+    return A / (dt ** 2)
