@@ -75,7 +75,7 @@ You should put a symlink there to point to your actual data folder.
 
 ### Conditional ProMPs
 
-<img src="doc/source/_static/conditional_promps.png" width="400px" />
+<img src="doc/source/_static/conditional_promps.png" width="800px" />
 
 [Script](examples/plot_conditional_promp.py)
 
