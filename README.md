@@ -73,6 +73,12 @@ You should put a symlink there to point to your actual data folder.
 
 [Script](scripts/vis_contextual_promp_distribution.py)
 
+### Conditional ProMPs
+
+<img src="doc/source/_static/conditional_promps.png" width="400px" />
+
+[Script](examples/plot_conditional_promp.py)
+
 ### Dual Cartesian DMP
 
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="300px" />
