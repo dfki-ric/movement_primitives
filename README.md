@@ -31,8 +31,10 @@ cd ..
 I recommend to install the library via pip in editable mode:
 
 ```
-pip install -e .
+pip install -e .[all]
 ```
+
+If you don't want to have all dependencies installed, just omit `[all]`.
 
 ## Get URDFs
 
