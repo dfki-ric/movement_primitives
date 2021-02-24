@@ -225,7 +225,10 @@ def load_rh5_demo(filename, verbose=0):
     return T, P
 
 
-def generate_1d_trajectory_distribution(n_demos, n_steps, random_state=np.random.RandomState(0)):
+def generate_1d_trajectory_distribution(
+        n_demos, n_steps,
+        initial_offset_range=3.0, final_offset_range=0.1, noise_per_step_range=20.0,
+        random_state=np.random.RandomState(0)):
     """Generates toy data for testing and demonstration.
 
     Parameters
@@ -235,6 +238,15 @@ def generate_1d_trajectory_distribution(n_demos, n_steps, random_state=np.random
 
     n_steps : int
         Number of steps
+
+    initial_offset_range : float, optional (default: 3)
+        Range of initial offset from cosine
+
+    final_offset_range : float, optional (default: 0.1)
+        Range of final offset from cosine
+
+    noise_per_step_range : float, optional (default: 20)
+        Factor for noise in each step
 
     random_state : RandomState, optional (default: seed 0)
         Random state
@@ -255,10 +267,14 @@ def generate_1d_trajectory_distribution(n_demos, n_steps, random_state=np.random
     L = np.linalg.cholesky(cov)
 
     for demo_idx in range(n_demos):
-        initial_offset = 3.0 * (random_state.rand() - 0.5)
-        final_offset = 0.1 * (random_state.rand() - 0.5)
-        noise_per_step = 20.0 * L.dot(random_state.randn(n_steps))
-        Y[demo_idx, :, 0] = np.linspace(initial_offset, final_offset, n_steps) + np.cos(2 * np.pi * T) + noise_per_step
+        Y[demo_idx, :, 0] = np.cos(2 * np.pi * T)
+        if initial_offset_range or final_offset_range:
+            initial_offset = initial_offset_range * (random_state.rand() - 0.5)
+            final_offset = final_offset_range * (random_state.rand() - 0.5)
+            Y[demo_idx, :, 0] += np.linspace(initial_offset, final_offset, n_steps)
+        if noise_per_step_range:
+            noise_per_step = noise_per_step_range * L.dot(random_state.randn(n_steps))
+            Y[demo_idx, :, 0] += noise_per_step
     return T, Y
 
 
