@@ -33,16 +33,13 @@ class DMPBase:
         self.current_y = np.copy(self.start_y)
         self.current_yd = np.copy(self.start_yd)
 
-    def configure(self, last_t=None, t=None,
+    def configure(self, t=None,
                   start_y=None, start_yd=None, start_ydd=None,
                   goal_y=None, goal_yd=None, goal_ydd=None):
         """Set meta parameters of DMP.
 
         Parameters
         ----------
-        last_t : float, optional
-            Time at last step
-
         t : float, optional
             Time at current step
 
@@ -64,8 +61,6 @@ class DMPBase:
         goal_ydd : array, shape (n_vel_dims,)
             Goal acceleration
         """
-        if last_t is not None:
-            self.last_t = last_t
         if t is not None:
             self.t = t
         if start_y is not None:
