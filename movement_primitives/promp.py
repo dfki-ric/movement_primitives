@@ -169,7 +169,7 @@ class ProMP:
         var : array, shape (n_steps, n_dims)
             Variance
         """
-        return np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T
+        return np.maximum(np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T, 0.0)
 
     def mean_velocities(self, T):
         """Get mean velocities of ProMP.
@@ -215,7 +215,7 @@ class ProMP:
         var : array, shape (n_steps, n_dims)
             Variance
         """
-        return np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T
+        return np.maximum(np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T, 0.0)
 
     def sample_trajectories(self, T, n_samples, random_state):
         """Sample trajectories from ProMP.
