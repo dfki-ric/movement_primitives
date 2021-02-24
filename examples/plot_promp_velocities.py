@@ -25,10 +25,18 @@ for demo_idx in range(n_demos):
 random_state = np.random.RandomState(0)
 samples = promp.sample_trajectories(T[0], 10, random_state)
 
-ax = plt.subplot(121)
 mean_trajectory = promp.mean_trajectory(T[0])
-ax.plot(T[0], mean_trajectory, label="Reproduction", c="r", lw=3)
 var_trajectory = np.sqrt(promp.var_trajectory(T[0]))
+
+mean_velocities = promp.mean_velocities(T[0])
+var_velocities = np.sqrt(promp.var_velocities(T[0]))
+
+dt = T[0, 1] - T[0, 0]
+int_velocities = mean_trajectory[0] + np.cumsum(mean_velocities * dt)
+
+ax = plt.subplot(121)
+ax.plot(T[0], mean_trajectory, label="Reproduction", c="r", lw=3)
+ax.plot(T[0], int_velocities, label="Integrated velocities", c="b")
 factor = 2
 ax.fill_between(
     T[0],
@@ -40,9 +48,7 @@ for sample in samples:
 
 ax = plt.subplot(122)
 
-mean_velocities = promp.mean_velocities(T[0])
 ax.plot(T[0], mean_velocities, label="Velocities", c="r", lw=3)
-var_velocities = np.sqrt(promp.var_velocities(T[0]))
 factor = 2
 ax.fill_between(
     T[0],
