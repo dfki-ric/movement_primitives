@@ -14,10 +14,29 @@ class PybulletSimulation:
         else:
             self.client_id = pybullet.connect(pybullet.DIRECT)
 
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_SHADOWS, 0)
+        #pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_MOUSE_PICKING, 0)
+        pybullet.resetDebugVisualizerCamera(2, 75, -30, [0, 0, 0])
+
         pybullet.resetSimulation(physicsClientId=self.client_id)
         pybullet.setTimeStep(dt, physicsClientId=self.client_id)
         pybullet.setRealTimeSimulation(1 if real_time else 0, physicsClientId=self.client_id)
         pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
+
+    def step(self):
+        assert pybullet.isConnected(self.client_id)
+        pybullet.stepSimulation(physicsClientId=self.client_id)
+
+    def sim_loop(self, n_steps=None):
+        if n_steps is None:
+            while pybullet.isConnected(self.client_id):
+                pybullet.stepSimulation(physicsClientId=self.client_id)
+        else:
+            for _ in range(n_steps):
+                if not pybullet.isConnected(self.client_id):
+                    break
+                pybullet.stepSimulation(physicsClientId=self.client_id)
 
 
 def _pybullet_pose(pose):
@@ -207,17 +226,6 @@ class UR5Simulation(PybulletSimulation):
         last_q, last_qd = self.get_joint_state()
         self.set_desired_joint_state(
             (q - last_q) / self.dt, position_control=False)
-
-    def step(self):
-        pybullet.stepSimulation()
-
-    def sim_loop(self, n_steps=None):
-        if n_steps is None:
-            while True:
-                pybullet.stepSimulation()
-        else:
-            for _ in range(n_steps):
-                pybullet.stepSimulation()
 
     def stop(self):
         pybullet.setJointMotorControlArray(
@@ -440,17 +448,6 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
             last_q, _ = self.get_joint_state()
             self.set_desired_joint_state(
                 (q - last_q) / self.dt, position_control=False)
-
-    def step(self):
-        pybullet.stepSimulation(physicsClientId=self.client_id)
-
-    def sim_loop(self, n_steps=None):
-        if n_steps is None:
-            while True:
-                pybullet.stepSimulation(physicsClientId=self.client_id)
-        else:
-            for _ in range(n_steps):
-                pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def stop(self):
         ee_state = self.get_ee_state(return_velocity=False)
