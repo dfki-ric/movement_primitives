@@ -329,10 +329,12 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
     def __init__(self, dt, gui=True, real_time=False,
                  left_ee_frame="LTCP_Link", right_ee_frame="RTCP_Link",
                  left_joints=("ALShoulder1", "ALShoulder2", "ALShoulder3", "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"),
-                 right_joints=("ARShoulder1", "ARShoulder2", "ARShoulder3", "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch")):
+                 right_joints=("ARShoulder1", "ARShoulder2", "ARShoulder3", "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"),
+                 urdf_path="pybullet-only-arms-urdf/urdf/RH5.urdf",
+                 left_arm_path="pybullet-only-arms-urdf/submodels/left_arm.urdf",
+                 right_arm_path="pybullet-only-arms-urdf/submodels/right_arm.urdf"):
         super(RH5Simulation, self).__init__(dt, gui, real_time)
 
-        urdf_path = "pybullet-only-arms-urdf/urdf/RH5.urdf"
         self.base_pos = (0, 0, 0)
 
         pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -356,11 +358,9 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
         self.right_ee_link_index = self.link_indices[right_ee_frame]
 
         self.left_ik = KinematicsChain(
-            left_ee_frame, left_joints,
-            "pybullet-only-arms-urdf/submodels/left_arm.urdf")
+            left_ee_frame, left_joints, left_arm_path)
         self.right_ik = KinematicsChain(
-            right_ee_frame, right_joints,
-            "pybullet-only-arms-urdf/submodels/right_arm.urdf")
+            right_ee_frame, right_joints, right_arm_path)
 
     def inverse_kinematics(self, ee2robot):
         q = np.empty(self.n_joints)
