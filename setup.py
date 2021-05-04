@@ -16,7 +16,7 @@ if __name__ == "__main__":
         version="0.0.dev",
         author='Alexander Fabisch',
         author_email='alexander.fabisch@dfki.de',
-        url='https://git.hb.dfki.de/dfki-learning/experimental/coupled_dmps',
+        url='https://git.hb.dfki.de/dfki-learning/movement_primitives',
         description='Movement primitives',
         long_description=long_description,
         long_description_content_type="text/markdown",
