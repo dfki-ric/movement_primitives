@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from pytransform3d import rotations as pr, transformations as pt
 from scipy.interpolate import interp1d
@@ -116,7 +117,7 @@ class ForcingTerm:
         self._init_rbfs(n_dims, n_weights_per_dim, start_t)
 
     def _init_rbfs(self, n_dims, n_weights_per_dim, start_t):
-        self.log_overlap = -np.log(self.overlap)
+        self.log_overlap = float(-math.log(self.overlap))
         self.execution_time = self.goal_t - self.start_t
         self.weights = np.zeros((n_dims, n_weights_per_dim))
         self.centers = np.empty(n_weights_per_dim)
@@ -1062,7 +1063,7 @@ class StateFollowingForcingTerm:
         self._init_rbfs(n_viapoints, start_t)
 
     def _init_rbfs(self, n_viapoints, start_t):
-        self.log_overlap = -np.log(self.overlap)
+        self.log_overlap = float(-math.log(self.overlap))
         self.execution_time = self.goal_t - self.start_t
         self.centers = np.empty(n_viapoints)
         self.widths = np.empty(n_viapoints)
