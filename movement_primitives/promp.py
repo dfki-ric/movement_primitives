@@ -38,6 +38,8 @@ class ProMP:
         self.weight_mean = np.zeros(self.n_weights)
         self.weight_cov = np.eye(self.n_weights)
 
+        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
+
     def weights(self, T, Y, lmbda=1e-12):
         """Obtain ProMP weights by linear regression.
 
@@ -388,7 +390,6 @@ class ProMP:
         activations : array, shape (n_weights_per_dim,)
             Activations of RBFs for each time step.
         """
-        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
         # normalize time to interval [0, 1]
@@ -431,7 +432,6 @@ class ProMP:
 
         n_steps = len(T)
 
-        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
         # normalize time to interval [0, 1]
@@ -473,7 +473,6 @@ class ProMP:
 
         n_steps = len(T)
 
-        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
         rbfs = self._rbfs_1d_sequence(T, overlap, normalize=False)
