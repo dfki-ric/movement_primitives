@@ -3,9 +3,11 @@ import pytransform3d.visualizer as pv
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-from mocap.cleaning import smooth_exponential_coordinates
+from mocap.cleaning import smooth_exponential_coordinates, smooth_quaternion_trajectory
 from kinematics import Kinematics
-from movement_primitives.dmp import DMP
+from movement_primitives.dmp import DMP, DualCartesianDMP
+from movement_primitives.io import (write_json, write_yaml, write_pickle,
+                                    read_json, read_yaml, read_pickle)
 
 
 def panel_pose(tm):
@@ -108,9 +110,33 @@ execution_time = (n_steps - 1) * dt
 T = np.linspace(0, execution_time, n_steps)
 Y = np.hstack((smooth_exponential_coordinates(left_trajectory),
                smooth_exponential_coordinates(right_trajectory)))
-dmp = DMP(n_dims=Y.shape[1], execution_time=execution_time, dt=dt, n_weights_per_dim=10)
-dmp.imitate(T, Y)
-_, Y = dmp.open_loop()
+#dmp = DMP(n_dims=Y.shape[1], execution_time=execution_time, dt=dt, n_weights_per_dim=10)
+#dmp.imitate(T, Y)
+#_, Y = dmp.open_loop()
+
+########################################################################################################################
+# DMP export
+dmp = DualCartesianDMP(execution_time=execution_time, dt=dt, n_weights_per_dim=10)
+Y_pq = np.empty((len(Y), 14))
+Y_pq[:, :7] = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(Y[:, :6]))
+Y_pq[:, 7:] = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(Y[:, 6:]))
+Y_pq[:, 3:7] = smooth_quaternion_trajectory(Y_pq[:, 3:7])
+Y_pq[:, 10:14] = smooth_quaternion_trajectory(Y_pq[:, 10:14])
+dmp.imitate(T, Y_pq)
+
+write_yaml("rh5_dual_arm_dmp.yaml", dmp)
+write_json("rh5_dual_arm_dmp.json", dmp)
+write_pickle("rh5_dual_arm_dmp.pickle", dmp)
+
+dmp = read_yaml("rh5_dual_arm_dmp.yaml")
+#dmp = read_json("rh5_dual_arm_dmp.json")
+#dmp = read_pickle("rh5_dual_arm_dmp.pickle")
+
+_, Y_pq = dmp.open_loop()
+Y[:, :6] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, :7]))
+Y[:, 6:] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, 7:]))
+########################################################################################################################
+
 left_trajectory = Y[:, :6]
 right_trajectory = Y[:, 6:]
 
@@ -156,7 +182,7 @@ df.to_csv("rh5_dual_arm_rotate_panel_joints.csv")# float_format="%.20f"
 import matplotlib.pyplot as plt
 from movement_primitives.plot import plot_trajectory_in_rows
 axes = plot_trajectory_in_rows(np.hstack((left_joint_trajectory, right_joint_trajectory)))
-for i, jn in  enumerate(left_arm.joint_names + right_arm.joint_names):
+for i, jn in enumerate(left_arm.joint_names + right_arm.joint_names):
     joint_limits = kin.tm._joints[jn][-2]
     axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[0]] * 2, c="r")
     axes[i].plot([0, len(left_joint_trajectory)], [joint_limits[1]] * 2, c="r")
