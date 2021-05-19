@@ -74,6 +74,7 @@ T, Y_pq = dmp.open_loop()
 y = np.copy(start_y)  # positions
 yd = np.zeros(12)  # velocities
 dmp.reset()
+dmp.configure(start_y=y)
 for i in range(n_steps):
     # get state of end effectors:
     # y = ...
