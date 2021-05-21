@@ -116,25 +116,7 @@ Y = np.hstack((smooth_exponential_coordinates(left_trajectory),
 
 ########################################################################################################################
 # DMP export
-dmp = DualCartesianDMP(execution_time=execution_time, dt=dt, n_weights_per_dim=10)
-Y_pq = np.empty((len(Y), 14))
-Y_pq[:, :7] = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(Y[:, :6]))
-Y_pq[:, 7:] = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(Y[:, 6:]))
-Y_pq[:, 3:7] = smooth_quaternion_trajectory(Y_pq[:, 3:7])
-Y_pq[:, 10:14] = smooth_quaternion_trajectory(Y_pq[:, 10:14])
-dmp.imitate(T, Y_pq)
 
-write_yaml("rh5_dual_arm_dmp.yaml", dmp)
-write_json("rh5_dual_arm_dmp.json", dmp)
-write_pickle("rh5_dual_arm_dmp.pickle", dmp)
-
-dmp = read_yaml("rh5_dual_arm_dmp.yaml")
-#dmp = read_json("rh5_dual_arm_dmp.json")
-#dmp = read_pickle("rh5_dual_arm_dmp.pickle")
-
-_, Y_pq = dmp.open_loop()
-Y[:, :6] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, :7]))
-Y[:, 6:] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, 7:]))
 ########################################################################################################################
 
 left_trajectory = Y[:, :6]
@@ -158,6 +140,18 @@ rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right
 
 left_trajectory_pq = ptr.pqs_from_transforms(lwp_trajectory)
 right_trajectory_pq = ptr.pqs_from_transforms(rwp_trajectory)
+
+dmp = DualCartesianDMP(execution_time=execution_time, dt=dt, n_weights_per_dim=10)
+Y_pq = np.empty((len(Y), 14))
+Y_pq[:, :7] = left_trajectory_pq
+Y_pq[:, 7:] = right_trajectory_pq
+Y_pq[:, 3:7] = smooth_quaternion_trajectory(Y_pq[:, 3:7])
+Y_pq[:, 10:14] = smooth_quaternion_trajectory(Y_pq[:, 10:14])
+dmp.imitate(T, Y_pq)
+
+write_yaml("rh5_dual_arm_dmp.yaml", dmp)
+write_json("rh5_dual_arm_dmp.json", dmp)
+write_pickle("rh5_dual_arm_dmp.pickle", dmp)
 
 import pandas as pd
 data_export = np.hstack((

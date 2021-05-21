@@ -33,8 +33,8 @@ right_arm = kin.create_chain(
 left_arm.forward(q0_left)
 right_arm.forward(q0_right)
 
-left2base_start = kin.tm.get_transform("LTCP_Link", "RH5_Root_Link")
-right2base_start = kin.tm.get_transform("RTCP_Link", "RH5_Root_Link")
+left2base_start = kin.tm.get_transform("ALWristPitch_Link", "RH5_Root_Link")
+right2base_start = kin.tm.get_transform("ARWristPitch_Link", "RH5_Root_Link")
 start_y = np.hstack((pt.pq_from_transform(left2base_start),
                      pt.pq_from_transform(right2base_start)))
 
@@ -86,15 +86,18 @@ for i in range(n_steps):
 
     Y_pq[i] = y
 
-Y = np.empty((len(Y_pq), 12))
-Y[:, :6] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, :7]))
-Y[:, 6:] = ptr.exponential_coordinates_from_transforms(ptr.transforms_from_pqs(Y_pq[:, 7:]))
+Y_transforms = np.empty((len(Y_pq), 2, 4, 4))
+Y_transforms[:, 0] = ptr.transforms_from_pqs(Y_pq[:, :7])
+Y_transforms[:, 1] = ptr.transforms_from_pqs(Y_pq[:, 7:])
 
-left_trajectory = Y[:, :6]
-right_trajectory = Y[:, 6:]
+lwp_trajectory = Y_transforms[:, 0]
+rwp_trajectory = Y_transforms[:, 1]
 
-left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
-right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
+ltcp2lwp = kin.tm.get_transform("ALWristPitch_Link", "LTCP_Link")
+rtcp2rwp = kin.tm.get_transform("ARWristPitch_Link", "RTCP_Link")
+
+left_trajectory = np.array([pt.concat(ltcp2lwp, lwp2base) for lwp2base in lwp_trajectory])
+right_trajectory = np.array([pt.concat(rtcp2rwp, rwp2base) for rwp2base in rwp_trajectory])
 
 print("Inverse kinematics...")
 random_state = np.random.RandomState(0)
