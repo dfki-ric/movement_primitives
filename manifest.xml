@@ -15,6 +15,9 @@
   <depend package="scipy" />
   <depend package="cython" />
   <depend package="pyyaml" />
+  <depend package="pytransform3d" />
+  <depend package="python-lxml" />
+  <depend package="beautifulsoup4" />
 
   <keywords>
     <keyword>Learning</keyword>

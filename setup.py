@@ -23,10 +23,10 @@ if __name__ == "__main__":
         classifiers=["Programming Language :: Python :: 3"],
         license="no license",
         packages=["movement_primitives"],
-        install_requires=["pytransform3d"],
+        install_requires=[],
         extras_require={
-            "all": ["cython", "numpy", "scipy", "matplotlib", "open3d", "tqdm",
-                    "gmr", "PyYAML"],
+            "all": ["pytransform3d", "cython", "numpy", "scipy", "matplotlib",
+                    "open3d", "tqdm", "gmr", "PyYAML"],
             "test": ["nose", "coverage"]
         }
     )
