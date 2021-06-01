@@ -5,8 +5,16 @@
   <author>Alexander Fabisch/Alexander.Fabisch@dfki.de</author>
   <maintainer>Alexander Fabisch/Alexander.Fabisch@dfki.de</maintainer>
   <license>Copyright DFKI GmbH, Robotics Innovation Center</license>
-  <url>https://git.hb.dfki.de/dfki-learning/experimental/coupled_dmps</url>
+  <url>https://git.hb.dfki.de/dfki-learning/movement_primitives</url>
   <logo>none</logo>
+
+  <depend package="python" />
+  <depend package="python-pip" />
+  <depend package="python-matplotlib" />
+  <depend package="numpy" />
+  <depend package="cython" />
+  <depend package="pyyaml" />
+
   <keywords>
     <keyword>Learning</keyword>
   </keywords>
