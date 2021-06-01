@@ -12,6 +12,7 @@
   <depend package="python-pip" />
   <depend package="python-matplotlib" />
   <depend package="numpy" />
+  <depend package="scipy" />
   <depend package="cython" />
   <depend package="pyyaml" />
 
