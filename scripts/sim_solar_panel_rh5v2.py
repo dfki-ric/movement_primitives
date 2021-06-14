@@ -5,13 +5,17 @@ import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.dmp import DualCartesianDMP
+from kinematics import Kinematics
 from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose
+from mocap.cleaning import smooth_quaternion_trajectory
+from movement_primitives.io import write_json, write_yaml, write_pickle
 
 
 def panel_pose(tcp_left, tcp_right):
     tcp_left_pos = tcp_left[:3, 3]
     tcp_right_pos = tcp_right[:3, 3]
     tcp_middle = 0.5 * (tcp_left_pos + tcp_right_pos)
+    tcp_middle[0] += 0.025
     x_axis = pr.norm_vector(tcp_right_pos - tcp_left_pos)
     y_axis = -pr.norm_vector(0.5 * (tcp_left[:3, 2] + tcp_right[:3, 2]))
     R_panel = pr.matrix_from_two_vectors(x_axis, y_axis)
@@ -19,12 +23,12 @@ def panel_pose(tcp_left, tcp_right):
 
 
 panel_rotation_angle = np.deg2rad(30)
-n_steps = 101
+n_steps = 1001
 dt = 0.001
 
 #q0 = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8, -1.57, 1.25, 0, -1.75, 0, 0, 0.8])
 #q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, -1.57, 0.76, 0, -1.3, 0, 0, -0.55])
-q0 = np.array([-1.57, 1, 0, -1.2, 0, 0, 0, -1.57, 1, 0, -1.2, 0, 0, 0])
+q0 = np.array([-1.57, 0.9, 0, -1.05, 0, 0, 0, -1.57, 0.9, 0, -1.05, -0.25, 0, 0])
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False,
                     urdf_path="pybullet-urdf/urdf/RH5v2.urdf",
@@ -44,6 +48,8 @@ panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
 pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
+import time
+#time.sleep(10)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
 right2panel_start = pt.concat(right2base_start, pt.invert_transform(panel2base_start))
@@ -67,8 +73,37 @@ right_trajectory = start_right[np.newaxis] + t[:, np.newaxis] * (end_right[np.ne
 left_trajectory = ptr.transforms_from_exponential_coordinates(left_trajectory)
 right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 
-draw_trajectory(left_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
-draw_trajectory(right_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
+########################################################################################################################
+# Data export
+with open("pybullet-urdf/urdf/RH5v2.urdf", "r") as f:
+    kin = Kinematics(f.read(), mesh_path="pybullet-urdf/urdf/")
+#kin.tm.write_png("graph.png", "twopi")
+
+lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
+rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+
+lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
+rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])
+
+left_trajectory_pq = ptr.pqs_from_transforms(lwp_trajectory)
+right_trajectory_pq = ptr.pqs_from_transforms(rwp_trajectory)
+
+dmp = DualCartesianDMP(execution_time=n_steps * dt, dt=dt, n_weights_per_dim=10)
+Y_pq = np.empty((n_steps, 14))
+Y_pq[:, :7] = left_trajectory_pq
+Y_pq[:, 7:] = right_trajectory_pq
+Y_pq[:, 3:7] = smooth_quaternion_trajectory(Y_pq[:, 3:7])
+Y_pq[:, 10:14] = smooth_quaternion_trajectory(Y_pq[:, 10:14])
+T = np.linspace(0, 1, n_steps)
+dmp.imitate(T, Y_pq)
+
+write_yaml("rh5v2_dual_arm_dmp.yaml", dmp)
+write_json("rh5v2_dual_arm_dmp.json", dmp)
+write_pickle("rh5v2_dual_arm_dmp.pickle", dmp)
+########################################################################################################################
+
+#draw_trajectory(left_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
+#draw_trajectory(right_trajectory, rh5.client_id, s=0.05, n_key_frames=5)
 
 print("Imitation...")
 T = np.linspace(0, (n_steps - 1) * dt, n_steps)
