@@ -53,7 +53,7 @@ def write_yaml(filename, obj):
         Any custom object that is a hierarchical composition of basic data
         types and numpy arrays.
     """
-    export = _recursive_to_dict(obj)
+    export = _recursive_to_dict(obj, True)
     with open(filename, "w") as f:
         yaml.dump(export, f)
 
@@ -111,10 +111,12 @@ def read_json(filename):
     return _dict_to_object(export)
 
 
-def _recursive_to_dict(obj):
+def _recursive_to_dict(obj, convert_tuple=False):
     result = {"module": obj.__module__, "class": obj.__class__.__name__}
     for k, v in obj.__dict__.items():
-        if isinstance(v, basic_types_and_sequences):
+        if convert_tuple and isinstance(v, tuple):
+            result[k] = list(v)
+        elif isinstance(v, basic_types_and_sequences):
             result[k] = v
         elif isinstance(v, np.ndarray):
             result[k] = v.tolist()
