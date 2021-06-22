@@ -3,9 +3,9 @@ import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 from gmr import GMM
 
-from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
 from movement_primitives.data import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from movement_primitives.promp import ProMP
+from movement_primitives.visualization import to_ellipsoid
 
 
 def generate_training_data(
@@ -68,40 +68,21 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     promp.from_weight_distribution(
         conditional_weight_distribution.mean,
         conditional_weight_distribution.covariance)
-    samples = promp.sample_trajectories(T_query, n_validation_samples, random_state)
 
-    # mean and standard deviation in state space
+    # mean and covariance in state space
     mean = promp.mean_trajectory(T_query)
-    std = np.sqrt(promp.var_trajectory(T_query))
+    cov = promp.cov_trajectory(T_query).reshape(
+        mean.shape[0], mean.shape[1], mean.shape[1], mean.shape[0])
 
-    c = [0, 0, 0]
-    c[idx] = 1
-    fig.plot_trajectory(mean[:, :7], s=0.05, c=tuple(c))
-    fig.plot_trajectory(mean[:, 7:], s=0.05, c=tuple(c))
-    #fig.plot_trajectory(mean[:, :7] + std[:, :7], s=0.02, c=tuple(c))
-    #fig.plot_trajectory(mean[:, 7:] + std[:, :7], s=0.02, c=tuple(c))
-    #fig.plot_trajectory(mean[:, :7] - std[:, :7], s=0.02, c=tuple(c))
-    #fig.plot_trajectory(mean[:, 7:] - std[:, :7], s=0.02, c=tuple(c))
-
-    pcl_points = []
-    distances = []
-    stds = []
-    for P in samples:
-        # uncomment to check orientations
-        #left = fig.plot_trajectory(P=P[:, :7], s=0.02)
-        #right = fig.plot_trajectory(P=P[:, 7:], s=0.02)
-        pcl_points.extend(P[:, :3])
-        pcl_points.extend(P[:, 7:10])
-
-        ee_distances = np.linalg.norm(P[:, :3] - P[:, 7:10], axis=1)
-        distances.append(np.mean(ee_distances))
-        stds.append(np.std(ee_distances))
-    print("Mean average distance of end-effectors = %.2f, mean std. dev. = %.3f"
-          % (np.mean(distances), np.mean(stds)))
-
-    pcl = plot_pointcloud(fig, pcl_points, color)
-    key = ord(str((idx + 1) % 10))
-    fig.visualizer.register_key_action_callback(key, ToggleGeometry(fig, pcl))
+    for t in range(0, len(mean), 1):
+        p_left = mean[t, :3]
+        p_right = mean[t, 7:10]
+        cov_left = cov[t, 7:10, 7:10, t]
+        cov_right = cov[t, 7:10, 7:10, t]
+        ellipsoid2origin, radii = to_ellipsoid(p_left, cov_left)
+        fig.plot_ellipsoid(A2B=ellipsoid2origin, radii=0.5 * radii, c=color)
+        ellipsoid2origin, radii = to_ellipsoid(p_right, cov_right)
+        fig.plot_ellipsoid(A2B=ellipsoid2origin, radii=0.5 * radii, c=color)
 
 if plot_training_data:
     for P in Ps:
