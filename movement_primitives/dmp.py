@@ -653,7 +653,7 @@ class DualCartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
         self.forcing_term.weights[9:12, :] = dmp_quaternion_imitation(
-            T, Y[:, 3:7],
+            T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,

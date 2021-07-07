@@ -6,7 +6,7 @@ import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.kinematics import Kinematics
-from simulation import RH5Simulation, draw_transform, _pybullet_pose
+from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose
 from mocap.cleaning import smooth_quaternion_trajectory
 from movement_primitives.io import write_json, write_yaml, write_pickle
 
@@ -47,7 +47,8 @@ draw_transform(panel2base_start, s=0.1, client_id=rh5.client_id)
 panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
-pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
+pybullet.loadURDF("solar_panels/solar_panel_02/urdf/pb_solar_panel_02.urdf", p, q)
+import time
 #time.sleep(10)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
@@ -78,8 +79,8 @@ with open("pybullet-urdf/urdf/RH5v2.urdf", "r") as f:
     kin = Kinematics(f.read(), mesh_path="pybullet-urdf/urdf/")
 #kin.tm.write_png("graph.png", "twopi")
 
-lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
-rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+lwp2ltcp = kin.tm.get_transform("ALWristFT_Link", "LTCP_Link")
+rwp2rtcp = kin.tm.get_transform("ARWristFT_Link", "RTCP_Link")
 
 lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
 rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])
