@@ -30,6 +30,26 @@ def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
         P[:, :] = median_filter(P, window_size=median_filter_window)
 
 
+def smooth_single_arm_trajectories_pq(Ps, median_filter_window=5):
+    """Make orientation representation smooth.
+
+    Note that the argument Ps will be manipulated and the function does not
+    return anything.
+
+    Parameters
+    ----------
+    Ps : list
+        List of single arm trajectories represented by position of the arm and
+        orientation quaternion of the arm.
+
+    median_filter_window : int, optional (default: 5)
+        Window size of the median filter
+    """
+    for P in Ps:
+        P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
+        P[:, :] = median_filter(P, window_size=median_filter_window)
+
+
 def transpose_dataset(dataset):
     """Converts list of demo data to multiple lists of demo properties.
 
@@ -223,6 +243,42 @@ def load_rh5_demo(filename, verbose=0):
          "right_pose.im[2]"])
 
     return T, P
+
+
+def load_mia_demo(filename, dt=0.01, verbose=0):
+    """Load a single demonstration for the Mia hand from csv.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the csv file.
+
+    dt : float, optional (default: 0.01)
+        Time between steps.
+
+    verbose : int, optional (default: 0)
+        Verbosity level.
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Time steps
+
+    P : array, shape (n_steps, 11)
+        Position of the palm frame, orientation of the palm frame as
+        quaternion, and joint angles. Pose of the palm frame is relative to
+        the manipulated object. Order of joint angles is "j_index_fle",
+        "j_mrl_fle", "j_thumb_fle", "j_thumb_opp".
+    """
+    trajectory = pd.read_csv(filename)
+    T = np.arange(0.0, dt * len(trajectory), dt)
+    if len(T) != len(trajectory):
+        T = T[:len(trajectory)]
+    P = trajectory[
+        ["base_x", "base_y", "base_z", "base_qw", "base_qx", "base_qy",
+         "base_qz", "j_index_fle", "j_mrl_fle", "j_thumb_fle", "j_thumb_opp"]
+        ]
+    return T, P.to_numpy()
 
 
 def generate_1d_trajectory_distribution(
