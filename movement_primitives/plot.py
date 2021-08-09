@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_shape=None, transpose=False, **kwargs):
+def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_shape=None, transpose=False, axis_titles=[], **kwargs):
     """Plot trajectories of N dimensions in N 2D subplots.
 
     Note that you have to manually activate the legend for one plot if you
@@ -29,8 +29,16 @@ def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_s
         Fill first column first, then second column and so on. Typically
         matplotlib fills rows before columns.
 
+    axis_titles : list of str, optional (default: ['Dimension #0', ...])
+        Title for each dimension of the plot.
+
     **kwargs : dict, optional
         Additional arguments for the plot function.
+
+    Returns
+    -------
+    axes : list of matplotlib axis
+        Matplotlib axes
     """
     n_steps, n_dims = trajectory.shape
 
@@ -51,13 +59,13 @@ def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_s
         axes[i].plot(t, trajectory[:, i], label=label, **kwargs)
 
     if newaxes:
-        layout_axes(axes, n_dims, subplot_shape, xlabel, (t[0], t[-1]), transpose)
+        layout_axes(axes, n_dims, subplot_shape, xlabel, (t[0], t[-1]), transpose, axis_titles)
 
     return axes
 
 
 def plot_distribution_in_rows(mean, std_dev, t=None, label=None, axes=None, std_factors=(1, 2, 3), fill_between=True,
-                              subplot_shape=None, transpose=False, **kwargs):
+                              subplot_shape=None, transpose=False, axis_titles=[], **kwargs):
     """Plot distribution of N dimensions in N 2D subplots.
 
     Note that you have to manually activate the legend for one plot if you
@@ -96,8 +104,16 @@ def plot_distribution_in_rows(mean, std_dev, t=None, label=None, axes=None, std_
         Fill first column first, then second column and so on. Typically
         matplotlib fills rows before columns.
 
+    axis_titles : list of str, optional (default: ['Dimension #0', ...])
+        Title for each dimension of the plot.
+
     **kwargs : dict, optional
         Additional arguments for the plot function.
+
+    Returns
+    -------
+    axes : list of matplotlib axis
+        Matplotlib axes
     """
     n_steps, n_dims = mean.shape
 
@@ -135,7 +151,7 @@ def plot_distribution_in_rows(mean, std_dev, t=None, label=None, axes=None, std_
                 axes[i].plot(t, mean[:, i] + f * std_dev[:, i], color, ls="--")
 
     if newaxes:
-        layout_axes(axes, n_dims, subplot_shape, xlabel, (t[0], t[-1]), transpose)
+        layout_axes(axes, n_dims, subplot_shape, xlabel, (t[0], t[-1]), transpose, axis_titles)
 
     return axes
 
@@ -149,9 +165,13 @@ def create_axes(n_dims, subplot_shape, transpose):
     return [plt.subplot(h, w, 1 + i) for i in dim_order]
 
 
-def layout_axes(axes, n_dims, subplot_shape, xlabel, xlim, transpose):
+def layout_axes(axes, n_dims, subplot_shape, xlabel, xlim, transpose, axis_titles):
     for i in range(n_dims):
-        axes[i].set_title("Dimension #%d" % i, loc="left", y=0)
+        if i < len(axis_titles):
+            axis_title = axis_titles[i]
+        else:
+            axis_title = "Dimension #%d" % i
+        axes[i].set_title(axis_title, loc="center", y=0, backgroundcolor="#ffffff80")
         if not transpose and subplot_shape[0] * subplot_shape[1] - i in range(1, subplot_shape[1] + 1):
             axes[i].set_xlabel(xlabel)
         elif transpose and i % subplot_shape[0] == subplot_shape[0] - 1:
