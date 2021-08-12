@@ -159,6 +159,13 @@ class ForcingTerm:
 class DMP(DMPBase):
     """Dynamical movement primitive (DMP).
 
+    Implementation according to
+
+    A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
+    Dynamical Movement Primitives: Learning Attractor Models for Motor
+    Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
+    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340
+
     Parameters
     ----------
     n_dims : int
