@@ -157,6 +157,28 @@ class ForcingTerm:
 
 
 class DMP(DMPBase):
+    """Dynamical movement primitive (DMP).
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    execution_time : float
+        Execution time of the DMP.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+
+    k_tracking_error : float, optional (default: 0)
+        Gain for proportional controller of DMP tracking error.
+    """
     def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
@@ -172,6 +194,27 @@ class DMP(DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def step(self, last_y, last_yd, coupling_term=None):
+        """DMP step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
         self.last_t = self.t
         self.t += self.dt
 
@@ -198,6 +241,27 @@ class DMP(DMPBase):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None, step_function="rk4"):
+        """Run DMP open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time of DMP. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        step_function : str, optional (default: 'rk4')
+            DMP integration function. Possible options: 'rk4', 'euler'.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        """
         if step_function == "rk4":
             step_function = dmp_step_rk4
         elif step_function == "euler":
@@ -215,6 +279,22 @@ class DMP(DMPBase):
             step_function)
 
     def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
+        """Imitate demonstration.
+
+        Parameters
+        ----------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+
+        regularization_coefficient : float, optional (default: 0)
+            Regularization coefficient for regression.
+
+        allow_final_velocity : bool, optional (default: False)
+            Allow a final velocity.
+        """
         self.forcing_term.weights[:, :] = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
