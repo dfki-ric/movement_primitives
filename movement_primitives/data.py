@@ -245,7 +245,7 @@ def load_rh5_demo(filename, verbose=0):
     return T, P
 
 
-def load_mia_demo(filename, dt=0.01, verbose=0):
+def load_mia_demo(filename, dt=0.01, ignore_columns=(), verbose=0):
     """Load a single demonstration for the Mia hand from csv.
 
     Parameters
@@ -256,6 +256,9 @@ def load_mia_demo(filename, dt=0.01, verbose=0):
     dt : float, optional (default: 0.01)
         Time between steps.
 
+    ignore_columns : list or tuple, optional (default: ())
+        Columns that should not be loaded.
+
     verbose : int, optional (default: 0)
         Verbosity level.
 
@@ -264,7 +267,7 @@ def load_mia_demo(filename, dt=0.01, verbose=0):
     T : array, shape (n_steps,)
         Time steps
 
-    P : array, shape (n_steps, 11)
+    P : array, shape (n_steps, 11 - len(ignore_columns))
         Position of the palm frame, orientation of the palm frame as
         quaternion, and joint angles. Pose of the palm frame is relative to
         the manipulated object. Order of joint angles is "j_index_fle",
@@ -274,11 +277,18 @@ def load_mia_demo(filename, dt=0.01, verbose=0):
     T = np.arange(0.0, dt * len(trajectory), dt)
     if len(T) != len(trajectory):
         T = T[:len(trajectory)]
-    P = trajectory[
-        ["base_x", "base_y", "base_z", "base_qw", "base_qx", "base_qy",
-         "base_qz", "j_index_fle", "j_mrl_fle", "j_thumb_fle", "j_thumb_opp"]
-        ]
-    return T, P.to_numpy()
+
+    ALL_COLUMNS = [
+        "base_x", "base_y", "base_z", "base_qw", "base_qx", "base_qy",
+        "base_qz", "j_index_fle", "j_mrl_fle", "j_thumb_fle", "j_thumb_opp"]
+    # quadratic complexity; since order is relevant, we cannot use a set
+    # difference
+    columns = [c for c in ALL_COLUMNS if c not in ignore_columns]
+    if verbose >= 2:
+        tqdm.write("Loading columns: [%s]" % ", ".join(columns))
+
+    P = trajectory[columns].to_numpy()
+    return T, P
 
 
 def generate_1d_trajectory_distribution(
