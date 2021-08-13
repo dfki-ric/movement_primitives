@@ -8,8 +8,10 @@ try:
     from mocap.pandas_utils import match_columns, rename_stream_groups
     from mocap.cleaning import smooth_quaternion_trajectory, median_filter
     mocap_available = True
-except:
+except ImportError:
     mocap_available = False
+    import warnings
+    warnings.warn("mocap library is not available, data module will not work")
 
 
 def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
