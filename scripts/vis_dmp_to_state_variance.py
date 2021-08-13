@@ -7,7 +7,7 @@ from movement_primitives.plot import plot_trajectory_in_rows, plot_distribution_
 from pytransform3d import transformations as pt
 import pytransform3d.visualizer as pv
 import matplotlib.pyplot as plt
-from kinematics import Kinematics
+from movement_primitives.kinematics import Kinematics
 
 
 pattern = "data/kuka/20200129_peg_in_hole/csv_processed/01_peg_in_hole_both_arms/*.csv"

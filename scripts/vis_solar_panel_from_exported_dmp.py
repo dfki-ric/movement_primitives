@@ -2,7 +2,7 @@ import numpy as np
 import pytransform3d.visualizer as pv
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-from kinematics import Kinematics
+from movement_primitives.kinematics import Kinematics
 
 
 def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory):
@@ -43,7 +43,8 @@ start_y[3:7] *= -1.0
 start_y[10:14] *= -1.0
 
 # Read DMP from your favorite format.
-from movement_primitives.io import read_json, read_yaml, read_pickle
+from movement_primitives.io import read_yaml
+
 dmp = read_yaml("rh5_dual_arm_dmp.yaml")
 #dmp = read_json("rh5_dual_arm_dmp.json")
 #dmp = read_pickle("rh5_dual_arm_dmp.pickle")

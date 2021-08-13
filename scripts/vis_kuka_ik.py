@@ -1,6 +1,6 @@
 import numpy as np
 import pytransform3d.visualizer as pv
-from kinematics import Kinematics
+from movement_primitives.kinematics import Kinematics
 
 
 with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:

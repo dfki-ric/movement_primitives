@@ -4,10 +4,9 @@ import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from mocap.cleaning import smooth_exponential_coordinates, smooth_quaternion_trajectory
-from kinematics import Kinematics
-from movement_primitives.dmp import DMP, DualCartesianDMP
-from movement_primitives.io import (write_json, write_yaml, write_pickle,
-                                    read_json, read_yaml, read_pickle)
+from movement_primitives.kinematics import Kinematics
+from movement_primitives.dmp import DualCartesianDMP
+from movement_primitives.io import (write_json, write_yaml, write_pickle)
 
 
 def panel_pose(tm):
