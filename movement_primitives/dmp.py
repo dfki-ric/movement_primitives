@@ -625,7 +625,7 @@ class DualCartesianDMP(DMPBase):
         T : array, shape (n_steps,)
             Time for each step.
 
-        Y : array, shape (n_steps, 7)
+        Y : array, shape (n_steps, 14)
             State at each step.
 
         regularization_coefficient : float, optional (default: 0)
