@@ -27,6 +27,7 @@ if __name__ == "__main__":
         extras_require={
             "all": ["pytransform3d", "cython", "numpy", "scipy", "matplotlib",
                     "open3d", "tqdm", "gmr", "PyYAML"],
+            "doc": ["pdoc3"],
             "test": ["nose", "coverage"]
         }
     )
