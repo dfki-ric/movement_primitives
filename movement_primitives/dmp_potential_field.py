@@ -3,6 +3,36 @@ from .dmp import dmp_transformation_system
 
 
 def potential_field_2d(dmp, x_range, y_range, n_ticks):
+    """Discretize potential field of DMP.
+
+    Parameters
+    ----------
+    dmp : DMP
+        Dynamical movement primitive.
+
+    x_range : tuple
+        Range in x dimension.
+
+    y_range : tuple
+        Range in y dimension.
+
+    n_ticks : int
+        Number of ticks per dimension.
+
+    Returns
+    -------
+    xx : array, shape (n_ticks, n_ticks)
+        x coordinates
+
+    yy : array, shape (n_ticks, n_ticks)
+        y coordinates
+
+    ft : array, shape (n_ticks, n_ticks, 2)
+        Acceleration from forcing term for each position.
+
+    ts: array, shape (n_ticks, n_ticks, 2)
+        Acceleration from transformation system for each position.
+    """
     xx, yy = np.meshgrid(np.linspace(x_range[0], x_range[1], n_ticks),
                          np.linspace(y_range[0], y_range[1], n_ticks))
     Y = np.array((xx, yy)).transpose((1, 2, 0))
