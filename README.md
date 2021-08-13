@@ -75,7 +75,7 @@ You can build an API documentation with [pdoc3](https://pdoc3.github.io/pdoc/).
 You can install pdoc3 with
 
 ```bash
-pip3 install pdoc3
+pip install pdoc3
 ```
 
 ... and build the documentation from the main folder with
