@@ -1,5 +1,7 @@
 # Movement Primitives
 
+[API Documentation (only reachable within network of DFKI RIC)](http://bob.dfki.uni-bremen.de/apis/dfki-learning/movement_primitives/movement_primitives/)
+
 ## Features
 
 * Dynamical Movement Primitives (DMPs) for
