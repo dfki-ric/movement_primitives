@@ -69,6 +69,23 @@ python setup.py build_ext --inplace
 I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
 
+## Build API Documentation
+
+You can build an API documentation with [pdoc3](https://pdoc3.github.io/pdoc/).
+You can install pdoc3 with
+
+```bash
+pip3 install pdoc3
+```
+
+... and build the documentation from the main folder with
+
+```bash
+pdoc movement_primitives --html
+```
+
+It will be located at `html/movement_primitives/index.html`.
+
 ## Examples
 
 ### Contextual ProMPs
