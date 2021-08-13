@@ -1,5 +1,5 @@
 import numpy as np
-from kinematics import Kinematics
+from movement_primitives.kinematics import Kinematics
 
 
 COMPI_URDF = """
