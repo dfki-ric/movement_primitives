@@ -2,10 +2,14 @@ import glob
 
 import numpy as np
 import pandas as pd
-from mocap import array_from_dataframe
-from mocap.pandas_utils import match_columns, rename_stream_groups
-from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 from tqdm import tqdm
+try:
+    from mocap import array_from_dataframe
+    from mocap.pandas_utils import match_columns, rename_stream_groups
+    from mocap.cleaning import smooth_quaternion_trajectory, median_filter
+    mocap_available = True
+except:
+    mocap_available = False
 
 
 def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
