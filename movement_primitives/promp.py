@@ -1,3 +1,4 @@
+"""Probabilistic movement primitive."""
 import numpy as np
 
 

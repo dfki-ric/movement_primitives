@@ -1,3 +1,4 @@
+"""Forward kinematics and a simple implementation of inverse kinematics."""
 import numpy as np
 import math
 import numba

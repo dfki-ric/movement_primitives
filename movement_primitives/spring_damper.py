@@ -1,3 +1,4 @@
+"""Spring-damper based attractors."""
 import numpy as np
 import pytransform3d.rotations as pr
 

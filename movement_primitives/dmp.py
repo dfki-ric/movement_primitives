@@ -1,3 +1,4 @@
+"""Dynamical movement primitive variants."""
 import math
 import numpy as np
 from pytransform3d import rotations as pr, transformations as pt

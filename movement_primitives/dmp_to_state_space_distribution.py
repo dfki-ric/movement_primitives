@@ -1,3 +1,4 @@
+"""Tools to propagate DMP distributions to state space."""
 import os
 
 import numpy as np

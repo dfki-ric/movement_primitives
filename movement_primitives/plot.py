@@ -1,3 +1,4 @@
+"""Tools for plotting multi-dimensional trajectories."""
 import matplotlib.pyplot as plt
 
 

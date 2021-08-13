@@ -1,3 +1,4 @@
+"""Tools for loading datasets."""
 import glob
 
 import numpy as np
