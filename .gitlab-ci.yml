@@ -11,7 +11,7 @@ unit_tests:
     stage: test
     before_script:
         - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx build-essential  # required for Open3D and Cython
-        - pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
+        - pip install git+git@git.hb.dfki.de:dfki-learning/movement_primitives.git
         - pip install -e .[all,test]
     script:
         - nosetests -sv test
