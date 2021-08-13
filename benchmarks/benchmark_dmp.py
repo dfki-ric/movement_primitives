@@ -16,5 +16,3 @@ dmp.forcing_term.weights = 1000 * np.random.randn(*dmp.forcing_term.weights.shap
 
 times = timeit.repeat(partial(dmp.open_loop, step_function="rk4"), repeat=10, number=1)
 print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
-# Pure python
-# Mean: 0.58188; Std. dev.: 0.00225
