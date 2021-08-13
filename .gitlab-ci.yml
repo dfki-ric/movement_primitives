@@ -19,8 +19,7 @@ api_publish:
     image: continuumio/miniconda3:4.9.2
     stage: deploy
     before_script:
-        - pip install -e .[doc]
-        - pip install numpy
+        - pip install -e .[all,doc]
     script:
         - pdoc movement_primitives --html
         - rm -rf /home/www/htdocs/apis/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
