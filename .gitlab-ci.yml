@@ -19,6 +19,7 @@ api_publish:
     image: continuumio/miniconda3:4.9.2
     stage: deploy
     before_script:
+        - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx build-essential  # required for Open3D and Cython
         - pip install -e .[all,doc]
     script:
         - pdoc movement_primitives --html
