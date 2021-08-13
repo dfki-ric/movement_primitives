@@ -103,6 +103,12 @@ It will be located at `html/movement_primitives/index.html`.
 
 [Script](examples/plot_conditional_promp.py)
 
+### Potential Field of 2D DMP
+
+<img src="doc/source/_static/dmp_potential_field.png" width="800px" />
+
+[Script](examples/plot_dmp_potential_field.py)
+
 ### Dual Cartesian DMP
 
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="300px" />
