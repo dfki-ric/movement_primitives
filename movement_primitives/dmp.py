@@ -313,8 +313,37 @@ class DMP(DMPBase):
 
 
 class CartesianDMP(DMPBase):
-    def __init__(self, execution_time, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001):
+    """Cartesian dynamical movement primitive.
+
+    The Cartesian DMP handles orientation and position separately. The
+    orientation is represented by a quaternion. The quaternion DMP is
+    implemented according to
+
+    A. Ude, B. Nemec, T. Petric, J. Murimoto:
+    Orientation in Cartesian space dynamic movement primitives (2014),
+    IEEE International Conference on Robotics and Automation (ICRA),
+    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
+    https://ieeexplore.ieee.org/document/6907291
+
+    While the dimension of the state space is 7, the dimension of the
+    velocity, acceleration, and forcing term is 6.
+
+    Parameters
+    ----------
+    execution_time : float
+        Execution time of the DMP.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    """
+    def __init__(
+            self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
         super(CartesianDMP, self).__init__(7, 6)
         self.execution_time = execution_time
         self.dt = dt
@@ -333,6 +362,27 @@ class CartesianDMP(DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def step(self, last_y, last_yd, coupling_term=None):
+        """DMP step.
+
+        Parameters
+        ----------
+        last_y : array, shape (7,)
+            Last state.
+
+        last_yd : array, shape (6,)
+            Last time derivative of state (velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (14,)
+            Next state.
+
+        yd : array, shape (12,)
+            Next time derivative of state (velocity).
+        """
         assert len(last_y) == 7
         assert len(last_yd) == 6
 
@@ -365,6 +415,24 @@ class CartesianDMP(DMPBase):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
+        """Run DMP open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time of DMP. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 7)
+            State at each step.
+        """
         T, Yp = dmp_open_loop(
                 self.execution_time, 0.0, self.dt,
                 self.start_y[:3], self.goal_y[:3],
@@ -383,23 +451,75 @@ class CartesianDMP(DMPBase):
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
+        """Imitate demonstration.
+
+        Parameters
+        ----------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 7)
+            State at each step.
+
+        regularization_coefficient : float, optional (default: 0)
+            Regularization coefficient for regression.
+
+        allow_final_velocity : bool, optional (default: False)
+            Allow a final velocity.
+        """
         self.forcing_term_pos.weights[:, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_pos.overlap,
-            alpha_z=self.forcing_term_pos.alpha_z, allow_final_velocity=allow_final_velocity)
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term_pos.overlap,
+            alpha_z=self.forcing_term_pos.alpha_z,
+            allow_final_velocity=allow_final_velocity)
         self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term_rot.overlap,
-            alpha_z=self.forcing_term_rot.alpha_z, allow_final_velocity=allow_final_velocity)
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term_rot.overlap,
+            alpha_z=self.forcing_term_rot.alpha_z,
+            allow_final_velocity=allow_final_velocity)
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
 
 class DualCartesianDMP(DMPBase):
+    """Dual cartesian dynamical movement primitive.
+
+    Each of the two Cartesian DMPs handles orientation and position separately.
+    The orientation is represented by a quaternion. The quaternion DMP is
+    implemented according to
+
+    A. Ude, B. Nemec, T. Petric, J. Murimoto:
+    Orientation in Cartesian space dynamic movement primitives (2014),
+    IEEE International Conference on Robotics and Automation (ICRA),
+    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
+    https://ieeexplore.ieee.org/document/6907291
+
+    While the dimension of the state space is 14, the dimension of the
+    velocity, acceleration, and forcing term is 12.
+
+    Parameters
+    ----------
+    execution_time : float
+        Execution time of the DMP.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+
+    k_tracking_error : float, optional (default: 0)
+        Gain for proportional controller of DMP tracking error.
+    """
     def __init__(self, execution_time, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
         super(DualCartesianDMP, self).__init__(14, 12)
@@ -418,6 +538,27 @@ class DualCartesianDMP(DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def step(self, last_y, last_yd, coupling_term=None):
+        """DMP step.
+
+        Parameters
+        ----------
+        last_y : array, shape (14,)
+            Last state.
+
+        last_yd : array, shape (12,)
+            Last time derivative of state (velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (14,)
+            Next state.
+
+        yd : array, shape (12,)
+            Next time derivative of state (velocity).
+        """
         assert len(last_y) == self.n_dims
         assert len(last_yd) == 12
 
@@ -445,6 +586,24 @@ class DualCartesianDMP(DMPBase):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
+        """Run DMP open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time of DMP. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 14)
+            State at each step.
+        """
         if run_t is None:
             run_t = self.execution_time
         T = [0.0]
@@ -459,6 +618,22 @@ class DualCartesianDMP(DMPBase):
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
+        """Imitate demonstration.
+
+        Parameters
+        ----------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 7)
+            State at each step.
+
+        regularization_coefficient : float, optional (default: 0)
+            Regularization coefficient for regression.
+
+        allow_final_velocity : bool, optional (default: False)
+            Allow a final velocity.
+        """
         self.forcing_term.weights[:3, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
