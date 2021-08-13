@@ -26,7 +26,7 @@ if __name__ == "__main__":
         install_requires=[],
         extras_require={
             "all": ["pytransform3d", "cython", "numpy", "scipy", "matplotlib",
-                    "open3d", "tqdm", "gmr", "PyYAML"],
+                    "open3d", "tqdm", "gmr", "PyYAML", "numba"],
             "doc": ["pdoc3"],
             "test": ["nose", "coverage"]
         }
