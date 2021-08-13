@@ -10,7 +10,7 @@ unit_tests:
     image: continuumio/miniconda3:4.9.2  # later versions use Python 3.9, which is not compatible to Open3D 0.13
     stage: test
     before_script:
-        - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx  # required for Open3D
+        - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx build-essential  # required for Open3D and Cython
         - pip install -e .[all,test]
     script:
         - nosetests -sv test
