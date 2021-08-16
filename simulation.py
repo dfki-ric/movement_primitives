@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pybullet
 import pybullet_data
 import pytransform3d.transformations as pt
@@ -136,6 +137,16 @@ def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
         pybullet.addUserDebugLine(
             A2Bs[idx, :3, 3], A2Bs[idx + 1, :3, 3], [0, 0, 0], lw,
             physicsClientId=client_id)
+
+
+def get_absolute_path(urdf_path, model_prefix_path):
+    autoproj_dir = None
+    if "AUTOPROJ_CURRENT_ROOT" in os.environ and os.path.exists(os.environ["AUTOPROJ_CURRENT_ROOT"]):
+        autoproj_dir = os.environ["AUTOPROJ_CURRENT_ROOT"]
+    if autoproj_dir is not None and os.path.exists(os.path.join(autoproj_dir, model_prefix_path)):
+        return os.path.join(autoproj_dir, model_prefix_path, urdf_path)
+    else:
+        return urdf_path
 
 
 class UR5Simulation(PybulletSimulation):
