@@ -4,6 +4,27 @@ import pytransform3d.rotations as pr
 
 
 class SpringDamper:
+    """Spring-damper system.
+
+    This is similar to a DMP without the forcing term.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    """
     def __init__(self, n_dims, dt=0.01, k=1.0, c=None, int_dt=0.001):
         self.n_dims = n_dims
         self.dt = dt
@@ -65,6 +86,24 @@ class SpringDamper:
 
 
 class SpringDamperOrientation:
+    """Spring-damper system for quaternions.
+
+    This is similar to a Quaternion DMP without the forcing term.
+
+    Parameters
+    ----------
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    """
     def __init__(self, dt=0.01, k=1.0, c=None, int_dt=0.001):
         self.dt = dt
         self.k = k
