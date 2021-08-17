@@ -1,7 +1,11 @@
 import numpy as np
 import os
-import pybullet
-import pybullet_data
+try:
+    import pybullet
+    import pybullet_data
+    pybullet_available = True
+except ImportError:
+    pybullet_available = False
 import pytransform3d.transformations as pt
 
 
