@@ -7,7 +7,7 @@ import pytransform3d.trajectories as ptr
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.kinematics import Kinematics
 from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
-from mocap.cleaning import smooth_quaternion_trajectory
+from mocap.cleaning import smooth_quaternion_trajectory, smooth_exponential_coordinates
 from movement_primitives.io import write_json, write_yaml, write_pickle
 
 
@@ -30,7 +30,7 @@ dt = 0.001
 #q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, -1.57, 0.76, 0, -1.3, 0, 0, -0.55])
 # q0 = np.array([-1.57, 0.9, 0, -1.05, 0, 0, 0, -1.57, 0.9, 0, -1.05, -0.25, 0, 0])
 # new position for closed gripper
-q0 = np.array([-1.59, 0.81, 0, -1.11, -0.25, 0.055, 0.56, -1.59, 0.81, 0, -1.11, -0.3, -0.055, -0.56])
+q0 = np.array([-1.59, 0.81, 0, -1.11, -0.25, 0.055, 0.56, -1.59, 0.81, 0, -1.11, -0.25, -0.055, -0.56])
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False,
                     urdf_path=get_absolute_path("pybullet-urdf/urdf/RH5v2.urdf", "models/robots/rh5v2_models"),
@@ -68,6 +68,8 @@ start_left = pt.exponential_coordinates_from_transform(left2base_start)
 end_left = pt.exponential_coordinates_from_transform(left2base_end)
 start_right = pt.exponential_coordinates_from_transform(right2base_start)
 end_right = pt.exponential_coordinates_from_transform(right2base_end)
+start_left, end_left = smooth_exponential_coordinates(np.array([start_left, end_left]))
+start_right, end_right = smooth_exponential_coordinates(np.array([start_right, end_right]))
 
 t = np.linspace(0, 1, n_steps)
 left_trajectory = start_left[np.newaxis] + t[:, np.newaxis] * (end_left[np.newaxis] - start_left[np.newaxis])

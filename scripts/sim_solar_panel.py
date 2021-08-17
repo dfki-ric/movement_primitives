@@ -3,8 +3,9 @@ import pybullet
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
+from mocap.cleaning import smooth_exponential_coordinates
 from movement_primitives.dmp import DualCartesianDMP
-from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose
+from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
 
 
 def panel_pose(tcp_left, tcp_right):
@@ -39,7 +40,7 @@ draw_transform(panel2base_start, s=0.1, client_id=rh5.client_id)
 panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
-pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
+pybullet.loadURDF(get_absolute_path("solar_panels/solar_panel_02/urdf/pb_solar_panel_02.urdf", "models/objects"), p, q)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
 right2panel_start = pt.concat(right2base_start, pt.invert_transform(panel2base_start))
@@ -56,6 +57,8 @@ start_left = pt.exponential_coordinates_from_transform(left2base_start)
 end_left = pt.exponential_coordinates_from_transform(left2base_end)
 start_right = pt.exponential_coordinates_from_transform(right2base_start)
 end_right = pt.exponential_coordinates_from_transform(right2base_end)
+start_left, end_left = smooth_exponential_coordinates(np.array([start_left, end_left]))
+start_right, end_right = smooth_exponential_coordinates(np.array([start_right, end_right]))
 
 t = np.linspace(0, 1, n_steps)
 left_trajectory = start_left[np.newaxis] + t[:, np.newaxis] * (end_left[np.newaxis] - start_left[np.newaxis])

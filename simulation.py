@@ -341,9 +341,9 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                  left_ee_frame="LTCP_Link", right_ee_frame="RTCP_Link",
                  left_joints=("ALShoulder1", "ALShoulder2", "ALShoulder3", "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"),
                  right_joints=("ARShoulder1", "ARShoulder2", "ARShoulder3", "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"),
-                 urdf_path="pybullet-only-arms-urdf/urdf/RH5.urdf",
-                 left_arm_path="pybullet-only-arms-urdf/submodels/left_arm.urdf",
-                 right_arm_path="pybullet-only-arms-urdf/submodels/right_arm.urdf"):
+                 urdf_path=get_absolute_path("pybullet-only-arms-urdf/urdf/RH5.urdf", "models/robots/rh5_models"),
+                 left_arm_path=get_absolute_path("pybullet-only-arms-urdf/submodels/left_arm.urdf", "models/robots/rh5_models"),
+                 right_arm_path=get_absolute_path("pybullet-only-arms-urdf/submodels/right_arm.urdf", "models/robots/rh5_models")):
         super(RH5Simulation, self).__init__(dt, gui, real_time)
 
         self.base_pos = (0, 0, 0)

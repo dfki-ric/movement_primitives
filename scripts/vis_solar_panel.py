@@ -7,6 +7,7 @@ from mocap.cleaning import smooth_exponential_coordinates, smooth_quaternion_tra
 from movement_primitives.kinematics import Kinematics
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.io import (write_json, write_yaml, write_pickle)
+from simulation import get_absolute_path
 
 
 def panel_pose(tm):
@@ -33,8 +34,8 @@ solar_panel_idx = 0
 panel_rotation_angle = np.deg2rad(90)
 n_steps = 201
 
-with open("pybullet-only-arms-urdf/urdf/RH5.urdf", "r") as f:
-    kin = Kinematics(f.read(), mesh_path="pybullet-only-arms-urdf/urdf/")
+with open(get_absolute_path("pybullet-only-arms-urdf/urdf/RH5.urdf", "models/robots/rh5_models"), "r") as f:
+    kin = Kinematics(f.read(), mesh_path=get_absolute_path("pybullet-only-arms-urdf/urdf/", "models/robots/rh5_models"))
 #kin.tm.write_png("graph.png", "twopi")
 left_arm = kin.create_chain(
     ["ALShoulder1", "ALShoulder2", "ALShoulder3",
@@ -76,6 +77,8 @@ start_left = pt.exponential_coordinates_from_transform(left2base_start)
 end_left = pt.exponential_coordinates_from_transform(left2base_end)
 start_right = pt.exponential_coordinates_from_transform(right2base_start)
 end_right = pt.exponential_coordinates_from_transform(right2base_end)
+start_left, end_left = smooth_exponential_coordinates(np.array([start_left, end_left]))
+start_right, end_right = smooth_exponential_coordinates(np.array([start_right, end_right]))
 
 T = np.linspace(0, 1, n_steps)
 left_trajectory = start_left[np.newaxis] + T[:, np.newaxis] * (end_left[np.newaxis] - start_left[np.newaxis])
