@@ -25,7 +25,6 @@ positions = [position]
 for i in range(n_subplots):
     ax = plt.subplot(n_rows, n_cols, i + 1, aspect="equal")
     ax.set_title(f"t = {dmp.t:.02f}", backgroundcolor="#ffffffff", y=0.05)
-    print(i, dmp.t, dmp.execution_time * (1 + i) / (n_subplots - 1))
 
     plot_potential_field_2d(
         ax, dmp, x_range=x_range, y_range=y_range, n_ticks=15)

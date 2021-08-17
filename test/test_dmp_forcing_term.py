@@ -1,5 +1,6 @@
 import numpy as np
-from movement_primitives.dmp import canonical_system_alpha, phase, ForcingTerm
+from movement_primitives.dmp._canonical_system import canonical_system_alpha, phase
+from movement_primitives.dmp._forcing_term import ForcingTerm
 from nose.tools import assert_equal
 
 

@@ -5,7 +5,7 @@ import numpy as np
 from gmr import MVN
 from tqdm import tqdm
 
-from movement_primitives.dmp import DualCartesianDMP
+from .dmp import DualCartesianDMP
 
 
 def propagate_weight_distribution_to_state_space(dataset, n_weights_per_dim, cache_filename=None, alpha=1e-3, kappa=10.0, verbose=0):

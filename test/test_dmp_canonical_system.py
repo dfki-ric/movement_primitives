@@ -1,5 +1,5 @@
 import numpy as np
-from movement_primitives.dmp import canonical_system_alpha, phase
+from movement_primitives.dmp._canonical_system import canonical_system_alpha, phase
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
