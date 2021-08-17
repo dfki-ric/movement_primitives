@@ -134,8 +134,8 @@ right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right
 
 ########################################################################################################################
 # Data export
-lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
-rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+lwp2ltcp = kin.tm.get_transform("ALWristPitch_Link", "LTCP_Link")
+rwp2rtcp = kin.tm.get_transform("ARWristPitch_Link", "RTCP_Link")
 
 lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
 rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])

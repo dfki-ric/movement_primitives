@@ -3,6 +3,7 @@ import pytransform3d.visualizer as pv
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.kinematics import Kinematics
+from movement_primitives.testing.simulation import get_absolute_path
 
 
 def animation_callback(step, graph, left_arm, right_arm, left_joint_trajectory, right_joint_trajectory):
@@ -19,8 +20,8 @@ n_steps = 201
 q0_left = np.array([-1.57, 0.9, 0, -1.3, 0, 0, -0.55])
 q0_right = np.array([1.57, -0.9, 0, 1.3, 0, 0, -0.55])
 
-with open("pybullet-only-arms-urdf/urdf/RH5.urdf", "r") as f:
-    kin = Kinematics(f.read(), mesh_path="pybullet-only-arms-urdf/urdf/")
+with open(get_absolute_path("pybullet-only-arms-urdf/urdf/RH5.urdf", "models/robots/rh5_models"), "r") as f:
+    kin = Kinematics(f.read(), mesh_path=get_absolute_path("pybullet-only-arms-urdf/urdf/", "models/robots/rh5_models"))
 left_arm = kin.create_chain(
     ["ALShoulder1", "ALShoulder2", "ALShoulder3",
      "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"],
@@ -94,8 +95,8 @@ Y_transforms[:, 1] = ptr.transforms_from_pqs(Y_pq[:, 7:])
 lwp_trajectory = Y_transforms[:, 0]
 rwp_trajectory = Y_transforms[:, 1]
 
-ltcp2lwp = kin.tm.get_transform("ALWristPitch_Link", "LTCP_Link")
-rtcp2rwp = kin.tm.get_transform("ARWristPitch_Link", "RTCP_Link")
+ltcp2lwp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
+rtcp2rwp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
 
 left_trajectory = np.array([pt.concat(ltcp2lwp, lwp2base) for lwp2base in lwp_trajectory])
 right_trajectory = np.array([pt.concat(rtcp2rwp, rwp2base) for rwp2base in rwp_trajectory])
@@ -105,8 +106,8 @@ random_state = np.random.RandomState(0)
 left_joint_trajectory = left_arm.inverse_trajectory(left_trajectory, q0_left, random_state=random_state)
 right_joint_trajectory = right_arm.inverse_trajectory(right_trajectory, q0_right, random_state=random_state)
 
-lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
-rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+lwp2ltcp = kin.tm.get_transform("ALWristPitch_Link", "LTCP_Link")
+rwp2rtcp = kin.tm.get_transform("ARWristPitch_Link", "RTCP_Link")
 
 lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
 rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])
