@@ -9,6 +9,8 @@ include:
 unit_tests:
     image: af01/conda_py38
     stage: test
+    before_script:
+        - pip install -e .
     script:
         - nosetests -sv test
 
