@@ -149,7 +149,8 @@ class Chain:
         self.ee_frame = ee_frame
         self.verbose = verbose
 
-        self.joint_limits = np.array([self.tm._joints[jn][4] for jn in self.joint_names])
+        self.joint_limits = np.array(
+            [self.tm._joints[jn][4] for jn in self.joint_names])
         for i in range(len(self.joint_limits)):
             if np.isinf(self.joint_limits[i, 0]):
                 self.joint_limits[i, 0] = -math.pi
@@ -179,11 +180,15 @@ class Chain:
             self.tm.set_joint(self.joint_names[i], joint_angles[i])
         return self.tm.get_ee2base(self.ee_index, self.base_index)
 
-    def ee_pose_error(self, joint_angles, desired_pose, orientation_weight=1.0, position_weight=1.0):
-        return pose_dist(desired_pose, self.forward(joint_angles), orientation_weight, position_weight)
+    def ee_pose_error(self, joint_angles, desired_pose, orientation_weight=1.0,
+                      position_weight=1.0):
+        return pose_dist(desired_pose, self.forward(joint_angles),
+                         orientation_weight, position_weight)
 
-    def inverse(self, desired_pose, initial_joint_angles, return_error=False, bounds=None, solver="SLSQP",
-            orientation_weight=1.0, position_weight=1.0):
+    def inverse(
+            self, desired_pose, initial_joint_angles, return_error=False,
+            bounds=None, solver="SLSQP", orientation_weight=1.0,
+            position_weight=1.0):
         """Inverse kinematics.
 
         Parameters
@@ -223,7 +228,8 @@ class Chain:
         if bounds is None:
             bounds = self.joint_limits
         res = minimize(
-            self.ee_pose_error, initial_joint_angles, (desired_pose, orientation_weight, position_weight),
+            self.ee_pose_error, initial_joint_angles,
+            (desired_pose, orientation_weight, position_weight),
             method=solver, bounds=bounds)
 
         if self.verbose >= 2:
@@ -233,16 +239,19 @@ class Chain:
         else:
             return res["x"]
 
-    def inverse_with_random_restarts(self, desired_pose, n_restarts=10, tolerance=1e-3, random_state=None,
-            orientation_weight=1.0, position_weight=1.0):
+    def inverse_with_random_restarts(
+            self, desired_pose, n_restarts=10, tolerance=1e-3,
+            random_state=None, orientation_weight=1.0, position_weight=1.0):
         if random_state is None:
             random_state = np.random
         assert n_restarts >= 1
         Q = []
         errors = []
         for _ in range(n_restarts):
-            q, error = self.inverse(desired_pose, self._sample_joints_uniform(random_state), return_error=True,
-                orientation_weight=orientation_weight, position_weight=position_weight)
+            q, error = self.inverse(
+                desired_pose, self._sample_joints_uniform(random_state),
+                return_error=True, orientation_weight=orientation_weight,
+                position_weight=position_weight)
             Q.append(q)
             errors.append(error)
             if error <= tolerance:
@@ -251,8 +260,10 @@ class Chain:
             print(np.round(errors, 4))
         return Q[np.argmin(errors)]
 
-    def local_inverse_with_random_restarts(self, desired_pose, joint_angles, interval, n_restarts=10, tolerance=1e-3, random_state=None,
-            orientation_weight=1.0, position_weight=1.0):
+    def local_inverse_with_random_restarts(
+            self, desired_pose, joint_angles, interval, n_restarts=10,
+            tolerance=1e-3, random_state=None, orientation_weight=1.0,
+            position_weight=1.0):
         if random_state is None:
             random_state = np.random
         assert n_restarts >= 1
@@ -263,8 +274,10 @@ class Chain:
         bounds[:, 1] = joint_angles + interval
         q = joint_angles  # start with previous state
         for _ in range(n_restarts):
-            q, error = self.inverse(desired_pose, q, return_error=True,
-                orientation_weight=orientation_weight, position_weight=position_weight)
+            q, error = self.inverse(
+                desired_pose, q, return_error=True,
+                orientation_weight=orientation_weight,
+                position_weight=position_weight)
             Q.append(q)
             errors.append(error)
             if error <= tolerance:
@@ -283,16 +296,22 @@ class Chain:
             H[t] = self.forward(Q[t])
         return H
 
-    def inverse_trajectory(self, H, initial_joint_angles=None, interval=0.1 * math.pi, random_restarts=True, random_state=None,
-            orientation_weight=1.0, position_weight=1.0):
+    def inverse_trajectory(
+            self, H, initial_joint_angles=None, interval=0.1 * math.pi,
+            random_restarts=True, random_state=None, orientation_weight=1.0,
+            position_weight=1.0):
         Q = np.empty((len(H), len(self.joint_names)), dtype=float)
 
         if initial_joint_angles is not None:
-            Q[0] = self.inverse(H[0], initial_joint_angles,
-                orientation_weight=orientation_weight, position_weight=position_weight)
+            Q[0] = self.inverse(
+                H[0], initial_joint_angles,
+                orientation_weight=orientation_weight,
+                position_weight=position_weight)
         else:
-            Q[0] = self.inverse_with_random_restarts(H[0], random_state=random_state,
-                orientation_weight=orientation_weight, position_weight=position_weight)
+            Q[0] = self.inverse_with_random_restarts(
+                H[0], random_state=random_state,
+                orientation_weight=orientation_weight,
+                position_weight=position_weight)
 
         for t in range(1, len(H)):
             if self.verbose >= 2:
@@ -300,13 +319,16 @@ class Chain:
             if random_restarts:
                 Q[t] = self.local_inverse_with_random_restarts(
                     H[t], Q[t - 1], interval, random_state=random_state,
-                    orientation_weight=orientation_weight, position_weight=position_weight)
+                    orientation_weight=orientation_weight,
+                    position_weight=position_weight)
             else:
                 bounds = np.empty((self.n_joints, 2), dtype=float)
                 bounds[:, 0] = Q[t - 1] - interval
                 bounds[:, 1] = Q[t - 1] + interval
-                Q[t] = self.inverse(H[t], Q[t - 1], False, bounds,
-                    orientation_weight=orientation_weight, position_weight=position_weight)
+                Q[t] = self.inverse(
+                    H[t], Q[t - 1], False, bounds,
+                    orientation_weight=orientation_weight,
+                    position_weight=position_weight)
         return Q
 
 
@@ -316,5 +338,7 @@ def pose_dist(ee2base_desired, ee2base_actual, orientation_weight, position_weig
     trace = ee_actual2ee_desired[0, 0] + ee_actual2ee_desired[1, 1] + ee_actual2ee_desired[2, 2]
     angle = math.acos(min((trace - 1.0) / 2.0, 1.0))
     orientation_error = min(angle, 2.0 * math.pi - angle)
-    position_error = math.sqrt(ee_actual2ee_desired[0, 3] ** 2 + ee_actual2ee_desired[1, 3] ** 2 + ee_actual2ee_desired[2, 3] ** 2)
+    position_error = math.sqrt(
+        ee_actual2ee_desired[0, 3] ** 2 + ee_actual2ee_desired[1, 3] ** 2
+        + ee_actual2ee_desired[2, 3] ** 2)
     return orientation_weight * orientation_error + position_weight * position_error
