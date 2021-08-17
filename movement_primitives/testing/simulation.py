@@ -13,6 +13,7 @@ import pytransform3d.transformations as pt
 
 class PybulletSimulation:
     def __init__(self, dt, gui=True, real_time=False):
+        assert pybullet_available
         self.dt = dt
         if gui:
             self.client_id = pybullet.connect(pybullet.GUI)
@@ -21,12 +22,12 @@ class PybulletSimulation:
 
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_SHADOWS, 0)
-        #pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_MOUSE_PICKING, 0)
         pybullet.resetDebugVisualizerCamera(2, 75, -30, [0, 0, 0])
 
         pybullet.resetSimulation(physicsClientId=self.client_id)
         pybullet.setTimeStep(dt, physicsClientId=self.client_id)
-        pybullet.setRealTimeSimulation(1 if real_time else 0, physicsClientId=self.client_id)
+        pybullet.setRealTimeSimulation(
+            1 if real_time else 0, physicsClientId=self.client_id)
         pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
 
     def step(self):
