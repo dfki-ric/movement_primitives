@@ -7,20 +7,14 @@ include:
       file: 'software_catalogue.yml'
 
 unit_tests:
-    image: continuumio/miniconda3:4.9.2  # later versions use Python 3.9, which is not compatible to Open3D 0.13
+    image: af01/conda_py38
     stage: test
-    before_script:
-        - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx build-essential  # required for Open3D and Cython
-        - pip install -e .[all,test]
     script:
         - nosetests -sv test
 
 api_publish:
-    image: continuumio/miniconda3:4.9.2
+    image: af01/conda_py38
     stage: deploy
-    before_script:
-        - apt update && apt -y install libusb-1.0-0 libgl1-mesa-glx build-essential  # required for Open3D and Cython
-        - pip install -e .[all,doc]
     script:
         - pdoc movement_primitives --html
         - rm -rf /home/www/htdocs/apis/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
