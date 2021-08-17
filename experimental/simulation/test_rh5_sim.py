@@ -1,8 +1,7 @@
 import numpy as np
-from simulation import RH5Simulation, draw_pose
+from testing.simulation import RH5Simulation, draw_pose
 import pybullet
 import pytransform3d.rotations as pr
-import pytransform3d.transformations as pt
 
 
 def load_panel(tm):

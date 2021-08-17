@@ -1,6 +1,6 @@
 import numpy as np
 from pytransform3d.rotations import quaternion_from_axis_angle
-from simulation import RH5Simulation
+from testing.simulation import RH5Simulation
 import pybullet
 
 # NOTE Does not work with current version of RH5 simulation!

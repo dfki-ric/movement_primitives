@@ -6,7 +6,7 @@ import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.kinematics import Kinematics
-from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
+from movement_primitives.testing.simulation import RH5Simulation, draw_transform, _pybullet_pose, get_absolute_path
 from mocap.cleaning import smooth_quaternion_trajectory, smooth_exponential_coordinates
 from movement_primitives.io import write_json, write_yaml, write_pickle
 
@@ -50,7 +50,6 @@ panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
 pybullet.loadURDF(get_absolute_path("solar_panels/solar_panel_02/urdf/pb_solar_panel_02.urdf", "models/objects"), p, q)
-import time
 #time.sleep(10)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))

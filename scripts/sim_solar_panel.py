@@ -5,7 +5,7 @@ import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from mocap.cleaning import smooth_exponential_coordinates
 from movement_primitives.dmp import DualCartesianDMP
-from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
+from movement_primitives.testing.simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
 
 
 def panel_pose(tcp_left, tcp_right):

@@ -1,6 +1,6 @@
 import numpy as np
 from movement_primitives.dmp import CartesianDMP
-from simulation import UR5Simulation
+from movement_primitives.testing.simulation import UR5Simulation
 from pytransform3d import rotations as pr
 
 

@@ -9,7 +9,7 @@ from gmr import GMM
 
 from movement_primitives.data import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from movement_primitives.promp import ProMP
-from movement_primitives.plot import plot_trajectory_in_rows, plot_distribution_in_rows
+from movement_primitives.plot import plot_distribution_in_rows
 
 
 def generate_training_data(

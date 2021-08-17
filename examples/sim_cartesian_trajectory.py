@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from simulation import UR5Simulation
+from movement_primitives.testing.simulation import UR5Simulation
 
 
 X = np.zeros((10001, 7))

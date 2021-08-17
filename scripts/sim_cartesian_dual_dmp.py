@@ -1,10 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, \
-    CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose
+from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianPose
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
-from simulation import RH5Simulation, draw_pose
+from movement_primitives.testing.simulation import RH5Simulation, draw_pose
 
 dt = 0.0005
 execution_time = 1.0

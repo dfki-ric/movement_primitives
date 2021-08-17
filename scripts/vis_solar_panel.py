@@ -7,7 +7,7 @@ from mocap.cleaning import smooth_exponential_coordinates, smooth_quaternion_tra
 from movement_primitives.kinematics import Kinematics
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.io import (write_json, write_yaml, write_pickle)
-from simulation import get_absolute_path
+from movement_primitives.testing.simulation import get_absolute_path
 
 
 def panel_pose(tm):

@@ -2,7 +2,7 @@ import numpy as np
 import pybullet
 from pytransform3d import rotations as pr
 from pytransform3d import transformations as pt
-from simulation import analyze_robot, draw_transform, _pytransform_pose, _pybullet_pose
+from testing.simulation import analyze_robot, draw_transform, _pytransform_pose, _pybullet_pose
 
 
 class KinematicsChain:

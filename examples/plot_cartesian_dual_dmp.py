@@ -1,13 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianDistance, \
-    CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose
+from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianPose
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-import pytransform3d.plot_utils as ppu
 from pytransform3d.urdf import UrdfTransformManager
-from simulation import SimulationMockup
+from movement_primitives.testing.simulation import SimulationMockup
 
 dt = 0.001
 int_dt = 0.0001

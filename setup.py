@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, find_packages
 import warnings
 try:
     from Cython.Build import cythonize
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         classifiers=["Programming Language :: Python :: 3"],
         license="no license",
-        packages=["movement_primitives"],
+        packages=find_packages(),
         install_requires=[],
         extras_require={
             "all": ["pytransform3d", "cython", "numpy", "scipy", "matplotlib",

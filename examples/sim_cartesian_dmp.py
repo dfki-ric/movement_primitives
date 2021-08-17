@@ -1,6 +1,6 @@
 import numpy as np
 from movement_primitives.dmp import DMP
-from simulation import UR5Simulation
+from movement_primitives.testing.simulation import UR5Simulation
 
 
 dt = 0.01

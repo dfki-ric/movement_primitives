@@ -1,6 +1,6 @@
 import numpy as np
 from movement_primitives.spring_damper import SpringDamper
-from simulation import UR5Simulation
+from movement_primitives.testing.simulation import UR5Simulation
 
 
 
