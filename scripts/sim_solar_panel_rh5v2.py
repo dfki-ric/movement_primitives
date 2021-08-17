@@ -6,8 +6,8 @@ import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.kinematics import Kinematics
-from simulation import RH5Simulation, draw_transform, _pybullet_pose
-from mocap.cleaning import smooth_quaternion_trajectory
+from simulation import RH5Simulation, draw_transform, draw_trajectory, _pybullet_pose, get_absolute_path
+from mocap.cleaning import smooth_quaternion_trajectory, smooth_exponential_coordinates
 from movement_primitives.io import write_json, write_yaml, write_pickle
 
 
@@ -28,12 +28,14 @@ dt = 0.001
 
 #q0 = np.array([-1.57, 1.25, 0, -1.75, 0, 0, 0.8, -1.57, 1.25, 0, -1.75, 0, 0, 0.8])
 #q0 = np.array([-1.57, 0.76, 0, -1.3, 0, 0, -0.55, -1.57, 0.76, 0, -1.3, 0, 0, -0.55])
-q0 = np.array([-1.57, 0.9, 0, -1.05, 0, 0, 0, -1.57, 0.9, 0, -1.05, -0.25, 0, 0])
+# q0 = np.array([-1.57, 0.9, 0, -1.05, 0, 0, 0, -1.57, 0.9, 0, -1.05, -0.25, 0, 0])
+# new position for closed gripper
+q0 = np.array([-1.59, 0.81, 0, -1.11, -0.25, 0.055, 0.56, -1.59, 0.81, 0, -1.11, -0.25, -0.055, -0.56])
 
 rh5 = RH5Simulation(dt=dt, gui=True, real_time=False,
-                    urdf_path="pybullet-urdf/urdf/RH5v2.urdf",
-                    left_arm_path="pybullet-urdf/submodels/left_arm.urdf",
-                    right_arm_path="pybullet-urdf/submodels/right_arm.urdf")
+                    urdf_path=get_absolute_path("pybullet-urdf/urdf/RH5v2.urdf", "models/robots/rh5v2_models"),
+                    left_arm_path=get_absolute_path("pybullet-urdf/submodels/left_arm.urdf", "models/robots/rh5v2_models"),
+                    right_arm_path=get_absolute_path("pybullet-urdf/submodels/right_arm.urdf", "models/robots/rh5v2_models"))
 rh5.set_desired_joint_state(q0, position_control=True)
 rh5.sim_loop(int(1.0 / dt))
 ee_state = rh5.get_ee_state()
@@ -47,7 +49,8 @@ draw_transform(panel2base_start, s=0.1, client_id=rh5.client_id)
 panel2base_start_pq = pt.pq_from_transform(panel2base_start)
 p, q = _pybullet_pose(panel2base_start_pq)
 
-pybullet.loadURDF("solar_panels/solar_panel_02/urdf/solar_panel_02.urdf", p, q)
+pybullet.loadURDF(get_absolute_path("solar_panels/solar_panel_02/urdf/pb_solar_panel_02.urdf", "models/objects"), p, q)
+import time
 #time.sleep(10)
 
 left2panel_start = pt.concat(left2base_start, pt.invert_transform(panel2base_start))
@@ -65,6 +68,8 @@ start_left = pt.exponential_coordinates_from_transform(left2base_start)
 end_left = pt.exponential_coordinates_from_transform(left2base_end)
 start_right = pt.exponential_coordinates_from_transform(right2base_start)
 end_right = pt.exponential_coordinates_from_transform(right2base_end)
+start_left, end_left = smooth_exponential_coordinates(np.array([start_left, end_left]))
+start_right, end_right = smooth_exponential_coordinates(np.array([start_right, end_right]))
 
 t = np.linspace(0, 1, n_steps)
 left_trajectory = start_left[np.newaxis] + t[:, np.newaxis] * (end_left[np.newaxis] - start_left[np.newaxis])
@@ -74,12 +79,12 @@ right_trajectory = ptr.transforms_from_exponential_coordinates(right_trajectory)
 
 ########################################################################################################################
 # Data export
-with open("pybullet-urdf/urdf/RH5v2.urdf", "r") as f:
-    kin = Kinematics(f.read(), mesh_path="pybullet-urdf/urdf/")
+with open(get_absolute_path("pybullet-urdf/urdf/RH5v2.urdf", "models/robots/rh5v2_models"), "r") as f:
+    kin = Kinematics(f.read(), mesh_path=get_absolute_path("pybullet-urdf/urdf/", "models/robots/rh5v2_models"))
 #kin.tm.write_png("graph.png", "twopi")
 
-lwp2ltcp = kin.tm.get_transform("LTCP_Link", "ALWristPitch_Link")
-rwp2rtcp = kin.tm.get_transform("RTCP_Link", "ARWristPitch_Link")
+lwp2ltcp = kin.tm.get_transform("ALWristFT_Link", "LTCP_Link")
+rwp2rtcp = kin.tm.get_transform("ARWristFT_Link", "RTCP_Link")
 
 lwp_trajectory = np.array([pt.concat(lwp2ltcp, ltcp2base) for ltcp2base in left_trajectory])
 rwp_trajectory = np.array([pt.concat(rwp2rtcp, rtcp2base) for rtcp2base in right_trajectory])

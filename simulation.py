@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pybullet
 import pybullet_data
 import pytransform3d.transformations as pt
@@ -136,6 +137,16 @@ def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
         pybullet.addUserDebugLine(
             A2Bs[idx, :3, 3], A2Bs[idx + 1, :3, 3], [0, 0, 0], lw,
             physicsClientId=client_id)
+
+
+def get_absolute_path(urdf_path, model_prefix_path):
+    autoproj_dir = None
+    if "AUTOPROJ_CURRENT_ROOT" in os.environ and os.path.exists(os.environ["AUTOPROJ_CURRENT_ROOT"]):
+        autoproj_dir = os.environ["AUTOPROJ_CURRENT_ROOT"]
+    if autoproj_dir is not None and os.path.exists(os.path.join(autoproj_dir, model_prefix_path)):
+        return os.path.join(autoproj_dir, model_prefix_path, urdf_path)
+    else:
+        return urdf_path
 
 
 class UR5Simulation(PybulletSimulation):
@@ -330,9 +341,9 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
                  left_ee_frame="LTCP_Link", right_ee_frame="RTCP_Link",
                  left_joints=("ALShoulder1", "ALShoulder2", "ALShoulder3", "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"),
                  right_joints=("ARShoulder1", "ARShoulder2", "ARShoulder3", "ARElbow", "ARWristRoll", "ARWristYaw", "ARWristPitch"),
-                 urdf_path="pybullet-only-arms-urdf/urdf/RH5.urdf",
-                 left_arm_path="pybullet-only-arms-urdf/submodels/left_arm.urdf",
-                 right_arm_path="pybullet-only-arms-urdf/submodels/right_arm.urdf"):
+                 urdf_path=get_absolute_path("pybullet-only-arms-urdf/urdf/RH5.urdf", "models/robots/rh5_models"),
+                 left_arm_path=get_absolute_path("pybullet-only-arms-urdf/submodels/left_arm.urdf", "models/robots/rh5_models"),
+                 right_arm_path=get_absolute_path("pybullet-only-arms-urdf/submodels/right_arm.urdf", "models/robots/rh5_models")):
         super(RH5Simulation, self).__init__(dt, gui, real_time)
 
         self.base_pos = (0, 0, 0)
