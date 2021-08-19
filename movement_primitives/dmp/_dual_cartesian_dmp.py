@@ -92,8 +92,9 @@ class DualCartesianDMP(DMPBase):
             self.current_yd = np.copy(self.start_yd)
             self.initialized = True
 
-        # TODO tracking error for orientation
         tracking_error = self.current_y - last_y
+        for ops in (slice(3, 7), slice(10, 14)):
+            tracking_error[ops] = pr.concatenate_quaternions(self.current_y[ops], pr.q_conj(last_y[ops]))
         self.current_y[:], self.current_yd[:] = last_y, last_yd
         dmp_step_dual_cartesian(
             self.last_t, self.t, self.current_y, self.current_yd,
@@ -224,9 +225,10 @@ def dmp_step_dual_cartesian(
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
         f = forcing_term(current_t).squeeze()
-        # TODO handle tracking error of orientation correctly
         if tracking_error is not None:
             cdd[pvs] += p_gain * tracking_error[pps] / dt
+            for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+                cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(tracking_error[ops]) / dt
 
         # position components
         current_ydd[pvs] = (
@@ -237,7 +239,6 @@ def dmp_step_dual_cartesian(
         current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
         current_y[pps] += dt * current_yd[pvs]
 
-        # TODO handle tracking error of orientation correctly
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
             current_ydd[ovs] = (
