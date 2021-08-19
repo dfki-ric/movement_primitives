@@ -365,4 +365,6 @@ cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     cdef double p_norm = sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
     if p_norm < 1e-16:
         return np.zeros(3)
-    return q[1:] / (p_norm / 2.0 / acos(q[0]))
+    # Source of the solution: http://stackoverflow.com/a/32266181
+    cdef double angle = -((np.pi - np.asarray(2 * acos(q[0]))) % (2.0 * np.pi) - np.pi)
+    return q[1:] / (p_norm / angle)
