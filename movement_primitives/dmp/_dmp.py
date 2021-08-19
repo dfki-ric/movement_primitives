@@ -31,16 +31,17 @@ class DMP(DMPBase):
     int_dt : float, optional (default: 0.001)
         Time difference for Euler integration.
 
-    k_tracking_error : float, optional (default: 0)
+    p_gain : float, optional (default: 0)
         Gain for proportional controller of DMP tracking error.
+        The domain is [0, execution_time**2/dt].
     """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
-        self.k_tracking_error = k_tracking_error
+        self.p_gain = p_gain
 
         alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
         self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
@@ -91,7 +92,7 @@ class DMP(DMPBase):
             self.forcing_term,
             coupling_term=coupling_term,
             int_dt=self.int_dt,
-            k_tracking_error=self.k_tracking_error,
+            p_gain=self.p_gain,
             tracking_error=tracking_error)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
@@ -162,7 +163,7 @@ class DMP(DMPBase):
 def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
         alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-        k_tracking_error=0.0, tracking_error=0.0):
+        p_gain=0.0, tracking_error=0.0):
     """Integrate regular DMP for one step with RK4 integration."""
     if coupling_term is None:
         cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
@@ -181,7 +182,7 @@ def dmp_step_rk4(
     dt = t - last_t
     dt_2 = 0.5 * dt
     F = forcing_term(np.array([t, t + dt_2, t + dt]))
-    tdd = k_tracking_error * tracking_error / dt
+    tdd = p_gain * tracking_error / dt
 
     C0 = current_yd
     K0 = _dmp_acc(
@@ -229,7 +230,7 @@ def dmp_transformation_system(Y, V, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, 
 
 def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
                    alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-                   k_tracking_error=0.0, tracking_error=0.0):
+                   p_gain=0.0, tracking_error=0.0):
     """Integrate regular DMP for one step with Euler integration."""
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -256,7 +257,7 @@ def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, 
 
         f = forcing_term(current_t).squeeze()
 
-        coupling_sum = cdd + k_tracking_error * tracking_error / dt
+        coupling_sum = cdd + p_gain * tracking_error / dt
         ydd = (alpha_y * (beta_y * (goal_y - current_y)
                           + execution_time * goal_yd
                           - execution_time * current_yd)

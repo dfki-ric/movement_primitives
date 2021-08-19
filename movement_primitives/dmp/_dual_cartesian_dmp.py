@@ -38,17 +38,18 @@ class DualCartesianDMP(DMPBase):
     int_dt : float, optional (default: 0.001)
         Time difference for Euler integration.
 
-    k_tracking_error : float, optional (default: 0)
+    p_gain : float, optional (default: 0)
         Gain for proportional controller of DMP tracking error.
+        The domain is [0, execution_time**2/dt].
     """
     def __init__(self, execution_time, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0):
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DualCartesianDMP, self).__init__(14, 12)
         self.execution_time = execution_time
         self.dt = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
-        self.k_tracking_error = k_tracking_error
+        self.p_gain = p_gain
         alpha_z = canonical_system_alpha(
             0.01, self.execution_time, 0.0, self.int_dt)
         self.forcing_term = ForcingTerm(
@@ -102,7 +103,7 @@ class DualCartesianDMP(DMPBase):
             self.alpha_y, self.beta_y,
             self.forcing_term, coupling_term,
             self.int_dt,
-            self.k_tracking_error, tracking_error)
+            self.p_gain, tracking_error)
 
         return np.copy(self.current_y), np.copy(self.current_yd)
 
@@ -200,7 +201,7 @@ def dmp_step_dual_cartesian(
         start_y, start_yd, start_ydd,
         goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, int_dt=0.001,
-        k_tracking_error=0.0, tracking_error=None):
+        p_gain=0.0, tracking_error=None):
     """Integrate bimanual Cartesian DMP for one step with Euler integration."""
     if t <= start_t:
         current_y[:] = start_y
@@ -225,7 +226,7 @@ def dmp_step_dual_cartesian(
         f = forcing_term(current_t).squeeze()
         # TODO handle tracking error of orientation correctly
         if tracking_error is not None:
-            cdd[pvs] += k_tracking_error * tracking_error[pps] / dt
+            cdd[pvs] += p_gain * tracking_error[pps] / dt
 
         # position components
         current_ydd[pvs] = (
