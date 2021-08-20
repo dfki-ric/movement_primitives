@@ -13,7 +13,7 @@ dt = np.mean(np.diff(T))
 
 dmp = DualCartesianDMP(
     execution_time=execution_time, dt=dt,
-    n_weights_per_dim=10, int_dt=0.001, k_tracking_error=0.0)
+    n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)
 dmp.imitate(T, P)
 dmp.configure(start_y=P[0], goal_y=P[-1])
 offset = np.array([-0.05, 0.05, 0, 1, 0, 0, 0])

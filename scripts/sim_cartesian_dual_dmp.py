@@ -40,7 +40,7 @@ for coupling_term in [ct, None]:
     # TODO reset DMP properly
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=dt, k_tracking_error=0.0)
+        n_weights_per_dim=10, int_dt=dt, p_gain=0.0)
     dmp.imitate(T, Y)
     dmp.configure(start_y=Y[0], goal_y=Y[-1])
 

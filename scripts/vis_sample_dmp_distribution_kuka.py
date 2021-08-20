@@ -54,7 +54,7 @@ for idx in range(5):
         continue
     dmp = DualCartesianDMP(
         execution_time=execution_time, dt=dt,
-        n_weights_per_dim=n_weights_per_dim, int_dt=0.01, k_tracking_error=0.0)
+        n_weights_per_dim=n_weights_per_dim, int_dt=0.01, p_gain=0.0)
     dmp.imitate(T, P)
     weights = dmp.get_weights()
     all_weights.append(weights)
