@@ -1,6 +1,7 @@
 import numpy as np
 from movement_primitives.promp import ProMP
 from nose.tools import assert_less
+from numpy.testing import assert_array_almost_equal
 
 
 def test_imitate():
@@ -53,6 +54,36 @@ def test_promp():
 
     std_trajectory = np.sqrt(promp.var_trajectory(T[0]))
     assert_less(np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps, 0.012)
+
+
+def test_promp_velocities():
+    n_weights_per_dim = 100
+
+    promp = ProMP(n_dims=1, n_weights_per_dim=n_weights_per_dim)
+
+    random_state = np.random.RandomState(10)
+    n_demos = 10
+    n_steps = 101
+    T = np.empty((n_demos, n_steps))
+    T[:, :] = np.linspace(0.0, 1.0, n_steps)
+    Y = np.empty((n_demos, n_steps, 1))
+    for demo_idx in range(n_demos):
+        Y[demo_idx] = np.cos(2 * np.pi * T[demo_idx] + random_state.randn() * 0.1)[:, np.newaxis]
+        Y[demo_idx, :, 0] += random_state.randn(n_steps) * 0.01
+    promp.imitate(T, Y)
+
+    random_state = np.random.RandomState(0)
+    samples = promp.sample_trajectories(T[0], 10, random_state)
+
+    mean_trajectory = promp.mean_trajectory(T[0])
+    var_trajectory = np.sqrt(promp.var_trajectory(T[0]))
+
+    mean_velocities = promp.mean_velocities(T[0])
+    var_velocities = np.sqrt(promp.var_velocities(T[0]))
+
+    dt = T[0, 1] - T[0, 0]
+    int_velocities = mean_trajectory[0] + np.cumsum(mean_velocities * dt)
+    assert_array_almost_equal(int_velocities, mean_trajectory[:, 0], decimal=1)
 
 
 if __name__ == "__main__":
