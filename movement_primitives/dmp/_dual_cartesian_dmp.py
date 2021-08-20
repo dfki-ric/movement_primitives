@@ -195,7 +195,7 @@ pps = [0, 1, 2, 7, 8, 9]
 pvs = [0, 1, 2, 6, 7, 8]
 
 
-def dmp_step_dual_cartesian(
+def dmp_step_dual_cartesian_python(
         last_t, t,
         current_y, current_yd,
         goal_y, goal_yd, goal_ydd,
@@ -257,3 +257,7 @@ except ImportError:
         "Could not import fast dual cartesian DMP. "
         "Build Cython extension if you want it.",
         UserWarning)
+    dmp_step_dual_cartesian = dmp_step_dual_cartesian_python
+
+# uncomment to overwrite cython version with python version:
+#dmp_step_dual_cartesian = dmp_step_dual_cartesian_python
