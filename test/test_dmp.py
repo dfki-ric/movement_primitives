@@ -1,6 +1,6 @@
 import numpy as np
 from movement_primitives.dmp import DMP
-from nose.tools import assert_almost_equal, assert_equal
+from nose.tools import assert_almost_equal, assert_equal, assert_less
 from numpy.testing import assert_array_almost_equal
 
 
@@ -24,6 +24,21 @@ def test_dmp1d():
     assert_equal(Y.shape[1], 1)
     assert_array_almost_equal(Y[0], start_y)
     assert_array_almost_equal(Y[-1], goal_y, decimal=3)
+
+
+def test_dmp_steps():
+    start_y = np.array([0.0])
+    start_yd = np.array([0.0])
+    goal_y = np.array([1.0])
+
+    sd = DMP(n_dims=1, execution_time=1.0, dt=0.01)
+    sd.configure(start_y=start_y, goal_y=goal_y, start_yd=start_yd)
+    y = np.copy(start_y)
+    yd = np.copy(start_yd)
+    for i in range(101):
+        y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(error, 1e-4)
 
 
 def test_dmp1d_imitation():
@@ -71,6 +86,27 @@ def test_dmp2d_imitation():
     T, Y = dmp.open_loop(run_t=execution_time)
     assert_array_almost_equal(Y[0], new_start, decimal=4)
     assert_array_almost_equal(Y[-1], new_goal, decimal=3)
+
+
+def test_compare_integrators():
+    execution_time = 1.0
+    dt = 0.001
+
+    dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt,
+              n_weights_per_dim=100)
+
+    T = np.arange(0.0, execution_time + dt, dt)
+    Y_demo = np.empty((len(T), 2))
+    Y_demo[:, 0] = np.cos(2.5 * np.pi * T)
+    Y_demo[:, 1] = 0.5 + np.cos(1.5 * np.pi * T)
+    dmp.imitate(T, Y_demo)
+
+    dmp.configure(start_y=Y_demo[0], goal_y=Y_demo[-1])
+    T_euler, Y_euler = dmp.open_loop(step_function="euler")
+    T_rk4, Y_rk4 = dmp.open_loop(step_function="rk4")
+    error_euler = np.linalg.norm(Y_demo - Y_euler)
+    error_rk4 = np.linalg.norm(Y_demo - Y_rk4)
+    assert_less(error_rk4, error_euler)
 
 
 if __name__ == "__main__":
