@@ -2,10 +2,13 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from libcpp cimport bool
-from libc.math cimport sqrt, cos, sin, acos
+from libc.math cimport sqrt, cos, sin, acos, pi
 
 
 np.import_array()
+
+
+cdef double M_2PI = 2.0 * pi
 
 
 @cython.boundscheck(False)
@@ -366,5 +369,5 @@ cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     if p_norm < 1e-16:
         return np.zeros(3)
     # Source of the solution: http://stackoverflow.com/a/32266181
-    cdef double angle = -((np.pi - np.asarray(2 * acos(q[0]))) % (2.0 * np.pi) - np.pi)
+    cdef double angle = -((pi - 2 * acos(q[0])) % M_2PI - pi)
     return q[1:] / (p_norm / angle)
