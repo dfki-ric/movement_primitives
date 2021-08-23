@@ -352,7 +352,7 @@ cdef q_conj(np.ndarray[double, ndim=1] q):
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
+cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     """Compute compact axis-angle from quaternion (logarithmic map).
     We usually assume active rotations.
     Parameters
@@ -369,5 +369,5 @@ cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     if p_norm < 1e-16:
         return np.zeros(3)
     # Source of the solution: http://stackoverflow.com/a/32266181
-    cdef double angle = -((pi - 2 * acos(q[0])) % M_2PI - pi)
+    cdef double angle = ((2 * acos(q[0]) + pi) % M_2PI - pi)
     return q[1:] / (p_norm / angle)
