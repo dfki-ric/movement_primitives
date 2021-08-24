@@ -2,10 +2,13 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from libcpp cimport bool
-from libc.math cimport sqrt, cos, sin, acos
+from libc.math cimport sqrt, cos, sin, acos, pi
 
 
 np.import_array()
+
+
+cdef double M_2PI = 2.0 * pi
 
 
 @cython.boundscheck(False)
@@ -349,7 +352,7 @@ cdef q_conj(np.ndarray[double, ndim=1] q):
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
+cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     """Compute compact axis-angle from quaternion (logarithmic map).
     We usually assume active rotations.
     Parameters
@@ -365,4 +368,6 @@ cdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     cdef double p_norm = sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
     if p_norm < 1e-16:
         return np.zeros(3)
-    return q[1:] / (p_norm / 2.0 / acos(q[0]))
+    # Source of the solution: http://stackoverflow.com/a/32266181
+    cdef double angle = ((2 * acos(q[0]) + pi) % M_2PI - pi)
+    return q[1:] / (p_norm / angle)
