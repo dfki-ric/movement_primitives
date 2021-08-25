@@ -365,9 +365,27 @@ cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
         Axis of rotation and rotation angle: angle * (x, y, z). The angle is
         constrained to [0, pi].
     """
+    q = norm_vector(q)
     cdef double p_norm = sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
     if p_norm < 1e-16:
         return np.zeros(3)
     # Source of the solution: http://stackoverflow.com/a/32266181
     cdef double angle = ((2 * acos(q[0]) + pi) % M_2PI - pi)
     return q[1:] / (p_norm / angle)
+
+
+cdef norm_vector(v):
+    """Normalize vector.
+    Parameters
+    ----------
+    v : array-like, shape (n,)
+        nd vector
+    Returns
+    -------
+    u : array, shape (n,)
+        nd unit vector with norm 1 or the zero vector
+    """
+    cdef double norm = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3])
+    if norm == 0.0:
+        return v
+    return v / norm
