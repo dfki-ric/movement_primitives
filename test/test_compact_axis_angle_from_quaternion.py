@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from pytransform3d.rotations import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_python
+from pytransform3d.rotations import random_quaternion, assert_compact_axis_angle_equal
 from nose import SkipTest
 
 
@@ -29,3 +30,38 @@ def test_compact_axis_angle_from_quaternion():
     axis_angle_4_python = compact_axis_angle_from_quaternion_python(q4.copy())
     axis_angle_4_cython = compact_axis_angle_from_quaternion_cython(q4.copy())
     assert_array_almost_equal(axis_angle_4_python, axis_angle_4_cython)
+
+    random_state = np.random.RandomState(0)
+    for _ in range(100):
+        q = random_quaternion(random_state)
+        a_python = compact_axis_angle_from_quaternion_python(q)
+        a_cython = compact_axis_angle_from_quaternion_cython(q)
+        assert_compact_axis_angle_equal(a_cython, a_python)
+
+    q = np.array([1.0, 0.0, 0.0, 0.0])
+    a_python = compact_axis_angle_from_quaternion_python(q)
+    a_cython = compact_axis_angle_from_quaternion_cython(q)
+    assert_compact_axis_angle_equal(a_cython, a_python)
+
+    q = np.array([0.0, 1.0, 0.0, 0.0])
+    a_python = compact_axis_angle_from_quaternion_python(q)
+    a_cython = compact_axis_angle_from_quaternion_cython(q)
+    assert_compact_axis_angle_equal(a_cython, a_python)
+
+    q = np.array([0.0, 0.0, 1.0, 0.0])
+    a_python = compact_axis_angle_from_quaternion_python(q)
+    a_cython = compact_axis_angle_from_quaternion_cython(q)
+    assert_compact_axis_angle_equal(a_cython, a_python)
+
+    q = np.array([0.0, 0.0, 0.0, 1.0])
+    a_python = compact_axis_angle_from_quaternion_python(q)
+    a_cython = compact_axis_angle_from_quaternion_cython(q)
+    assert_compact_axis_angle_equal(a_cython, a_python)
+
+    random_state = np.random.RandomState(0)
+    for _ in range(100):
+        q = random_quaternion(random_state) / 2.0
+        a_python = compact_axis_angle_from_quaternion_python(q)
+        a_cython = compact_axis_angle_from_quaternion_cython(q)
+        assert_compact_axis_angle_equal(a_cython, a_python)
+
