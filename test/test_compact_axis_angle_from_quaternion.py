@@ -19,3 +19,13 @@ def test_compact_axis_angle_from_quaternion():
     axis_angle_2_python = compact_axis_angle_from_quaternion_python(q2.copy())
     axis_angle_2_cython = compact_axis_angle_from_quaternion_cython(q2.copy())
     assert_array_almost_equal(axis_angle_2_python, axis_angle_2_cython)
+
+    q3 = np.array([1.00000001e-00, 1.15428500e-11, -7.24072746e-11,  1.28322353e-12])
+    axis_angle_3_python = compact_axis_angle_from_quaternion_python(q3.copy())
+    axis_angle_3_cython = compact_axis_angle_from_quaternion_cython(q3.copy())
+    assert_array_almost_equal(axis_angle_3_python, axis_angle_3_cython)
+
+    q4 = np.array([-9.99999999e-01, 1.15428500e-11, -7.24072746e-11,  1.28322353e-12])
+    axis_angle_4_python = compact_axis_angle_from_quaternion_python(q4.copy())
+    axis_angle_4_cython = compact_axis_angle_from_quaternion_cython(q4.copy())
+    assert_array_almost_equal(axis_angle_4_python, axis_angle_4_cython)
