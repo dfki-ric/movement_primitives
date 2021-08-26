@@ -88,6 +88,19 @@ pdoc movement_primitives --html
 
 It will be located at `html/movement_primitives/index.html`.
 
+## Test
+
+To run the tests some python libraries are required:
+
+```
+pip install -e .[test]
+```
+
+The tests are located in the folder `test/` and can be executed with:
+`python -m nose test`
+
+This command searches for all files with `test` and executes the functions with `test_*`.
+
 ## Examples
 
 ### Contextual ProMPs
