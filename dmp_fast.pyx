@@ -284,10 +284,11 @@ cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, n
     """
     cdef np.ndarray[double, ndim=1] q12 = np.empty(4)
     q12[0] = q1[0] * q2[0]
+    q12[1:] = np.cross(q1[1:], q2[1:])
     cdef int i
     for i in range(1, 4):
         q12[0] -= q1[i] * q2[i]
-    q12[1:] = q1[0] * q2[1:] + q2[0] * q1[1:] + np.cross(q1[1:], q2[1:])
+        q12[i] += q1[0] * q2[i] + q2[0] * q1[i]
 
     cdef double norm = sqrt(q12[0] * q12[0] + q12[1] * q12[1] + q12[2] * q12[2] + q12[3] * q12[3])
     for i in range(4):
