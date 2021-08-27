@@ -1,7 +1,8 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from pytransform3d.rotations import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_python
-from pytransform3d.rotations import random_quaternion, assert_compact_axis_angle_equal
+from pytransform3d.rotations import concatenate_quaternions as concatenate_quaternions_python
+from pytransform3d.rotations import random_quaternion, assert_compact_axis_angle_equal, assert_quaternion_equal
 from nose import SkipTest
 
 
@@ -65,3 +66,17 @@ def test_compact_axis_angle_from_quaternion():
         a_cython = compact_axis_angle_from_quaternion_cython(q)
         assert_compact_axis_angle_equal(a_cython, a_python)
 
+
+def test_concatenate_quaternions():
+    try:
+        from dmp_fast import concatenate_quaternions as concatenate_quaternions_cython
+    except ImportError:
+        raise SkipTest("Cython extension is not available")
+
+    random_state = np.random.RandomState(1)
+    for _ in range(1000):
+        q1 = random_quaternion(random_state)
+        q2 = random_quaternion(random_state)
+        q12_python = concatenate_quaternions_python(q1, q2)
+        q12_cython = concatenate_quaternions_cython(q1, q2)
+        assert_quaternion_equal(q12_python, q12_cython)
