@@ -320,8 +320,9 @@ cdef quaternion_from_compact_axis_angle(np.ndarray[double, ndim=1] a):
     axis = a / angle
 
     cdef np.ndarray[double, ndim=1] q = np.empty(4)
-    q[0] = cos(angle / 2.0)
-    cdef double s = sin(angle / 2.0)
+    cdef double half_angle = angle / 2.0
+    q[0] = cos(half_angle)
+    cdef double s = sin(half_angle)
     q[1] = s * axis[0]
     q[2] = s * axis[1]
     q[3] = s * axis[2]
@@ -364,7 +365,7 @@ cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     -------
     a : array-like, shape (3,)
         Axis of rotation and rotation angle: angle * (x, y, z). The angle is
-        constrained to [-pi, pi).
+        constrained to [0, pi).
     """
     cdef double p_norm_sqr = q[1] * q[1] + q[2] * q[2] + q[3] * q[3]
     if p_norm_sqr < 1e-32:
