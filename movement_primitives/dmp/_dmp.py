@@ -214,7 +214,53 @@ def dmp_step_rk4(
 
 
 def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, execution_time, f, coupling_term, tdd):
-    """DMP acceleration."""
+    """DMP acceleration.
+
+    Parameters
+    ----------
+    Y : array, shape (n_dims,)
+        Current state (position).
+
+    V : array, shape (n_dims,)
+        Current state derivative (velocity).
+
+    cdd : array, shape (n_dims,)
+        Coupling term acceleration.
+
+    alpha_y : float
+        Constant of transformation system.
+
+    beta_y : float
+        Constant of transformation system.
+
+    goal_y : shape (n_dims,)
+        Goal state (position).
+
+    goal_yd : shape (n_dims,)
+        Goal state derivative (velocity).
+
+    goal_ydd : shape (n_dims,)
+        Second goal state derivative (acceleration).
+
+    execution_time : float
+        Time to execute the DMP.
+
+    f : array, shape (n_dims,)
+        Forcing term acceleration.
+
+    coupling_term : object
+        Coupling term object. Must have a function 'coupling' that takes as
+        arguments the current position and velocity and returns a velocity and
+        acceleration. (Velocity will be ignored.)
+
+    tdd : array, shape (n_dims,)
+        Acceleration correction from tracking error controller.
+
+    Returns
+    -------
+    ydd : array, shape (n_dims,)
+        Resulting acceleration.
+    """
     if coupling_term is not None:
         _, cdd = coupling_term.coupling(Y, V)
     return ((alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
