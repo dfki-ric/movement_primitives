@@ -268,7 +268,7 @@ cpdef dmp_step_dual_cartesian(
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
+cpdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
     """Concatenate two quaternions.
     We use Hamilton's quaternion multiplication.
     Parameters
@@ -284,7 +284,10 @@ cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, n
     """
     cdef np.ndarray[double, ndim=1] q12 = np.empty(4)
     q12[0] = q1[0] * q2[0]
-    q12[1:] = np.cross(q1[1:], q2[1:])
+    # cross product q1[1:] x q2[1:]
+    q12[1] = q1[2] * q2[3] - q1[3] * q2[2]
+    q12[2] = q1[3] * q2[1] - q1[1] * q2[3]
+    q12[3] = q1[1] * q2[2] - q1[2] * q2[1]
     cdef int i
     for i in range(1, 4):
         q12[0] -= q1[i] * q2[i]
