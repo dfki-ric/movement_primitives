@@ -268,7 +268,7 @@ cpdef dmp_step_dual_cartesian(
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
+cpdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
     """Concatenate two quaternions.
     We use Hamilton's quaternion multiplication.
     Parameters
@@ -284,10 +284,14 @@ cdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, n
     """
     cdef np.ndarray[double, ndim=1] q12 = np.empty(4)
     q12[0] = q1[0] * q2[0]
+    # cross product q1[1:] x q2[1:]
+    q12[1] = q1[2] * q2[3] - q1[3] * q2[2]
+    q12[2] = q1[3] * q2[1] - q1[1] * q2[3]
+    q12[3] = q1[1] * q2[2] - q1[2] * q2[1]
     cdef int i
     for i in range(1, 4):
         q12[0] -= q1[i] * q2[i]
-    q12[1:] = q1[0] * q2[1:] + q2[0] * q1[1:] + np.cross(q1[1:], q2[1:])
+        q12[i] += q1[0] * q2[i] + q2[0] * q1[i]
 
     cdef double norm = sqrt(q12[0] * q12[0] + q12[1] * q12[1] + q12[2] * q12[2] + q12[3] * q12[3])
     for i in range(4):
@@ -319,8 +323,9 @@ cdef quaternion_from_compact_axis_angle(np.ndarray[double, ndim=1] a):
     axis = a / angle
 
     cdef np.ndarray[double, ndim=1] q = np.empty(4)
-    q[0] = cos(angle / 2.0)
-    cdef double s = sin(angle / 2.0)
+    cdef double half_angle = angle / 2.0
+    q[0] = cos(half_angle)
+    cdef double s = sin(half_angle)
     q[1] = s * axis[0]
     q[2] = s * axis[1]
     q[3] = s * axis[2]
@@ -363,29 +368,15 @@ cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     -------
     a : array-like, shape (3,)
         Axis of rotation and rotation angle: angle * (x, y, z). The angle is
-        constrained to [0, pi].
+        constrained to [0, pi).
     """
-    q = norm_vector(q)
-    cdef double p_norm = sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
-    if p_norm < 1e-16:
+    cdef double p_norm_sqr = q[1] * q[1] + q[2] * q[2] + q[3] * q[3]
+    if p_norm_sqr < 1e-32:
         return np.zeros(3)
+    cdef double q_norm = sqrt(q[0] * q[0] + p_norm_sqr)
+    cdef np.ndarray[double, ndim=1] q_n = q / q_norm
+    cdef double p_norm = sqrt(p_norm_sqr) / q_norm
     # Source of the solution: http://stackoverflow.com/a/32266181
-    cdef double angle = ((2 * acos(q[0]) + pi) % M_2PI - pi)
-    return q[1:] / (p_norm / angle)
+    cdef double angle = ((2 * acos(q_n[0]) + pi) % M_2PI - pi)
+    return q_n[1:] / (p_norm / angle)
 
-
-cdef norm_vector(v):
-    """Normalize vector.
-    Parameters
-    ----------
-    v : array-like, shape (n,)
-        nd vector
-    Returns
-    -------
-    u : array, shape (n,)
-        nd unit vector with norm 1 or the zero vector
-    """
-    cdef double norm = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3])
-    if norm == 0.0:
-        return v
-    return v / norm
