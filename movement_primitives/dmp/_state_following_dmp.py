@@ -5,11 +5,18 @@ from ._canonical_system import canonical_system_alpha, phase
 
 
 class StateFollowingDMP(DMPBase):
-    """State following DMP (highly experimental)."""
+    """State following DMP (highly experimental).
+
+    Attributes
+    ----------
+    dt_ : float
+        Time difference between DMP steps. This value can be changed to adapt
+        the frequency.
+    """
     def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10, int_dt=0.001):
         super(StateFollowingDMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
-        self.dt = dt
+        self.dt_ = dt
         self.n_viapoints = n_viapoints
         self.int_dt = int_dt
 
@@ -27,7 +34,7 @@ class StateFollowingDMP(DMPBase):
         assert len(last_yd) == self.n_dims
 
         self.last_t = self.t
-        self.t += self.dt
+        self.t += self.dt_
 
         self.current_y[:], self.current_yd[:] = last_y, last_yd
         state_following_dmp_step(
@@ -43,7 +50,10 @@ class StateFollowingDMP(DMPBase):
         return self.current_y, self.current_yd
 
     def open_loop(self, run_t=None, coupling_term=None):
-        return state_following_dmp_open_loop(self.execution_time, 0.0, self.dt, self.start_y, self.goal_y, self.alpha_y, self.beta_y, self.forcing_term, coupling_term, run_t, self.int_dt)
+        return state_following_dmp_open_loop(
+            self.execution_time, 0.0, self.dt_, self.start_y, self.goal_y,
+            self.alpha_y, self.beta_y, self.forcing_term, coupling_term, run_t,
+            self.int_dt)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):

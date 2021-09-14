@@ -36,12 +36,18 @@ class CartesianDMP(DMPBase):
 
     int_dt : float, optional (default: 0.001)
         Time difference for Euler integration.
+
+    Attributes
+    ----------
+    dt_ : float
+        Time difference between DMP steps. This value can be changed to adapt
+        the frequency.
     """
     def __init__(
             self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
         super(CartesianDMP, self).__init__(7, 6)
         self.execution_time = execution_time
-        self.dt = dt
+        self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         alpha_z = canonical_system_alpha(
@@ -82,7 +88,7 @@ class CartesianDMP(DMPBase):
         assert len(last_yd) == 6
 
         self.last_t = self.t
-        self.t += self.dt
+        self.t += self.dt_
 
         # TODO tracking error
 
@@ -129,14 +135,14 @@ class CartesianDMP(DMPBase):
             State at each step.
         """
         T, Yp = dmp_open_loop(
-                self.execution_time, 0.0, self.dt,
+                self.execution_time, 0.0, self.dt_,
                 self.start_y[:3], self.goal_y[:3],
                 self.alpha_y, self.beta_y,
                 self.forcing_term_pos,
                 coupling_term,
                 run_t, self.int_dt)
         _, Yr = dmp_open_loop_quaternion(
-                self.execution_time, 0.0, self.dt,
+                self.execution_time, 0.0, self.dt_,
                 self.start_y[3:], self.goal_y[3:],
                 self.alpha_y, self.beta_y,
                 self.forcing_term_rot,

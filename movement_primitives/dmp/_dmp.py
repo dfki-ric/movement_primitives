@@ -34,11 +34,17 @@ class DMP(DMPBase):
     p_gain : float, optional (default: 0)
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
+
+    Attributes
+    ----------
+    dt_ : float
+        Time difference between DMP steps. This value can be changed to adapt
+        the frequency.
     """
     def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
-        self.dt = dt
+        self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
@@ -72,7 +78,7 @@ class DMP(DMPBase):
             Next time derivative of state (e.g., velocity).
         """
         self.last_t = self.t
-        self.t += self.dt
+        self.t += self.dt_
 
         if not self.initialized:
             self.current_y = np.copy(self.start_y)
@@ -126,7 +132,7 @@ class DMP(DMPBase):
             raise ValueError("Step function must be 'rk4' or 'euler'.")
 
         return dmp_open_loop(
-            self.execution_time, 0.0, self.dt,
+            self.execution_time, 0.0, self.dt_,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,
