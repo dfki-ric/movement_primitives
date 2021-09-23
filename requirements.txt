@@ -5,3 +5,4 @@ open3d
 tqdm
 gmr
 PyYAML
+pytransform3d
