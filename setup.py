@@ -6,6 +6,7 @@ try:
     cython_available = True
 except ImportError:
     cython_available = False
+import movement_primitives
 
 
 if __name__ == "__main__":
@@ -13,7 +14,7 @@ if __name__ == "__main__":
         long_description = f.read()
     setup_config = dict(
         name="movement_primitives",
-        version="0.0.dev",
+        version=movement_primitives.__version__,
         author="Alexander Fabisch",
         author_email="alexander.fabisch@dfki.de",
         url="https://git.hb.dfki.de/dfki-learning/movement_primitives",
