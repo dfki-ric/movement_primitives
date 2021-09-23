@@ -323,20 +323,6 @@ def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, 
 #from dmp_fast import dmp_step as dmp_step_euler
 
 
-def dmp_imitate(
-        T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
-        overlap, alpha_z, allow_final_velocity):
-    if regularization_coefficient < 0.0:
-        raise ValueError("Regularization coefficient must be >= 0!")
-
-    forcing_term = ForcingTerm(Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
-    F = determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
-
-    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
-
-    return ridge_regression(X, F, regularization_coefficient)
-
-
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
     n_dims = Y.shape[1]
     DT = np.gradient(T)
@@ -362,6 +348,20 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
     return F
 
 
+def dmp_imitate(
+        T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
+        overlap, alpha_z, allow_final_velocity, determine_forces=determine_forces):
+    if regularization_coefficient < 0.0:
+        raise ValueError("Regularization coefficient must be >= 0!")
+
+    forcing_term = ForcingTerm(Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
+    F = determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+
+    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
+
+    return ridge_regression(X, F, regularization_coefficient)
+
+
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim
     return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
 
@@ -369,8 +369,9 @@ def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_w
 def dmp_open_loop(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
         coupling_term=None, run_t=None, int_dt=0.001,
-        step_function=dmp_step_rk4):
-    goal_yd = np.zeros_like(goal_y)
+        step_function=dmp_step_rk4, goal_yd=None):
+    if goal_yd is None:
+        goal_yd = np.zeros_like(goal_y)
     goal_ydd = np.zeros_like(goal_y)
     start_yd = np.zeros_like(start_y)
     start_ydd = np.zeros_like(start_y)
