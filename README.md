@@ -98,6 +98,11 @@ The tests are located in the folder `test/` and can be executed with:
 
 This command searches for all files with `test` and executes the functions with `test_*`.
 
+## Contributing
+
+To add new features, documentation, or fix bugs you can open a pull request.
+Directly pushing to the master branch is not allowed.
+
 ## Examples
 
 ### Contextual ProMPs
