@@ -2,6 +2,12 @@
 import matplotlib.pyplot as plt
 
 
+# extracted from seaborn to get rid of dependency:
+# https://github.com/mwaskom/seaborn/blob/master/seaborn/palettes.py
+PALETTE = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B3",
+           "#937860", "#DA8BC3", "#8C8C8C", "#CCB974", "#64B5CD"]
+
+
 def plot_trajectory_in_rows(trajectory, t=None, label=None, axes=None, subplot_shape=None, transpose=False, axis_titles=[], **kwargs):
     """Plot trajectories of N dimensions in N 2D subplots.
 

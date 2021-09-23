@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import tqdm
 from pytransform3d import trajectories as ptr
 from pytransform3d import transformations as pt
@@ -9,7 +8,7 @@ from gmr import GMM
 
 from movement_primitives.data import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from movement_primitives.promp import ProMP
-from movement_primitives.plot import plot_distribution_in_rows
+from movement_primitives.plot import plot_distribution_in_rows, PALETTE
 
 
 def generate_training_data(
@@ -86,7 +85,7 @@ context_indices = np.arange(len(context_names))
 
 plt.figure()
 axes = None
-for panel_width, color, idx in zip([0.3, 0.4, 0.5], sns.palettes.SEABORN_PALETTES["deep"][:3], range(3)):
+for panel_width, color, idx in zip([0.3, 0.4, 0.5], PALETTE[:3], range(3)):
     print("panel_width = %.2f, color = %s" % (panel_width, color))
     context = np.array([panel_width, 0.0, 1.0])
 
@@ -120,27 +119,9 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], sns.palettes.SEABORN_PALETTE
         color=color, transpose=True, alpha=0.3, fill_between=True,
         std_factors=[2], label="panel width = %.2f" % panel_width)
 
-    # sampling
-    #samples_left = cpromp_left.sample_trajectories(T_query, n_validation_samples, random_state)
-    #samples_right = cpromp_right.sample_trajectories(T_query, n_validation_samples, random_state)
-    #samples_diff = cpromp_diff.sample_trajectories(T_query, n_validation_samples, random_state)
-    #samples = np.dstack((samples_left, samples_right, samples_diff))
-
-    #for i in range(n_validation_samples):
-    #    plot_trajectory_in_rows(samples[i], T_query, axes=axes, color=color)
-
     for i in range(mean.shape[1]):
         m = np.mean(mean[:, i])
         axes[i].set_ylim((m - 0.25, m + 0.25))
-
-    """# handle quaternions differently 
-    for i in [0, 1, 2, 7, 8, 9, 14, 15, 16]:
-        m = np.mean(mean[:, i])
-        axes[i].set_ylim((m - 0.25, m + 0.25))
-
-    for i in [3, 4, 5, 6, 10, 11, 12, 13, 17, 18, 19, 20]:
-        axes[i].set_ylim((-1.1, 1.1))
-    """
 
     axes[-1].legend(loc="upper left")
 

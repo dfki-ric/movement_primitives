@@ -6,3 +6,5 @@ tqdm
 gmr
 PyYAML
 pytransform3d
+numba
+pybullet
