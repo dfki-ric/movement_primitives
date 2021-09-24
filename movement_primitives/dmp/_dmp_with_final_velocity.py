@@ -10,7 +10,10 @@ class DMPWithFinalVelocity(DMPBase):
 
     Implementation according to
 
-    TODO
+    K. Muelling, J. Kober, O. Kroemer, J. Peters:
+    Learning to Select and Generalize Striking Movements in Robot Table Tennis
+    (2013), International Journal of Robotics Research 32(3), pp. 263-279,
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
 
     Parameters
     ----------
@@ -128,7 +131,7 @@ class DMPWithFinalVelocity(DMPBase):
             run_t, self.int_dt,
             dmp_step_euler_with_constraints, self.goal_yd)
 
-    def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
+    def imitate(self, T, Y, regularization_coefficient=0.0):
         """Imitate demonstration.
 
         Parameters
@@ -141,18 +144,17 @@ class DMPWithFinalVelocity(DMPBase):
 
         regularization_coefficient : float, optional (default: 0)
             Regularization coefficient for regression.
-
-        allow_final_velocity : bool, optional (default: False)
-            Allow a final velocity.
         """
-        self.forcing_term.weights[:, :] = dmp_imitate(
+        self.forcing_term.weights[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=True,
             determine_forces=determine_forces)
-        self.configure(start_y=Y[0], goal_y=Y[-1])
+        self.configure(
+            start_y=start_y, start_yd=start_yd, start_ydd=start_ydd,
+            goal_y=goal_y, goal_yd=goal_yd, goal_ydd=goal_ydd)
 
 
 def solve_constraints(t0, t1, y0, y0d, y0dd, y1, y1d, y1dd):
@@ -200,14 +202,57 @@ def apply_constraints(t, goal_y, goal_t, coefficients):
         return g, gd, gdd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
+def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
+    """Determine forces that the forcing term should generate.
+
+    Parameters
+    ----------
+    T : array, shape (n_steps,)
+        Time of each step.
+
+    Y : array, shape (n_steps, n_dims)
+        Position at each step.
+
+    alpha_y : float
+        Parameter of the transformation system.
+
+    beta_y : float
+        Parameter of the transformation system.
+
+    allow_final_velocity : bool
+        Whether a final velocity is allowed. This should always be True for
+        this function.
+
+    Returns
+    -------
+    F : array, shape (n_steps, n_dims)
+        Forces.
+
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    start_yd : array, shape (n_dims,)
+        Start velocity.
+
+    start_ydd : array, shape (n_dims,)
+        Start acceleration.
+
+    goal_y : array, shape (n_dims,)
+        Final position.
+
+    goal_yd : array, shape (n_dims,)
+        Final velocity.
+
+    goal_ydd : array, shape (n_dims,)
+        Final acceleration.
+    """
+    assert allow_final_velocity
+
     n_dims = Y.shape[1]
     DT = np.gradient(T)
     Yd = np.empty_like(Y)
     for d in range(n_dims):
         Yd[:, d] = np.gradient(Y[:, d]) / DT
-    if not allow_final_velocity:
-        Yd[-1, :] = 0.0
     Ydd = np.empty_like(Y)
     for d in range(n_dims):
         Ydd[:, d] = np.gradient(Yd[:, d]) / DT
@@ -223,13 +268,14 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * (g - Y[t]) + gd * execution_time
             - Yd[t] * execution_time) - execution_time ** 2 * gdd
-    return F
+    return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
 def dmp_step_euler_with_constraints(
-        last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
-        alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-        p_gain=0.0, tracking_error=0.0):
+        last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd,
+        start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y,
+        forcing_term, coupling_term=None, coupling_term_precomputed=None,
+        int_dt=0.001, p_gain=0.0, tracking_error=0.0):
     """Integrate regular DMP for one step with Euler integration."""
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")

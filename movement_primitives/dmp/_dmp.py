@@ -157,13 +157,13 @@ class DMP(DMPBase):
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         """
-        self.forcing_term.weights[:, :] = dmp_imitate(
+        self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.configure(start_y=Y[0], goal_y=Y[-1])
+        self.configure(start_y=start_y, goal_y=goal_y)
 
 
 def dmp_step_rk4(
@@ -323,7 +323,49 @@ def dmp_step_euler(last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, 
 #from dmp_fast import dmp_step as dmp_step_euler
 
 
-def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n_steps x n_dims
+def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
+    """Determine forces that the forcing term should generate.
+
+    Parameters
+    ----------
+    T : array, shape (n_steps,)
+        Time of each step.
+
+    Y : array, shape (n_steps, n_dims)
+        Position at each step.
+
+    alpha_y : float
+        Parameter of the transformation system.
+
+    beta_y : float
+        Parameter of the transformation system.
+
+    allow_final_velocity : bool
+        Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    Returns
+    -------
+    F : array, shape (n_steps, n_dims)
+        Forces.
+
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    start_yd : array, shape (n_dims,)
+        Start velocity.
+
+    start_ydd : array, shape (n_dims,)
+        Start acceleration.
+
+    goal_y : array, shape (n_dims,)
+        Final position.
+
+    goal_yd : array, shape (n_dims,)
+        Final velocity.
+
+    goal_ydd : array, shape (n_dims,)
+        Final acceleration.
+    """
     n_dims = Y.shape[1]
     DT = np.gradient(T)
     Yd = np.empty_like(Y)
@@ -345,21 +387,83 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):  # returns: n
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * (goal_y - Y[t]) + goal_yd * execution_time
             - Yd[t] * execution_time) - execution_time ** 2 * goal_ydd
-    return F
+    return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
 def dmp_imitate(
         T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
-        overlap, alpha_z, allow_final_velocity, determine_forces=determine_forces):
+        overlap, alpha_z, allow_final_velocity,
+        determine_forces=determine_forces):
+    """Compute weights and metaparameters of DMP.
+
+    Parameters
+    ----------
+    T : array, shape (n_steps,)
+        Time of each step.
+
+    Y : array, shape (n_steps, n_dims)
+        Position at each step.
+
+    n_weights_per_dim : int
+        Number of weights per dimension.
+
+    regularization_coefficient : float, optional (default: 0)
+        Regularization coefficient for regression.
+
+    alpha_y : float
+        Parameter of the transformation system.
+
+    beta_y : float
+        Parameter of the transformation system.
+
+    overlap : float
+        At which value should radial basis functions of the forcing term
+        overlap?
+
+    alpha_z : float
+        Parameter of the canonical system.
+
+    allow_final_velocity : bool
+        Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    determine_forces : callable
+        Function to compute forces of the forcing term and metaparameters given
+        the demonstration.
+
+    Returns
+    -------
+    weights : array, shape (n_dims, n_weights_per_dim)
+        Weights of the forcing term.
+
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    start_yd : array, shape (n_dims,)
+        Start velocity.
+
+    start_ydd : array, shape (n_dims,)
+        Start acceleration.
+
+    goal_y : array, shape (n_dims,)
+        Final position.
+
+    goal_yd : array, shape (n_dims,)
+        Final velocity.
+
+    goal_ydd : array, shape (n_dims,)
+        Final acceleration.
+    """
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
     forcing_term = ForcingTerm(Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
-    F = determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces(
+        T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
-    return ridge_regression(X, F, regularization_coefficient)
+    return (ridge_regression(X, F, regularization_coefficient),
+            start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)
 
 
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim

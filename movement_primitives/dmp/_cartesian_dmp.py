@@ -175,7 +175,7 @@ class CartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
-            allow_final_velocity=allow_final_velocity)
+            allow_final_velocity=allow_final_velocity)[0]
         self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -183,7 +183,7 @@ class CartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term_rot.overlap,
             alpha_z=self.forcing_term_rot.alpha_z,
-            allow_final_velocity=allow_final_velocity)
+            allow_final_velocity=allow_final_velocity)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
@@ -245,20 +245,121 @@ except ImportError:
         UserWarning)
 
 
-def dmp_quaternion_imitation(T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y, overlap, alpha_z, allow_final_velocity):
+def dmp_quaternion_imitation(
+        T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
+        overlap, alpha_z, allow_final_velocity):
+    """Compute weights and metaparameters of quaternion DMP.
+
+    Parameters
+    ----------
+    T : array, shape (n_steps,)
+        Time of each step.
+
+    Y : array, shape (n_steps, 4)
+        Orientation at each step.
+
+    n_weights_per_dim : int
+        Number of weights per dimension.
+
+    regularization_coefficient : float, optional (default: 0)
+        Regularization coefficient for regression.
+
+    alpha_y : float
+        Parameter of the transformation system.
+
+    beta_y : float
+        Parameter of the transformation system.
+
+    overlap : float
+        At which value should radial basis functions of the forcing term
+        overlap?
+
+    alpha_z : float
+        Parameter of the canonical system.
+
+    allow_final_velocity : bool
+        Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    Returns
+    -------
+    weights : array, shape (3, n_weights_per_dim)
+        Weights of the forcing term.
+
+    start_y : array, shape (4,)
+        Start orientation.
+
+    start_yd : array, shape (3,)
+        Start velocity.
+
+    start_ydd : array, shape (3,)
+        Start acceleration.
+
+    goal_y : array, shape (4,)
+        Final orientation.
+
+    goal_yd : array, shape (3,)
+        Final velocity.
+
+    goal_ydd : array, shape (3,)
+        Final acceleration.
+    """
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L702
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
     forcing_term = ForcingTerm(3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
-    F = determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces_quaternion(
+        T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
-    return ridge_regression(X, F, regularization_coefficient)
+    return (ridge_regression(X, F, regularization_coefficient),
+            start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)
 
 
 def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
+    """Determine forces that the forcing term should generate.
+
+    Parameters
+    ----------
+    T : array, shape (n_steps,)
+        Time of each step.
+
+    Y : array, shape (n_steps, n_dims)
+        Position at each step.
+
+    alpha_y : float
+        Parameter of the transformation system.
+
+    beta_y : float
+        Parameter of the transformation system.
+
+    allow_final_velocity : bool
+        Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    Returns
+    -------
+    F : array, shape (n_steps, n_dims)
+        Forces.
+
+    start_y : array, shape (4,)
+        Start orientation.
+
+    start_yd : array, shape (3,)
+        Start velocity.
+
+    start_ydd : array, shape (3,)
+        Start acceleration.
+
+    goal_y : array, shape (4,)
+        Final orientation.
+
+    goal_yd : array, shape (3,)
+        Final velocity.
+
+    goal_ydd : array, shape (3,)
+        Final acceleration.
+    """
     # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670
     n_dims = 3
 
@@ -277,8 +378,13 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     goal_y = Y[-1]
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
-        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t]))) - Yd[t] * execution_time)
-    return F
+        F[t, :] = (
+            execution_time ** 2 * Ydd[t]
+            - alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
+                                      pr.concatenate_quaternions(
+                                          goal_y, pr.q_conj(Y[t])))
+                         - Yd[t] * execution_time))
+    return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
 def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
