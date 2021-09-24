@@ -473,16 +473,20 @@ def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_w
 def dmp_open_loop(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
         coupling_term=None, run_t=None, int_dt=0.001,
-        step_function=dmp_step_rk4, goal_yd=None):
+        step_function=dmp_step_rk4, start_yd=None, start_ydd=None,
+        goal_yd=None, goal_ydd=None):
     if goal_yd is None:
         goal_yd = np.zeros_like(goal_y)
-    goal_ydd = np.zeros_like(goal_y)
-    start_yd = np.zeros_like(start_y)
-    start_ydd = np.zeros_like(start_y)
+    if goal_ydd is None:
+        goal_ydd = np.zeros_like(goal_y)
+    if start_yd is None:
+        start_yd = np.zeros_like(start_y)
+    if start_ydd is None:
+        start_ydd = np.zeros_like(start_y)
 
     t = start_t
     current_y = np.copy(start_y)
-    current_yd = np.zeros_like(current_y)
+    current_yd = np.copy(start_yd)
 
     T = [start_t]
     Y = [np.copy(current_y)]

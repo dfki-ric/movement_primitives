@@ -129,7 +129,9 @@ class DMPWithFinalVelocity(DMPBase):
             self.forcing_term,
             coupling_term,
             run_t, self.int_dt,
-            dmp_step_euler_with_constraints, self.goal_yd)
+            dmp_step_euler_with_constraints,
+            start_yd=self.start_yd, start_ydd=self.start_ydd,
+            goal_yd=self.goal_yd, goal_ydd=self.goal_ydd)
 
     def imitate(self, T, Y, regularization_coefficient=0.0):
         """Imitate demonstration.
@@ -181,7 +183,7 @@ def solve_constraints(t0, t1, y0, y0d, y0dd, y1, y1d, y1dd):
 
 
 def apply_constraints(t, goal_y, goal_t, coefficients):
-    if t > goal_t:
+    if t > goal_t + np.finfo(float).eps:
         # For t > goal_t the polynomial should always 'pull' to the goal
         # position, but velocity and acceleration should be zero.
         # This is done to avoid diverging from the goal if the DMP is executed

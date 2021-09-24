@@ -21,9 +21,9 @@ ax2.set_ylabel("Velocity")
 ax1.plot(T, Y, label="Demo")
 ax2.plot(T, np.gradient(Y, axis=0) / dmp.dt_)
 ax2.scatter([T[-1]], (Y[-1] - Y[-2]) / dmp.dt_)
-for goal_yd in [0.0, 1.0, 2.0]:
-    dmp.configure(goal_yd=goal_yd)
-    T, Y = dmp.open_loop(run_t=1)
+for goal_yd in [dmp.goal_yd[0], 1.0, 2.0]:
+    dmp.configure(goal_yd=np.array([goal_yd]))
+    T, Y = dmp.open_loop(run_t=execution_time)
     ax1.plot(T, Y, label="goal_yd = %g" % goal_yd)
     ax2.plot(T, np.gradient(Y, axis=0) / dmp.dt_)
     ax2.scatter([T[-1]], [goal_yd])
