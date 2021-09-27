@@ -251,25 +251,28 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
     assert allow_final_velocity
 
     n_dims = Y.shape[1]
-    DT = np.gradient(T)
+    DT = np.diff(T)
+
     Yd = np.empty_like(Y)
+    Yd[:, 0] = 0.0
     for d in range(n_dims):
-        Yd[:, d] = np.gradient(Y[:, d]) / DT
+        Yd[1:, d] = np.diff(Y[:, d]) / DT
+
     Ydd = np.empty_like(Y)
+    Ydd[:, 0] = 0.0
     for d in range(n_dims):
-        Ydd[:, d] = np.gradient(Yd[:, d]) / DT
-    Ydd[-1, :] = 0.0
+        Ydd[1:, d] = np.diff(Yd[:, d]) / DT
 
     coefficients = solve_constraints(
         T[0], T[-1], Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1])
 
     execution_time = T[-1] - T[0]
     F = np.empty((len(T), n_dims))
-    for t in range(len(T)):
-        g, gd, gdd = apply_constraints(t, Y[-1], T[-1], coefficients)
-        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
-            beta_y * (g - Y[t]) + gd * execution_time
-            - Yd[t] * execution_time) - execution_time ** 2 * gdd
+    for i in range(len(T)):
+        g, gd, gdd = apply_constraints(T[i], Y[-1], T[-1], coefficients)
+        F[i, :] = execution_time ** 2 * Ydd[i] - alpha_y * (
+            beta_y * (g - Y[i]) + gd * execution_time
+            - Yd[i] * execution_time) - execution_time ** 2 * gdd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
