@@ -8,6 +8,7 @@ from ._coupling_terms import (
     CouplingTermDualCartesianOrientation, CouplingTermDualCartesianPose,
     CouplingTermDualCartesianDistance, CouplingTermDualCartesianTrajectory)
 from ._state_following_dmp import StateFollowingDMP
+from ._canonical_system import canonical_system_alpha, phase
 
 
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "DualCartesianDMP", "CouplingTerm", "CouplingTermCartesianDistance",
     "CouplingTermCartesianPosition", "CouplingTermDualCartesianOrientation",
     "CouplingTermDualCartesianPose", "CouplingTermDualCartesianDistance",
-    "CouplingTermDualCartesianTrajectory"]
+    "CouplingTermDualCartesianTrajectory",
+    "canonical_system_alpha", "phase"]
