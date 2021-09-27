@@ -1,8 +1,8 @@
 import numpy as np
-from movement_primitives.data import generate_minimum_jerk
+from movement_primitives.data import generate_minimum_jerk, load_lasa
 from numpy.testing import assert_array_almost_equal
 from nose.tools import (assert_raises_regexp, assert_greater_equal,
-                        assert_less_equal)
+                        assert_less_equal, assert_equal)
 
 
 def test_minimum_jerk_boundaries():
@@ -25,3 +25,17 @@ def test_minimum_jerk_boundaries():
 
     assert_raises_regexp(ValueError, "Shape .* must be equal",
                          generate_minimum_jerk, x0, np.zeros(1))
+
+
+def test_lasa():
+    T, X, Xd, Xdd, dt, shape_name = load_lasa(0)
+    assert_equal(T.shape[0], X.shape[0])
+    assert_equal(T.shape[1], X.shape[1])
+    assert_equal(X.shape[2], 2)
+    assert_equal(Xd.shape[0], X.shape[0])
+    assert_equal(Xd.shape[1], X.shape[1])
+    assert_equal(Xd.shape[2], X.shape[2])
+    assert_equal(Xdd.shape[0], X.shape[0])
+    assert_equal(Xdd.shape[1], X.shape[1])
+    assert_equal(Xdd.shape[2], X.shape[2])
+    assert_equal(shape_name, "Angle")

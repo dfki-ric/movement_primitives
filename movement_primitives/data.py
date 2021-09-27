@@ -487,7 +487,7 @@ def load_lasa(shape_idx):
         X, Xd, Xdd, dt, shape_name = load_lasa(0)
         plt.figure()
         plt.title(shape_name)
-        plt.plot(X[0], X[1])
+        plt.plot(X[:, :, 0].T, X[:, :, 1].T)
         plt.show()
 
     Parameters
