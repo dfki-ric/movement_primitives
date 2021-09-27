@@ -254,12 +254,12 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
     DT = np.diff(T)
 
     Yd = np.empty_like(Y)
-    Yd[:, 0] = 0.0
+    Yd[0] = 0.0
     for d in range(n_dims):
         Yd[1:, d] = np.diff(Y[:, d]) / DT
 
     Ydd = np.empty_like(Y)
-    Ydd[:, 0] = 0.0
+    Ydd[0] = 0.0
     for d in range(n_dims):
         Ydd[1:, d] = np.diff(Yd[:, d]) / DT
 
