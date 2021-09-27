@@ -51,6 +51,32 @@ def test_dmp_steps():
     assert_less(error, 1e-4)
 
 
+def test_dmp_reset():
+    start_y = np.array([0.0])
+    start_yd = np.array([0.0])
+    goal_y = np.array([1.0])
+
+    sd = DMP(n_dims=1, execution_time=1.0, dt=0.01)
+    sd.configure(start_y=start_y, goal_y=goal_y, start_yd=start_yd)
+    y = np.copy(start_y)
+    yd = np.copy(start_yd)
+    for i in range(101):
+        y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(error, 1e-4)
+
+    sd.reset()
+    y = np.copy(start_y)
+    yd = np.copy(start_yd)
+    y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(1e-4, error)
+    for i in range(100):
+        y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(error, 1e-4)
+
+
 def test_dmp1d_imitation():
     execution_time = 1.0
     dt = 0.001
