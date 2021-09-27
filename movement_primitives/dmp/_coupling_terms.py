@@ -1,17 +1,14 @@
+import math
 import numpy as np
 from scipy.interpolate import interp1d
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 
 
-# lf - Binary values that indicate which DMP(s) will be adapted.
-# The variable lf defines the relation leader-follower. If lf[0] = lf[1],
-# then both robots will adapt their trajectories to follow average trajectories
-# at the defined distance dd between them [..]. On the other hand, if
-# lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory to match the
-# trajectory of DMP0, again at the distance dd and again only after learning.
-# Vice versa applies as well. Leader-follower relation can be determined by a
-# higher-level planner [..].
+HALF_PI = 0.5 * math.pi
+ROTATE90 = np.array([[math.cos(HALF_PI), -math.sin(HALF_PI)],
+                     [math.sin(HALF_PI), math.cos(HALF_PI)]])
+EPSILON = 1e-10
 
 
 class CouplingTerm:
@@ -31,6 +28,39 @@ class CouplingTerm:
         C12dot = self.c2 * self.c1 * F12 * self.lf[0]
         C21dot = self.c2 * self.c1 * F21 * self.lf[1]
         return np.array([C12, C21]), np.array([C12dot, C21dot])
+
+
+class CouplingTermObstacleAvoidance:  # for DMP
+    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+        self.obstacle_position = obstacle_position
+        self.gamma = gamma
+        self.beta = beta
+
+    def coupling(self, y, yd):
+        cdd = obstacle_avoidance_acceleration(
+            y, yd, self.obstacle_position, self.gamma, self.beta)
+        return np.zeros_like(cdd), cdd
+
+
+def obstacle_avoidance_acceleration(
+        y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+    obstacle_diff = obstacle_position - y
+    theta = np.arccos(
+        np.dot(obstacle_diff, yd)
+        / (np.linalg.norm(obstacle_diff) * np.linalg.norm(yd) + EPSILON))
+    cdd = gamma * np.dot(ROTATE90, yd) * theta * np.exp(-beta * theta)
+    print(cdd)
+    return cdd
+
+
+# lf - Binary values that indicate which DMP(s) will be adapted.
+# The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+# then both robots will adapt their trajectories to follow average trajectories
+# at the defined distance dd between them [..]. On the other hand, if
+# lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory to match the
+# trajectory of DMP0, again at the distance dd and again only after learning.
+# Vice versa applies as well. Leader-follower relation can be determined by a
+# higher-level planner [..].
 
 
 class CouplingTermCartesianPosition:  # for DMP
