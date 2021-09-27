@@ -15,7 +15,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_xlabel("x")
 ax.set_ylabel("y")
-for obstacle_x in [-0.1, 0.0, 0.1]:
+for obstacle_x in [-0.05, 0.05, 0.15]:
     obstacle_position = np.array([obstacle_x, 0.5])
     coupling_term = CouplingTermObstacleAvoidance(obstacle_position)
     T, Y = dmp.open_loop(run_t=execution_time, coupling_term=coupling_term)
