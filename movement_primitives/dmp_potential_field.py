@@ -53,8 +53,30 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks):
 
 
 def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks):
-    xx, yy, ft, ts, acc = potential_field_2d(
-        dmp, x_range, y_range, n_ticks)
+    """Plot 2D potential field of a DMP.
+
+    We will indicate the influence of the transformation system at each
+    position with green arrows, the influence of the forcing term with
+    red arrows, and the combined acceleration with a black arrow.
+
+    Parameters
+    ----------
+    ax : Matplotlib axis
+        Axis on which we draw the potential field.
+
+    dmp : DMP
+        DMP object.
+
+    x_range : tuple
+        Range of x-axis.
+
+    y_range : tuple
+        Range of y-axis.
+
+    n_ticks : int
+        Number of ticks per dimension.
+    """
+    xx, yy, ft, ts, acc = potential_field_2d(dmp, x_range, y_range, n_ticks)
 
     quiver_scale = np.abs(acc).max() * n_ticks
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color="g")
