@@ -271,7 +271,7 @@ class ProMP:
 
         Parameters
         ----------
-        Ts : array, shape (n_demos, n_steps,)
+        Ts : array, shape (n_demos, n_steps)
             Time steps of demonstrations
 
         Ys : array, shape (n_demos, n_steps, n_dims)
