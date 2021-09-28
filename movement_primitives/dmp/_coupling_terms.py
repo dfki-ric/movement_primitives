@@ -52,6 +52,30 @@ def obstacle_avoidance_acceleration_2d(
     return cdd
 
 
+class CouplingTermObstacleAvoidance3D:  # for DMP
+    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+        self.obstacle_position = obstacle_position
+        self.gamma = gamma
+        self.beta = beta
+
+    def coupling(self, y, yd):
+        cdd = obstacle_avoidance_acceleration_3d(
+            y, yd, self.obstacle_position, self.gamma, self.beta)
+        return np.zeros_like(cdd), cdd
+
+
+def obstacle_avoidance_acceleration_3d(
+        y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+    obstacle_diff = obstacle_position - y
+    r = 0.5 * np.pi * pr.norm_vector(np.cross(obstacle_diff, yd))
+    R = pr.matrix_from_compact_axis_angle(r)
+    theta = np.arccos(
+        np.dot(obstacle_diff, yd)
+        / (np.linalg.norm(obstacle_diff) * np.linalg.norm(yd) + EPSILON))
+    cdd = gamma * np.dot(R, yd) * theta * np.exp(-beta * theta)
+    return cdd
+
+
 # lf - Binary values that indicate which DMP(s) will be adapted.
 # The variable lf defines the relation leader-follower. If lf[0] = lf[1],
 # then both robots will adapt their trajectories to follow average trajectories
