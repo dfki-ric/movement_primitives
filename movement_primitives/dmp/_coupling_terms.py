@@ -6,8 +6,8 @@ import pytransform3d.transformations as pt
 
 
 HALF_PI = 0.5 * math.pi
-ROTATE90 = np.array([[math.cos(HALF_PI), -math.sin(HALF_PI)],
-                     [math.sin(HALF_PI), math.cos(HALF_PI)]])
+ROTATE90_2D = np.array([[math.cos(HALF_PI), -math.sin(HALF_PI)],
+                        [math.sin(HALF_PI), math.cos(HALF_PI)]])
 EPSILON = 1e-10
 
 
@@ -30,26 +30,25 @@ class CouplingTerm:
         return np.array([C12, C21]), np.array([C12dot, C21dot])
 
 
-class CouplingTermObstacleAvoidance:  # for DMP
+class CouplingTermObstacleAvoidance2D:  # for DMP
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
         self.obstacle_position = obstacle_position
         self.gamma = gamma
         self.beta = beta
 
     def coupling(self, y, yd):
-        cdd = obstacle_avoidance_acceleration(
+        cdd = obstacle_avoidance_acceleration_2d(
             y, yd, self.obstacle_position, self.gamma, self.beta)
         return np.zeros_like(cdd), cdd
 
 
-def obstacle_avoidance_acceleration(
+def obstacle_avoidance_acceleration_2d(
         y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
     obstacle_diff = obstacle_position - y
     theta = np.arccos(
         np.dot(obstacle_diff, yd)
         / (np.linalg.norm(obstacle_diff) * np.linalg.norm(yd) + EPSILON))
-    cdd = gamma * np.dot(ROTATE90, yd) * theta * np.exp(-beta * theta)
-    print(cdd)
+    cdd = gamma * np.dot(ROTATE90_2D, yd) * theta * np.exp(-beta * theta)
     return cdd
 
 

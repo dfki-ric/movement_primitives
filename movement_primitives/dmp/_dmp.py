@@ -165,6 +165,12 @@ class DMP(DMPBase):
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
         self.configure(start_y=start_y, goal_y=goal_y)
 
+    def get_weights(self):
+        return self.forcing_term.weights.ravel()
+
+    def set_weights(self, weights):
+        self.forcing_term.weights[:, :] = weights.reshape(-1, self.n_weights_per_dim)
+
 
 def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t,
