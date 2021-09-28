@@ -1,3 +1,15 @@
+"""
+======================
+DMP as Potential Field
+======================
+
+A Dynamical Movement Primitive defines a potential field that superimposes
+several components: transformation system (goal-directed movement), forcing
+term (learned shape), and coupling terms (e.g., obstacle avoidance).
+"""
+print(__doc__)
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from movement_primitives.dmp import DMP, CouplingTermObstacleAvoidance2D
