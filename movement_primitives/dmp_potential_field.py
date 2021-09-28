@@ -1,8 +1,8 @@
 import numpy as np
-from .dmp import dmp_transformation_system
+from .dmp import dmp_transformation_system, obstacle_avoidance_acceleration_2d
 
 
-def potential_field_2d(dmp, x_range, y_range, n_ticks):
+def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
     """Discretize potential field of DMP.
 
     Parameters
@@ -19,6 +19,9 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks):
     n_ticks : int
         Number of ticks per dimension.
 
+    obstacle : array, shape (2,), optional (default: None)
+        Obstacle position in the plane.
+
     Returns
     -------
     xx : array, shape (n_ticks, n_ticks)
@@ -32,13 +35,19 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks):
 
     ts: array, shape (n_ticks, n_ticks, 2)
         Acceleration from transformation system for each position.
+
+    ct : array, shape (n_ticks, n_ticks, 2)
+        Acceleration from coupling term for obstacle avoidance for each position.
+
+    acc : array, shape (n_ticks, n_ticks, 2)
+        Accumulated acceleration from all terms.
     """
     xx, yy = np.meshgrid(np.linspace(x_range[0], x_range[1], n_ticks),
                          np.linspace(y_range[0], y_range[1], n_ticks))
     Y = np.array((xx, yy)).transpose((1, 2, 0))
     Yd = np.empty_like(Y)
     try:
-        Yd[:, :] = dmp.last_yd
+        Yd[:, :] = dmp.current_yd
     except AttributeError:
         Yd[:, :, :] = 0.0
 
@@ -48,16 +57,23 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks):
     ft = np.empty_like(ts)
     ft[:, :] = (dmp.alpha_y * dmp.forcing_term(dmp.t) / dmp.execution_time ** 2).ravel()
 
-    acc = ft + ts
-    return xx, yy, ft, ts, acc
+    if obstacle is None:
+        ct = np.zeros_like(ts)
+    else:
+        ct = obstacle_avoidance_acceleration_2d(Y, Yd, obstacle)
+
+    acc = ft + ts + ct
+    return xx, yy, ft, ts, ct, acc
 
 
-def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks):
+def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
+                            exaggerate_obstacle=5.0):
     """Plot 2D potential field of a DMP.
 
     We will indicate the influence of the transformation system at each
     position with green arrows, the influence of the forcing term with
-    red arrows, and the combined acceleration with a black arrow.
+    red arrows, the influence of obstacle avoidance with yellow arrows,
+    and the combined acceleration with a black arrow.
 
     Parameters
     ----------
@@ -75,10 +91,20 @@ def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks):
 
     n_ticks : int
         Number of ticks per dimension.
+
+    obstacle : array, shape (2,), optional (default: None)
+        Obstacle position in the plane.
+
+    exaggerate_obstacle : float, optional (default: 5)
+        Multiply acceleration for obstacle avoidance by this factor.
     """
-    xx, yy, ft, ts, acc = potential_field_2d(dmp, x_range, y_range, n_ticks)
+    xx, yy, ft, ts, ct, acc = potential_field_2d(
+        dmp, x_range, y_range, n_ticks, obstacle)
+
+    ct *= exaggerate_obstacle
 
     quiver_scale = np.abs(acc).max() * n_ticks
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color="g")
     ax.quiver(xx, yy, ft[:, :, 0], ft[:, :, 1], scale=quiver_scale, color="r")
+    ax.quiver(xx, yy, ct[:, :, 0], ct[:, :, 1], scale=quiver_scale, color="y")
     ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale, color="k")

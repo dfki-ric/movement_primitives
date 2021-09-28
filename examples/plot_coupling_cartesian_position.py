@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from pytransform3d import plot_utils
 import numpy as np
-from movement_primitives.dmp import DMP, CouplingTermCartesianPosition, CouplingTermCartesianDistance
+from movement_primitives.dmp import DMP, CouplingTermPos3DToPos3D
 
 dt = 0.01
 
@@ -28,8 +28,7 @@ plt.plot(Y[:, 0], Y[:, 1], Y[:, 2], label="Reproduction 1")
 plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Reproduction 2")
 
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
-#ct = CouplingTermCartesianPosition(desired_distance=np.array([0.1, 0.1, 0.8]), lf=(0.0, 1.0))
-ct = CouplingTermCartesianDistance(desired_distance=1.0, lf=(1.0, 0.0), k=0.1)
+ct = CouplingTermPos3DToPos3D(desired_distance=np.array([0.1, 0.5, 1.0]), lf=(0.0, 1.0))
 T, Y = dmp.open_loop(coupling_term=ct)
 plt.plot(Y[:, 0], Y[:, 1], Y[:, 2], label="Coupled 1")
 plt.plot(Y[:, 3], Y[:, 4], Y[:, 5], label="Coupled 2")
