@@ -223,6 +223,7 @@ class CouplingTermPos3DToPos3D:  # for DMP
 
 
 class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
+    """Couples distance between 3D positions of a dual Cartesian DMP."""
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -243,6 +244,7 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
+    """Couples orientations of dual Cartesian DMP."""
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -269,6 +271,7 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
+    """Couples relative poses of dual Cartesian DMP."""
     def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -357,6 +360,7 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
 
 
 class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for DualCartesianDMP
+    """Couples relative pose in dual Cartesian DMP with a given trajectory."""
     def __init__(self, offset, lf, dt, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
         self.offset = offset
         self.lf = lf
