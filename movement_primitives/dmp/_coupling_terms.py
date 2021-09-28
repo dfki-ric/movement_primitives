@@ -9,26 +9,8 @@ import pytransform3d.transformations as pt
 EPSILON = 1e-10
 
 
-class CouplingTerm:
-    def __init__(self, desired_distance, lf, k=1.0, c1=100.0, c2=30.0):
-        self.desired_distance = desired_distance
-        self.lf = lf
-        self.k = k
-        self.c1 = c1
-        self.c2 = c2
-
-    def coupling(self, y, yd=None):
-        da = y[1] - y[0]
-        F12 = self.k * (self.desired_distance - da)
-        F21 = -F12
-        C12 = self.c1 * F12 * self.lf[0]
-        C21 = self.c1 * F21 * self.lf[1]
-        C12dot = self.c2 * self.c1 * F12 * self.lf[0]
-        C21dot = self.c2 * self.c1 * F21 * self.lf[1]
-        return np.array([C12, C21]), np.array([C12dot, C21dot])
-
-
 class CouplingTermObstacleAvoidance2D:  # for DMP
+    """Coupling term for obstacle avoidance in 2D."""
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
         self.obstacle_position = obstacle_position
         self.gamma = gamma
@@ -42,7 +24,7 @@ class CouplingTermObstacleAvoidance2D:  # for DMP
 
 def obstacle_avoidance_acceleration_2d(
         y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
-    """Compute acceleration for obstacle avoidance.
+    """Compute acceleration for obstacle avoidance in 2D.
 
     Parameters
     ----------
@@ -87,6 +69,7 @@ def obstacle_avoidance_acceleration_2d(
 
 
 class CouplingTermObstacleAvoidance3D:  # for DMP
+    """Coupling term for obstacle avoidance in 3D."""
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
         self.obstacle_position = obstacle_position
         self.gamma = gamma
@@ -100,6 +83,30 @@ class CouplingTermObstacleAvoidance3D:  # for DMP
 
 def obstacle_avoidance_acceleration_3d(
         y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+    """Compute acceleration for obstacle avoidance in 3D.
+
+    Parameters
+    ----------
+    y : array, shape (..., 3)
+        Current position(s).
+
+    yd : array, shape (..., 3)
+        Current velocity / velocities.
+
+    obstacle_position : array, shape (3,)
+        Position of the point obstacle.
+
+    gamma : float, optional (default: 1000)
+        Obstacle avoidance parameter.
+
+    beta : float, optional (default: 20 / pi)
+        Obstacle avoidance parameter.
+
+    Returns
+    -------
+    cdd : array, shape (..., 3)
+        Accelerations.
+    """
     obstacle_diff = obstacle_position - y
     r = 0.5 * np.pi * pr.norm_vector(np.cross(obstacle_diff, yd))
     R = pr.matrix_from_compact_axis_angle(r)
@@ -110,17 +117,90 @@ def obstacle_avoidance_acceleration_3d(
     return cdd
 
 
-# lf - Binary values that indicate which DMP(s) will be adapted.
-# The variable lf defines the relation leader-follower. If lf[0] = lf[1],
-# then both robots will adapt their trajectories to follow average trajectories
-# at the defined distance dd between them [..]. On the other hand, if
-# lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory to match the
-# trajectory of DMP0, again at the distance dd and again only after learning.
-# Vice versa applies as well. Leader-follower relation can be determined by a
-# higher-level planner [..].
+class CouplingTermPos1DToPos1D:
+    """Couples position components of a 2D DMP with a virtual spring.
+
+    A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
+    Modulation of Motor Primitives using Force Feedback: Interaction with
+    the Environment and Bimanual Tasks (2013), IROS,
+    https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
+
+    Parameters
+    ----------
+    desired_distance : float
+        Desired distance between components.
+
+    lf : array-like, shape (2,)
+        Binary values that indicate which DMP(s) will be adapted.
+        The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+        then both robots will adapt their trajectories to follow average
+        trajectories at the defined distance dd between them [..]. On the other
+        hand, if lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory
+        to match the trajectory of DMP0, again at the distance dd and again
+        only after learning. Vice versa applies as well. Leader-follower
+        relation can be determined by a higher-level planner [..].
+
+    k : float, optional (default: 1)
+        Virtual spring constant that couples the positions.
+
+    c1 : float, optional (default: 100)
+        Scaling factor for spring forces in the velocity component and
+        acceleration component.
+
+    c2 : float, optional (default: 30)
+        Scaling factor for spring forces in the acceleration component.
+    """
+    def __init__(self, desired_distance, lf, k=1.0, c1=100.0, c2=30.0):
+        self.desired_distance = desired_distance
+        self.lf = lf
+        self.k = k
+        self.c1 = c1
+        self.c2 = c2
+
+    def coupling(self, y, yd=None):
+        da = y[1] - y[0]
+        F12 = self.k * (self.desired_distance - da)
+        F21 = -F12
+        C12 = self.c1 * F12 * self.lf[0]
+        C21 = self.c1 * F21 * self.lf[1]
+        C12dot = self.c2 * self.c1 * F12 * self.lf[0]
+        C21dot = self.c2 * self.c1 * F21 * self.lf[1]
+        return np.array([C12, C21]), np.array([C12dot, C21dot])
 
 
-class CouplingTermCartesianPosition:  # for DMP
+class CouplingTermPos3DToPos3D:  # for DMP
+    """Couples position components of a 6D DMP with a virtual spring in 3D.
+
+    A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
+    Modulation of Motor Primitives using Force Feedback: Interaction with
+    the Environment and Bimanual Tasks (2013), IROS,
+    https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
+
+    Parameters
+    ----------
+    desired_distance : array, shape (3,)
+        Desired distance between components.
+
+    lf : array-like, shape (2,)
+        Binary values that indicate which DMP(s) will be adapted.
+        The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+        then both robots will adapt their trajectories to follow average
+        trajectories at the defined distance dd between them [..]. On the other
+        hand, if lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory
+        to match the trajectory of DMP0, again at the distance dd and again
+        only after learning. Vice versa applies as well. Leader-follower
+        relation can be determined by a higher-level planner [..].
+
+    k : float, optional (default: 1)
+        Virtual spring constant that couples the positions.
+
+    c1 : float, optional (default: 100)
+        Scaling factor for spring forces in the velocity component and
+        acceleration component.
+
+    c2 : float, optional (default: 30)
+        Scaling factor for spring forces in the acceleration component.
+    """
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -134,26 +214,6 @@ class CouplingTermCartesianPosition:  # for DMP
         # to regard the desired distance as the displacement of DMP1 with
         # respect to DMP0.
         F12 = self.k * (-self.desired_distance - da)
-        F21 = -F12
-        C12 = self.c1 * F12 * self.lf[0]
-        C21 = self.c1 * F21 * self.lf[1]
-        C12dot = F12 * self.c2 * self.lf[0]
-        C21dot = F21 * self.c2 * self.lf[1]
-        return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
-
-
-class CouplingTermCartesianDistance:  # for DMP
-    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
-        self.desired_distance = desired_distance
-        self.lf = lf
-        self.k = k
-        self.c1 = c1
-        self.c2 = c2
-
-    def coupling(self, y, yd=None):
-        actual_distance = y[:3] - y[3:6]
-        desired_distance = np.abs(self.desired_distance) * actual_distance / np.linalg.norm(actual_distance)
-        F12 = self.k * (desired_distance - actual_distance)
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
         C21 = self.c1 * F21 * self.lf[1]
@@ -179,7 +239,6 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
         C21 = self.c1 * F21 * self.lf[1]
         C12dot = F12 * self.c2 * self.lf[0]
         C21dot = F21 * self.c2 * self.lf[1]
-        #return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
         return np.hstack([C12, np.zeros(3), C21, np.zeros(3)]), np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)])
 
 

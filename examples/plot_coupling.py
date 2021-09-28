@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from movement_primitives.dmp import DMP, CouplingTerm
+from movement_primitives.dmp import DMP, CouplingTermPos1DToPos1D
 
 dt = 0.01
 
@@ -24,7 +24,8 @@ plt.scatter([T[0], T[-1]], [Y[0, 0], Y[-1, 0]])
 plt.scatter([T[0], T[-1]], [Y[0, 1], Y[-1, 1]])
 
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
-T, Y = dmp.open_loop(coupling_term=CouplingTerm(desired_distance=0.5, lf=(1.0, 0.0), k=0.01))
+T, Y = dmp.open_loop(coupling_term=CouplingTermPos1DToPos1D(
+    desired_distance=0.5, lf=(1.0, 0.0), k=0.01))
 plt.plot(T, Y[:, 0], label="Coupled 1")
 plt.plot(T, Y[:, 1], label="Coupled 2")
 plt.scatter([T[0], T[-1]], [Y[0, 0], Y[-1, 0]])
