@@ -1,3 +1,15 @@
+"""
+========================
+Obstacle Avoidance in 3D
+========================
+
+Plots a DMP in 3D that goes through a point obstacle without obstacle
+avoidance. Then we start use the same DMP to start from multiple random
+start positions with an activated coupling term for obstacle avoidance.
+"""
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytransform3d.plot_utils as ppu

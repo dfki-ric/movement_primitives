@@ -1,3 +1,15 @@
+"""
+========================
+Obstacle Avoidance in 2D
+========================
+
+Plots a 2D DMP that goes through a point obstacle when there is no coupling
+term for obstacle avoidance and a 2D DMP that avoids the point obstacle with
+a coupling term.
+"""
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import DMP, CouplingTermObstacleAvoidance2D
