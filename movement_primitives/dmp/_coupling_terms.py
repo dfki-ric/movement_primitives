@@ -2,12 +2,10 @@ import math
 import numpy as np
 from scipy.interpolate import interp1d
 import pytransform3d.rotations as pr
+import pytransform3d.batch_rotations as pbr
 import pytransform3d.transformations as pt
 
 
-HALF_PI = 0.5 * math.pi
-ROTATE90_2D = np.array([[math.cos(HALF_PI), -math.sin(HALF_PI)],
-                        [math.sin(HALF_PI), math.cos(HALF_PI)]])
 EPSILON = 1e-10
 
 
@@ -44,12 +42,48 @@ class CouplingTermObstacleAvoidance2D:  # for DMP
 
 def obstacle_avoidance_acceleration_2d(
         y, yd, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+    """Compute acceleration for obstacle avoidance.
+
+    Parameters
+    ----------
+    y : array, shape (..., 2)
+        Current position(s).
+
+    yd : array, shape (..., 2)
+        Current velocity / velocities.
+
+    obstacle_position : array, shape (2,)
+        Position of the point obstacle.
+
+    gamma : float, optional (default: 1000)
+        Obstacle avoidance parameter.
+
+    beta : float, optional (default: 20 / pi)
+        Obstacle avoidance parameter.
+
+    Returns
+    -------
+    cdd : array, shape (..., 2)
+        Accelerations.
+    """
     obstacle_diff = obstacle_position - y
-    theta = np.arccos(
-        np.dot(obstacle_diff, yd)
-        / (np.linalg.norm(obstacle_diff) * np.linalg.norm(yd) + EPSILON))
-    cdd = gamma * np.dot(ROTATE90_2D, yd) * theta * np.exp(-beta * theta)
-    return cdd
+    pad_width = ([[0, 0]] * (y.ndim - 1)) + [[0, 1]]
+    obstacle_diff_0 = np.pad(obstacle_diff, pad_width, mode="constant", constant_values=0.0)
+    yd_0 = np.pad(yd, pad_width, mode="constant", constant_values=0.0)
+    r = 0.5 * np.pi * pbr.norm_vectors(np.cross(obstacle_diff_0, yd_0))
+    R = pbr.matrices_from_compact_axis_angles(r)[..., :2, :2]
+    theta_nom = np.einsum("ni,ni->n", obstacle_diff.reshape(-1, 2), yd.reshape(-1, 2))
+    shape = y.shape[:-1]
+    if shape:
+        theta_nom = theta_nom.reshape(*shape)
+    theta_denom = (np.linalg.norm(obstacle_diff, axis=-1)
+                   * np.linalg.norm(yd, axis=-1) + EPSILON)
+    theta = np.arccos(theta_nom / theta_denom)
+    rotated_velocity = np.einsum("nij,nj->ni", R.reshape(-1, 2, 2), yd.reshape(-1, 2))
+    if shape:
+        rotated_velocity = rotated_velocity.reshape(*(shape + (2,)))
+    cdd = gamma * rotated_velocity * (theta * np.exp(-beta * theta))[..., np.newaxis]
+    return np.squeeze(cdd)
 
 
 class CouplingTermObstacleAvoidance3D:  # for DMP

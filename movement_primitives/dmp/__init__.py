@@ -8,7 +8,8 @@ from ._coupling_terms import (
     CouplingTermObstacleAvoidance3D, CouplingTermCartesianDistance,
     CouplingTermCartesianPosition, CouplingTermDualCartesianOrientation,
     CouplingTermDualCartesianPose, CouplingTermDualCartesianDistance,
-    CouplingTermDualCartesianTrajectory)
+    CouplingTermDualCartesianTrajectory, obstacle_avoidance_acceleration_2d,
+    obstacle_avoidance_acceleration_3d)
 from ._state_following_dmp import StateFollowingDMP
 from ._canonical_system import canonical_system_alpha, phase
 
@@ -19,4 +20,5 @@ __all__ = [
     "CouplingTermObstacleAvoidance3D", "CouplingTermCartesianDistance",
     "CouplingTermCartesianPosition", "CouplingTermDualCartesianOrientation",
     "CouplingTermDualCartesianPose", "CouplingTermDualCartesianDistance",
-    "CouplingTermDualCartesianTrajectory", "canonical_system_alpha", "phase"]
+    "CouplingTermDualCartesianTrajectory", "canonical_system_alpha", "phase",
+    "obstacle_avoidance_acceleration_2d", "obstacle_avoidance_acceleration_3d"]
