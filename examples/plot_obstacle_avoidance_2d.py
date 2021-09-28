@@ -15,7 +15,6 @@ import numpy as np
 from movement_primitives.dmp import DMP, CouplingTermObstacleAvoidance2D
 
 
-dt = 0.01
 execution_time = 1.0
 start_y = np.zeros(2)
 goal_y = np.ones(2)

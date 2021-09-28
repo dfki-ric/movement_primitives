@@ -16,7 +16,6 @@ import pytransform3d.plot_utils as ppu
 from movement_primitives.dmp import DMP, CouplingTermObstacleAvoidance3D
 
 
-dt = 0.01
 execution_time = 1.0
 start_y = np.zeros(3)
 goal_y = np.ones(3)
