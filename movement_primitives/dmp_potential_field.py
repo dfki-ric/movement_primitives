@@ -46,16 +46,13 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
                          np.linspace(y_range[0], y_range[1], n_ticks))
     Y = np.array((xx, yy)).transpose((1, 2, 0))
     Yd = np.empty_like(Y)
-    try:
-        Yd[:, :] = dmp.current_yd
-    except AttributeError:
-        Yd[:, :, :] = 0.0
+    Yd[:, :] = dmp.current_yd
 
     ts = dmp_transformation_system(
         Y, Yd, dmp.alpha_y, dmp.beta_y, dmp.goal_y, dmp.goal_yd, dmp.goal_ydd,
         dmp.execution_time)
     ft = np.empty_like(ts)
-    ft[:, :] = (dmp.alpha_y * dmp.forcing_term(dmp.t) / dmp.execution_time ** 2).ravel()
+    ft[:, :] = (dmp.forcing_term(dmp.t) / dmp.execution_time ** 2).ravel()
 
     if obstacle is None:
         ct = np.zeros_like(ts)
@@ -67,7 +64,7 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
 
 
 def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
-                            exaggerate_obstacle=5.0):
+                            exaggerate_arrows=25.0):
     """Plot 2D potential field of a DMP.
 
     We will indicate the influence of the transformation system at each
@@ -95,13 +92,16 @@ def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
     obstacle : array, shape (2,), optional (default: None)
         Obstacle position in the plane.
 
-    exaggerate_obstacle : float, optional (default: 5)
-        Multiply acceleration for obstacle avoidance by this factor.
+    exaggerate_arrows : float, optional (default: 25)
+        Multiply arrow sizes by this factor.
     """
     xx, yy, ft, ts, ct, acc = potential_field_2d(
         dmp, x_range, y_range, n_ticks, obstacle)
 
-    ct *= exaggerate_obstacle
+    ft *= exaggerate_arrows
+    ts *= exaggerate_arrows
+    ct *= exaggerate_arrows
+    acc *= exaggerate_arrows
 
     quiver_scale = np.abs(acc).max() * n_ticks
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color="g")

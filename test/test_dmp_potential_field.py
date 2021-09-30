@@ -12,7 +12,7 @@ def test_potential_field_2d():
 
     dmp = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
     dmp.forcing_term.weights[:, :] = random_state.randn(
-        *dmp.forcing_term.weights.shape) * 200.0
+        *dmp.forcing_term.weights.shape) * 500.0
     dmp.configure(start_y=start_y, goal_y=goal_y)
     coupling_term = CouplingTermObstacleAvoidance2D(obstacle)
 
@@ -24,9 +24,6 @@ def test_potential_field_2d():
     velocity = np.zeros_like(start_y)
 
     while dmp.t <= dmp.execution_time:
-        position, velocity = dmp.step(
-            position, velocity, coupling_term=coupling_term)
-
         xx, yy, ft, ts, ct, acc = potential_field_2d(
             dmp, x_range, y_range, n_ticks, obstacle)
 
@@ -38,3 +35,17 @@ def test_potential_field_2d():
         assert_array_equal(acc.shape, (n_ticks, n_ticks, 2))
 
         assert_array_almost_equal(ft + ts + ct, acc)
+        xx, yy, ft, ts, ct, acc = potential_field_2d(
+            dmp, x_range, y_range, n_ticks)
+
+        assert_array_equal(xx.shape, (n_ticks, n_ticks))
+        assert_array_equal(yy.shape, (n_ticks, n_ticks))
+        assert_array_equal(ft.shape, (n_ticks, n_ticks, 2))
+        assert_array_equal(ts.shape, (n_ticks, n_ticks, 2))
+        assert_array_equal(ct.shape, (n_ticks, n_ticks, 2))
+        assert_array_equal(acc.shape, (n_ticks, n_ticks, 2))
+
+        assert_array_almost_equal(ft + ts + ct, acc)
+
+        position, velocity = dmp.step(
+            position, velocity, coupling_term=coupling_term)
