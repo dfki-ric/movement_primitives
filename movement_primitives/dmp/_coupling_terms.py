@@ -158,8 +158,8 @@ class CouplingTermPos1DToPos1D:
         self.c2 = c2
 
     def coupling(self, y, yd=None):
-        da = y[1] - y[0]
-        F12 = self.k * (self.desired_distance - da)
+        da = y[0] - y[1]
+        F12 = self.k * (-self.desired_distance - da)
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
         C21 = self.c1 * F21 * self.lf[1]
@@ -272,7 +272,7 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
 
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
     """Couples relative poses of dual Cartesian DMP."""
-    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
+    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=0):
         self.desired_distance = desired_distance
         self.lf = lf
         self.couple_position = couple_position

@@ -71,13 +71,12 @@ except FileNotFoundError:
 tm.add_transform("ALWristPitch_Link", "base", np.eye(4))
 tm.add_transform("ARWristPitch_Link", "base", np.eye(4))
 
-for coupling_term in [ct]:
-    # TODO reset DMP properly
-    dmp = DualCartesianDMP(
-        execution_time=execution_time, dt=dt,
-        n_weights_per_dim=10, int_dt=int_dt, p_gain=0.0)
-    dmp.imitate(T, Y)
-    dmp.configure(start_y=Y[0], goal_y=Y[-1])
+dmp = DualCartesianDMP(
+    execution_time=execution_time, dt=dt,
+    n_weights_per_dim=10, int_dt=int_dt, p_gain=0.0)
+dmp.imitate(T, Y)
+for coupling_term in [ct]:  # optional: None
+    dmp.reset()
 
     rh5.goto_ee_state(Y[0])
     desired_positions, positions, desired_velocities, velocities = \

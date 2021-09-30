@@ -4,7 +4,7 @@ import pytransform3d.rotations as pr
 from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
-from ._dmp import dmp_step_euler, dmp_open_loop, dmp_imitate, ridge_regression
+from ._dmp import dmp_step_rk4, dmp_open_loop, dmp_imitate, ridge_regression
 
 
 class CartesianDMP(DMPBase):
@@ -93,7 +93,7 @@ class CartesianDMP(DMPBase):
         # TODO tracking error
 
         self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_step_euler(
+        dmp_step_rk4(
             self.last_t, self.t,
             self.current_y[:3], self.current_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
@@ -188,7 +188,7 @@ class CartesianDMP(DMPBase):
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
 
-def dmp_step_quaternion(
+def dmp_step_quaternion_python(
         last_t, t,
         current_y, current_yd,
         goal_y, goal_yd, goal_ydd,
@@ -243,6 +243,7 @@ except ImportError:
         "Could not import fast quaternion DMP. "
         "Build Cython extension if you want it.",
         UserWarning)
+    dmp_step_quaternion = dmp_step_quaternion_python
 
 
 def dmp_quaternion_imitation(

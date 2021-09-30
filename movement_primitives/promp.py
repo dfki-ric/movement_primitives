@@ -14,6 +14,14 @@ class ProMP:
     only use the a 1d array representation to make handling of the covariance
     simpler.
 
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
     References
     ----------
     [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
