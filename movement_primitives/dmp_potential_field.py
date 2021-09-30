@@ -64,7 +64,7 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
 
 
 def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
-                            exaggerate_arrows=25.0):
+                            exaggerate_arrows=25.0):  # pragma: no cover
     """Plot 2D potential field of a DMP.
 
     We will indicate the influence of the transformation system at each
