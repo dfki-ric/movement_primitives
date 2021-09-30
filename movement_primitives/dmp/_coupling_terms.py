@@ -272,7 +272,7 @@ class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
 
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
     """Couples relative poses of dual Cartesian DMP."""
-    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
+    def __init__(self, desired_distance, lf, couple_position=True, couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=0):
         self.desired_distance = desired_distance
         self.lf = lf
         self.couple_position = couple_position
