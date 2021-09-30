@@ -7,6 +7,9 @@ Two 1D DMPs are spatially coupled with a virtual spring that forces them to
 keep a distance. One of them is the leader DMP and the other one is the
 follower DMP.
 """
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import DMP, CouplingTermPos1DToPos1D
