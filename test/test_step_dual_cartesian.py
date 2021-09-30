@@ -1,5 +1,4 @@
 import numpy as np
-from pytransform3d import rotations as pr
 from numpy.testing import assert_array_almost_equal
 
 

@@ -188,7 +188,7 @@ class CartesianDMP(DMPBase):
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
 
-def dmp_step_quaternion(
+def dmp_step_quaternion_python(
         last_t, t,
         current_y, current_yd,
         goal_y, goal_yd, goal_ydd,
@@ -243,6 +243,7 @@ except ImportError:
         "Could not import fast quaternion DMP. "
         "Build Cython extension if you want it.",
         UserWarning)
+    dmp_step_quaternion = dmp_step_quaternion_python
 
 
 def dmp_quaternion_imitation(
