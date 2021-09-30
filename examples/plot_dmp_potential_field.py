@@ -26,7 +26,7 @@ dmp.configure(start_y=start_y, goal_y=goal_y)
 
 dmp_ft = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
 dmp_ft.forcing_term.weights[:, :] = random_state.randn(
-    *dmp.forcing_term.weights.shape) * 200.0
+    *dmp_ft.forcing_term.weights.shape) * 200.0
 dmp_ft.configure(start_y=start_y, goal_y=goal_y)
 
 dmp_ct = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
