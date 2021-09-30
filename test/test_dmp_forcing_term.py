@@ -1,7 +1,19 @@
 import numpy as np
 from movement_primitives.dmp._canonical_system import canonical_system_alpha, phase
 from movement_primitives.dmp._forcing_term import ForcingTerm
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises_regexp
+
+
+def test_invalid_arguments():
+    alpha_z = canonical_system_alpha(goal_z=0.01, goal_t=1.0, start_t=0.0)
+    assert_raises_regexp(
+        ValueError, "The number of weights per dimension must be > 1!",
+        ForcingTerm, n_dims=2, n_weights_per_dim=-1, goal_t=1.0, start_t=0.0,
+        overlap=0.7, alpha_z=alpha_z)
+    assert_raises_regexp(
+        ValueError, "Goal must be chronologically after start!",
+        ForcingTerm, n_dims=2, n_weights_per_dim=1, goal_t=0.0, start_t=1.0,
+        overlap=0.7, alpha_z=alpha_z)
 
 
 def test_forcing_term():
