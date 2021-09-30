@@ -158,8 +158,8 @@ class CouplingTermPos1DToPos1D:
         self.c2 = c2
 
     def coupling(self, y, yd=None):
-        da = y[1] - y[0]
-        F12 = self.k * (self.desired_distance - da)
+        da = y[0] - y[1]
+        F12 = self.k * (-self.desired_distance - da)
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
         C21 = self.c1 * F21 * self.lf[1]
