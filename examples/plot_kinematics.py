@@ -1,4 +1,18 @@
+"""
+===============================================
+Inverse and Forward Kinematics of a 6-DOF Robot
+===============================================
+
+We define a simple trajectory in a robot's workspace, compute the forward
+kinematics, then the inverse kinematics and again the forward kinematics
+to check the consistency of forward and inverse kinematics.
+"""
+print(__doc__)
+
+
 import numpy as np
+import matplotlib.pyplot as plt
+from pytransform3d.plot_utils import make_3d_axis, Trajectory
 from movement_primitives.kinematics import Kinematics
 
 
@@ -81,10 +95,7 @@ random_state = np.random.RandomState(2)
 Q2 = chain.inverse_trajectory(H, Q[0], random_state=random_state)
 H2 = chain.forward_trajectory(Q2)
 
-import matplotlib.pyplot as plt
-from pytransform3d.plot_utils import make_3d_axis, Trajectory
-
-
+plt.figure(figsize=(10, 5))
 ax = make_3d_axis(1, 121)
 traj = Trajectory(H, s=0.1)
 traj.add_trajectory(ax)

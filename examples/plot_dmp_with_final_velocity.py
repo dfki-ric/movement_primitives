@@ -1,3 +1,15 @@
+"""
+=======================
+DMP with Final Velocity
+=======================
+
+Not all DMPs allow a final velocity > 0. In this case we analyze the effect
+of changing final velocities in an appropriate variation of the DMP
+formulation that allows to set the final velocity.
+"""
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import DMPWithFinalVelocity
@@ -13,9 +25,11 @@ dmp.imitate(T, Y)
 
 plt.figure(figsize=(10, 8))
 ax1 = plt.subplot(221)
+ax1.set_title("Dimension 1")
 ax1.set_xlabel("Time")
 ax1.set_ylabel("Position")
 ax2 = plt.subplot(222)
+ax2.set_title("Dimension 2")
 ax2.set_xlabel("Time")
 ax2.set_ylabel("Position")
 ax3 = plt.subplot(223)

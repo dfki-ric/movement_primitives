@@ -1,5 +1,18 @@
-import warnings
+"""
+===================================
+Pose Coupling of Dual Cartesian DMP
+===================================
 
+A dual Cartesian DMP is learned from an artificially generated demonstration
+and replayed with and without a coupling of the pose of the two end effectors.
+
+The red line indicates the DMP without coupling term and the orange line marks
+the DMP with coupling term.
+"""
+print(__doc__)
+
+
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianPose
@@ -10,8 +23,8 @@ from pytransform3d.urdf import UrdfTransformManager
 from movement_primitives.testing.simulation import SimulationMockup
 
 
-dt = 0.001
-int_dt = 0.0001
+dt = 0.01
+int_dt = 0.001
 execution_time = 1.0
 
 desired_distance = np.array([  # right arm to left arm
@@ -75,7 +88,8 @@ dmp = DualCartesianDMP(
     execution_time=execution_time, dt=dt,
     n_weights_per_dim=10, int_dt=int_dt, p_gain=0.0)
 dmp.imitate(T, Y)
-for coupling_term in [ct]:  # optional: None
+ax = pr.plot_basis(ax_s=0.8, s=0.1)
+for coupling_term, color in [(ct, "orange"), (None, "red")]:
     dmp.reset()
 
     rh5.goto_ee_state(Y[0])
@@ -85,14 +99,13 @@ for coupling_term in [ct]:  # optional: None
     P = np.asarray(positions)
     V = np.asarray(velocities)
 
-    ax = pr.plot_basis(ax_s=0.8, s=0.1)
-    ptr.plot_trajectory(ax=ax, P=P[:, :7], s=0.05, color="orange", show_direction=False)
-    ptr.plot_trajectory(ax=ax, P=P[:, 7:], s=0.05, color="orange", show_direction=False)
-    for t in range(0, len(P), 500):
+    ptr.plot_trajectory(ax=ax, P=P[:, :7], s=0.05, color=color, show_direction=False)
+    ptr.plot_trajectory(ax=ax, P=P[:, 7:], s=0.05, color=color, show_direction=False)
+    for t in range(0, len(P), 50):
         gripper_left2base = pt.transform_from_pq(P[t, :7])
         gripper_right2base = pt.transform_from_pq(P[t, 7:])
         tm.add_transform("ALWristPitch_Link", "base", gripper_left2base)
         tm.add_transform("ARWristPitch_Link", "base", gripper_right2base)
         ax = tm.plot_visuals(frame="base", ax=ax)
     ax.view_init(elev=0, azim=90)
-    plt.show()
+plt.show()

@@ -1,4 +1,16 @@
+"""
+=================================
+Simulate a DMP in Cartesian Space
+=================================
+
+A normal DMP is used to represent a Cartesian trajectory given by positions
+and quaternions.
+"""
+print(__doc__)
+
+
 import numpy as np
+import matplotlib.pyplot as plt
 from movement_primitives.dmp import DMP
 from movement_primitives.testing.simulation import UR5Simulation
 
@@ -16,7 +28,6 @@ Y[:, 1] = -0.2 + 0.4 * sigmoid + np.linspace(-0.4, 0.4, len(Y)) ** 2
 Y[:, 2] = 0.45
 Y[:, 4] = 1.0
 dmp.imitate(T, Y)
-#dmp.forcing_term.weights[:, :] = 0.0
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
 ur5 = UR5Simulation(dt=dt, real_time=False)
@@ -27,7 +38,6 @@ for _ in range(4):
 desired_positions, positions, desired_velocities, velocities = \
     ur5.step_through_cartesian(dmp, Y[0], np.zeros(7), 4 * execution_time, closed_loop=True)
 
-import matplotlib.pyplot as plt
 P = np.asarray(positions)
 dP = np.asarray(desired_positions)
 V = np.asarray(velocities)

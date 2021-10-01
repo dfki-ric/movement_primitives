@@ -1,6 +1,18 @@
+"""
+=================
+Conditional ProMP
+=================
+
+Probabilistic Movement Primitives (ProMPs) define distributions over
+trajectories that can be conditioned on viapoints. In this example, we
+plot the resulting posterior distribution after conditioning on varying
+start positions.
+"""
+print(__doc__)
+
+
 import numpy as np
 import matplotlib.pyplot as plt
-
 from movement_primitives.data import generate_1d_trajectory_distribution
 from movement_primitives.promp import ProMP
 

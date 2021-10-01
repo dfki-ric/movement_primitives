@@ -7,6 +7,15 @@ from ._canonical_system import canonical_system_alpha, phase
 class StateFollowingDMP(DMPBase):
     """State following DMP (highly experimental).
 
+    The DMP variant that is implemented here is described in
+
+    J. Vidakovic, B. Jerbic, B. Sekoranja, M. Svaco, F. Suligoj:
+    Task Dependent Trajectory Learning from Multiple Demonstrations Using
+    Movement Primitives (2019),
+    International Conference on Robotics in Alpe-Adria Danube Region (RAAD),
+    pp. 275-282, doi: 10.1007/978-3-030-19648-6_32,
+    https://link.springer.com/chapter/10.1007/978-3-030-19648-6_32
+
     Attributes
     ----------
     dt_ : float
