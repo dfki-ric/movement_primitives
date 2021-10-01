@@ -1,7 +1,17 @@
+"""
+=============================
+Simulate Spring-Damper System
+=============================
+
+A spring-damper system is used to control the Cartesian pose of a robot arm.
+"""
+print(__doc__)
+
+
 import numpy as np
+import matplotlib.pyplot as plt
 from movement_primitives.spring_damper import SpringDamper
 from movement_primitives.testing.simulation import UR5Simulation
-
 
 
 dt = 0.01
@@ -20,7 +30,6 @@ for _ in range(4):
 desired_positions, positions, desired_velocities, velocities = \
     ur5.step_through_cartesian(sd, start, np.zeros(7), 10.0, closed_loop=True)
 
-import matplotlib.pyplot as plt
 P = np.asarray(positions)
 dP = np.asarray(desired_positions)
 V = np.asarray(velocities)

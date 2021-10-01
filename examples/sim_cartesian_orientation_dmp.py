@@ -6,6 +6,9 @@ Simulate a Cartesian DMP
 A Cartesian DMP is used to represent a Cartesian trajectory given by positions
 and quaternions.
 """
+print(__doc__)
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from movement_primitives.dmp import CartesianDMP

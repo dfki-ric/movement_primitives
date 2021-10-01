@@ -6,6 +6,9 @@ Change DMP frequencies
 In this example, we modify the size of a time step in a DMP and compare its
 effect.
 """
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import DMP
