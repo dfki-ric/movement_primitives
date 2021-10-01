@@ -5,6 +5,9 @@ Velocities of a ProMP
 
 ProMPs can generate positions and velocities of a trajectory.
 """
+print(__doc__)
+
+
 import numpy as np
 from movement_primitives.promp import ProMP
 import matplotlib.pyplot as plt

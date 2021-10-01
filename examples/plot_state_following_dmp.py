@@ -1,3 +1,11 @@
+"""
+===================
+State-following DMP
+===================
+"""
+print(__doc__)
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import StateFollowingDMP
