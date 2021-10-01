@@ -1,4 +1,13 @@
+"""
+========================
+Simulate a Cartesian DMP
+========================
+
+A Cartesian DMP is used to represent a Cartesian trajectory given by positions
+and quaternions.
+"""
 import numpy as np
+import matplotlib.pyplot as plt
 from movement_primitives.dmp import CartesianDMP
 from movement_primitives.testing.simulation import UR5Simulation
 from pytransform3d import rotations as pr
@@ -24,8 +33,6 @@ for t in range(len(Y)):
     aa_t[:3] /= np.linalg.norm(aa_t[:3])
     Y[t, 3:] = pr.quaternion_from_axis_angle(aa_t)
 dmp.imitate(T, Y, allow_final_velocity=True)
-#dmp.forcing_term_pos.weights[:, :] = 0.0
-#dmp.forcing_term_rot.weights[:, :] = 0.0
 dmp.configure(start_y=Y[0], goal_y=Y[-1])
 
 ur5 = UR5Simulation(dt=dt, real_time=False)
@@ -36,7 +43,6 @@ for _ in range(4):
 desired_positions, positions, desired_velocities, velocities = \
     ur5.step_through_cartesian(dmp, Y[0], np.zeros(6), execution_time)
 
-import matplotlib.pyplot as plt
 P = np.asarray(positions)
 dP = np.asarray(desired_positions)
 V = np.asarray(velocities)
