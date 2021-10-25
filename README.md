@@ -114,13 +114,6 @@ Directly pushing to the master branch is not allowed.
 
 ## Examples
 
-### Contextual ProMPs
-
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
-
-[Script](scripts/vis_contextual_promp_distribution.py)
-
 ### Conditional ProMPs
 
 <img src="doc/source/_static/conditional_promps.png" width="800px" />
@@ -132,6 +125,22 @@ Directly pushing to the master branch is not allowed.
 <img src="doc/source/_static/dmp_potential_field.png" width="800px" />
 
 [Script](examples/plot_dmp_potential_field.py)
+
+### Contextual ProMPs
+
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
+
+[Script](scripts/vis_contextual_promp_distribution.py)
+
+Dependencies that are not publicly available:
+
+* Dataset: panel rotation dataset of
+  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+* URDF of dual arm Kuka system
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+  ```
 
 ### Dual Cartesian DMP
 
