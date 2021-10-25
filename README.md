@@ -150,6 +150,17 @@ formulation that allows to set the final velocity.
 
 [Script](examples/plot_dmp_with_final_velocity.py)
 
+### ProMPs
+
+<img src="doc/source/_static/promp_lasa.png" width="800px" />
+
+The LASA Handwriting dataset learned with ProMPs. The dataset consists of
+2D handwriting motions. The first and third column of the plot represent
+demonstrations and the second and fourth column show the imitated ProMPs
+with 1-sigma interval.
+
+[Script](examples/plot_promp_lasa.py)
+
 ### Contextual ProMPs
 
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
