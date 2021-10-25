@@ -190,7 +190,7 @@ Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_car
 
 **Dependencies that are not publicly available:**
 
-* URDF of [DFKI RIC's gripper](https://www.youtube.com/watch?v=jjGQNstmLvY):
+* URDF of DFKI RIC's gripper:
   ```bash
   git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
   ```
