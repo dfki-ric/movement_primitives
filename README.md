@@ -140,13 +140,19 @@ term (learned shape), and coupling terms (e.g., obstacle avoidance).
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
 
+We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+with 10 demonstrations per 3 different panel widths that were obtained through
+kinesthetic teaching.
+
 [Script](scripts/vis_contextual_promp_distribution.py)
 
-Dependencies that are not publicly available:
+**Dependencies that are not publicly available:**
 
 * Dataset: panel rotation dataset of
   [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
-* URDF of dual arm Kuka system
+* MoCap library
+* URDF of dual arm Kuka system from
+  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
