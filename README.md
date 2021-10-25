@@ -15,12 +15,13 @@
 ## Install Library
 
 This library requires Python 3.6 or later and pip is recommended for the
-installation.
+installation. In the following instructions we assume that the command
+`python` refers to Python 3.
 
 I recommend to install the library via pip in editable mode:
 
 ```
-pip install -e .[all]
+python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
@@ -49,7 +50,7 @@ available.
 # untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
 git clone git@git.hb.dfki.de:dfki-interaction/mocap.git
 cd mocap
-pip install -e .
+python -m pip install -e .
 cd ..
 ```
 
@@ -97,7 +98,7 @@ It will be located at `html/movement_primitives/index.html`.
 To run the tests some python libraries are required:
 
 ```
-pip install -e .[test]
+python -m pip install -e .[test]
 ```
 
 The tests are located in the folder `test/` and can be executed with:
