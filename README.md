@@ -176,6 +176,10 @@ Scripts: [Open3D](scripts/vis_solar_panel.py), [PyBullet](scripts/sim_solar_pane
   ```bash
   git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
   ```
+* URDF of solar panel:
+  ```bash
+  git clone git@git.hb.dfki.de:models-objects/solar_panels.git
+  ```
 
 ### Coupled Dual Cartesian DMP
 
