@@ -17,8 +17,7 @@
 This library requires Python 3.6 or later and pip is recommended for the
 installation. In the following instructions, we assume that the command
 `python` refers to Python 3. If you use the system's Python version, you
-might have to add `sudo` in front or the flag `--user` after any installation
-command.
+might have to add the flag `--user` to any installation command.
 
 I recommend to install the library via pip in editable mode:
 
