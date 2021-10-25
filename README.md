@@ -140,6 +140,16 @@ term (learned shape), and coupling terms (e.g., obstacle avoidance).
 
 [Script](examples/plot_dmp_potential_field.py)
 
+### DMP with Final Velocity
+
+<img src="doc/source/_static/dmp_with_final_velocity.png" width="800px" />
+
+Not all DMPs allow a final velocity > 0. In this case we analyze the effect
+of changing final velocities in an appropriate variation of the DMP
+formulation that allows to set the final velocity.
+
+[Script](examples/plot_dmp_with_final_velocity.py)
+
 ### Contextual ProMPs
 
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
