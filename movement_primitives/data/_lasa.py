@@ -2,6 +2,7 @@ import os
 import zipfile
 import io
 import scipy.io
+import numpy as np
 try:
     from urllib2 import urlopen
 except:
