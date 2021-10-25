@@ -14,6 +14,9 @@
 
 ## Install Library
 
+This library requires Python 3.6 or later and pip is recommended for the
+installation.
+
 I recommend to install the library via pip in editable mode:
 
 ```
