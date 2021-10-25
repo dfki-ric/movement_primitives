@@ -164,18 +164,58 @@ visualizations corresponds to a ProMP for a different context.
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="300px" />
 <img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="300px" />
 
+We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
+humanoid robots.
+
 Scripts: [Open3D](scripts/vis_solar_panel.py), [PyBullet](scripts/sim_solar_panel.py)
+
+**Dependencies that are not publicly available:**
+
+* MoCap library
+* URDF of [DFKI RIC's RH5 robot](https://www.youtube.com/watch?v=jjGQNstmLvY):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
+  ```
 
 ### Coupled Dual Cartesian DMP
 
 <img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="450px" />
 <img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="250px" />
 
+We can introduce a coupling term in a dual Cartesian DMP to constrain the
+relative position, orientation, or pose of two end-effectors of a dual-arm
+robot.
+
 Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_cartesian_dual_dmp.py)
+
+**Dependencies that are not publicly available:**
+
+* URDF of [DFKI RIC's gripper](https://www.youtube.com/watch?v=jjGQNstmLvY):
+  ```bash
+  git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
+  ```
+* URDF of [DFKI RIC's RH5 robot](https://www.youtube.com/watch?v=jjGQNstmLvY):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
+  ```
 
 ### Propagation of DMP Distribution to State Space
 
 <img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="500px" />
 <img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="300px" />
 
+If we have a distribution over DMP parameters, we can propagate them to state
+space through an unscented transform.
+
 [Script](scripts/vis_dmp_to_state_variance.py)
+
+**Dependencies that are not publicly available:**
+
+* Dataset: panel rotation dataset of
+  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+* MoCap library
+* URDF of dual arm Kuka system from
+  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+  ```
