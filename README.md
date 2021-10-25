@@ -118,11 +118,20 @@ Directly pushing to the master branch is not allowed.
 
 <img src="doc/source/_static/conditional_promps.png" width="800px" />
 
+Probabilistic Movement Primitives (ProMPs) define distributions over
+trajectories that can be conditioned on viapoints. In this example, we
+plot the resulting posterior distribution after conditioning on varying
+start positions.
+
 [Script](examples/plot_conditional_promp.py)
 
 ### Potential Field of 2D DMP
 
 <img src="doc/source/_static/dmp_potential_field.png" width="800px" />
+
+A Dynamical Movement Primitive defines a potential field that superimposes
+several components: transformation system (goal-directed movement), forcing
+term (learned shape), and coupling terms (e.g., obstacle avoidance).
 
 [Script](examples/plot_dmp_potential_field.py)
 
