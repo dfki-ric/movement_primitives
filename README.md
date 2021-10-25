@@ -22,7 +22,7 @@ command.
 
 I recommend to install the library via pip in editable mode:
 
-```
+```bash
 python -m pip install -e .[all]
 ```
 
@@ -58,7 +58,7 @@ cd ..
 
 ### Get URDFs
 
-```
+```bash
 # UR5
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 # RH5
@@ -99,7 +99,7 @@ It will be located at `html/movement_primitives/index.html`.
 
 To run the tests some python libraries are required:
 
-```
+```bash
 python -m pip install -e .[test]
 ```
 
