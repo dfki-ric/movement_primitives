@@ -14,10 +14,15 @@
 
 ## Install Library
 
+This library requires Python 3.6 or later and pip is recommended for the
+installation. In the following instructions, we assume that the command
+`python` refers to Python 3. If you use the system's Python version, you
+might have to add the flag `--user` to any installation command.
+
 I recommend to install the library via pip in editable mode:
 
-```
-pip install -e .[all]
+```bash
+python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
@@ -46,13 +51,13 @@ available.
 # untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
 git clone git@git.hb.dfki.de:dfki-interaction/mocap.git
 cd mocap
-pip install -e .
+python -m pip install -e .
 cd ..
 ```
 
 ### Get URDFs
 
-```
+```bash
 # UR5
 git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 # RH5
@@ -93,8 +98,8 @@ It will be located at `html/movement_primitives/index.html`.
 
 To run the tests some python libraries are required:
 
-```
-pip install -e .[test]
+```bash
+python -m pip install -e .[test]
 ```
 
 The tests are located in the folder `test/` and can be executed with:
