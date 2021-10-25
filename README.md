@@ -142,7 +142,9 @@ term (learned shape), and coupling terms (e.g., obstacle avoidance).
 
 We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
 with 10 demonstrations per 3 different panel widths that were obtained through
-kinesthetic teaching.
+kinesthetic teaching. The panel width is considered to be the context over
+which we generalize with contextual ProMPs. Each color in the above
+visualizations corresponds to a ProMP for a different context.
 
 [Script](scripts/vis_contextual_promp_distribution.py)
 
