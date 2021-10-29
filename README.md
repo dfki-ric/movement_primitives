@@ -172,7 +172,7 @@ kinesthetic teaching. The panel width is considered to be the context over
 which we generalize with contextual ProMPs. Each color in the above
 visualizations corresponds to a ProMP for a different context.
 
-[Script](scripts/vis_contextual_promp_distribution.py)
+[Script](examples/external_dependencies/vis_contextual_promp_distribution.py)
 
 **Dependencies that are not publicly available:**
 
@@ -193,7 +193,7 @@ visualizations corresponds to a ProMP for a different context.
 We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
 humanoid robots.
 
-Scripts: [Open3D](scripts/vis_solar_panel.py), [PyBullet](scripts/sim_solar_panel.py)
+Scripts: [Open3D](examples/external_dependencies/vis_solar_panel.py), [PyBullet](examples/external_dependencies/sim_solar_panel.py)
 
 **Dependencies that are not publicly available:**
 
@@ -216,7 +216,7 @@ We can introduce a coupling term in a dual Cartesian DMP to constrain the
 relative position, orientation, or pose of two end-effectors of a dual-arm
 robot.
 
-Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_cartesian_dual_dmp.py)
+Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [PyBullet](examples/external_dependencies/sim_cartesian_dual_dmp.py)
 
 **Dependencies that are not publicly available:**
 
@@ -237,7 +237,7 @@ Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_car
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
 
-[Script](scripts/vis_dmp_to_state_variance.py)
+[Script](examples/external_dependencies/vis_dmp_to_state_variance.py)
 
 **Dependencies that are not publicly available:**
 
