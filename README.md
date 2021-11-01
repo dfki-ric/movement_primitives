@@ -2,10 +2,10 @@
 
 [API Documentation](http://bob.dfki.uni-bremen.de/apis/dfki-learning/movement_primitives/movement_primitives/)
 
-Movement primitives are a common policy representation in robotics. There are
-many different types and variations. This repository focuses mainly on
-imitation learning, generalization, and adaptation of movement primitives and
-provides implementations in Python and Cython.
+Movement primitives are a common group of policy representations in robotics.
+There are many different types and variations. This repository focuses mainly
+on imitation learning, generalization, and adaptation of movement primitives.
+It provides implementations in Python and Cython.
 
 ## Features
 
