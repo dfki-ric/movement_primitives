@@ -31,8 +31,13 @@ python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
+Alternatively, you can install dependencies with
 
-Alternatively, you can build the Cython extension with
+```bash
+python -m pip install -r requirements.txt
+```
+
+You could also just build the Cython extension with
 
 ```bash
 python setup.py build_ext --inplace
