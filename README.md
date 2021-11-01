@@ -63,8 +63,6 @@ cd ..
 ### Get URDFs
 
 ```bash
-# UR5
-git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 # RH5
 git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
 # RH5v2
