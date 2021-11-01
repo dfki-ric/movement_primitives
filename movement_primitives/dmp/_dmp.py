@@ -166,9 +166,23 @@ class DMP(DMPBase):
         self.configure(start_y=start_y, goal_y=goal_y)
 
     def get_weights(self):
+        """Get weight vector of DMP.
+
+        Returns
+        -------
+        weights : array, shape (n_dims * n_weights_per_dim,)
+            Current weights of the DMP.
+        """
         return self.forcing_term.weights.ravel()
 
     def set_weights(self, weights):
+        """Set weight vector of DMP.
+
+        Parameters
+        ----------
+        weights : array, shape (n_dims * n_weights_per_dim,)
+            New weights of the DMP.
+        """
         self.forcing_term.weights[:, :] = weights.reshape(-1, self.n_weights_per_dim)
 
 

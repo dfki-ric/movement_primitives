@@ -1,10 +1,11 @@
+pytransform3d
 cython
 numpy
+scipy
 matplotlib
 open3d
 tqdm
 gmr
 PyYAML
-pytransform3d
 numba
 pybullet

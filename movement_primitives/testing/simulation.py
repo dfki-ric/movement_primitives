@@ -162,7 +162,7 @@ class UR5Simulation(PybulletSimulation):
         self.plane = pybullet.loadURDF(
             "plane.urdf", [0, 0, -1], useFixedBase=1)
         self.robot = pybullet.loadURDF(
-            "ur5_fts300_2f-140/urdf/ur5.urdf", [0, 0, 0], useFixedBase=1)
+            "examples/data/urdf/ur5.urdf", [0, 0, 0], useFixedBase=1)
 
         self.base_pose = pybullet.getBasePositionAndOrientation(self.robot)
         self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
@@ -170,7 +170,7 @@ class UR5Simulation(PybulletSimulation):
         self.n_ur5_joints = 6
         # one link after the base link of the last joint
         self.ee_link_index = pybullet.getJointInfo(
-            self.robot, self.n_ur5_joints)[16] + 1
+            self.robot, self.n_ur5_joints)[16] + 2
 
         self.n_joints = pybullet.getNumJoints(self.robot)
         self.joint_indices = [
@@ -181,8 +181,6 @@ class UR5Simulation(PybulletSimulation):
         # we cannot actually use them so far:
         self.joint_max_velocities = [pybullet.getJointInfo(self.robot, i)[11]
                                      for i in self.joint_indices]
-
-        #print([self.joint_names[i] for i in self.joint_indices[:6]])
 
     def inverse_kinematics(self, ee2robot):
         pos, rot = _pybullet_pose(ee2robot)

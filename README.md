@@ -1,6 +1,11 @@
 # Movement Primitives
 
-[API Documentation (only reachable within network of DFKI RIC)](http://bob.dfki.uni-bremen.de/apis/dfki-learning/movement_primitives/movement_primitives/)
+[API Documentation](http://bob.dfki.uni-bremen.de/apis/dfki-learning/movement_primitives/movement_primitives/)
+
+Movement primitives are a common group of policy representations in robotics.
+There are many different types and variations. This repository focuses mainly
+on imitation learning, generalization, and adaptation of movement primitives.
+It provides implementations in Python and Cython.
 
 ## Features
 
@@ -26,8 +31,13 @@ python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
+Alternatively, you can install dependencies with
 
-Alternatively, you can build the Cython extension with
+```bash
+python -m pip install -r requirements.txt
+```
+
+You could also just build the Cython extension with
 
 ```bash
 python setup.py build_ext --inplace
@@ -41,9 +51,9 @@ python setup.py install
 
 ## Non-public Extensions
 
-Note that scripts from the subfolder `scripts/` require access to git
-repositories (URDF files or optional dependencies) that are not publicly
-available.
+Note that scripts from the subfolder `examples/external_dependencies/` require
+access to git repositories (URDF files or optional dependencies) that are not
+publicly available.
 
 ### MoCap Library
 
@@ -58,8 +68,6 @@ cd ..
 ### Get URDFs
 
 ```bash
-# UR5
-git clone git@git.hb.dfki.de:models-robots/ur5_fts300_2f-140.git
 # RH5
 git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
 # RH5v2
@@ -114,16 +122,14 @@ Directly pushing to the master branch is not allowed.
 
 ## Examples
 
-### Contextual ProMPs
-
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
-
-[Script](scripts/vis_contextual_promp_distribution.py)
-
 ### Conditional ProMPs
 
 <img src="doc/source/_static/conditional_promps.png" width="800px" />
+
+Probabilistic Movement Primitives (ProMPs) define distributions over
+trajectories that can be conditioned on viapoints. In this example, we
+plot the resulting posterior distribution after conditioning on varying
+start positions.
 
 [Script](examples/plot_conditional_promp.py)
 
@@ -131,25 +137,129 @@ Directly pushing to the master branch is not allowed.
 
 <img src="doc/source/_static/dmp_potential_field.png" width="800px" />
 
+A Dynamical Movement Primitive defines a potential field that superimposes
+several components: transformation system (goal-directed movement), forcing
+term (learned shape), and coupling terms (e.g., obstacle avoidance).
+
 [Script](examples/plot_dmp_potential_field.py)
+
+### DMP with Final Velocity
+
+<img src="doc/source/_static/dmp_with_final_velocity.png" width="800px" />
+
+Not all DMPs allow a final velocity > 0. In this case we analyze the effect
+of changing final velocities in an appropriate variation of the DMP
+formulation that allows to set the final velocity.
+
+[Script](examples/plot_dmp_with_final_velocity.py)
+
+### ProMPs
+
+<img src="doc/source/_static/promp_lasa.png" width="800px" />
+
+The LASA Handwriting dataset learned with ProMPs. The dataset consists of
+2D handwriting motions. The first and third column of the plot represent
+demonstrations and the second and fourth column show the imitated ProMPs
+with 1-sigma interval.
+
+[Script](examples/plot_promp_lasa.py)
+
+### Contextual ProMPs
+
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
+
+We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+with 10 demonstrations per 3 different panel widths that were obtained through
+kinesthetic teaching. The panel width is considered to be the context over
+which we generalize with contextual ProMPs. Each color in the above
+visualizations corresponds to a ProMP for a different context.
+
+[Script](examples/external_dependencies/vis_contextual_promp_distribution.py)
+
+**Dependencies that are not publicly available:**
+
+* Dataset: panel rotation dataset of
+  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+* MoCap library
+* URDF of dual arm Kuka system from
+  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+  ```
 
 ### Dual Cartesian DMP
 
 <img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="300px" />
 <img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="300px" />
 
-Scripts: [Open3D](scripts/vis_solar_panel.py), [PyBullet](scripts/sim_solar_panel.py)
+We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
+humanoid robots.
+
+Scripts: [Open3D](examples/external_dependencies/vis_solar_panel.py), [PyBullet](examples/external_dependencies/sim_solar_panel.py)
+
+**Dependencies that are not publicly available:**
+
+* MoCap library
+* URDF of [DFKI RIC's RH5 robot](https://www.youtube.com/watch?v=jjGQNstmLvY):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
+  ```
+* URDF of solar panel:
+  ```bash
+  git clone git@git.hb.dfki.de:models-objects/solar_panels.git
+  ```
 
 ### Coupled Dual Cartesian DMP
 
 <img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="450px" />
 <img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="250px" />
 
-Scripts: [Open3D](scripts/vis_cartesian_dual_dmp.py), [PyBullet](scripts/sim_cartesian_dual_dmp.py)
+We can introduce a coupling term in a dual Cartesian DMP to constrain the
+relative position, orientation, or pose of two end-effectors of a dual-arm
+robot.
+
+Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [PyBullet](examples/external_dependencies/sim_cartesian_dual_dmp.py)
+
+**Dependencies that are not publicly available:**
+
+* URDF of DFKI RIC's gripper:
+  ```bash
+  git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
+  ```
+* URDF of [DFKI RIC's RH5 robot](https://www.youtube.com/watch?v=jjGQNstmLvY):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
+  ```
 
 ### Propagation of DMP Distribution to State Space
 
 <img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="500px" />
 <img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="300px" />
 
-[Script](scripts/vis_dmp_to_state_variance.py)
+If we have a distribution over DMP parameters, we can propagate them to state
+space through an unscented transform.
+
+[Script](examples/external_dependencies/vis_dmp_to_state_variance.py)
+
+**Dependencies that are not publicly available:**
+
+* Dataset: panel rotation dataset of
+  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+* MoCap library
+* URDF of dual arm Kuka system from
+  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  ```bash
+  git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+  ```
+
+## Funding
+
+This library has been developed initially at the
+[Robotics Innovation Center](https://robotik.dfki-bremen.de/en/startpage.html)
+of the German Research Center for Artificial Intelligence (DFKI GmbH) in
+Bremen. At this phase the work was supported through a grant of the German
+Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).
+
+<img src="doc/source/_static/DFKI_Logo.jpg" height="50px" />
+<img src="doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
