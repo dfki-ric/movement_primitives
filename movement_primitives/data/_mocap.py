@@ -2,9 +2,9 @@ import glob
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from mocap import array_from_dataframe
-from mocap.pandas_utils import match_columns, rename_stream_groups
-from mocap.cleaning import smooth_quaternion_trajectory, median_filter
+import mocap
+import mocap.cleaning
+import mocap.pandas_utils
 
 
 def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
@@ -24,9 +24,9 @@ def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
         Window size of the median filter
     """
     for P in Ps:
-        P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
-        P[:, 10:] = smooth_quaternion_trajectory(P[:, 10:])
-        P[:, :] = median_filter(P, window_size=median_filter_window)
+        P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
+        P[:, 10:] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 10:])
+        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)
 
 
 def smooth_single_arm_trajectories_pq(Ps, median_filter_window=5):
@@ -45,8 +45,8 @@ def smooth_single_arm_trajectories_pq(Ps, median_filter_window=5):
         Window size of the median filter
     """
     for P in Ps:
-        P[:, 3:7] = smooth_quaternion_trajectory(P[:, 3:7])
-        P[:, :] = median_filter(P, window_size=median_filter_window)
+        P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
+        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)
 
 
 def transpose_dataset(dataset):
@@ -158,7 +158,7 @@ def load_kuka_demo(filename, context_names=None, verbose=0):
                 "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data.*",
                 "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.re.*",
                 "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.im.*"]
-    columns = match_columns(trajectory, patterns)
+    columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
@@ -168,13 +168,13 @@ def load_kuka_demo(filename, context_names=None, verbose=0):
         "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data).*": "right_pose",
         "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation).*": "right_pose"
     }
-    trajectory = rename_stream_groups(trajectory, group_rename)
+    trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
     trajectory["Time"] = trajectory["Time"] / 1e6
     trajectory["Time"] -= trajectory["Time"].iloc[0]
     T = trajectory["Time"].to_numpy()
 
-    P = array_from_dataframe(
+    P = mocap.array_from_dataframe(
         trajectory,
         ["left_pose[0]", "left_pose[1]", "left_pose[2]",
          "left_pose.re", "left_pose.im[0]", "left_pose.im[1]", "left_pose.im[2]",
@@ -218,7 +218,7 @@ def load_rh5_demo(filename, verbose=0):
                 "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*",
                 "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*",
                 "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.im.*"]
-    columns = match_columns(trajectory, patterns)
+    columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
@@ -228,13 +228,13 @@ def load_rh5_demo(filename, verbose=0):
         "(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data).*": "right_pose",
         "(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation).*": "right_pose"
     }
-    trajectory = rename_stream_groups(trajectory, group_rename)
+    trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
     trajectory["Time"] = trajectory["Time"] / 1e6
     trajectory["Time"] -= trajectory["Time"].iloc[0]
     T = trajectory["Time"].to_numpy()
 
-    P = array_from_dataframe(
+    P = mocap.array_from_dataframe(
         trajectory,
         ["left_pose[0]", "left_pose[1]", "left_pose[2]", "left_pose.re", "left_pose.im[0]", "left_pose.im[1]",
          "left_pose.im[2]",
