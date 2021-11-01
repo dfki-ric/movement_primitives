@@ -46,9 +46,9 @@ python setup.py install
 
 ## Non-public Extensions
 
-Note that scripts from the subfolder `scripts/` require access to git
-repositories (URDF files or optional dependencies) that are not publicly
-available.
+Note that scripts from the subfolder `examples/external_dependencies/` require
+access to git repositories (URDF files or optional dependencies) that are not
+publicly available.
 
 ### MoCap Library
 
