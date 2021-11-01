@@ -252,3 +252,14 @@ space through an unscented transform.
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
+
+## Funding
+
+This library has been developed initially at the
+[Robotics Innovation Center](https://robotik.dfki-bremen.de/en/startpage.html)
+of the German Research Center for Artificial Intelligence (DFKI GmbH) in
+Bremen. At this phase the work was supported through a grant of the German
+Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).
+
+<img src="doc/source/_static/DFKI_Logo.jpg" height="50px" />
+<img src="doc/source/_static/241-logo-bmwi-jpg.jpg" height="50px" />
