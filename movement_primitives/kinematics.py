@@ -241,7 +241,8 @@ class Chain:
 
     def inverse_with_random_restarts(
             self, desired_pose, n_restarts=10, tolerance=1e-3,
-            random_state=None, orientation_weight=1.0, position_weight=1.0):
+            random_state=None, solver="SLSQP",
+            orientation_weight=1.0, position_weight=1.0):
         if random_state is None:
             random_state = np.random
         assert n_restarts >= 1
@@ -250,7 +251,8 @@ class Chain:
         for _ in range(n_restarts):
             q, error = self.inverse(
                 desired_pose, self._sample_joints_uniform(random_state),
-                return_error=True, orientation_weight=orientation_weight,
+                return_error=True, solver=solver,
+                orientation_weight=orientation_weight,
                 position_weight=position_weight)
             Q.append(q)
             errors.append(error)
@@ -262,8 +264,8 @@ class Chain:
 
     def local_inverse_with_random_restarts(
             self, desired_pose, joint_angles, interval, n_restarts=10,
-            tolerance=1e-3, random_state=None, orientation_weight=1.0,
-            position_weight=1.0):
+            tolerance=1e-3, random_state=None, solver="SLSQP",
+            orientation_weight=1.0, position_weight=1.0):
         if random_state is None:
             random_state = np.random
         assert n_restarts >= 1
@@ -275,7 +277,7 @@ class Chain:
         q = joint_angles  # start with previous state
         for _ in range(n_restarts):
             q, error = self.inverse(
-                desired_pose, q, return_error=True,
+                desired_pose, q, return_error=True, solver=solver,
                 orientation_weight=orientation_weight,
                 position_weight=position_weight)
             Q.append(q)
@@ -298,13 +300,13 @@ class Chain:
 
     def inverse_trajectory(
             self, H, initial_joint_angles=None, interval=0.1 * math.pi,
-            random_restarts=True, random_state=None, orientation_weight=1.0,
-            position_weight=1.0):
+            random_restarts=True, random_state=None, solver="SLSQP",
+            orientation_weight=1.0, position_weight=1.0):
         Q = np.empty((len(H), len(self.joint_names)), dtype=float)
 
         if initial_joint_angles is not None:
             Q[0] = self.inverse(
-                H[0], initial_joint_angles,
+                H[0], initial_joint_angles, solver=solver,
                 orientation_weight=orientation_weight,
                 position_weight=position_weight)
         else:
@@ -326,7 +328,7 @@ class Chain:
                 bounds[:, 0] = Q[t - 1] - interval
                 bounds[:, 1] = Q[t - 1] + interval
                 Q[t] = self.inverse(
-                    H[t], Q[t - 1], False, bounds,
+                    H[t], Q[t - 1], False, bounds, solver=solver,
                     orientation_weight=orientation_weight,
                     position_weight=position_weight)
         return Q
