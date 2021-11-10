@@ -187,6 +187,27 @@ class CartesianDMP(DMPBase):
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
+    def get_weights(self):
+        """Get weight vector of DMP.
+
+        Returns
+        -------
+        weights : array, shape (6 * n_weights_per_dim,)
+            Current weights of the DMP.
+        """
+        return np.concatenate(self.forcing_term.weights_pos.ravel(), self.forcing_term_rot.weights.ravel())
+
+    def set_weights(self, weights):
+        """Set weight vector of DMP.
+
+        Parameters
+        ----------
+        weights : array, shape (6 * n_weights_per_dim,)
+            New weights of the DMP.
+        """
+        self.forcing_term_pos.weights[:, :] = weights[:self.forcing_term_pos.weights.size].reshape(-1, self.n_weights_per_dim)
+        self.forcing_term_rot.weights[:, :] = weights[self.forcing_term_pos.weights.size:].reshape(-1, self.n_weights_per_dim)
+
 
 def dmp_step_quaternion_python(
         last_t, t,
