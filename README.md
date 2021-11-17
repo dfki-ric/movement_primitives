@@ -1,7 +1,5 @@
 # Movement Primitives
 
-[API Documentation](http://bob.dfki.uni-bremen.de/apis/dfki-learning/movement_primitives/movement_primitives/)
-
 Movement primitives are a common group of policy representations in robotics.
 There are many different types and variations. This repository focuses mainly
 on imitation learning, generalization, and adaptation of movement primitives.
