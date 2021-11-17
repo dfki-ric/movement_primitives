@@ -1,0 +1,1794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>movement_primitives.promp API documentation</title>
+<meta name="description" content="Probabilistic movement primitive." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>movement_primitives.promp</code></h1>
+</header>
+<section id="section-intro">
+<p>Probabilistic movement primitive.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Probabilistic movement primitive.&#34;&#34;&#34;
+import numpy as np
+
+
+class ProMP:
+    &#34;&#34;&#34;Probabilistic Movement Primitive (ProMP).
+
+    ProMPs have been proposed first in [1] and have been used later in [2,3].
+    The learning algorithm is a specialized form of the one presented in [4].
+
+    Note that internally we represented trajectories with the task space
+    dimension as the first axis and the time step as the second axis while
+    the exposed trajectory interface is transposed. In addition, we internally
+    only use the a 1d array representation to make handling of the covariance
+    simpler.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    References
+    ----------
+    [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+    https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+
+    [3] Maeda et al.: Probabilistic movement primitives for coordination of
+    multiple human–robot collaborative tasks, AuRo 2017,
+    https://link.springer.com/article/10.1007/s10514-016-9556-2
+
+    [2] Paraschos et al.: Using probabilistic movement primitives in robotics, AuRo (2018),
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf,
+    https://link.springer.com/article/10.1007/s10514-017-9648-7
+
+    [4] Lazaric et al.: Bayesian Multi-Task Reinforcement Learning, ICML (2010),
+    https://hal.inria.fr/inria-00475214/document
+    &#34;&#34;&#34;
+    def __init__(self, n_dims, n_weights_per_dim=10):
+        self.n_dims = n_dims
+        self.n_weights_per_dim = n_weights_per_dim
+
+        self.n_weights = n_dims * n_weights_per_dim
+
+        self.weight_mean = np.zeros(self.n_weights)
+        self.weight_cov = np.eye(self.n_weights)
+
+        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
+
+    def weights(self, T, Y, lmbda=1e-12):
+        &#34;&#34;&#34;Obtain ProMP weights by linear regression.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Y : array-like, shape (n_steps, n_dims)
+            Demonstrated trajectory
+
+        lmbda : float, optional (default: 1e-12)
+            Regularization coefficient
+
+        Returns
+        -------
+        weights : array, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+        &#34;&#34;&#34;
+        activations = self._rbfs_nd_sequence(T).T
+        weights = np.linalg.pinv(
+            activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
+        ).dot(activations.T).dot(Y.T.ravel())
+        return weights
+
+    def trajectory_from_weights(self, T, weights):
+        &#34;&#34;&#34;Generate trajectory from ProMP weights.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        weights : array-like, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Trajectory
+        &#34;&#34;&#34;
+        return self._rbfs_nd_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T
+
+    def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
+        &#34;&#34;&#34;Condition ProMP on a specific position (see page 4 of [1]).
+
+        Parameters
+        ----------
+        y_mean : array, shape (n_dims,)
+            Position mean
+
+        y_cov : array, shape (n_dims, n_dims), optional (default: 0)
+            Covariance of position
+
+        t : float, optional (default: 0)
+            Time at which the activations of RBFs will be queried. Note that
+            we internally normalize the time so that t_max == 1.
+
+        t_max : float, optional (default: 1)
+            Duration of the ProMP
+
+        Returns
+        -------
+        conditional_promp : ProMP
+            New conditional ProMP
+
+        References
+        ----------
+        [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+        https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+        &#34;&#34;&#34;
+        Psi_t = _nd_block_diagonal(self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
+        if y_cov is None:
+            y_cov = 0.0
+
+        common_term = self.weight_cov.dot(Psi_t).dot(
+            np.linalg.inv(y_cov + Psi_t.T.dot(self.weight_cov).dot(Psi_t)))
+
+        # Equation (5)
+        weight_mean = self.weight_mean + common_term.dot(y_mean - Psi_t.T.dot(self.weight_mean))
+        # Equation (6)
+        weight_cov = self.weight_cov - common_term.dot(Psi_t.T).dot(self.weight_cov)
+
+        conditional_promp = ProMP(self.n_dims, self.n_weights_per_dim)
+        conditional_promp.from_weight_distribution(weight_mean, weight_cov)
+        return conditional_promp
+
+    def mean_trajectory(self, T):
+        &#34;&#34;&#34;Get mean trajectory of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Mean trajectory
+        &#34;&#34;&#34;
+        return self.trajectory_from_weights(T, self.weight_mean)
+
+    def cov_trajectory(self, T):
+        &#34;&#34;&#34;Get trajectory covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+            Covariance
+        &#34;&#34;&#34;
+        activations = self._rbfs_nd_sequence(T)
+        return activations.T.dot(self.weight_cov).dot(activations)
+
+    def var_trajectory(self, T):
+        &#34;&#34;&#34;Get trajectory variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        &#34;&#34;&#34;
+        return np.maximum(np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T, 0.0)
+
+    def mean_velocities(self, T):
+        &#34;&#34;&#34;Get mean velocities of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Yd : array, shape (n_steps, n_dims)
+            Mean velocities
+        &#34;&#34;&#34;
+        return self._rbfs_derivative_nd_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
+
+    def cov_velocities(self, T):
+        &#34;&#34;&#34;Get velocity covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+            Covariance
+        &#34;&#34;&#34;
+        activations = self._rbfs_derivative_nd_sequence(T)
+        return activations.T.dot(self.weight_cov).dot(activations)
+
+    def var_velocities(self, T):
+        &#34;&#34;&#34;Get velocity variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        &#34;&#34;&#34;
+        return np.maximum(np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T, 0.0)
+
+    def sample_trajectories(self, T, n_samples, random_state):
+        &#34;&#34;&#34;Sample trajectories from ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        n_samples : int
+            Number of trajectories that will be sampled
+
+        random_state : np.random.RandomState
+            State of random number generator
+
+        Returns
+        -------
+        samples : array, shape (n_samples, n_steps, n_dims)
+            Sampled trajectories
+        &#34;&#34;&#34;
+        weight_samples = random_state.multivariate_normal(
+            self.weight_mean, self.weight_cov, n_samples)
+        samples = np.empty((n_samples, len(T), self.n_dims))
+        for i in range(n_samples):
+            samples[i] = self.trajectory_from_weights(T, weight_samples[i])
+        return samples
+
+    def from_weight_distribution(self, mean, cov):
+        &#34;&#34;&#34;Initialize ProMP from mean and covariance in weight space.
+
+        Parameters
+        ----------
+        mean : array, shape (n_dims * n_weights_per_dim)
+            Mean of weight distribution
+
+        cov : array, shape (n_dims * n_weights_per_dim, n_dims * n_weights_per_dim)
+            Covariance of weight distribution
+
+        Returns
+        -------
+        self : ProMP
+            This object
+        &#34;&#34;&#34;
+        self.weight_mean = mean
+        self.weight_cov = cov
+        return self
+
+    def imitate(self, Ts, Ys, n_iter=1000, min_delta=1e-5, verbose=0):
+        &#34;&#34;&#34;Learn ProMP from multiple demonstrations.
+
+        Parameters
+        ----------
+        Ts : array, shape (n_demos, n_steps)
+            Time steps of demonstrations
+
+        Ys : array, shape (n_demos, n_steps, n_dims)
+            Demonstrations
+
+        n_iter : int, optional (default: 1000)
+            Maximum number of iterations
+
+        min_delta : float, optional (default: 1e-5)
+            Minimum delta between means to continue iteration
+
+        verbose : int, optional (default: 0)
+            Verbosity level
+        &#34;&#34;&#34;
+        # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
+        # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
+        # Section 3.2 of https://hal.inria.fr/inria-00475214/document
+
+        # P = I
+        # mu_0 = 0
+        # k_0 = 0
+        # nu_0 = 0
+        # Sigma_0 = 0
+        # alpha_0 = 0
+        # beta_0 = 0
+        gamma = 0.7
+
+        n_demos = len(Ts)
+        self.variance = 1.0
+
+        means = np.zeros((n_demos, self.n_weights))
+        covs = np.empty((n_demos, self.n_weights, self.n_weights))
+
+        # Precompute constant terms in expectation-maximization algorithm
+
+        # n_demos x n_steps*self.n_dims x n_steps*self.n_dims
+        Hs = []
+        for demo_idx in range(n_demos):
+            n_steps = len(Ys[demo_idx])
+            H_partial = np.eye(n_steps)
+            for y in range(n_steps - 1):
+                H_partial[y, y + 1] = -gamma
+            H = _nd_block_diagonal(H_partial, self.n_dims)
+            Hs.append(H)
+
+        # n_demos x n_steps*n_dims
+        Ys_rearranged = [Y.T.ravel() for Y in Ys]
+
+        # n_demos x n_steps*self.n_dims
+        Rs = []
+        for demo_idx in range(n_demos):
+            R = Hs[demo_idx].dot(Ys_rearranged[demo_idx])
+            Rs.append(R)
+
+        # n_demos
+        # RR in original code
+        RTRs = []
+        for demo_idx in range(n_demos):
+            RTR = Rs[demo_idx].T.dot(Rs[demo_idx])
+            RTRs.append(RTR)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_steps
+        # BH in original code
+        PhiHTs = []
+        for demo_idx in range(n_demos):
+            PhiHT = self._rbfs_nd_sequence(Ts[demo_idx]).dot(Hs[demo_idx].T)
+            PhiHTs.append(PhiHT)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim
+        # mean_esteps in original code
+        PhiHTRs = []
+        for demo_idx in range(n_demos):
+            PhiHTR = PhiHTs[demo_idx].dot(Rs[demo_idx])
+            PhiHTRs.append(PhiHTR)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_weights_per_dim
+        # cov_esteps in original code
+        PhiHTHPhiTs = []
+        for demo_idx in range(n_demos):
+            PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
+            PhiHTHPhiTs.append(PhiHTHPhiT)
+
+        n_samples = sum([Y.shape[0] for Y in Ys])
+
+        for it in range(n_iter):
+            weight_mean_old = self.weight_mean
+
+            for demo_idx in range(n_demos):
+                means[demo_idx], covs[demo_idx] = self._expectation(
+                        PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
+
+            self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
+
+            delta = np.linalg.norm(self.weight_mean - weight_mean_old)
+            if verbose:
+                print(&#34;Iteration %04d: delta = %g&#34; % (it + 1, delta))
+            if delta &lt; min_delta:
+                break
+
+    def _rbfs_1d_point(self, t, t_max=1.0, overlap=0.7):
+        &#34;&#34;&#34;Radial basis functions for one dimension and a point.
+
+        Parameters
+        ----------
+        t : float
+            Time at which the activations of RBFs will be queried. Note that
+            we internally normalize the time so that t_max == 1.
+
+        t_max : float, optional (default: 1)
+            Duration of the ProMP
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim,)
+            Activations of RBFs for each time step.
+        &#34;&#34;&#34;
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        # normalize time to interval [0, 1]
+        t = t / t_max
+
+        activations = np.exp(-(t - self.centers[:]) ** 2 / (2.0 * h))
+        activations /= activations.sum(axis=0)  # normalize activations for each step
+
+        assert activations.ndim == 1
+        assert activations.shape[0] == self.n_weights_per_dim
+
+        return activations
+
+    def _rbfs_nd_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Radial basis functions for n_dims dimensions and a sequence.&#34;&#34;&#34;
+        return _nd_block_diagonal(self._rbfs_1d_sequence(T, overlap), self.n_dims)
+
+    def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
+        &#34;&#34;&#34;Radial basis functions for one dimension and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        normalize : bool, optional (default: True)
+            Normalize activations to sum up to one in each step
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of RBFs for each time step.
+        &#34;&#34;&#34;
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        # normalize time to interval [0, 1]
+        T = np.atleast_2d(T)
+        T /= np.max(T)
+
+        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
+        if normalize:
+            activations /= activations.sum(axis=0)
+
+        assert activations.shape[0] == self.n_weights_per_dim
+        assert activations.shape[1] == n_steps
+
+        return activations
+
+    def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Derivative of radial basis functions for n_dims dimensions and a sequence.&#34;&#34;&#34;
+        return _nd_block_diagonal(self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
+
+    def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Derivative of radial basis functions for one dimension and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of derivative of RBFs for each time step.
+        &#34;&#34;&#34;
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        rbfs = self._rbfs_1d_sequence(T, overlap, normalize=False)
+        rbfs_sum_per_step = rbfs.sum(axis=0)
+
+        # normalize time to interval [0, 1]
+        T = np.atleast_2d(T)
+        T /= np.max(T)
+
+        rbfs_deriv = (self.centers[:, np.newaxis] - T) / h
+        rbfs_deriv *= rbfs
+        rbfs_deriv_sum_per_step = rbfs_deriv.sum(axis=0)
+        rbfs_deriv = (rbfs_deriv * rbfs_sum_per_step
+                      - rbfs * rbfs_deriv_sum_per_step) / (rbfs_sum_per_step ** 2)
+
+        assert rbfs_deriv.shape[0] == self.n_weights_per_dim
+        assert rbfs_deriv.shape[1] == n_steps
+
+        return rbfs_deriv
+
+    def _expectation(self, PhiHTR, PhiHTHPhiT):
+        cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
+        mean = cov.dot(PhiHTR / self.variance + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))
+        return mean, cov
+
+    def _maximization(self, means, covs, RRs, PhiHTR, PhiHTHPhiTs, n_samples):
+        M = len(means)
+
+        self.weight_mean = np.mean(means, axis=0)
+
+        centered = means - self.weight_mean
+        self.weight_cov = centered.T.dot(centered)
+        for i in range(len(covs)):
+            self.weight_cov += covs[i]
+        self.weight_cov /= M  # TODO what is d + 2?
+
+        self.variance = 0.0
+        for i in range(len(means)):
+            # a trace is the same irrelevant of the order of matrix multiplications,
+            # see: https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf, Equation 16
+            self.variance += np.trace(PhiHTHPhiTs[i].dot(covs[i]))
+
+            self.variance += RRs[i]
+            self.variance -= 2.0 * PhiHTR[i].T.dot(means[i].T)
+            self.variance += (means[i].dot(PhiHTHPhiTs[i].dot(means[i].T)))
+
+        self.variance /= np.linalg.norm(means) * M * self.n_dims * n_samples + 2.0  # TODO why these factors?
+        #self.variance /= self.n_dims * n_samples + 2.0
+
+
+def _nd_block_diagonal(partial_1d, n_dims):
+    &#34;&#34;&#34;Replicates matrix n_dims times to form a block-diagonal matrix.
+
+    We also accept matrices of rectangular shape. In this case the result is
+    not officially called a block-diagonal matrix anymore.
+    &#34;&#34;&#34;
+    assert partial_1d.ndim == 2
+    n_block_rows, n_block_cols = partial_1d.shape
+
+    full_nd = np.zeros((n_block_rows * n_dims, n_block_cols * n_dims))
+    for j in range(n_dims):
+        full_nd[n_block_rows * j:n_block_rows * (j + 1),
+                n_block_cols * j:n_block_cols * (j + 1)] = partial_1d
+    return full_nd</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="movement_primitives.promp.ProMP"><code class="flex name class">
+<span>class <span class="ident">ProMP</span></span>
+<span>(</span><span>n_dims, n_weights_per_dim=10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Probabilistic Movement Primitive (ProMP).</p>
+<p>ProMPs have been proposed first in [1] and have been used later in [2,3].
+The learning algorithm is a specialized form of the one presented in [4].</p>
+<p>Note that internally we represented trajectories with the task space
+dimension as the first axis and the time step as the second axis while
+the exposed trajectory interface is transposed. In addition, we internally
+only use the a 1d array representation to make handling of the covariance
+simpler.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>n_dims</code></strong> :&ensp;<code>int</code></dt>
+<dd>State space dimensions.</dd>
+<dt><strong><code>n_weights_per_dim</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>Number of weights of the function approximator per dimension.</dd>
+</dl>
+<h2 id="references">References</h2>
+<p>[1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+<a href="https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf">https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf</a></p>
+<p>[3] Maeda et al.: Probabilistic movement primitives for coordination of
+multiple human–robot collaborative tasks, AuRo 2017,
+<a href="https://link.springer.com/article/10.1007/s10514-016-9556-2">https://link.springer.com/article/10.1007/s10514-016-9556-2</a></p>
+<p>[2] Paraschos et al.: Using probabilistic movement primitives in robotics, AuRo (2018),
+<a href="https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf,">https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf,</a>
+<a href="https://link.springer.com/article/10.1007/s10514-017-9648-7">https://link.springer.com/article/10.1007/s10514-017-9648-7</a></p>
+<p>[4] Lazaric et al.: Bayesian Multi-Task Reinforcement Learning, ICML (2010),
+<a href="https://hal.inria.fr/inria-00475214/document">https://hal.inria.fr/inria-00475214/document</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProMP:
+    &#34;&#34;&#34;Probabilistic Movement Primitive (ProMP).
+
+    ProMPs have been proposed first in [1] and have been used later in [2,3].
+    The learning algorithm is a specialized form of the one presented in [4].
+
+    Note that internally we represented trajectories with the task space
+    dimension as the first axis and the time step as the second axis while
+    the exposed trajectory interface is transposed. In addition, we internally
+    only use the a 1d array representation to make handling of the covariance
+    simpler.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    References
+    ----------
+    [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+    https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+
+    [3] Maeda et al.: Probabilistic movement primitives for coordination of
+    multiple human–robot collaborative tasks, AuRo 2017,
+    https://link.springer.com/article/10.1007/s10514-016-9556-2
+
+    [2] Paraschos et al.: Using probabilistic movement primitives in robotics, AuRo (2018),
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf,
+    https://link.springer.com/article/10.1007/s10514-017-9648-7
+
+    [4] Lazaric et al.: Bayesian Multi-Task Reinforcement Learning, ICML (2010),
+    https://hal.inria.fr/inria-00475214/document
+    &#34;&#34;&#34;
+    def __init__(self, n_dims, n_weights_per_dim=10):
+        self.n_dims = n_dims
+        self.n_weights_per_dim = n_weights_per_dim
+
+        self.n_weights = n_dims * n_weights_per_dim
+
+        self.weight_mean = np.zeros(self.n_weights)
+        self.weight_cov = np.eye(self.n_weights)
+
+        self.centers = np.linspace(0, 1, self.n_weights_per_dim)
+
+    def weights(self, T, Y, lmbda=1e-12):
+        &#34;&#34;&#34;Obtain ProMP weights by linear regression.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Y : array-like, shape (n_steps, n_dims)
+            Demonstrated trajectory
+
+        lmbda : float, optional (default: 1e-12)
+            Regularization coefficient
+
+        Returns
+        -------
+        weights : array, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+        &#34;&#34;&#34;
+        activations = self._rbfs_nd_sequence(T).T
+        weights = np.linalg.pinv(
+            activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
+        ).dot(activations.T).dot(Y.T.ravel())
+        return weights
+
+    def trajectory_from_weights(self, T, weights):
+        &#34;&#34;&#34;Generate trajectory from ProMP weights.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        weights : array-like, shape (n_steps * n_weights_per_dim)
+            ProMP weights
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Trajectory
+        &#34;&#34;&#34;
+        return self._rbfs_nd_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T
+
+    def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
+        &#34;&#34;&#34;Condition ProMP on a specific position (see page 4 of [1]).
+
+        Parameters
+        ----------
+        y_mean : array, shape (n_dims,)
+            Position mean
+
+        y_cov : array, shape (n_dims, n_dims), optional (default: 0)
+            Covariance of position
+
+        t : float, optional (default: 0)
+            Time at which the activations of RBFs will be queried. Note that
+            we internally normalize the time so that t_max == 1.
+
+        t_max : float, optional (default: 1)
+            Duration of the ProMP
+
+        Returns
+        -------
+        conditional_promp : ProMP
+            New conditional ProMP
+
+        References
+        ----------
+        [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+        https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+        &#34;&#34;&#34;
+        Psi_t = _nd_block_diagonal(self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
+        if y_cov is None:
+            y_cov = 0.0
+
+        common_term = self.weight_cov.dot(Psi_t).dot(
+            np.linalg.inv(y_cov + Psi_t.T.dot(self.weight_cov).dot(Psi_t)))
+
+        # Equation (5)
+        weight_mean = self.weight_mean + common_term.dot(y_mean - Psi_t.T.dot(self.weight_mean))
+        # Equation (6)
+        weight_cov = self.weight_cov - common_term.dot(Psi_t.T).dot(self.weight_cov)
+
+        conditional_promp = ProMP(self.n_dims, self.n_weights_per_dim)
+        conditional_promp.from_weight_distribution(weight_mean, weight_cov)
+        return conditional_promp
+
+    def mean_trajectory(self, T):
+        &#34;&#34;&#34;Get mean trajectory of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Y : array, shape (n_steps, n_dims)
+            Mean trajectory
+        &#34;&#34;&#34;
+        return self.trajectory_from_weights(T, self.weight_mean)
+
+    def cov_trajectory(self, T):
+        &#34;&#34;&#34;Get trajectory covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+            Covariance
+        &#34;&#34;&#34;
+        activations = self._rbfs_nd_sequence(T)
+        return activations.T.dot(self.weight_cov).dot(activations)
+
+    def var_trajectory(self, T):
+        &#34;&#34;&#34;Get trajectory variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        &#34;&#34;&#34;
+        return np.maximum(np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T, 0.0)
+
+    def mean_velocities(self, T):
+        &#34;&#34;&#34;Get mean velocities of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        Yd : array, shape (n_steps, n_dims)
+            Mean velocities
+        &#34;&#34;&#34;
+        return self._rbfs_derivative_nd_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
+
+    def cov_velocities(self, T):
+        &#34;&#34;&#34;Get velocity covariance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+            Covariance
+        &#34;&#34;&#34;
+        activations = self._rbfs_derivative_nd_sequence(T)
+        return activations.T.dot(self.weight_cov).dot(activations)
+
+    def var_velocities(self, T):
+        &#34;&#34;&#34;Get velocity variance of ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        Returns
+        -------
+        var : array, shape (n_steps, n_dims)
+            Variance
+        &#34;&#34;&#34;
+        return np.maximum(np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T, 0.0)
+
+    def sample_trajectories(self, T, n_samples, random_state):
+        &#34;&#34;&#34;Sample trajectories from ProMP.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Time steps
+
+        n_samples : int
+            Number of trajectories that will be sampled
+
+        random_state : np.random.RandomState
+            State of random number generator
+
+        Returns
+        -------
+        samples : array, shape (n_samples, n_steps, n_dims)
+            Sampled trajectories
+        &#34;&#34;&#34;
+        weight_samples = random_state.multivariate_normal(
+            self.weight_mean, self.weight_cov, n_samples)
+        samples = np.empty((n_samples, len(T), self.n_dims))
+        for i in range(n_samples):
+            samples[i] = self.trajectory_from_weights(T, weight_samples[i])
+        return samples
+
+    def from_weight_distribution(self, mean, cov):
+        &#34;&#34;&#34;Initialize ProMP from mean and covariance in weight space.
+
+        Parameters
+        ----------
+        mean : array, shape (n_dims * n_weights_per_dim)
+            Mean of weight distribution
+
+        cov : array, shape (n_dims * n_weights_per_dim, n_dims * n_weights_per_dim)
+            Covariance of weight distribution
+
+        Returns
+        -------
+        self : ProMP
+            This object
+        &#34;&#34;&#34;
+        self.weight_mean = mean
+        self.weight_cov = cov
+        return self
+
+    def imitate(self, Ts, Ys, n_iter=1000, min_delta=1e-5, verbose=0):
+        &#34;&#34;&#34;Learn ProMP from multiple demonstrations.
+
+        Parameters
+        ----------
+        Ts : array, shape (n_demos, n_steps)
+            Time steps of demonstrations
+
+        Ys : array, shape (n_demos, n_steps, n_dims)
+            Demonstrations
+
+        n_iter : int, optional (default: 1000)
+            Maximum number of iterations
+
+        min_delta : float, optional (default: 1e-5)
+            Minimum delta between means to continue iteration
+
+        verbose : int, optional (default: 0)
+            Verbosity level
+        &#34;&#34;&#34;
+        # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
+        # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
+        # Section 3.2 of https://hal.inria.fr/inria-00475214/document
+
+        # P = I
+        # mu_0 = 0
+        # k_0 = 0
+        # nu_0 = 0
+        # Sigma_0 = 0
+        # alpha_0 = 0
+        # beta_0 = 0
+        gamma = 0.7
+
+        n_demos = len(Ts)
+        self.variance = 1.0
+
+        means = np.zeros((n_demos, self.n_weights))
+        covs = np.empty((n_demos, self.n_weights, self.n_weights))
+
+        # Precompute constant terms in expectation-maximization algorithm
+
+        # n_demos x n_steps*self.n_dims x n_steps*self.n_dims
+        Hs = []
+        for demo_idx in range(n_demos):
+            n_steps = len(Ys[demo_idx])
+            H_partial = np.eye(n_steps)
+            for y in range(n_steps - 1):
+                H_partial[y, y + 1] = -gamma
+            H = _nd_block_diagonal(H_partial, self.n_dims)
+            Hs.append(H)
+
+        # n_demos x n_steps*n_dims
+        Ys_rearranged = [Y.T.ravel() for Y in Ys]
+
+        # n_demos x n_steps*self.n_dims
+        Rs = []
+        for demo_idx in range(n_demos):
+            R = Hs[demo_idx].dot(Ys_rearranged[demo_idx])
+            Rs.append(R)
+
+        # n_demos
+        # RR in original code
+        RTRs = []
+        for demo_idx in range(n_demos):
+            RTR = Rs[demo_idx].T.dot(Rs[demo_idx])
+            RTRs.append(RTR)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_steps
+        # BH in original code
+        PhiHTs = []
+        for demo_idx in range(n_demos):
+            PhiHT = self._rbfs_nd_sequence(Ts[demo_idx]).dot(Hs[demo_idx].T)
+            PhiHTs.append(PhiHT)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim
+        # mean_esteps in original code
+        PhiHTRs = []
+        for demo_idx in range(n_demos):
+            PhiHTR = PhiHTs[demo_idx].dot(Rs[demo_idx])
+            PhiHTRs.append(PhiHTR)
+
+        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_weights_per_dim
+        # cov_esteps in original code
+        PhiHTHPhiTs = []
+        for demo_idx in range(n_demos):
+            PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
+            PhiHTHPhiTs.append(PhiHTHPhiT)
+
+        n_samples = sum([Y.shape[0] for Y in Ys])
+
+        for it in range(n_iter):
+            weight_mean_old = self.weight_mean
+
+            for demo_idx in range(n_demos):
+                means[demo_idx], covs[demo_idx] = self._expectation(
+                        PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
+
+            self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
+
+            delta = np.linalg.norm(self.weight_mean - weight_mean_old)
+            if verbose:
+                print(&#34;Iteration %04d: delta = %g&#34; % (it + 1, delta))
+            if delta &lt; min_delta:
+                break
+
+    def _rbfs_1d_point(self, t, t_max=1.0, overlap=0.7):
+        &#34;&#34;&#34;Radial basis functions for one dimension and a point.
+
+        Parameters
+        ----------
+        t : float
+            Time at which the activations of RBFs will be queried. Note that
+            we internally normalize the time so that t_max == 1.
+
+        t_max : float, optional (default: 1)
+            Duration of the ProMP
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim,)
+            Activations of RBFs for each time step.
+        &#34;&#34;&#34;
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        # normalize time to interval [0, 1]
+        t = t / t_max
+
+        activations = np.exp(-(t - self.centers[:]) ** 2 / (2.0 * h))
+        activations /= activations.sum(axis=0)  # normalize activations for each step
+
+        assert activations.ndim == 1
+        assert activations.shape[0] == self.n_weights_per_dim
+
+        return activations
+
+    def _rbfs_nd_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Radial basis functions for n_dims dimensions and a sequence.&#34;&#34;&#34;
+        return _nd_block_diagonal(self._rbfs_1d_sequence(T, overlap), self.n_dims)
+
+    def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
+        &#34;&#34;&#34;Radial basis functions for one dimension and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        normalize : bool, optional (default: True)
+            Normalize activations to sum up to one in each step
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of RBFs for each time step.
+        &#34;&#34;&#34;
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        # normalize time to interval [0, 1]
+        T = np.atleast_2d(T)
+        T /= np.max(T)
+
+        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
+        if normalize:
+            activations /= activations.sum(axis=0)
+
+        assert activations.shape[0] == self.n_weights_per_dim
+        assert activations.shape[1] == n_steps
+
+        return activations
+
+    def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Derivative of radial basis functions for n_dims dimensions and a sequence.&#34;&#34;&#34;
+        return _nd_block_diagonal(self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
+
+    def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
+        &#34;&#34;&#34;Derivative of radial basis functions for one dimension and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_weights_per_dim, n_steps)
+            Activations of derivative of RBFs for each time step.
+        &#34;&#34;&#34;
+        assert T.ndim == 1
+
+        n_steps = len(T)
+
+        h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
+
+        rbfs = self._rbfs_1d_sequence(T, overlap, normalize=False)
+        rbfs_sum_per_step = rbfs.sum(axis=0)
+
+        # normalize time to interval [0, 1]
+        T = np.atleast_2d(T)
+        T /= np.max(T)
+
+        rbfs_deriv = (self.centers[:, np.newaxis] - T) / h
+        rbfs_deriv *= rbfs
+        rbfs_deriv_sum_per_step = rbfs_deriv.sum(axis=0)
+        rbfs_deriv = (rbfs_deriv * rbfs_sum_per_step
+                      - rbfs * rbfs_deriv_sum_per_step) / (rbfs_sum_per_step ** 2)
+
+        assert rbfs_deriv.shape[0] == self.n_weights_per_dim
+        assert rbfs_deriv.shape[1] == n_steps
+
+        return rbfs_deriv
+
+    def _expectation(self, PhiHTR, PhiHTHPhiT):
+        cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
+        mean = cov.dot(PhiHTR / self.variance + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))
+        return mean, cov
+
+    def _maximization(self, means, covs, RRs, PhiHTR, PhiHTHPhiTs, n_samples):
+        M = len(means)
+
+        self.weight_mean = np.mean(means, axis=0)
+
+        centered = means - self.weight_mean
+        self.weight_cov = centered.T.dot(centered)
+        for i in range(len(covs)):
+            self.weight_cov += covs[i]
+        self.weight_cov /= M  # TODO what is d + 2?
+
+        self.variance = 0.0
+        for i in range(len(means)):
+            # a trace is the same irrelevant of the order of matrix multiplications,
+            # see: https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf, Equation 16
+            self.variance += np.trace(PhiHTHPhiTs[i].dot(covs[i]))
+
+            self.variance += RRs[i]
+            self.variance -= 2.0 * PhiHTR[i].T.dot(means[i].T)
+            self.variance += (means[i].dot(PhiHTHPhiTs[i].dot(means[i].T)))
+
+        self.variance /= np.linalg.norm(means) * M * self.n_dims * n_samples + 2.0  # TODO why these factors?
+        #self.variance /= self.n_dims * n_samples + 2.0</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.promp.ProMP.condition_position"><code class="name flex">
+<span>def <span class="ident">condition_position</span></span>(<span>self, y_mean, y_cov=None, t=0, t_max=1.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Condition ProMP on a specific position (see page 4 of [1]).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>y_mean</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Position mean</dd>
+<dt><strong><code>y_cov</code></strong> :&ensp;<code>array, shape (n_dims, n_dims)</code>, optional <code>(default: 0)</code></dt>
+<dd>Covariance of position</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Time at which the activations of RBFs will be queried. Note that
+we internally normalize the time so that t_max == 1.</dd>
+<dt><strong><code>t_max</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>Duration of the ProMP</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>conditional_promp</code></strong> :&ensp;<code><a title="movement_primitives.promp.ProMP" href="#movement_primitives.promp.ProMP">ProMP</a></code></dt>
+<dd>New conditional ProMP</dd>
+</dl>
+<h2 id="references">References</h2>
+<p>[1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+<a href="https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf">https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
+    &#34;&#34;&#34;Condition ProMP on a specific position (see page 4 of [1]).
+
+    Parameters
+    ----------
+    y_mean : array, shape (n_dims,)
+        Position mean
+
+    y_cov : array, shape (n_dims, n_dims), optional (default: 0)
+        Covariance of position
+
+    t : float, optional (default: 0)
+        Time at which the activations of RBFs will be queried. Note that
+        we internally normalize the time so that t_max == 1.
+
+    t_max : float, optional (default: 1)
+        Duration of the ProMP
+
+    Returns
+    -------
+    conditional_promp : ProMP
+        New conditional ProMP
+
+    References
+    ----------
+    [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+    https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+    &#34;&#34;&#34;
+    Psi_t = _nd_block_diagonal(self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
+    if y_cov is None:
+        y_cov = 0.0
+
+    common_term = self.weight_cov.dot(Psi_t).dot(
+        np.linalg.inv(y_cov + Psi_t.T.dot(self.weight_cov).dot(Psi_t)))
+
+    # Equation (5)
+    weight_mean = self.weight_mean + common_term.dot(y_mean - Psi_t.T.dot(self.weight_mean))
+    # Equation (6)
+    weight_cov = self.weight_cov - common_term.dot(Psi_t.T).dot(self.weight_cov)
+
+    conditional_promp = ProMP(self.n_dims, self.n_weights_per_dim)
+    conditional_promp.from_weight_distribution(weight_mean, weight_cov)
+    return conditional_promp</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.cov_trajectory"><code class="name flex">
+<span>def <span class="ident">cov_trajectory</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get trajectory covariance of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>cov</code></strong> :&ensp;<code>array, shape (n_dims * n_steps, n_dims * n_steps)</code></dt>
+<dd>Covariance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cov_trajectory(self, T):
+    &#34;&#34;&#34;Get trajectory covariance of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+        Covariance
+    &#34;&#34;&#34;
+    activations = self._rbfs_nd_sequence(T)
+    return activations.T.dot(self.weight_cov).dot(activations)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.cov_velocities"><code class="name flex">
+<span>def <span class="ident">cov_velocities</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get velocity covariance of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>cov</code></strong> :&ensp;<code>array, shape (n_dims * n_steps, n_dims * n_steps)</code></dt>
+<dd>Covariance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cov_velocities(self, T):
+    &#34;&#34;&#34;Get velocity covariance of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    cov : array, shape (n_dims * n_steps, n_dims * n_steps)
+        Covariance
+    &#34;&#34;&#34;
+    activations = self._rbfs_derivative_nd_sequence(T)
+    return activations.T.dot(self.weight_cov).dot(activations)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.from_weight_distribution"><code class="name flex">
+<span>def <span class="ident">from_weight_distribution</span></span>(<span>self, mean, cov)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initialize ProMP from mean and covariance in weight space.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>mean</code></strong> :&ensp;<code>array, shape (n_dims * n_weights_per_dim)</code></dt>
+<dd>Mean of weight distribution</dd>
+<dt><strong><code>cov</code></strong> :&ensp;<code>array, shape (n_dims * n_weights_per_dim, n_dims * n_weights_per_dim)</code></dt>
+<dd>Covariance of weight distribution</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>self</code></strong> :&ensp;<code><a title="movement_primitives.promp.ProMP" href="#movement_primitives.promp.ProMP">ProMP</a></code></dt>
+<dd>This object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def from_weight_distribution(self, mean, cov):
+    &#34;&#34;&#34;Initialize ProMP from mean and covariance in weight space.
+
+    Parameters
+    ----------
+    mean : array, shape (n_dims * n_weights_per_dim)
+        Mean of weight distribution
+
+    cov : array, shape (n_dims * n_weights_per_dim, n_dims * n_weights_per_dim)
+        Covariance of weight distribution
+
+    Returns
+    -------
+    self : ProMP
+        This object
+    &#34;&#34;&#34;
+    self.weight_mean = mean
+    self.weight_cov = cov
+    return self</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.imitate"><code class="name flex">
+<span>def <span class="ident">imitate</span></span>(<span>self, Ts, Ys, n_iter=1000, min_delta=1e-05, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Learn ProMP from multiple demonstrations.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>Ts</code></strong> :&ensp;<code>array, shape (n_demos, n_steps)</code></dt>
+<dd>Time steps of demonstrations</dd>
+<dt><strong><code>Ys</code></strong> :&ensp;<code>array, shape (n_demos, n_steps, n_dims)</code></dt>
+<dd>Demonstrations</dd>
+<dt><strong><code>n_iter</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1000)</code></dt>
+<dd>Maximum number of iterations</dd>
+<dt><strong><code>min_delta</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1e-5)</code></dt>
+<dd>Minimum delta between means to continue iteration</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code>, optional <code>(default: 0)</code></dt>
+<dd>Verbosity level</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def imitate(self, Ts, Ys, n_iter=1000, min_delta=1e-5, verbose=0):
+    &#34;&#34;&#34;Learn ProMP from multiple demonstrations.
+
+    Parameters
+    ----------
+    Ts : array, shape (n_demos, n_steps)
+        Time steps of demonstrations
+
+    Ys : array, shape (n_demos, n_steps, n_dims)
+        Demonstrations
+
+    n_iter : int, optional (default: 1000)
+        Maximum number of iterations
+
+    min_delta : float, optional (default: 1e-5)
+        Minimum delta between means to continue iteration
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+    &#34;&#34;&#34;
+    # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
+    # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
+    # Section 3.2 of https://hal.inria.fr/inria-00475214/document
+
+    # P = I
+    # mu_0 = 0
+    # k_0 = 0
+    # nu_0 = 0
+    # Sigma_0 = 0
+    # alpha_0 = 0
+    # beta_0 = 0
+    gamma = 0.7
+
+    n_demos = len(Ts)
+    self.variance = 1.0
+
+    means = np.zeros((n_demos, self.n_weights))
+    covs = np.empty((n_demos, self.n_weights, self.n_weights))
+
+    # Precompute constant terms in expectation-maximization algorithm
+
+    # n_demos x n_steps*self.n_dims x n_steps*self.n_dims
+    Hs = []
+    for demo_idx in range(n_demos):
+        n_steps = len(Ys[demo_idx])
+        H_partial = np.eye(n_steps)
+        for y in range(n_steps - 1):
+            H_partial[y, y + 1] = -gamma
+        H = _nd_block_diagonal(H_partial, self.n_dims)
+        Hs.append(H)
+
+    # n_demos x n_steps*n_dims
+    Ys_rearranged = [Y.T.ravel() for Y in Ys]
+
+    # n_demos x n_steps*self.n_dims
+    Rs = []
+    for demo_idx in range(n_demos):
+        R = Hs[demo_idx].dot(Ys_rearranged[demo_idx])
+        Rs.append(R)
+
+    # n_demos
+    # RR in original code
+    RTRs = []
+    for demo_idx in range(n_demos):
+        RTR = Rs[demo_idx].T.dot(Rs[demo_idx])
+        RTRs.append(RTR)
+
+    # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_steps
+    # BH in original code
+    PhiHTs = []
+    for demo_idx in range(n_demos):
+        PhiHT = self._rbfs_nd_sequence(Ts[demo_idx]).dot(Hs[demo_idx].T)
+        PhiHTs.append(PhiHT)
+
+    # n_demos x self.n_dims*self.n_weights_per_dim
+    # mean_esteps in original code
+    PhiHTRs = []
+    for demo_idx in range(n_demos):
+        PhiHTR = PhiHTs[demo_idx].dot(Rs[demo_idx])
+        PhiHTRs.append(PhiHTR)
+
+    # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_weights_per_dim
+    # cov_esteps in original code
+    PhiHTHPhiTs = []
+    for demo_idx in range(n_demos):
+        PhiHTHPhiT = PhiHTs[demo_idx].dot(PhiHTs[demo_idx].T)
+        PhiHTHPhiTs.append(PhiHTHPhiT)
+
+    n_samples = sum([Y.shape[0] for Y in Ys])
+
+    for it in range(n_iter):
+        weight_mean_old = self.weight_mean
+
+        for demo_idx in range(n_demos):
+            means[demo_idx], covs[demo_idx] = self._expectation(
+                    PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
+
+        self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
+
+        delta = np.linalg.norm(self.weight_mean - weight_mean_old)
+        if verbose:
+            print(&#34;Iteration %04d: delta = %g&#34; % (it + 1, delta))
+        if delta &lt; min_delta:
+            break</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.mean_trajectory"><code class="name flex">
+<span>def <span class="ident">mean_trajectory</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get mean trajectory of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Y</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>Mean trajectory</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mean_trajectory(self, T):
+    &#34;&#34;&#34;Get mean trajectory of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    Y : array, shape (n_steps, n_dims)
+        Mean trajectory
+    &#34;&#34;&#34;
+    return self.trajectory_from_weights(T, self.weight_mean)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.mean_velocities"><code class="name flex">
+<span>def <span class="ident">mean_velocities</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get mean velocities of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Yd</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>Mean velocities</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mean_velocities(self, T):
+    &#34;&#34;&#34;Get mean velocities of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    Yd : array, shape (n_steps, n_dims)
+        Mean velocities
+    &#34;&#34;&#34;
+    return self._rbfs_derivative_nd_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.sample_trajectories"><code class="name flex">
+<span>def <span class="ident">sample_trajectories</span></span>(<span>self, T, n_samples, random_state)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sample trajectories from ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+<dt><strong><code>n_samples</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of trajectories that will be sampled</dd>
+<dt><strong><code>random_state</code></strong> :&ensp;<code>np.random.RandomState</code></dt>
+<dd>State of random number generator</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>samples</code></strong> :&ensp;<code>array, shape (n_samples, n_steps, n_dims)</code></dt>
+<dd>Sampled trajectories</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sample_trajectories(self, T, n_samples, random_state):
+    &#34;&#34;&#34;Sample trajectories from ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    n_samples : int
+        Number of trajectories that will be sampled
+
+    random_state : np.random.RandomState
+        State of random number generator
+
+    Returns
+    -------
+    samples : array, shape (n_samples, n_steps, n_dims)
+        Sampled trajectories
+    &#34;&#34;&#34;
+    weight_samples = random_state.multivariate_normal(
+        self.weight_mean, self.weight_cov, n_samples)
+    samples = np.empty((n_samples, len(T), self.n_dims))
+    for i in range(n_samples):
+        samples[i] = self.trajectory_from_weights(T, weight_samples[i])
+    return samples</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.trajectory_from_weights"><code class="name flex">
+<span>def <span class="ident">trajectory_from_weights</span></span>(<span>self, T, weights)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate trajectory from ProMP weights.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+<dt><strong><code>weights</code></strong> :&ensp;<code>array-like, shape (n_steps * n_weights_per_dim)</code></dt>
+<dd>ProMP weights</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Y</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>Trajectory</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def trajectory_from_weights(self, T, weights):
+    &#34;&#34;&#34;Generate trajectory from ProMP weights.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    weights : array-like, shape (n_steps * n_weights_per_dim)
+        ProMP weights
+
+    Returns
+    -------
+    Y : array, shape (n_steps, n_dims)
+        Trajectory
+    &#34;&#34;&#34;
+    return self._rbfs_nd_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.var_trajectory"><code class="name flex">
+<span>def <span class="ident">var_trajectory</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get trajectory variance of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>var</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>Variance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def var_trajectory(self, T):
+    &#34;&#34;&#34;Get trajectory variance of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    var : array, shape (n_steps, n_dims)
+        Variance
+    &#34;&#34;&#34;
+    return np.maximum(np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T, 0.0)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.var_velocities"><code class="name flex">
+<span>def <span class="ident">var_velocities</span></span>(<span>self, T)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get velocity variance of ProMP.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>var</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>Variance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def var_velocities(self, T):
+    &#34;&#34;&#34;Get velocity variance of ProMP.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Returns
+    -------
+    var : array, shape (n_steps, n_dims)
+        Variance
+    &#34;&#34;&#34;
+    return np.maximum(np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T, 0.0)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.promp.ProMP.weights"><code class="name flex">
+<span>def <span class="ident">weights</span></span>(<span>self, T, Y, lmbda=1e-12)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Obtain ProMP weights by linear regression.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array-like, shape (n_steps,)</code></dt>
+<dd>Time steps</dd>
+<dt><strong><code>Y</code></strong> :&ensp;<code>array-like, shape (n_steps, n_dims)</code></dt>
+<dd>Demonstrated trajectory</dd>
+<dt><strong><code>lmbda</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1e-12)</code></dt>
+<dd>Regularization coefficient</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>weights</code></strong> :&ensp;<code>array, shape (n_steps * n_weights_per_dim)</code></dt>
+<dd>ProMP weights</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def weights(self, T, Y, lmbda=1e-12):
+    &#34;&#34;&#34;Obtain ProMP weights by linear regression.
+
+    Parameters
+    ----------
+    T : array-like, shape (n_steps,)
+        Time steps
+
+    Y : array-like, shape (n_steps, n_dims)
+        Demonstrated trajectory
+
+    lmbda : float, optional (default: 1e-12)
+        Regularization coefficient
+
+    Returns
+    -------
+    weights : array, shape (n_steps * n_weights_per_dim)
+        ProMP weights
+    &#34;&#34;&#34;
+    activations = self._rbfs_nd_sequence(T).T
+    weights = np.linalg.pinv(
+        activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
+    ).dot(activations.T).dot(Y.T.ravel())
+    return weights</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="movement_primitives" href="index.html">movement_primitives</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="movement_primitives.promp.ProMP" href="#movement_primitives.promp.ProMP">ProMP</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.promp.ProMP.condition_position" href="#movement_primitives.promp.ProMP.condition_position">condition_position</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.cov_trajectory" href="#movement_primitives.promp.ProMP.cov_trajectory">cov_trajectory</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.cov_velocities" href="#movement_primitives.promp.ProMP.cov_velocities">cov_velocities</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.from_weight_distribution" href="#movement_primitives.promp.ProMP.from_weight_distribution">from_weight_distribution</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.imitate" href="#movement_primitives.promp.ProMP.imitate">imitate</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.mean_trajectory" href="#movement_primitives.promp.ProMP.mean_trajectory">mean_trajectory</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.mean_velocities" href="#movement_primitives.promp.ProMP.mean_velocities">mean_velocities</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.sample_trajectories" href="#movement_primitives.promp.ProMP.sample_trajectories">sample_trajectories</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.trajectory_from_weights" href="#movement_primitives.promp.ProMP.trajectory_from_weights">trajectory_from_weights</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.var_trajectory" href="#movement_primitives.promp.ProMP.var_trajectory">var_trajectory</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.var_velocities" href="#movement_primitives.promp.ProMP.var_velocities">var_velocities</a></code></li>
+<li><code><a title="movement_primitives.promp.ProMP.weights" href="#movement_primitives.promp.ProMP.weights">weights</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

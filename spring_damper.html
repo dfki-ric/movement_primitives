@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>movement_primitives.spring_damper API documentation</title>
+<meta name="description" content="Spring-damper based attractors." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>movement_primitives.spring_damper</code></h1>
+</header>
+<section id="section-intro">
+<p>Spring-damper based attractors.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Spring-damper based attractors.&#34;&#34;&#34;
+import numpy as np
+import pytransform3d.rotations as pr
+
+
+class SpringDamper:
+    &#34;&#34;&#34;Spring-damper system.
+
+    This is similar to a DMP without the forcing term.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    &#34;&#34;&#34;
+    def __init__(self, n_dims, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        self.n_dims = n_dims
+        self.dt = dt
+        self.k = k
+        self.c = c
+        self.int_dt = int_dt
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(self.n_dims)
+        self.start_ydd = np.zeros(self.n_dims)
+        self.goal_y = np.zeros(self.n_dims)
+        self.initialized = False
+        self.current_y = np.zeros(self.n_dims)
+        self.current_yd = np.zeros(self.n_dims)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        self.last_t = self.t
+        self.t += self.dt
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        spring_damper_step(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y,
+            self.k, self.c,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=1.0, coupling_term=None):
+        return spring_damper_open_loop(
+            self.dt,
+            self.start_y, self.goal_y,
+            self.k, self.c,
+            coupling_term,
+            run_t, self.int_dt)
+
+
+class SpringDamperOrientation:
+    &#34;&#34;&#34;Spring-damper system for quaternions.
+
+    This is similar to a Quaternion DMP without the forcing term.
+
+    Parameters
+    ----------
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    &#34;&#34;&#34;
+    def __init__(self, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        self.dt = dt
+        self.k = k
+        self.c = c
+        self.int_dt = int_dt
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(4)
+        self.start_yd = np.zeros(3)
+        self.start_ydd = np.zeros(3)
+        self.goal_y = np.zeros(4)
+        self.initialized = False
+        self.current_y = np.zeros(4)
+        self.current_yd = np.zeros(3)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        self.last_t = self.t
+        self.t += self.dt
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        spring_damper_step_quaternion(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y,
+            self.k, self.c,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=1.0, coupling_term=None):
+        return spring_damper_open_loop_quaternion(
+            self.dt,
+            self.start_y, self.goal_y,
+            self.k, self.c,
+            coupling_term,
+            run_t, self.int_dt)
+
+
+def spring_damper_step(last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
+    if c is None:  # set for critical damping
+        c = 2.0 * np.sqrt(k)
+
+    current_ydd = np.empty_like(current_yd)
+
+    current_t = last_t
+    while current_t &lt; t:
+        dt = int_dt
+        if t - current_t &lt; int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y)
+        else:
+            cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        current_ydd[:] = k * (goal_y - current_y) - c * current_yd
+        current_yd += dt * current_ydd + cd
+        current_y += dt * current_yd
+
+
+def spring_damper_step_quaternion(last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
+    if c is None:  # set for critical damping
+        c = 2.0 * np.sqrt(k)
+
+    current_ydd = np.empty_like(current_yd)
+
+    current_t = last_t
+    while current_t &lt; t:
+        dt = int_dt
+        if t - current_t &lt; int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y)
+        else:
+            cd, cdd = np.zeros(3), np.zeros(3)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        current_ydd[:] = k * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))) - c * current_yd
+        current_yd += dt * current_ydd + cd
+        current_y[:] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
+
+
+def spring_damper_open_loop(dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001):
+    t = 0.0
+    y = np.copy(start_y)
+    yd = np.zeros_like(y)
+    T = [t]
+    Y = [np.copy(y)]
+    while t &lt; run_t:
+        last_t = t
+        t += dt
+        spring_damper_step(
+            last_t, t, y, yd,
+            goal_y=goal_y,
+            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)
+
+
+def spring_damper_open_loop_quaternion(dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001):
+    t = 0.0
+    y = np.copy(start_y)
+    yd = np.zeros(3)
+    T = [t]
+    Y = [np.copy(y)]
+    while t &lt; run_t:
+        last_t = t
+        t += dt
+        spring_damper_step_quaternion(
+            last_t, t, y, yd,
+            goal_y=goal_y,
+            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="movement_primitives.spring_damper.spring_damper_open_loop"><code class="name flex">
+<span>def <span class="ident">spring_damper_open_loop</span></span>(<span>dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spring_damper_open_loop(dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001):
+    t = 0.0
+    y = np.copy(start_y)
+    yd = np.zeros_like(y)
+    T = [t]
+    Y = [np.copy(y)]
+    while t &lt; run_t:
+        last_t = t
+        t += dt
+        spring_damper_step(
+            last_t, t, y, yd,
+            goal_y=goal_y,
+            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.spring_damper_open_loop_quaternion"><code class="name flex">
+<span>def <span class="ident">spring_damper_open_loop_quaternion</span></span>(<span>dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spring_damper_open_loop_quaternion(dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0, int_dt=0.001):
+    t = 0.0
+    y = np.copy(start_y)
+    yd = np.zeros(3)
+    T = [t]
+    Y = [np.copy(y)]
+    while t &lt; run_t:
+        last_t = t
+        t += dt
+        spring_damper_step_quaternion(
+            last_t, t, y, yd,
+            goal_y=goal_y,
+            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
+        T.append(t)
+        Y.append(np.copy(y))
+    return np.asarray(T), np.asarray(Y)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.spring_damper_step"><code class="name flex">
+<span>def <span class="ident">spring_damper_step</span></span>(<span>last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spring_damper_step(last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
+    if c is None:  # set for critical damping
+        c = 2.0 * np.sqrt(k)
+
+    current_ydd = np.empty_like(current_yd)
+
+    current_t = last_t
+    while current_t &lt; t:
+        dt = int_dt
+        if t - current_t &lt; int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y)
+        else:
+            cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        current_ydd[:] = k * (goal_y - current_y) - c * current_yd
+        current_yd += dt * current_ydd + cd
+        current_y += dt * current_yd</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.spring_damper_step_quaternion"><code class="name flex">
+<span>def <span class="ident">spring_damper_step_quaternion</span></span>(<span>last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spring_damper_step_quaternion(last_t, t, current_y, current_yd, goal_y, k=1.0, c=None, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
+    if c is None:  # set for critical damping
+        c = 2.0 * np.sqrt(k)
+
+    current_ydd = np.empty_like(current_yd)
+
+    current_t = last_t
+    while current_t &lt; t:
+        dt = int_dt
+        if t - current_t &lt; int_dt:
+            dt = t - current_t
+        current_t += dt
+
+        if coupling_term is not None:
+            cd, cdd = coupling_term.coupling(current_y)
+        else:
+            cd, cdd = np.zeros(3), np.zeros(3)
+        if coupling_term_precomputed is not None:
+            cd += coupling_term_precomputed[0]
+            cdd += coupling_term_precomputed[1]
+
+        current_ydd[:] = k * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))) - c * current_yd
+        current_yd += dt * current_ydd + cd
+        current_y[:] = pr.concatenate_quaternions(pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="movement_primitives.spring_damper.SpringDamper"><code class="flex name class">
+<span>class <span class="ident">SpringDamper</span></span>
+<span>(</span><span>n_dims, dt=0.01, k=1.0, c=None, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Spring-damper system.</p>
+<p>This is similar to a DMP without the forcing term.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>n_dims</code></strong> :&ensp;<code>int</code></dt>
+<dd>State space dimensions.</dd>
+<dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
+<dd>Time difference between DMP steps.</dd>
+<dt><strong><code>k</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>Spring constant.</dd>
+<dt><strong><code>c</code></strong> :&ensp;<code>float</code>, optional <code>(default: 2 * sqrt(k) (critical damping))</code></dt>
+<dd>Damping coefficient.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time difference for Euler integration.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SpringDamper:
+    &#34;&#34;&#34;Spring-damper system.
+
+    This is similar to a DMP without the forcing term.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    &#34;&#34;&#34;
+    def __init__(self, n_dims, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        self.n_dims = n_dims
+        self.dt = dt
+        self.k = k
+        self.c = c
+        self.int_dt = int_dt
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(self.n_dims)
+        self.start_yd = np.zeros(self.n_dims)
+        self.start_ydd = np.zeros(self.n_dims)
+        self.goal_y = np.zeros(self.n_dims)
+        self.initialized = False
+        self.current_y = np.zeros(self.n_dims)
+        self.current_yd = np.zeros(self.n_dims)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        self.last_t = self.t
+        self.t += self.dt
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        spring_damper_step(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y,
+            self.k, self.c,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=1.0, coupling_term=None):
+        return spring_damper_open_loop(
+            self.dt,
+            self.start_y, self.goal_y,
+            self.k, self.c,
+            coupling_term,
+            run_t, self.int_dt)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.spring_damper.SpringDamper.configure"><code class="name flex">
+<span>def <span class="ident">configure</span></span>(<span>self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+    if last_t is not None:
+        self.last_t = last_t
+    if t is not None:
+        self.t = t
+    if start_y is not None:
+        self.start_y = start_y
+    if start_yd is not None:
+        self.start_yd = start_yd
+    if start_ydd is not None:
+        self.start_ydd = start_ydd
+    if goal_y is not None:
+        self.goal_y = goal_y</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamper.open_loop"><code class="name flex">
+<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=1.0, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_loop(self, run_t=1.0, coupling_term=None):
+    return spring_damper_open_loop(
+        self.dt,
+        self.start_y, self.goal_y,
+        self.k, self.c,
+        coupling_term,
+        run_t, self.int_dt)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamper.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+    self.last_t = self.t
+    self.t += self.dt
+
+    if not self.initialized:
+        self.current_y = np.copy(self.start_y)
+        self.current_yd = np.copy(self.start_yd)
+        self.initialized = True
+
+    self.current_y[:], self.current_yd[:] = last_y, last_yd
+    spring_damper_step(
+        self.last_t, self.t,
+        self.current_y, self.current_yd,
+        self.goal_y,
+        self.k, self.c,
+        coupling_term=coupling_term,
+        int_dt=self.int_dt)
+    return np.copy(self.current_y), np.copy(self.current_yd)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamperOrientation"><code class="flex name class">
+<span>class <span class="ident">SpringDamperOrientation</span></span>
+<span>(</span><span>dt=0.01, k=1.0, c=None, int_dt=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Spring-damper system for quaternions.</p>
+<p>This is similar to a Quaternion DMP without the forcing term.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
+<dd>Time difference between DMP steps.</dd>
+<dt><strong><code>k</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>Spring constant.</dd>
+<dt><strong><code>c</code></strong> :&ensp;<code>float</code>, optional <code>(default: 2 * sqrt(k) (critical damping))</code></dt>
+<dd>Damping coefficient.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time difference for Euler integration.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SpringDamperOrientation:
+    &#34;&#34;&#34;Spring-damper system for quaternions.
+
+    This is similar to a Quaternion DMP without the forcing term.
+
+    Parameters
+    ----------
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    k : float, optional (default: 1)
+        Spring constant.
+
+    c : float, optional (default: 2 * sqrt(k) (critical damping))
+        Damping coefficient.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+    &#34;&#34;&#34;
+    def __init__(self, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        self.dt = dt
+        self.k = k
+        self.c = c
+        self.int_dt = int_dt
+
+        self.last_t = None
+        self.t = 0.0
+        self.start_y = np.zeros(4)
+        self.start_yd = np.zeros(3)
+        self.start_ydd = np.zeros(3)
+        self.goal_y = np.zeros(4)
+        self.initialized = False
+        self.current_y = np.zeros(4)
+        self.current_yd = np.zeros(3)
+        self.configure()
+
+    def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+        if last_t is not None:
+            self.last_t = last_t
+        if t is not None:
+            self.t = t
+        if start_y is not None:
+            self.start_y = start_y
+        if start_yd is not None:
+            self.start_yd = start_yd
+        if start_ydd is not None:
+            self.start_ydd = start_ydd
+        if goal_y is not None:
+            self.goal_y = goal_y
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        self.last_t = self.t
+        self.t += self.dt
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        spring_damper_step_quaternion(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y,
+            self.k, self.c,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=1.0, coupling_term=None):
+        return spring_damper_open_loop_quaternion(
+            self.dt,
+            self.start_y, self.goal_y,
+            self.k, self.c,
+            coupling_term,
+            run_t, self.int_dt)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.spring_damper.SpringDamperOrientation.configure"><code class="name flex">
+<span>def <span class="ident">configure</span></span>(<span>self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def configure(self, last_t=None, t=None, start_y=None, start_yd=None, start_ydd=None, goal_y=None):
+    if last_t is not None:
+        self.last_t = last_t
+    if t is not None:
+        self.t = t
+    if start_y is not None:
+        self.start_y = start_y
+    if start_yd is not None:
+        self.start_yd = start_yd
+    if start_ydd is not None:
+        self.start_ydd = start_ydd
+    if goal_y is not None:
+        self.goal_y = goal_y</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamperOrientation.open_loop"><code class="name flex">
+<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=1.0, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_loop(self, run_t=1.0, coupling_term=None):
+    return spring_damper_open_loop_quaternion(
+        self.dt,
+        self.start_y, self.goal_y,
+        self.k, self.c,
+        coupling_term,
+        run_t, self.int_dt)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamperOrientation.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+    self.last_t = self.t
+    self.t += self.dt
+
+    if not self.initialized:
+        self.current_y = np.copy(self.start_y)
+        self.current_yd = np.copy(self.start_yd)
+        self.initialized = True
+
+    self.current_y[:], self.current_yd[:] = last_y, last_yd
+    spring_damper_step_quaternion(
+        self.last_t, self.t,
+        self.current_y, self.current_yd,
+        self.goal_y,
+        self.k, self.c,
+        coupling_term=coupling_term,
+        int_dt=self.int_dt)
+    return np.copy(self.current_y), np.copy(self.current_yd)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="movement_primitives" href="index.html">movement_primitives</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="movement_primitives.spring_damper.spring_damper_open_loop" href="#movement_primitives.spring_damper.spring_damper_open_loop">spring_damper_open_loop</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.spring_damper_open_loop_quaternion" href="#movement_primitives.spring_damper.spring_damper_open_loop_quaternion">spring_damper_open_loop_quaternion</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.spring_damper_step" href="#movement_primitives.spring_damper.spring_damper_step">spring_damper_step</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.spring_damper_step_quaternion" href="#movement_primitives.spring_damper.spring_damper_step_quaternion">spring_damper_step_quaternion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="movement_primitives.spring_damper.SpringDamper" href="#movement_primitives.spring_damper.SpringDamper">SpringDamper</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.spring_damper.SpringDamper.configure" href="#movement_primitives.spring_damper.SpringDamper.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamper.open_loop" href="#movement_primitives.spring_damper.SpringDamper.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamper.step" href="#movement_primitives.spring_damper.SpringDamper.step">step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="movement_primitives.spring_damper.SpringDamperOrientation" href="#movement_primitives.spring_damper.SpringDamperOrientation">SpringDamperOrientation</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.configure" href="#movement_primitives.spring_damper.SpringDamperOrientation.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.open_loop" href="#movement_primitives.spring_damper.SpringDamperOrientation.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.step" href="#movement_primitives.spring_damper.SpringDamperOrientation.step">step</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
