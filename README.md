@@ -15,6 +15,11 @@ It provides implementations in Python and Cython.
 * Propagation of DMP weight distribution to state space distribution
 * Probabilistic Movement Primitives (ProMPs)
 
+## API Documentation
+
+The API documentation is available
+[here](https://dfki-ric.github.io/movement_primitives/).
+
 ## Install Library
 
 This library requires Python 3.6 or later and pip is recommended for the
