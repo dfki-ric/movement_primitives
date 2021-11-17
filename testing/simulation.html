@@ -1,0 +1,2024 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>movement_primitives.testing.simulation API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>movement_primitives.testing.simulation</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+import os
+try:
+    import pybullet
+    import pybullet_data
+    pybullet_available = True
+except ImportError:
+    pybullet_available = False
+import pytransform3d.transformations as pt
+
+
+# Quaternion convention: x, y, z, w
+
+class PybulletSimulation:
+    def __init__(self, dt, gui=True, real_time=False):
+        assert pybullet_available
+        self.dt = dt
+        if gui:
+            self.client_id = pybullet.connect(pybullet.GUI)
+        else:
+            self.client_id = pybullet.connect(pybullet.DIRECT)
+
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_SHADOWS, 0)
+        pybullet.resetDebugVisualizerCamera(2, 75, -30, [0, 0, 0])
+
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(dt, physicsClientId=self.client_id)
+        pybullet.setRealTimeSimulation(
+            1 if real_time else 0, physicsClientId=self.client_id)
+        pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
+
+    def step(self):
+        assert pybullet.isConnected(self.client_id)
+        pybullet.stepSimulation(physicsClientId=self.client_id)
+
+    def sim_loop(self, n_steps=None):
+        if n_steps is None:
+            while pybullet.isConnected(self.client_id):
+                pybullet.stepSimulation(physicsClientId=self.client_id)
+        else:
+            for _ in range(n_steps):
+                if not pybullet.isConnected(self.client_id):
+                    break
+                pybullet.stepSimulation(physicsClientId=self.client_id)
+
+
+def _pybullet_pose(pose):
+    pos = pose[:3]
+    rot = pose[3:]
+    rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -&gt; xyzw
+    return pos, rot
+
+
+def _pytransform_pose(pos, rot):
+    return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -&gt; wxyz
+
+
+def draw_transform(pose2origin, s, client_id, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (4, 4)
+        Homogeneous transformation matrix
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    pose2origin = pt.check_transform(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)
+
+
+def draw_pose(pose2origin, s, client_id, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (7,)
+        Position and quaternion: (x, y, z, qw, qx, qy, qz)
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    pose2origin = pt.transform_from_pq(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)
+
+
+def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    A2Bs : array-like, shape (n_steps, 4, 4)
+        Homogeneous transformation matrices
+
+    client_id : int
+        Physics client ID
+
+    n_key_frames : int, optional (default: 10)
+        Number of coordinate frames
+
+    s : float, optional (default: 1)
+        Scale, length of the coordinate axes
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    key_frames_indices = np.linspace(
+        0, len(A2Bs) - 1, n_key_frames, dtype=np.int)
+    for idx in key_frames_indices:
+        draw_transform(A2Bs[idx], s=s, client_id=client_id)
+    for idx in range(len(A2Bs) - 1):
+        pybullet.addUserDebugLine(
+            A2Bs[idx, :3, 3], A2Bs[idx + 1, :3, 3], [0, 0, 0], lw,
+            physicsClientId=client_id)
+
+
+def get_absolute_path(urdf_path, model_prefix_path):
+    autoproj_dir = None
+    if &#34;AUTOPROJ_CURRENT_ROOT&#34; in os.environ and os.path.exists(os.environ[&#34;AUTOPROJ_CURRENT_ROOT&#34;]):
+        autoproj_dir = os.environ[&#34;AUTOPROJ_CURRENT_ROOT&#34;]
+    if autoproj_dir is not None and os.path.exists(os.path.join(autoproj_dir, model_prefix_path)):
+        return os.path.join(autoproj_dir, model_prefix_path, urdf_path)
+    else:
+        return urdf_path
+
+
+class UR5Simulation(PybulletSimulation):
+    def __init__(self, dt, gui=True, real_time=False):
+        super(UR5Simulation, self).__init__(dt, gui, real_time)
+
+        pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.plane = pybullet.loadURDF(
+            &#34;plane.urdf&#34;, [0, 0, -1], useFixedBase=1)
+        self.robot = pybullet.loadURDF(
+            &#34;examples/data/urdf/ur5.urdf&#34;, [0, 0, 0], useFixedBase=1)
+
+        self.base_pose = pybullet.getBasePositionAndOrientation(self.robot)
+        self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
+
+        self.n_ur5_joints = 6
+        # one link after the base link of the last joint
+        self.ee_link_index = pybullet.getJointInfo(
+            self.robot, self.n_ur5_joints)[16] + 2
+
+        self.n_joints = pybullet.getNumJoints(self.robot)
+        self.joint_indices = [
+            i for i in range(self.n_joints)
+            if pybullet.getJointInfo(self.robot, i)[2] == 0]  # joint type 0: revolute
+        self.joint_names = {i: pybullet.getJointInfo(self.robot, i)[1]
+                            for i in self.joint_indices}
+        # we cannot actually use them so far:
+        self.joint_max_velocities = [pybullet.getJointInfo(self.robot, i)[11]
+                                     for i in self.joint_indices]
+
+    def inverse_kinematics(self, ee2robot):
+        pos, rot = _pybullet_pose(ee2robot)
+        # ee2world
+        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
+
+        q = pybullet.calculateInverseKinematics(
+            self.robot, self.ee_link_index, pos, rot, maxNumIterations=100,
+            residualThreshold=0.001)
+        q = q[:self.n_ur5_joints]
+        if any(np.isnan(q)):
+            raise Exception(&#34;IK solver found no solution.&#34;)
+        return q
+
+    def get_joint_state(self):
+        joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
+        positions = []
+        velocities = []
+        for joint_state in joint_states:
+            pos, vel, forces, torque = joint_state
+            positions.append(pos)
+            velocities.append(vel)
+        return np.asarray(positions), np.asarray(velocities)
+
+    def set_desired_joint_state(self, joint_state, position_control=False):
+        if position_control:
+            pybullet.setJointMotorControlArray(
+                self.robot, self.joint_indices[:self.n_ur5_joints],
+                pybullet.POSITION_CONTROL,
+                targetPositions=joint_state)
+        else:  # velocity control
+            pybullet.setJointMotorControlArray(
+                self.robot, self.joint_indices[:self.n_ur5_joints],
+                pybullet.VELOCITY_CONTROL, targetVelocities=joint_state)
+
+    def get_ee_state(self, return_velocity=False):
+        ee_state = pybullet.getLinkState(
+            self.robot, self.ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1)
+        pos = ee_state[4]
+        rot = ee_state[5]
+        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
+        if return_velocity:
+            vel = ee_state[6]
+            #ang_vel = ee_state[7]
+            #ang_speed = np.linalg.norm(ang_vel)
+            #ang_axis = np.asarray(ang_vel) / ang_speed
+            vel, _ = pybullet.multiplyTransforms(
+                vel, [0, 0, 0, 1], *self.inv_base_pose)
+            # TODO transform angular velocity?
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+        else:
+            return _pytransform_pose(pos, rot)
+
+    def set_desired_ee_state(self, ee_state):
+        q = self.inverse_kinematics(ee_state)
+        last_q, last_qd = self.get_joint_state()
+        self.set_desired_joint_state(
+            (q - last_q) / self.dt, position_control=False)
+
+    def stop(self):
+        pybullet.setJointMotorControlArray(
+            self.robot, self.joint_indices[:self.n_ur5_joints],
+            pybullet.VELOCITY_CONTROL,
+            targetVelocities=np.zeros(self.n_ur5_joints))
+        self.step()
+
+    def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+        if text:
+            pos, rot = _pybullet_pose(ee_state)
+            self.write(pos, text)
+        q = self.inverse_kinematics(ee_state)
+        self.set_desired_joint_state(q, position_control=True)
+        self.sim_loop(int(wait_time / self.dt))
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False):
+        p, v = self.get_ee_state(return_velocity=True)
+        desired_positions = [last_p]
+        positions = [p]
+        desired_velocities = [last_v]
+        velocities = [v]
+
+        for i in range(int(execution_time / self.dt)):
+            if closed_loop:
+                last_p, _ = self.get_ee_state(return_velocity=True)  # TODO last_v
+
+            p, v = steppable.step(last_p, last_v)
+            self.set_desired_ee_state(p)
+            self.step()
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+            p, v = self.get_ee_state(return_velocity=True)
+            positions.append(p)
+            velocities.append(v)
+
+        self.stop()
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
+
+    def write(self, pos, text):
+        pybullet.addUserDebugText(text, pos, [0, 0, 0])
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)
+
+
+class KinematicsChain:
+    def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
+        if debug_gui:
+            self.client_id = pybullet.connect(pybullet.GUI)
+        else:
+            self.client_id = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+
+        self.chain = pybullet.loadURDF(
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id)
+
+        self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
+        self.n_chain_joints = len(self.chain_joint_indices)
+        self.ee_idx = self.link_indices[ee_frame]
+
+    def inverse(self, desired_ee_state, q_current=None):
+        if q_current is not None:
+            # we have to actively go to the current joint state
+            # before computing inverse kinematics
+            self._goto_joint_state(q_current)
+        ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
+        q = pybullet.calculateInverseKinematics(
+            self.chain, self.ee_idx, ee_pos, ee_rot,
+            maxNumIterations=100, residualThreshold=0.001,
+            jointDamping=[0.1] * self.n_chain_joints,
+            physicsClientId=self.client_id)
+        return q
+
+    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+        pybullet.setJointMotorControlArray(
+            self.chain, self.chain_joint_indices,
+            pybullet.POSITION_CONTROL,
+            targetPositions=q_current, physicsClientId=self.client_id)
+
+        for _ in range(max_steps_to_joint_state):
+            pybullet.stepSimulation(physicsClientId=self.client_id)
+            q_internal = np.array([js[0] for js in pybullet.getJointStates(
+                self.chain, self.chain_joint_indices,
+                physicsClientId=self.client_id)])
+            if np.linalg.norm(q_current - q_internal) &lt; joint_state_eps:
+                break
+
+
+class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
+    def __init__(self, dt, gui=True, real_time=False,
+                 left_ee_frame=&#34;LTCP_Link&#34;, right_ee_frame=&#34;RTCP_Link&#34;,
+                 left_joints=(&#34;ALShoulder1&#34;, &#34;ALShoulder2&#34;, &#34;ALShoulder3&#34;, &#34;ALElbow&#34;, &#34;ALWristRoll&#34;, &#34;ALWristYaw&#34;, &#34;ALWristPitch&#34;),
+                 right_joints=(&#34;ARShoulder1&#34;, &#34;ARShoulder2&#34;, &#34;ARShoulder3&#34;, &#34;ARElbow&#34;, &#34;ARWristRoll&#34;, &#34;ARWristYaw&#34;, &#34;ARWristPitch&#34;),
+                 urdf_path=get_absolute_path(&#34;pybullet-only-arms-urdf/urdf/RH5.urdf&#34;, &#34;models/robots/rh5_models&#34;),
+                 left_arm_path=get_absolute_path(&#34;pybullet-only-arms-urdf/submodels/left_arm.urdf&#34;, &#34;models/robots/rh5_models&#34;),
+                 right_arm_path=get_absolute_path(&#34;pybullet-only-arms-urdf/submodels/right_arm.urdf&#34;, &#34;models/robots/rh5_models&#34;)):
+        super(RH5Simulation, self).__init__(dt, gui, real_time)
+
+        self.base_pos = (0, 0, 0)
+
+        pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.plane = pybullet.loadURDF(
+            &#34;plane.urdf&#34;, (0, 0, -1), useFixedBase=1,
+            physicsClientId=self.client_id)
+        self.robot = pybullet.loadURDF(
+            urdf_path, self.base_pos, useFixedBase=1,
+            physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.robot, physicsClientId=self.client_id)
+
+        self.base_pose = self.base_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.robot)
+        self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
+
+        self.n_joints = len(left_joints) + len(right_joints)
+        self.n_left_joints = len(left_joints)
+        self.left_arm_joint_indices = [self.joint_indices[jn] for jn in left_joints]
+        self.right_arm_joint_indices = [self.joint_indices[jn] for jn in right_joints]
+        self.left_ee_link_index = self.link_indices[left_ee_frame]
+        self.right_ee_link_index = self.link_indices[right_ee_frame]
+
+        self.left_ik = KinematicsChain(
+            left_ee_frame, left_joints, left_arm_path)
+        self.right_ik = KinematicsChain(
+            right_ee_frame, right_joints, right_arm_path)
+
+    def inverse_kinematics(self, ee2robot):
+        q = np.empty(self.n_joints)
+
+        left_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices, physicsClientId=self.client_id)])
+        q[:self.n_left_joints] = self.left_ik.inverse(ee2robot[:7], left_q)
+
+        right_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.right_arm_joint_indices, physicsClientId=self.client_id)])
+        q[self.n_left_joints:] = self.right_ik.inverse(ee2robot[7:], right_q)
+
+        return q
+
+    def get_joint_state(self):
+        joint_states = pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
+            physicsClientId=self.client_id)
+        positions = np.empty(self.n_joints)
+        velocities = np.empty(self.n_joints)
+        for joint_idx, joint_state in enumerate(joint_states):
+            positions[joint_idx], velocities[joint_idx], forces, torque = joint_state
+        return positions, velocities
+
+    def set_desired_joint_state(self, joint_state, position_control=False):
+        left_joint_state, right_joint_state = np.split(joint_state, (len(self.left_arm_joint_indices),))
+        if position_control:
+            pybullet.setJointMotorControlArray(
+                self.robot, self.left_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=left_joint_state,
+                physicsClientId=self.client_id)
+            pybullet.setJointMotorControlArray(
+                self.robot, self.right_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=right_joint_state,
+                physicsClientId=self.client_id)
+        else:  # velocity control
+            pybullet.setJointMotorControlArray(
+                self.robot, self.left_arm_joint_indices,
+                pybullet.VELOCITY_CONTROL, targetVelocities=left_joint_state,
+                physicsClientId=self.client_id)
+            pybullet.setJointMotorControlArray(
+                self.robot, self.right_arm_joint_indices,
+                pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state,
+                physicsClientId=self.client_id)
+
+    def get_ee_state(self, return_velocity=False):
+        left_ee_state = pybullet.getLinkState(
+            self.robot, self.left_ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1, physicsClientId=self.client_id)
+        left_pos = left_ee_state[4]
+        left_rot = left_ee_state[5]
+        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.inv_base_pose)
+        left_pose = _pytransform_pose(left_pos, left_rot)
+
+        right_ee_state = pybullet.getLinkState(
+            self.robot, self.right_ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1, physicsClientId=self.client_id)
+        right_pos = right_ee_state[4]
+        right_rot = right_ee_state[5]
+        right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.inv_base_pose)
+        right_pose = _pytransform_pose(right_pos, right_rot)
+
+        if return_velocity:
+            raise NotImplementedError()
+            &#34;&#34;&#34;
+            left_vel = left_ee_state[6]
+            #ang_vel = ee_state[7]
+            #ang_speed = np.linalg.norm(ang_vel)
+            #ang_axis = np.asarray(ang_vel) / ang_speed
+            left_vel, _ = pybullet.multiplyTransforms(
+                left_vel, [0, 0, 0, 1], *self.inv_base_pose)
+            # TODO transform angular velocity?
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+            &#34;&#34;&#34;
+        else:
+            return np.hstack((left_pose, right_pose))
+
+    def set_desired_ee_state(self, ee_state, position_control=False):
+        q = self.inverse_kinematics(ee_state)
+        if position_control:
+            self.set_desired_joint_state(q, position_control=True)
+        else:
+            last_q, _ = self.get_joint_state()
+            self.set_desired_joint_state(
+                (q - last_q) / self.dt, position_control=False)
+
+    def stop(self):
+        ee_state = self.get_ee_state(return_velocity=False)
+        self.goto_ee_state(ee_state)
+        self.step()
+
+    def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+        if text:
+            pos, rot = _pybullet_pose(ee_state)
+            self.write(pos, text)
+        q = self.inverse_kinematics(ee_state)
+        self.set_desired_joint_state(q, position_control=True)
+        self.sim_loop(int(wait_time / self.dt))
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False, coupling_term=None):
+        p = self.get_ee_state(return_velocity=False)   # TODO v
+        desired_positions = [last_p]
+        positions = [p]
+        desired_velocities = [last_v]
+        velocities = [np.zeros(12)]
+
+        for i in range(int(execution_time / self.dt)):
+            if closed_loop:
+                last_p = self.get_ee_state(return_velocity=False)  # TODO last_v
+
+            p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+            self.set_desired_ee_state(p)
+            self.step()
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+            p = self.get_ee_state(return_velocity=False)  # TODO v
+            positions.append(p)
+            #velocities.append(v)
+            velocities.append(last_v)
+
+        self.stop()
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
+
+    def write(self, pos, text):
+        pybullet.addUserDebugText(text, pos, [0, 0, 0], physicsClientId=self.client_id)
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2, physicsClientId=self.client_id)
+
+
+class SimulationMockup:  # runs steppables open loop
+    def __init__(self, dt):
+        self.dt = dt
+        self.ee_state = None
+
+    def goto_ee_state(self, ee_state):
+        self.ee_state = np.copy(ee_state)
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, coupling_term=None):
+        desired_positions = [np.copy(last_p)]
+        positions = [np.copy(last_p)]
+        desired_velocities = [np.copy(last_v)]
+        velocities = [np.copy(last_v)]
+
+        for i in range(int(execution_time / self.dt)):
+            p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            positions.append(p)
+            velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
+
+
+def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
+    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.&#34;&#34;&#34;
+    if urdf_path is not None:
+        assert robot is None
+        physicsClientId = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=physicsClientId)
+        robot = pybullet.loadURDF(urdf_path, physicsClientId=physicsClientId)
+    assert robot is not None
+
+    base_link, robot_name = pybullet.getBodyInfo(robot, physicsClientId=physicsClientId)
+
+    if verbose:
+        print()
+        print(&#34;=&#34; * 80)
+        print(f&#34;Robot name: {robot_name}&#34;)
+        print(f&#34;Base link: {base_link}&#34;)
+
+    n_joints = pybullet.getNumJoints(robot, physicsClientId=physicsClientId)
+
+    last_link_idx = -1
+    link_id_to_link_name = {last_link_idx: base_link}
+    joint_name_to_joint_id = {}
+
+    if verbose:
+        print(f&#34;Number of joints: {n_joints}&#34;)
+
+    for joint_idx in range(n_joints):
+        _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
+            max_force, max_vel, child_link_name, ja, parent_pos,\
+            parent_orient, parent_idx = pybullet.getJointInfo(
+            robot, joint_idx, physicsClientId=physicsClientId)
+
+        child_link_name = child_link_name.decode(&#34;utf-8&#34;)
+        joint_name = joint_name.decode(&#34;utf-8&#34;)
+
+        if child_link_name not in link_id_to_link_name.values():
+            last_link_idx += 1
+            link_id_to_link_name[last_link_idx] = child_link_name
+        assert parent_idx in link_id_to_link_name
+
+        joint_name_to_joint_id[joint_name] = joint_idx
+
+        joint_type = _joint_type(joint_type)
+
+        if verbose:
+            print(f&#34;Joint #{joint_idx}: {joint_name} ({joint_type}), &#34;
+                  f&#34;child link: {child_link_name}, parent link index: {parent_idx}&#34;)
+            if joint_type == &#34;fixed&#34;:
+                continue
+            print(&#34;=&#34; * 80)
+            print(f&#34;Index in positional state variables: {q_index}, &#34;
+                  f&#34;Index in velocity state variables: {u_index}&#34;)
+            print(f&#34;Joint limits: [{lo}, {hi}], max. force: {max_force}, &#34;
+                  f&#34;max. velocity: {max_vel}&#34;)
+            print(&#34;=&#34; * 80)
+
+    if verbose:
+        for link_idx in sorted(link_id_to_link_name.keys()):
+            print(f&#34;Link #{link_idx}: {link_id_to_link_name[link_idx]}&#34;)
+
+    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}
+
+
+def _joint_type(id):
+    if id == pybullet.JOINT_REVOLUTE:
+        return &#34;revolute&#34;
+    elif id == pybullet.JOINT_PRISMATIC:
+        return &#34;prismatic&#34;
+    elif id == pybullet.JOINT_SPHERICAL:
+        return &#34;spherical&#34;
+    elif id == pybullet.JOINT_PLANAR:
+        return &#34;planar&#34;
+    elif id == pybullet.JOINT_FIXED:
+        return &#34;fixed&#34;
+    else:
+        raise ValueError(f&#34;Unknown joint type id {id}&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="movement_primitives.testing.simulation.analyze_robot"><code class="name flex">
+<span>def <span class="ident">analyze_robot</span></span>(<span>urdf_path=None, robot=None, physicsClientId=None, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute mappings between joint and link names and their indices.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
+    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.&#34;&#34;&#34;
+    if urdf_path is not None:
+        assert robot is None
+        physicsClientId = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=physicsClientId)
+        robot = pybullet.loadURDF(urdf_path, physicsClientId=physicsClientId)
+    assert robot is not None
+
+    base_link, robot_name = pybullet.getBodyInfo(robot, physicsClientId=physicsClientId)
+
+    if verbose:
+        print()
+        print(&#34;=&#34; * 80)
+        print(f&#34;Robot name: {robot_name}&#34;)
+        print(f&#34;Base link: {base_link}&#34;)
+
+    n_joints = pybullet.getNumJoints(robot, physicsClientId=physicsClientId)
+
+    last_link_idx = -1
+    link_id_to_link_name = {last_link_idx: base_link}
+    joint_name_to_joint_id = {}
+
+    if verbose:
+        print(f&#34;Number of joints: {n_joints}&#34;)
+
+    for joint_idx in range(n_joints):
+        _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
+            max_force, max_vel, child_link_name, ja, parent_pos,\
+            parent_orient, parent_idx = pybullet.getJointInfo(
+            robot, joint_idx, physicsClientId=physicsClientId)
+
+        child_link_name = child_link_name.decode(&#34;utf-8&#34;)
+        joint_name = joint_name.decode(&#34;utf-8&#34;)
+
+        if child_link_name not in link_id_to_link_name.values():
+            last_link_idx += 1
+            link_id_to_link_name[last_link_idx] = child_link_name
+        assert parent_idx in link_id_to_link_name
+
+        joint_name_to_joint_id[joint_name] = joint_idx
+
+        joint_type = _joint_type(joint_type)
+
+        if verbose:
+            print(f&#34;Joint #{joint_idx}: {joint_name} ({joint_type}), &#34;
+                  f&#34;child link: {child_link_name}, parent link index: {parent_idx}&#34;)
+            if joint_type == &#34;fixed&#34;:
+                continue
+            print(&#34;=&#34; * 80)
+            print(f&#34;Index in positional state variables: {q_index}, &#34;
+                  f&#34;Index in velocity state variables: {u_index}&#34;)
+            print(f&#34;Joint limits: [{lo}, {hi}], max. force: {max_force}, &#34;
+                  f&#34;max. velocity: {max_vel}&#34;)
+            print(&#34;=&#34; * 80)
+
+    if verbose:
+        for link_idx in sorted(link_id_to_link_name.keys()):
+            print(f&#34;Link #{link_idx}: {link_id_to_link_name[link_idx]}&#34;)
+
+    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.draw_pose"><code class="name flex">
+<span>def <span class="ident">draw_pose</span></span>(<span>pose2origin, s, client_id, lw=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw transformation matrix.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pose2origin</code></strong> :&ensp;<code>array-like, shape (7,)</code></dt>
+<dd>Position and quaternion: (x, y, z, qw, qx, qy, qz)</dd>
+<dt><strong><code>s</code></strong> :&ensp;<code>float</code></dt>
+<dd>Scale, length of the coordinate axes</dd>
+<dt><strong><code>client_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Physics client ID</dd>
+<dt><strong><code>lw</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1)</code></dt>
+<dd>Line width</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def draw_pose(pose2origin, s, client_id, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (7,)
+        Position and quaternion: (x, y, z, qw, qx, qy, qz)
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    pose2origin = pt.transform_from_pq(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.draw_trajectory"><code class="name flex">
+<span>def <span class="ident">draw_trajectory</span></span>(<span>A2Bs, client_id, n_key_frames=10, s=1.0, lw=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw transformation matrix.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A2Bs</code></strong> :&ensp;<code>array-like, shape (n_steps, 4, 4)</code></dt>
+<dd>Homogeneous transformation matrices</dd>
+<dt><strong><code>client_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Physics client ID</dd>
+<dt><strong><code>n_key_frames</code></strong> :&ensp;<code>int</code>, optional <code>(default: 10)</code></dt>
+<dd>Number of coordinate frames</dd>
+<dt><strong><code>s</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
+<dd>Scale, length of the coordinate axes</dd>
+<dt><strong><code>lw</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1)</code></dt>
+<dd>Line width</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    A2Bs : array-like, shape (n_steps, 4, 4)
+        Homogeneous transformation matrices
+
+    client_id : int
+        Physics client ID
+
+    n_key_frames : int, optional (default: 10)
+        Number of coordinate frames
+
+    s : float, optional (default: 1)
+        Scale, length of the coordinate axes
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    key_frames_indices = np.linspace(
+        0, len(A2Bs) - 1, n_key_frames, dtype=np.int)
+    for idx in key_frames_indices:
+        draw_transform(A2Bs[idx], s=s, client_id=client_id)
+    for idx in range(len(A2Bs) - 1):
+        pybullet.addUserDebugLine(
+            A2Bs[idx, :3, 3], A2Bs[idx + 1, :3, 3], [0, 0, 0], lw,
+            physicsClientId=client_id)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.draw_transform"><code class="name flex">
+<span>def <span class="ident">draw_transform</span></span>(<span>pose2origin, s, client_id, lw=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw transformation matrix.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pose2origin</code></strong> :&ensp;<code>array-like, shape (4, 4)</code></dt>
+<dd>Homogeneous transformation matrix</dd>
+<dt><strong><code>s</code></strong> :&ensp;<code>float</code></dt>
+<dd>Scale, length of the coordinate axes</dd>
+<dt><strong><code>client_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Physics client ID</dd>
+<dt><strong><code>lw</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1)</code></dt>
+<dd>Line width</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def draw_transform(pose2origin, s, client_id, lw=1):
+    &#34;&#34;&#34;Draw transformation matrix.
+
+    Parameters
+    ----------
+    pose2origin : array-like, shape (4, 4)
+        Homogeneous transformation matrix
+
+    s : float
+        Scale, length of the coordinate axes
+
+    client_id : int
+        Physics client ID
+
+    lw : int, optional (default: 1)
+        Line width
+    &#34;&#34;&#34;
+    pose2origin = pt.check_transform(pose2origin)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 0],
+        [1, 0, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 1],
+        [0, 1, 0], lw, physicsClientId=client_id)
+    pybullet.addUserDebugLine(
+        pose2origin[:3, 3], pose2origin[:3, 3] + s * pose2origin[:3, 2],
+        [0, 0, 1], lw, physicsClientId=client_id)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.get_absolute_path"><code class="name flex">
+<span>def <span class="ident">get_absolute_path</span></span>(<span>urdf_path, model_prefix_path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_absolute_path(urdf_path, model_prefix_path):
+    autoproj_dir = None
+    if &#34;AUTOPROJ_CURRENT_ROOT&#34; in os.environ and os.path.exists(os.environ[&#34;AUTOPROJ_CURRENT_ROOT&#34;]):
+        autoproj_dir = os.environ[&#34;AUTOPROJ_CURRENT_ROOT&#34;]
+    if autoproj_dir is not None and os.path.exists(os.path.join(autoproj_dir, model_prefix_path)):
+        return os.path.join(autoproj_dir, model_prefix_path, urdf_path)
+    else:
+        return urdf_path</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="movement_primitives.testing.simulation.KinematicsChain"><code class="flex name class">
+<span>class <span class="ident">KinematicsChain</span></span>
+<span>(</span><span>ee_frame, joints, urdf_path, debug_gui=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class KinematicsChain:
+    def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
+        if debug_gui:
+            self.client_id = pybullet.connect(pybullet.GUI)
+        else:
+            self.client_id = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+
+        self.chain = pybullet.loadURDF(
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id)
+
+        self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
+        self.n_chain_joints = len(self.chain_joint_indices)
+        self.ee_idx = self.link_indices[ee_frame]
+
+    def inverse(self, desired_ee_state, q_current=None):
+        if q_current is not None:
+            # we have to actively go to the current joint state
+            # before computing inverse kinematics
+            self._goto_joint_state(q_current)
+        ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
+        q = pybullet.calculateInverseKinematics(
+            self.chain, self.ee_idx, ee_pos, ee_rot,
+            maxNumIterations=100, residualThreshold=0.001,
+            jointDamping=[0.1] * self.n_chain_joints,
+            physicsClientId=self.client_id)
+        return q
+
+    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+        pybullet.setJointMotorControlArray(
+            self.chain, self.chain_joint_indices,
+            pybullet.POSITION_CONTROL,
+            targetPositions=q_current, physicsClientId=self.client_id)
+
+        for _ in range(max_steps_to_joint_state):
+            pybullet.stepSimulation(physicsClientId=self.client_id)
+            q_internal = np.array([js[0] for js in pybullet.getJointStates(
+                self.chain, self.chain_joint_indices,
+                physicsClientId=self.client_id)])
+            if np.linalg.norm(q_current - q_internal) &lt; joint_state_eps:
+                break</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.testing.simulation.KinematicsChain.inverse"><code class="name flex">
+<span>def <span class="ident">inverse</span></span>(<span>self, desired_ee_state, q_current=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inverse(self, desired_ee_state, q_current=None):
+    if q_current is not None:
+        # we have to actively go to the current joint state
+        # before computing inverse kinematics
+        self._goto_joint_state(q_current)
+    ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
+    q = pybullet.calculateInverseKinematics(
+        self.chain, self.ee_idx, ee_pos, ee_rot,
+        maxNumIterations=100, residualThreshold=0.001,
+        jointDamping=[0.1] * self.n_chain_joints,
+        physicsClientId=self.client_id)
+    return q</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="movement_primitives.testing.simulation.PybulletSimulation"><code class="flex name class">
+<span>class <span class="ident">PybulletSimulation</span></span>
+<span>(</span><span>dt, gui=True, real_time=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PybulletSimulation:
+    def __init__(self, dt, gui=True, real_time=False):
+        assert pybullet_available
+        self.dt = dt
+        if gui:
+            self.client_id = pybullet.connect(pybullet.GUI)
+        else:
+            self.client_id = pybullet.connect(pybullet.DIRECT)
+
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_SHADOWS, 0)
+        pybullet.resetDebugVisualizerCamera(2, 75, -30, [0, 0, 0])
+
+        pybullet.resetSimulation(physicsClientId=self.client_id)
+        pybullet.setTimeStep(dt, physicsClientId=self.client_id)
+        pybullet.setRealTimeSimulation(
+            1 if real_time else 0, physicsClientId=self.client_id)
+        pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
+
+    def step(self):
+        assert pybullet.isConnected(self.client_id)
+        pybullet.stepSimulation(physicsClientId=self.client_id)
+
+    def sim_loop(self, n_steps=None):
+        if n_steps is None:
+            while pybullet.isConnected(self.client_id):
+                pybullet.stepSimulation(physicsClientId=self.client_id)
+        else:
+            for _ in range(n_steps):
+                if not pybullet.isConnected(self.client_id):
+                    break
+                pybullet.stepSimulation(physicsClientId=self.client_id)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="movement_primitives.testing.simulation.RH5Simulation" href="#movement_primitives.testing.simulation.RH5Simulation">RH5Simulation</a></li>
+<li><a title="movement_primitives.testing.simulation.UR5Simulation" href="#movement_primitives.testing.simulation.UR5Simulation">UR5Simulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.testing.simulation.PybulletSimulation.sim_loop"><code class="name flex">
+<span>def <span class="ident">sim_loop</span></span>(<span>self, n_steps=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sim_loop(self, n_steps=None):
+    if n_steps is None:
+        while pybullet.isConnected(self.client_id):
+            pybullet.stepSimulation(physicsClientId=self.client_id)
+    else:
+        for _ in range(n_steps):
+            if not pybullet.isConnected(self.client_id):
+                break
+            pybullet.stepSimulation(physicsClientId=self.client_id)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.PybulletSimulation.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self):
+    assert pybullet.isConnected(self.client_id)
+    pybullet.stepSimulation(physicsClientId=self.client_id)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation"><code class="flex name class">
+<span>class <span class="ident">RH5Simulation</span></span>
+<span>(</span><span>dt, gui=True, real_time=False, left_ee_frame='LTCP_Link', right_ee_frame='RTCP_Link', left_joints=('ALShoulder1', 'ALShoulder2', 'ALShoulder3', 'ALElbow', 'ALWristRoll', 'ALWristYaw', 'ALWristPitch'), right_joints=('ARShoulder1', 'ARShoulder2', 'ARShoulder3', 'ARElbow', 'ARWristRoll', 'ARWristYaw', 'ARWristPitch'), urdf_path='pybullet-only-arms-urdf/urdf/RH5.urdf', left_arm_path='pybullet-only-arms-urdf/submodels/left_arm.urdf', right_arm_path='pybullet-only-arms-urdf/submodels/right_arm.urdf')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
+    def __init__(self, dt, gui=True, real_time=False,
+                 left_ee_frame=&#34;LTCP_Link&#34;, right_ee_frame=&#34;RTCP_Link&#34;,
+                 left_joints=(&#34;ALShoulder1&#34;, &#34;ALShoulder2&#34;, &#34;ALShoulder3&#34;, &#34;ALElbow&#34;, &#34;ALWristRoll&#34;, &#34;ALWristYaw&#34;, &#34;ALWristPitch&#34;),
+                 right_joints=(&#34;ARShoulder1&#34;, &#34;ARShoulder2&#34;, &#34;ARShoulder3&#34;, &#34;ARElbow&#34;, &#34;ARWristRoll&#34;, &#34;ARWristYaw&#34;, &#34;ARWristPitch&#34;),
+                 urdf_path=get_absolute_path(&#34;pybullet-only-arms-urdf/urdf/RH5.urdf&#34;, &#34;models/robots/rh5_models&#34;),
+                 left_arm_path=get_absolute_path(&#34;pybullet-only-arms-urdf/submodels/left_arm.urdf&#34;, &#34;models/robots/rh5_models&#34;),
+                 right_arm_path=get_absolute_path(&#34;pybullet-only-arms-urdf/submodels/right_arm.urdf&#34;, &#34;models/robots/rh5_models&#34;)):
+        super(RH5Simulation, self).__init__(dt, gui, real_time)
+
+        self.base_pos = (0, 0, 0)
+
+        pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.plane = pybullet.loadURDF(
+            &#34;plane.urdf&#34;, (0, 0, -1), useFixedBase=1,
+            physicsClientId=self.client_id)
+        self.robot = pybullet.loadURDF(
+            urdf_path, self.base_pos, useFixedBase=1,
+            physicsClientId=self.client_id)
+        self.joint_indices, self.link_indices = analyze_robot(
+            robot=self.robot, physicsClientId=self.client_id)
+
+        self.base_pose = self.base_pos, (0.0, 0.0, 0.0, 1.0)  # not pybullet.getBasePositionAndOrientation(self.robot)
+        self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
+
+        self.n_joints = len(left_joints) + len(right_joints)
+        self.n_left_joints = len(left_joints)
+        self.left_arm_joint_indices = [self.joint_indices[jn] for jn in left_joints]
+        self.right_arm_joint_indices = [self.joint_indices[jn] for jn in right_joints]
+        self.left_ee_link_index = self.link_indices[left_ee_frame]
+        self.right_ee_link_index = self.link_indices[right_ee_frame]
+
+        self.left_ik = KinematicsChain(
+            left_ee_frame, left_joints, left_arm_path)
+        self.right_ik = KinematicsChain(
+            right_ee_frame, right_joints, right_arm_path)
+
+    def inverse_kinematics(self, ee2robot):
+        q = np.empty(self.n_joints)
+
+        left_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices, physicsClientId=self.client_id)])
+        q[:self.n_left_joints] = self.left_ik.inverse(ee2robot[:7], left_q)
+
+        right_q = np.array([js[0] for js in pybullet.getJointStates(
+            self.robot, self.right_arm_joint_indices, physicsClientId=self.client_id)])
+        q[self.n_left_joints:] = self.right_ik.inverse(ee2robot[7:], right_q)
+
+        return q
+
+    def get_joint_state(self):
+        joint_states = pybullet.getJointStates(
+            self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
+            physicsClientId=self.client_id)
+        positions = np.empty(self.n_joints)
+        velocities = np.empty(self.n_joints)
+        for joint_idx, joint_state in enumerate(joint_states):
+            positions[joint_idx], velocities[joint_idx], forces, torque = joint_state
+        return positions, velocities
+
+    def set_desired_joint_state(self, joint_state, position_control=False):
+        left_joint_state, right_joint_state = np.split(joint_state, (len(self.left_arm_joint_indices),))
+        if position_control:
+            pybullet.setJointMotorControlArray(
+                self.robot, self.left_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=left_joint_state,
+                physicsClientId=self.client_id)
+            pybullet.setJointMotorControlArray(
+                self.robot, self.right_arm_joint_indices,
+                pybullet.POSITION_CONTROL,
+                targetPositions=right_joint_state,
+                physicsClientId=self.client_id)
+        else:  # velocity control
+            pybullet.setJointMotorControlArray(
+                self.robot, self.left_arm_joint_indices,
+                pybullet.VELOCITY_CONTROL, targetVelocities=left_joint_state,
+                physicsClientId=self.client_id)
+            pybullet.setJointMotorControlArray(
+                self.robot, self.right_arm_joint_indices,
+                pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state,
+                physicsClientId=self.client_id)
+
+    def get_ee_state(self, return_velocity=False):
+        left_ee_state = pybullet.getLinkState(
+            self.robot, self.left_ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1, physicsClientId=self.client_id)
+        left_pos = left_ee_state[4]
+        left_rot = left_ee_state[5]
+        left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.inv_base_pose)
+        left_pose = _pytransform_pose(left_pos, left_rot)
+
+        right_ee_state = pybullet.getLinkState(
+            self.robot, self.right_ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1, physicsClientId=self.client_id)
+        right_pos = right_ee_state[4]
+        right_rot = right_ee_state[5]
+        right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.inv_base_pose)
+        right_pose = _pytransform_pose(right_pos, right_rot)
+
+        if return_velocity:
+            raise NotImplementedError()
+            &#34;&#34;&#34;
+            left_vel = left_ee_state[6]
+            #ang_vel = ee_state[7]
+            #ang_speed = np.linalg.norm(ang_vel)
+            #ang_axis = np.asarray(ang_vel) / ang_speed
+            left_vel, _ = pybullet.multiplyTransforms(
+                left_vel, [0, 0, 0, 1], *self.inv_base_pose)
+            # TODO transform angular velocity?
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+            &#34;&#34;&#34;
+        else:
+            return np.hstack((left_pose, right_pose))
+
+    def set_desired_ee_state(self, ee_state, position_control=False):
+        q = self.inverse_kinematics(ee_state)
+        if position_control:
+            self.set_desired_joint_state(q, position_control=True)
+        else:
+            last_q, _ = self.get_joint_state()
+            self.set_desired_joint_state(
+                (q - last_q) / self.dt, position_control=False)
+
+    def stop(self):
+        ee_state = self.get_ee_state(return_velocity=False)
+        self.goto_ee_state(ee_state)
+        self.step()
+
+    def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+        if text:
+            pos, rot = _pybullet_pose(ee_state)
+            self.write(pos, text)
+        q = self.inverse_kinematics(ee_state)
+        self.set_desired_joint_state(q, position_control=True)
+        self.sim_loop(int(wait_time / self.dt))
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False, coupling_term=None):
+        p = self.get_ee_state(return_velocity=False)   # TODO v
+        desired_positions = [last_p]
+        positions = [p]
+        desired_velocities = [last_v]
+        velocities = [np.zeros(12)]
+
+        for i in range(int(execution_time / self.dt)):
+            if closed_loop:
+                last_p = self.get_ee_state(return_velocity=False)  # TODO last_v
+
+            p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+            self.set_desired_ee_state(p)
+            self.step()
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+            p = self.get_ee_state(return_velocity=False)  # TODO v
+            positions.append(p)
+            #velocities.append(v)
+            velocities.append(last_v)
+
+        self.stop()
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
+
+    def write(self, pos, text):
+        pybullet.addUserDebugText(text, pos, [0, 0, 0], physicsClientId=self.client_id)
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2, physicsClientId=self.client_id)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="movement_primitives.testing.simulation.PybulletSimulation" href="#movement_primitives.testing.simulation.PybulletSimulation">PybulletSimulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.get_ee_state"><code class="name flex">
+<span>def <span class="ident">get_ee_state</span></span>(<span>self, return_velocity=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_ee_state(self, return_velocity=False):
+    left_ee_state = pybullet.getLinkState(
+        self.robot, self.left_ee_link_index, computeLinkVelocity=1,
+        computeForwardKinematics=1, physicsClientId=self.client_id)
+    left_pos = left_ee_state[4]
+    left_rot = left_ee_state[5]
+    left_pos, left_rot = pybullet.multiplyTransforms(left_pos, left_rot, *self.inv_base_pose)
+    left_pose = _pytransform_pose(left_pos, left_rot)
+
+    right_ee_state = pybullet.getLinkState(
+        self.robot, self.right_ee_link_index, computeLinkVelocity=1,
+        computeForwardKinematics=1, physicsClientId=self.client_id)
+    right_pos = right_ee_state[4]
+    right_rot = right_ee_state[5]
+    right_pos, right_rot = pybullet.multiplyTransforms(right_pos, right_rot, *self.inv_base_pose)
+    right_pose = _pytransform_pose(right_pos, right_rot)
+
+    if return_velocity:
+        raise NotImplementedError()
+        &#34;&#34;&#34;
+        left_vel = left_ee_state[6]
+        #ang_vel = ee_state[7]
+        #ang_speed = np.linalg.norm(ang_vel)
+        #ang_axis = np.asarray(ang_vel) / ang_speed
+        left_vel, _ = pybullet.multiplyTransforms(
+            left_vel, [0, 0, 0, 1], *self.inv_base_pose)
+        # TODO transform angular velocity?
+        return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+        &#34;&#34;&#34;
+    else:
+        return np.hstack((left_pose, right_pose))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.get_joint_state"><code class="name flex">
+<span>def <span class="ident">get_joint_state</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_joint_state(self):
+    joint_states = pybullet.getJointStates(
+        self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
+        physicsClientId=self.client_id)
+    positions = np.empty(self.n_joints)
+    velocities = np.empty(self.n_joints)
+    for joint_idx, joint_state in enumerate(joint_states):
+        positions[joint_idx], velocities[joint_idx], forces, torque = joint_state
+    return positions, velocities</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.goto_ee_state"><code class="name flex">
+<span>def <span class="ident">goto_ee_state</span></span>(<span>self, ee_state, wait_time=1.0, text=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+    if text:
+        pos, rot = _pybullet_pose(ee_state)
+        self.write(pos, text)
+    q = self.inverse_kinematics(ee_state)
+    self.set_desired_joint_state(q, position_control=True)
+    self.sim_loop(int(wait_time / self.dt))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.inverse_kinematics"><code class="name flex">
+<span>def <span class="ident">inverse_kinematics</span></span>(<span>self, ee2robot)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inverse_kinematics(self, ee2robot):
+    q = np.empty(self.n_joints)
+
+    left_q = np.array([js[0] for js in pybullet.getJointStates(
+        self.robot, self.left_arm_joint_indices, physicsClientId=self.client_id)])
+    q[:self.n_left_joints] = self.left_ik.inverse(ee2robot[:7], left_q)
+
+    right_q = np.array([js[0] for js in pybullet.getJointStates(
+        self.robot, self.right_arm_joint_indices, physicsClientId=self.client_id)])
+    q[self.n_left_joints:] = self.right_ik.inverse(ee2robot[7:], right_q)
+
+    return q</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.set_desired_ee_state"><code class="name flex">
+<span>def <span class="ident">set_desired_ee_state</span></span>(<span>self, ee_state, position_control=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_desired_ee_state(self, ee_state, position_control=False):
+    q = self.inverse_kinematics(ee_state)
+    if position_control:
+        self.set_desired_joint_state(q, position_control=True)
+    else:
+        last_q, _ = self.get_joint_state()
+        self.set_desired_joint_state(
+            (q - last_q) / self.dt, position_control=False)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.set_desired_joint_state"><code class="name flex">
+<span>def <span class="ident">set_desired_joint_state</span></span>(<span>self, joint_state, position_control=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_desired_joint_state(self, joint_state, position_control=False):
+    left_joint_state, right_joint_state = np.split(joint_state, (len(self.left_arm_joint_indices),))
+    if position_control:
+        pybullet.setJointMotorControlArray(
+            self.robot, self.left_arm_joint_indices,
+            pybullet.POSITION_CONTROL,
+            targetPositions=left_joint_state,
+            physicsClientId=self.client_id)
+        pybullet.setJointMotorControlArray(
+            self.robot, self.right_arm_joint_indices,
+            pybullet.POSITION_CONTROL,
+            targetPositions=right_joint_state,
+            physicsClientId=self.client_id)
+    else:  # velocity control
+        pybullet.setJointMotorControlArray(
+            self.robot, self.left_arm_joint_indices,
+            pybullet.VELOCITY_CONTROL, targetVelocities=left_joint_state,
+            physicsClientId=self.client_id)
+        pybullet.setJointMotorControlArray(
+            self.robot, self.right_arm_joint_indices,
+            pybullet.VELOCITY_CONTROL, targetVelocities=right_joint_state,
+            physicsClientId=self.client_id)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.step_through_cartesian"><code class="name flex">
+<span>def <span class="ident">step_through_cartesian</span></span>(<span>self, steppable, last_p, last_v, execution_time, closed_loop=False, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False, coupling_term=None):
+    p = self.get_ee_state(return_velocity=False)   # TODO v
+    desired_positions = [last_p]
+    positions = [p]
+    desired_velocities = [last_v]
+    velocities = [np.zeros(12)]
+
+    for i in range(int(execution_time / self.dt)):
+        if closed_loop:
+            last_p = self.get_ee_state(return_velocity=False)  # TODO last_v
+
+        p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+        self.set_desired_ee_state(p)
+        self.step()
+
+        desired_positions.append(p)
+        desired_velocities.append(v)
+
+        last_v = v
+        last_p = p
+
+        p = self.get_ee_state(return_velocity=False)  # TODO v
+        positions.append(p)
+        #velocities.append(v)
+        velocities.append(last_v)
+
+    self.stop()
+
+    return (np.asarray(desired_positions),
+            np.asarray(positions),
+            np.asarray(desired_velocities),
+            np.asarray(velocities))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.stop"><code class="name flex">
+<span>def <span class="ident">stop</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop(self):
+    ee_state = self.get_ee_state(return_velocity=False)
+    self.goto_ee_state(ee_state)
+    self.step()</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.RH5Simulation.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, pos, text)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write(self, pos, text):
+    pybullet.addUserDebugText(text, pos, [0, 0, 0], physicsClientId=self.client_id)
+    pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2, physicsClientId=self.client_id)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="movement_primitives.testing.simulation.SimulationMockup"><code class="flex name class">
+<span>class <span class="ident">SimulationMockup</span></span>
+<span>(</span><span>dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimulationMockup:  # runs steppables open loop
+    def __init__(self, dt):
+        self.dt = dt
+        self.ee_state = None
+
+    def goto_ee_state(self, ee_state):
+        self.ee_state = np.copy(ee_state)
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, coupling_term=None):
+        desired_positions = [np.copy(last_p)]
+        positions = [np.copy(last_p)]
+        desired_velocities = [np.copy(last_v)]
+        velocities = [np.copy(last_v)]
+
+        for i in range(int(execution_time / self.dt)):
+            p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            positions.append(p)
+            velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.testing.simulation.SimulationMockup.goto_ee_state"><code class="name flex">
+<span>def <span class="ident">goto_ee_state</span></span>(<span>self, ee_state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def goto_ee_state(self, ee_state):
+    self.ee_state = np.copy(ee_state)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.SimulationMockup.step_through_cartesian"><code class="name flex">
+<span>def <span class="ident">step_through_cartesian</span></span>(<span>self, steppable, last_p, last_v, execution_time, coupling_term=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step_through_cartesian(self, steppable, last_p, last_v, execution_time, coupling_term=None):
+    desired_positions = [np.copy(last_p)]
+    positions = [np.copy(last_p)]
+    desired_velocities = [np.copy(last_v)]
+    velocities = [np.copy(last_v)]
+
+    for i in range(int(execution_time / self.dt)):
+        p, v = steppable.step(last_p, last_v, coupling_term=coupling_term)
+
+        desired_positions.append(p)
+        desired_velocities.append(v)
+
+        positions.append(p)
+        velocities.append(v)
+
+        last_v = v
+        last_p = p
+
+    return (np.asarray(desired_positions),
+            np.asarray(positions),
+            np.asarray(desired_velocities),
+            np.asarray(velocities))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation"><code class="flex name class">
+<span>class <span class="ident">UR5Simulation</span></span>
+<span>(</span><span>dt, gui=True, real_time=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UR5Simulation(PybulletSimulation):
+    def __init__(self, dt, gui=True, real_time=False):
+        super(UR5Simulation, self).__init__(dt, gui, real_time)
+
+        pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.plane = pybullet.loadURDF(
+            &#34;plane.urdf&#34;, [0, 0, -1], useFixedBase=1)
+        self.robot = pybullet.loadURDF(
+            &#34;examples/data/urdf/ur5.urdf&#34;, [0, 0, 0], useFixedBase=1)
+
+        self.base_pose = pybullet.getBasePositionAndOrientation(self.robot)
+        self.inv_base_pose = pybullet.invertTransform(*self.base_pose)
+
+        self.n_ur5_joints = 6
+        # one link after the base link of the last joint
+        self.ee_link_index = pybullet.getJointInfo(
+            self.robot, self.n_ur5_joints)[16] + 2
+
+        self.n_joints = pybullet.getNumJoints(self.robot)
+        self.joint_indices = [
+            i for i in range(self.n_joints)
+            if pybullet.getJointInfo(self.robot, i)[2] == 0]  # joint type 0: revolute
+        self.joint_names = {i: pybullet.getJointInfo(self.robot, i)[1]
+                            for i in self.joint_indices}
+        # we cannot actually use them so far:
+        self.joint_max_velocities = [pybullet.getJointInfo(self.robot, i)[11]
+                                     for i in self.joint_indices]
+
+    def inverse_kinematics(self, ee2robot):
+        pos, rot = _pybullet_pose(ee2robot)
+        # ee2world
+        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
+
+        q = pybullet.calculateInverseKinematics(
+            self.robot, self.ee_link_index, pos, rot, maxNumIterations=100,
+            residualThreshold=0.001)
+        q = q[:self.n_ur5_joints]
+        if any(np.isnan(q)):
+            raise Exception(&#34;IK solver found no solution.&#34;)
+        return q
+
+    def get_joint_state(self):
+        joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
+        positions = []
+        velocities = []
+        for joint_state in joint_states:
+            pos, vel, forces, torque = joint_state
+            positions.append(pos)
+            velocities.append(vel)
+        return np.asarray(positions), np.asarray(velocities)
+
+    def set_desired_joint_state(self, joint_state, position_control=False):
+        if position_control:
+            pybullet.setJointMotorControlArray(
+                self.robot, self.joint_indices[:self.n_ur5_joints],
+                pybullet.POSITION_CONTROL,
+                targetPositions=joint_state)
+        else:  # velocity control
+            pybullet.setJointMotorControlArray(
+                self.robot, self.joint_indices[:self.n_ur5_joints],
+                pybullet.VELOCITY_CONTROL, targetVelocities=joint_state)
+
+    def get_ee_state(self, return_velocity=False):
+        ee_state = pybullet.getLinkState(
+            self.robot, self.ee_link_index, computeLinkVelocity=1,
+            computeForwardKinematics=1)
+        pos = ee_state[4]
+        rot = ee_state[5]
+        pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
+        if return_velocity:
+            vel = ee_state[6]
+            #ang_vel = ee_state[7]
+            #ang_speed = np.linalg.norm(ang_vel)
+            #ang_axis = np.asarray(ang_vel) / ang_speed
+            vel, _ = pybullet.multiplyTransforms(
+                vel, [0, 0, 0, 1], *self.inv_base_pose)
+            # TODO transform angular velocity?
+            return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+        else:
+            return _pytransform_pose(pos, rot)
+
+    def set_desired_ee_state(self, ee_state):
+        q = self.inverse_kinematics(ee_state)
+        last_q, last_qd = self.get_joint_state()
+        self.set_desired_joint_state(
+            (q - last_q) / self.dt, position_control=False)
+
+    def stop(self):
+        pybullet.setJointMotorControlArray(
+            self.robot, self.joint_indices[:self.n_ur5_joints],
+            pybullet.VELOCITY_CONTROL,
+            targetVelocities=np.zeros(self.n_ur5_joints))
+        self.step()
+
+    def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+        if text:
+            pos, rot = _pybullet_pose(ee_state)
+            self.write(pos, text)
+        q = self.inverse_kinematics(ee_state)
+        self.set_desired_joint_state(q, position_control=True)
+        self.sim_loop(int(wait_time / self.dt))
+
+    def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False):
+        p, v = self.get_ee_state(return_velocity=True)
+        desired_positions = [last_p]
+        positions = [p]
+        desired_velocities = [last_v]
+        velocities = [v]
+
+        for i in range(int(execution_time / self.dt)):
+            if closed_loop:
+                last_p, _ = self.get_ee_state(return_velocity=True)  # TODO last_v
+
+            p, v = steppable.step(last_p, last_v)
+            self.set_desired_ee_state(p)
+            self.step()
+
+            desired_positions.append(p)
+            desired_velocities.append(v)
+
+            last_v = v
+            last_p = p
+
+            p, v = self.get_ee_state(return_velocity=True)
+            positions.append(p)
+            velocities.append(v)
+
+        self.stop()
+
+        return (np.asarray(desired_positions),
+                np.asarray(positions),
+                np.asarray(desired_velocities),
+                np.asarray(velocities))
+
+    def write(self, pos, text):
+        pybullet.addUserDebugText(text, pos, [0, 0, 0])
+        pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="movement_primitives.testing.simulation.PybulletSimulation" href="#movement_primitives.testing.simulation.PybulletSimulation">PybulletSimulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.get_ee_state"><code class="name flex">
+<span>def <span class="ident">get_ee_state</span></span>(<span>self, return_velocity=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_ee_state(self, return_velocity=False):
+    ee_state = pybullet.getLinkState(
+        self.robot, self.ee_link_index, computeLinkVelocity=1,
+        computeForwardKinematics=1)
+    pos = ee_state[4]
+    rot = ee_state[5]
+    pos, rot = pybullet.multiplyTransforms(pos, rot, *self.inv_base_pose)
+    if return_velocity:
+        vel = ee_state[6]
+        #ang_vel = ee_state[7]
+        #ang_speed = np.linalg.norm(ang_vel)
+        #ang_axis = np.asarray(ang_vel) / ang_speed
+        vel, _ = pybullet.multiplyTransforms(
+            vel, [0, 0, 0, 1], *self.inv_base_pose)
+        # TODO transform angular velocity?
+        return _pytransform_pose(pos, rot), np.hstack((vel, np.zeros(3)))
+    else:
+        return _pytransform_pose(pos, rot)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.get_joint_state"><code class="name flex">
+<span>def <span class="ident">get_joint_state</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_joint_state(self):
+    joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
+    positions = []
+    velocities = []
+    for joint_state in joint_states:
+        pos, vel, forces, torque = joint_state
+        positions.append(pos)
+        velocities.append(vel)
+    return np.asarray(positions), np.asarray(velocities)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.goto_ee_state"><code class="name flex">
+<span>def <span class="ident">goto_ee_state</span></span>(<span>self, ee_state, wait_time=1.0, text=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def goto_ee_state(self, ee_state, wait_time=1.0, text=None):
+    if text:
+        pos, rot = _pybullet_pose(ee_state)
+        self.write(pos, text)
+    q = self.inverse_kinematics(ee_state)
+    self.set_desired_joint_state(q, position_control=True)
+    self.sim_loop(int(wait_time / self.dt))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.inverse_kinematics"><code class="name flex">
+<span>def <span class="ident">inverse_kinematics</span></span>(<span>self, ee2robot)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inverse_kinematics(self, ee2robot):
+    pos, rot = _pybullet_pose(ee2robot)
+    # ee2world
+    pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
+
+    q = pybullet.calculateInverseKinematics(
+        self.robot, self.ee_link_index, pos, rot, maxNumIterations=100,
+        residualThreshold=0.001)
+    q = q[:self.n_ur5_joints]
+    if any(np.isnan(q)):
+        raise Exception(&#34;IK solver found no solution.&#34;)
+    return q</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.set_desired_ee_state"><code class="name flex">
+<span>def <span class="ident">set_desired_ee_state</span></span>(<span>self, ee_state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_desired_ee_state(self, ee_state):
+    q = self.inverse_kinematics(ee_state)
+    last_q, last_qd = self.get_joint_state()
+    self.set_desired_joint_state(
+        (q - last_q) / self.dt, position_control=False)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.set_desired_joint_state"><code class="name flex">
+<span>def <span class="ident">set_desired_joint_state</span></span>(<span>self, joint_state, position_control=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_desired_joint_state(self, joint_state, position_control=False):
+    if position_control:
+        pybullet.setJointMotorControlArray(
+            self.robot, self.joint_indices[:self.n_ur5_joints],
+            pybullet.POSITION_CONTROL,
+            targetPositions=joint_state)
+    else:  # velocity control
+        pybullet.setJointMotorControlArray(
+            self.robot, self.joint_indices[:self.n_ur5_joints],
+            pybullet.VELOCITY_CONTROL, targetVelocities=joint_state)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.step_through_cartesian"><code class="name flex">
+<span>def <span class="ident">step_through_cartesian</span></span>(<span>self, steppable, last_p, last_v, execution_time, closed_loop=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step_through_cartesian(self, steppable, last_p, last_v, execution_time, closed_loop=False):
+    p, v = self.get_ee_state(return_velocity=True)
+    desired_positions = [last_p]
+    positions = [p]
+    desired_velocities = [last_v]
+    velocities = [v]
+
+    for i in range(int(execution_time / self.dt)):
+        if closed_loop:
+            last_p, _ = self.get_ee_state(return_velocity=True)  # TODO last_v
+
+        p, v = steppable.step(last_p, last_v)
+        self.set_desired_ee_state(p)
+        self.step()
+
+        desired_positions.append(p)
+        desired_velocities.append(v)
+
+        last_v = v
+        last_p = p
+
+        p, v = self.get_ee_state(return_velocity=True)
+        positions.append(p)
+        velocities.append(v)
+
+    self.stop()
+
+    return (np.asarray(desired_positions),
+            np.asarray(positions),
+            np.asarray(desired_velocities),
+            np.asarray(velocities))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.stop"><code class="name flex">
+<span>def <span class="ident">stop</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop(self):
+    pybullet.setJointMotorControlArray(
+        self.robot, self.joint_indices[:self.n_ur5_joints],
+        pybullet.VELOCITY_CONTROL,
+        targetVelocities=np.zeros(self.n_ur5_joints))
+    self.step()</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.UR5Simulation.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, pos, text)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write(self, pos, text):
+    pybullet.addUserDebugText(text, pos, [0, 0, 0])
+    pybullet.addUserDebugLine(pos, [0, 0, 0], [0, 0, 0], 2)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="movement_primitives.testing" href="index.html">movement_primitives.testing</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.analyze_robot" href="#movement_primitives.testing.simulation.analyze_robot">analyze_robot</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.draw_pose" href="#movement_primitives.testing.simulation.draw_pose">draw_pose</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.draw_trajectory" href="#movement_primitives.testing.simulation.draw_trajectory">draw_trajectory</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.draw_transform" href="#movement_primitives.testing.simulation.draw_transform">draw_transform</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.get_absolute_path" href="#movement_primitives.testing.simulation.get_absolute_path">get_absolute_path</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="movement_primitives.testing.simulation.KinematicsChain" href="#movement_primitives.testing.simulation.KinematicsChain">KinematicsChain</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.KinematicsChain.inverse" href="#movement_primitives.testing.simulation.KinematicsChain.inverse">inverse</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="movement_primitives.testing.simulation.PybulletSimulation" href="#movement_primitives.testing.simulation.PybulletSimulation">PybulletSimulation</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.sim_loop" href="#movement_primitives.testing.simulation.PybulletSimulation.sim_loop">sim_loop</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.step" href="#movement_primitives.testing.simulation.PybulletSimulation.step">step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="movement_primitives.testing.simulation.RH5Simulation" href="#movement_primitives.testing.simulation.RH5Simulation">RH5Simulation</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.get_ee_state" href="#movement_primitives.testing.simulation.RH5Simulation.get_ee_state">get_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.get_joint_state" href="#movement_primitives.testing.simulation.RH5Simulation.get_joint_state">get_joint_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.goto_ee_state" href="#movement_primitives.testing.simulation.RH5Simulation.goto_ee_state">goto_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.inverse_kinematics" href="#movement_primitives.testing.simulation.RH5Simulation.inverse_kinematics">inverse_kinematics</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.set_desired_ee_state" href="#movement_primitives.testing.simulation.RH5Simulation.set_desired_ee_state">set_desired_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.set_desired_joint_state" href="#movement_primitives.testing.simulation.RH5Simulation.set_desired_joint_state">set_desired_joint_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.step_through_cartesian" href="#movement_primitives.testing.simulation.RH5Simulation.step_through_cartesian">step_through_cartesian</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.stop" href="#movement_primitives.testing.simulation.RH5Simulation.stop">stop</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.RH5Simulation.write" href="#movement_primitives.testing.simulation.RH5Simulation.write">write</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="movement_primitives.testing.simulation.SimulationMockup" href="#movement_primitives.testing.simulation.SimulationMockup">SimulationMockup</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.SimulationMockup.goto_ee_state" href="#movement_primitives.testing.simulation.SimulationMockup.goto_ee_state">goto_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.SimulationMockup.step_through_cartesian" href="#movement_primitives.testing.simulation.SimulationMockup.step_through_cartesian">step_through_cartesian</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="movement_primitives.testing.simulation.UR5Simulation" href="#movement_primitives.testing.simulation.UR5Simulation">UR5Simulation</a></code></h4>
+<ul class="">
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.get_ee_state" href="#movement_primitives.testing.simulation.UR5Simulation.get_ee_state">get_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.get_joint_state" href="#movement_primitives.testing.simulation.UR5Simulation.get_joint_state">get_joint_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.goto_ee_state" href="#movement_primitives.testing.simulation.UR5Simulation.goto_ee_state">goto_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.inverse_kinematics" href="#movement_primitives.testing.simulation.UR5Simulation.inverse_kinematics">inverse_kinematics</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.set_desired_ee_state" href="#movement_primitives.testing.simulation.UR5Simulation.set_desired_ee_state">set_desired_ee_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.set_desired_joint_state" href="#movement_primitives.testing.simulation.UR5Simulation.set_desired_joint_state">set_desired_joint_state</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.step_through_cartesian" href="#movement_primitives.testing.simulation.UR5Simulation.step_through_cartesian">step_through_cartesian</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.stop" href="#movement_primitives.testing.simulation.UR5Simulation.stop">stop</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.UR5Simulation.write" href="#movement_primitives.testing.simulation.UR5Simulation.write">write</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
