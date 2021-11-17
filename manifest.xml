@@ -5,7 +5,7 @@
   <author>Alexander Fabisch/Alexander.Fabisch@dfki.de</author>
   <maintainer>Alexander Fabisch/Alexander.Fabisch@dfki.de</maintainer>
   <license>BSD-3-clause</license>
-  <url>https://git.hb.dfki.de/dfki-learning/movement_primitives</url>
+  <url>https://github.com/dfki-ric/movement_primitives</url>
   <logo>none</logo>
 
   <depend package="python" />
