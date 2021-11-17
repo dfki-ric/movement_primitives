@@ -5,11 +5,13 @@ omit =
     */setup.py
     movement_primitives/plot.py
     movement_primitives/visualization.py
+    movement_primitives/testing/simulation.py
 
 [report]
 omit =
     movement_primitives/plot.py
     movement_primitives/visualization.py
+    movement_primitives/testing/simulation.py
 exclude_lines =
     pragma: no cover
     def plot_*
