@@ -118,7 +118,7 @@ This command searches for all files with `test` and executes the functions with 
 ## Contributing
 
 To add new features, documentation, or fix bugs you can open a pull request.
-Directly pushing to the master branch is not allowed.
+Directly pushing to the main branch is not allowed.
 
 ## Examples
 
