@@ -166,8 +166,7 @@ with 1-sigma interval.
 
 ### Contextual ProMPs
 
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="400px" />
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="400px" />
+<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" />
 
 We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
 with 10 demonstrations per 3 different panel widths that were obtained through
@@ -190,8 +189,7 @@ visualizations corresponds to a ProMP for a different context.
 
 ### Dual Cartesian DMP
 
-<img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="300px" />
-<img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="300px" />
+<img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" />
 
 We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
 humanoid robots.
@@ -212,8 +210,7 @@ Scripts: [Open3D](examples/external_dependencies/vis_solar_panel.py), [PyBullet]
 
 ### Coupled Dual Cartesian DMP
 
-<img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="450px" />
-<img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="250px" />
+<img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="60%" /><img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="40%" />
 
 We can introduce a coupling term in a dual Cartesian DMP to constrain the
 relative position, orientation, or pose of two end-effectors of a dual-arm
@@ -234,8 +231,7 @@ Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [Py
 
 ### Propagation of DMP Distribution to State Space
 
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="500px" />
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="300px" />
+<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="60%" /><img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="40%" />
 
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
@@ -261,5 +257,4 @@ of the German Research Center for Artificial Intelligence (DFKI GmbH) in
 Bremen. At this phase the work was supported through a grant of the German
 Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).
 
-<img src="doc/source/_static/DFKI_Logo.jpg" height="50px" />
-<img src="doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
+<img src="doc/source/_static/DFKI_Logo.jpg" height="50px" /><img src="doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
