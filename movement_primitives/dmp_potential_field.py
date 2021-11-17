@@ -1,3 +1,4 @@
+"""Visualization of DMP as potential field."""
 import numpy as np
 from .dmp import dmp_transformation_system, obstacle_avoidance_acceleration_2d
 
