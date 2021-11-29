@@ -15,9 +15,9 @@ def test_forward_inverse():
     chain = kin.create_chain(joint_names, "ur5_base_link", "ur5_tool0")
     random_state = np.random.RandomState()
     for _ in range(5):
-        q = np.clip(
-            random_state.randn(len(joint_names)),
-            chain.joint_limits[:, 0], chain.joint_limits[:, 1])
+        q = (random_state.rand(len(chain.joint_limits))
+             * (chain.joint_limits[:, 1] - chain.joint_limits[:, 0])
+             + chain.joint_limits[:, 0])
         ee2base = chain.forward(q)
         q2 = chain.inverse_with_random_restarts(
             ee2base, random_state=random_state, n_restarts=20)
