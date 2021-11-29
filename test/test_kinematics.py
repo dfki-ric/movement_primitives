@@ -19,6 +19,7 @@ def test_forward_inverse():
             random_state.randn(len(joint_names)),
             chain.joint_limits[:, 0], chain.joint_limits[:, 1])
         ee2base = chain.forward(q)
-        q2 = chain.inverse_with_random_restarts(ee2base, random_state=random_state)
+        q2 = chain.inverse_with_random_restarts(
+            ee2base, random_state=random_state, n_restarts=20)
         ee2base2 = chain.forward(q2)
         assert_array_almost_equal(ee2base, ee2base2, decimal=3)
