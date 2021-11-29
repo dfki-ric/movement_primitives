@@ -5,7 +5,7 @@ from numpy.testing import assert_array_almost_equal
 
 def test_forward_inverse():
     with open("examples/data/urdf/ur5.urdf", "r") as f:
-        kin = Kinematics(f)
+        kin = Kinematics(f.read())
     joint_names = ["ur5_shoulder_pan_joint",
                    "ur5_shoulder_lift_joint",
                    "ur5_elbow_joint",
