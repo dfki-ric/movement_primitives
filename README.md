@@ -1,3 +1,4 @@
+![CI](https://github.com/dfki-ric/movement_primitives/actions/workflows/python-package.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL)](https://codecov.io/gh/dfki-ric/movement_primitives)
 
 # Movement Primitives
