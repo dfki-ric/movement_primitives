@@ -1,28 +1,25 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+import os
 import warnings
-try:
-    from Cython.Build import cythonize
-    cython_available = True
-except ImportError:
-    cython_available = False
-import movement_primitives
+from setuptools import setup, find_packages
 
 
 if __name__ == "__main__":
     with open("README.md", "r") as f:
         long_description = f.read()
+    with open(os.path.join("movement_primitives", "_version.py")) as f:
+        version = f.read().strip().split('"')[1]
     setup_config = dict(
         name="movement_primitives",
-        version=movement_primitives.__version__,
+        version=version,
         author="Alexander Fabisch",
         author_email="alexander.fabisch@dfki.de",
-        url="https://git.hb.dfki.de/dfki-learning/movement_primitives",
+        url="https://github.com/dfki-ric/movement_primitives",
         description="Movement primitives",
         long_description=long_description,
         long_description_content_type="text/markdown",
         classifiers=["Programming Language :: Python :: 3"],
-        license="no license",
+        license="BSD-3-clause",
         packages=find_packages(),
         install_requires=[],
         extras_require={
@@ -32,12 +29,13 @@ if __name__ == "__main__":
             "test": ["nose", "coverage"]
         }
     )
-    if cython_available:
+    try:
+        from Cython.Build import cythonize
         import numpy
         cython_config = dict(
             ext_modules=cythonize("dmp_fast.pyx"),
             zip_safe=False,
-            compiler_directives={'language_level': "3"},
+            compiler_directives={"language_level": "3"},
             include_dirs=[numpy.get_include()],
             extra_compile_args=[
                 "-O3",
@@ -45,7 +43,8 @@ if __name__ == "__main__":
             ]
         )
         setup_config.update(cython_config)
-    else:
-        warnings.warn("Cython is not available. Install it if you want fast DMPs.")
+    except ImportError:
+        warnings.warn("Cython or NumPy is not available. "
+                      "Install it if you want fast DMPs.")
 
     setup(**setup_config)

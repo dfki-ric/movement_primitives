@@ -6,5 +6,7 @@ imitation learning, generalization, and adaptation of movement primitives and
 provides implementations in Python and Cython.
 """
 
+from ._version import __version__
 
-__version__ = "0.1.0"
+
+__all__ = ["__version__"]
