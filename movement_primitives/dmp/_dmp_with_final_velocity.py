@@ -42,7 +42,8 @@ class DMPWithFinalVelocity(DMPBase):
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
+                 int_dt=0.001, p_gain=0.0):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt_ = dt
@@ -50,8 +51,10 @@ class DMPWithFinalVelocity(DMPBase):
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
+        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0,
+                                         self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
+                                        self.execution_time, 0.0, 0.8, alpha_z)
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
@@ -151,7 +154,8 @@ class DMPWithFinalVelocity(DMPBase):
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=True,
             determine_forces=determine_forces)
         self.configure(

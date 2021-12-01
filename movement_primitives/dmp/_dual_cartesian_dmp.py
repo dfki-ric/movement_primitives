@@ -100,7 +100,8 @@ class DualCartesianDMP(DMPBase):
 
         tracking_error = self.current_y - last_y
         for ops in (slice(3, 7), slice(10, 14)):
-            tracking_error[ops] = pr.concatenate_quaternions(self.current_y[ops], pr.q_conj(last_y[ops]))
+            tracking_error[ops] = pr.concatenate_quaternions(
+                self.current_y[ops], pr.q_conj(last_y[ops]))
         self.current_y[:], self.current_yd[:] = last_y, last_yd
         dmp_step_dual_cartesian(
             self.last_t, self.t, self.current_y, self.current_yd,
@@ -167,26 +168,34 @@ class DualCartesianDMP(DMPBase):
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)[0]
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
         self.forcing_term.weights[3:6, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)[0]
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
         self.forcing_term.weights[6:9, :] = dmp_imitate(
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)[0]
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
         self.forcing_term.weights[9:12, :] = dmp_quaternion_imitation(
             T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)[0]
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
@@ -208,7 +217,8 @@ class DualCartesianDMP(DMPBase):
         weights : array, shape (12 * n_weights_per_dim,)
             New weights of the DMP.
         """
-        self.forcing_term.weights[:, :] = weights.reshape(-1, self.n_weights_per_dim)
+        self.forcing_term.weights[:, :] = weights.reshape(
+            -1, self.n_weights_per_dim)
 
 
 pps = [0, 1, 2, 7, 8, 9]

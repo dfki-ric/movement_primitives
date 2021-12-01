@@ -8,7 +8,9 @@ from tqdm import tqdm
 from .dmp import DualCartesianDMP
 
 
-def propagate_weight_distribution_to_state_space(dataset, n_weights_per_dim, cache_filename=None, alpha=1e-3, kappa=10.0, verbose=0):
+def propagate_weight_distribution_to_state_space(
+        dataset, n_weights_per_dim, cache_filename=None, alpha=1e-3,
+        kappa=10.0, verbose=0):
     """Learn DMPs from dataset and propagate MVN of weights to state space.
 
     Parameters
@@ -46,12 +48,17 @@ def propagate_weight_distribution_to_state_space(dataset, n_weights_per_dim, cac
         mvn, mean_execution_time = estimate_dmp_parameter_distribution(
             dataset=dataset, n_weights_per_dim=n_weights_per_dim,
             verbose=verbose)
-        trajectories = propagate_to_state_space(mvn=mvn, n_weights_per_dim=n_weights_per_dim, execution_time=mean_execution_time, alpha=alpha, kappa=kappa, verbose=verbose)
+        trajectories = propagate_to_state_space(
+            mvn=mvn, n_weights_per_dim=n_weights_per_dim,
+            execution_time=mean_execution_time, alpha=alpha, kappa=kappa,
+            verbose=verbose)
 
         if cache_filename is not None:
             np.savetxt(cache_filename, trajectories)
 
-    return estimate_state_distribution(trajectories, alpha=alpha, kappa=kappa, n_weights_per_dim=n_weights_per_dim)
+    return estimate_state_distribution(
+        trajectories, alpha=alpha, kappa=kappa,
+        n_weights_per_dim=n_weights_per_dim)
 
 
 def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
@@ -87,7 +94,8 @@ def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
     return mvn, np.mean(all_execution_times)
 
 
-def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha, kappa, verbose=0):
+def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
+                             kappa, verbose=0):
     if verbose:
         print("Propagating to state space...")
 
@@ -121,5 +129,6 @@ def estimate_state_distribution(trajectories, alpha, kappa, n_weights_per_dim):
     n_features = n_weights + 2 * n_dims + 1
     initial_mean = np.zeros(n_features)
     initial_cov = np.eye(n_features)
-    return MVN(initial_mean, initial_cov, random_state=42).estimate_from_sigma_points(
+    mvn = MVN(initial_mean, initial_cov, random_state=42)
+    return mvn.estimate_from_sigma_points(
         trajectories, alpha=alpha, kappa=kappa)

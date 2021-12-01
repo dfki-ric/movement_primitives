@@ -13,7 +13,7 @@ def test_forward_inverse():
                    "ur5_wrist_2_joint",
                    "ur5_wrist_3_joint"]
     chain = kin.create_chain(joint_names, "ur5_base_link", "ur5_tool0")
-    random_state = np.random.RandomState()
+    random_state = np.random.RandomState(1232)
     for _ in range(5):
         q = (random_state.rand(len(chain.joint_limits))
              * (chain.joint_limits[:, 1] - chain.joint_limits[:, 0])

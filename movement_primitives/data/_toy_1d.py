@@ -47,9 +47,11 @@ def generate_1d_trajectory_distribution(
         if initial_offset_range or final_offset_range:
             initial_offset = initial_offset_range * (random_state.rand() - 0.5)
             final_offset = final_offset_range * (random_state.rand() - 0.5)
-            Y[demo_idx, :, 0] += np.linspace(initial_offset, final_offset, n_steps)
+            Y[demo_idx, :, 0] += np.linspace(
+                initial_offset, final_offset, n_steps)
         if noise_per_step_range:
-            noise_per_step = noise_per_step_range * L.dot(random_state.randn(n_steps))
+            noise_per_step = (noise_per_step_range
+                              * L.dot(random_state.randn(n_steps)))
             Y[demo_idx, :, 0] += noise_per_step
     return T, Y
 

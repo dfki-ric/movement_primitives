@@ -70,7 +70,8 @@ class ProMP:
         """
         activations = self._rbfs_nd_sequence(T).T
         weights = np.linalg.pinv(
-            activations.T.dot(activations) + lmbda * np.eye(activations.shape[1])
+            activations.T.dot(activations)
+            + lmbda * np.eye(activations.shape[1])
         ).dot(activations.T).dot(Y.T.ravel())
         return weights
 
@@ -90,7 +91,8 @@ class ProMP:
         Y : array, shape (n_steps, n_dims)
             Trajectory
         """
-        return self._rbfs_nd_sequence(T).T.dot(weights).reshape(self.n_dims, len(T)).T
+        return self._rbfs_nd_sequence(T).T.dot(weights).reshape(
+            self.n_dims, len(T)).T
 
     def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
         """Condition ProMP on a specific position (see page 4 of [1]).
@@ -120,7 +122,8 @@ class ProMP:
         [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
         https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
         """
-        Psi_t = _nd_block_diagonal(self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
+        Psi_t = _nd_block_diagonal(
+            self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
         if y_cov is None:
             y_cov = 0.0
 
@@ -128,9 +131,12 @@ class ProMP:
             np.linalg.inv(y_cov + Psi_t.T.dot(self.weight_cov).dot(Psi_t)))
 
         # Equation (5)
-        weight_mean = self.weight_mean + common_term.dot(y_mean - Psi_t.T.dot(self.weight_mean))
+        weight_mean = (
+            self.weight_mean
+            + common_term.dot(y_mean - Psi_t.T.dot(self.weight_mean)))
         # Equation (6)
-        weight_cov = self.weight_cov - common_term.dot(Psi_t.T).dot(self.weight_cov)
+        weight_cov = (
+            self.weight_cov - common_term.dot(Psi_t.T).dot(self.weight_cov))
 
         conditional_promp = ProMP(self.n_dims, self.n_weights_per_dim)
         conditional_promp.from_weight_distribution(weight_mean, weight_cov)
@@ -180,7 +186,8 @@ class ProMP:
         var : array, shape (n_steps, n_dims)
             Variance
         """
-        return np.maximum(np.diag(self.cov_trajectory(T)).reshape(self.n_dims, len(T)).T, 0.0)
+        return np.maximum(np.diag(self.cov_trajectory(T)).reshape(
+            self.n_dims, len(T)).T, 0.0)
 
     def mean_velocities(self, T):
         """Get mean velocities of ProMP.
@@ -195,7 +202,8 @@ class ProMP:
         Yd : array, shape (n_steps, n_dims)
             Mean velocities
         """
-        return self._rbfs_derivative_nd_sequence(T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
+        return self._rbfs_derivative_nd_sequence(
+            T).T.dot(self.weight_mean).reshape(self.n_dims, len(T)).T
 
     def cov_velocities(self, T):
         """Get velocity covariance of ProMP.
@@ -226,7 +234,8 @@ class ProMP:
         var : array, shape (n_steps, n_dims)
             Variance
         """
-        return np.maximum(np.diag(self.cov_velocities(T)).reshape(self.n_dims, len(T)).T, 0.0)
+        return np.maximum(np.diag(self.cov_velocities(T)).reshape(
+            self.n_dims, len(T)).T, 0.0)
 
     def sample_trajectories(self, T, n_samples, random_state):
         """Sample trajectories from ProMP.
@@ -414,7 +423,8 @@ class ProMP:
 
     def _rbfs_nd_sequence(self, T, overlap=0.7):
         """Radial basis functions for n_dims dimensions and a sequence."""
-        return _nd_block_diagonal(self._rbfs_1d_sequence(T, overlap), self.n_dims)
+        return _nd_block_diagonal(
+            self._rbfs_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_1d_sequence(self, T, overlap=0.7, normalize=True):
         """Radial basis functions for one dimension and a sequence.
@@ -447,7 +457,8 @@ class ProMP:
         T = np.atleast_2d(T)
         T /= np.max(T)
 
-        activations = np.exp(-(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
+        activations = np.exp(
+            -(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
         if normalize:
             activations /= activations.sum(axis=0)
 
@@ -457,11 +468,12 @@ class ProMP:
         return activations
 
     def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
-        """Derivative of radial basis functions for n_dims dimensions and a sequence."""
-        return _nd_block_diagonal(self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
+        """Derivative of RBFs for n_dims dimensions and a sequence."""
+        return _nd_block_diagonal(
+            self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
 
     def _rbfs_derivative_1d_sequence(self, T, overlap=0.7):
-        """Derivative of radial basis functions for one dimension and a sequence.
+        """Derivative of RBFs for one dimension and a sequence.
 
         Parameters
         ----------
@@ -494,8 +506,9 @@ class ProMP:
         rbfs_deriv = (self.centers[:, np.newaxis] - T) / h
         rbfs_deriv *= rbfs
         rbfs_deriv_sum_per_step = rbfs_deriv.sum(axis=0)
-        rbfs_deriv = (rbfs_deriv * rbfs_sum_per_step
-                      - rbfs * rbfs_deriv_sum_per_step) / (rbfs_sum_per_step ** 2)
+        rbfs_deriv = (
+             rbfs_deriv * rbfs_sum_per_step
+             - rbfs * rbfs_deriv_sum_per_step) / (rbfs_sum_per_step ** 2)
 
         assert rbfs_deriv.shape[0] == self.n_weights_per_dim
         assert rbfs_deriv.shape[1] == n_steps
@@ -503,8 +516,10 @@ class ProMP:
         return rbfs_deriv
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):
-        cov = np.linalg.pinv(PhiHTHPhiT / self.variance + np.linalg.pinv(self.weight_cov))
-        mean = cov.dot(PhiHTR / self.variance + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))
+        cov = np.linalg.pinv(PhiHTHPhiT / self.variance
+                             + np.linalg.pinv(self.weight_cov))
+        mean = cov.dot(PhiHTR / self.variance
+                       + np.linalg.pinv(self.weight_cov).dot(self.weight_mean))
         return mean, cov
 
     def _maximization(self, means, covs, RRs, PhiHTR, PhiHTHPhiTs, n_samples):
