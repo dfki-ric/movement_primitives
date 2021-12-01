@@ -42,7 +42,7 @@ def test_activations():
 
     T = np.linspace(0.0, 1.0, 1001)
     z = phase(T, alpha_z, goal_t=1.0, start_t=0.0)
-    activations = forcing_term._activations(z, normalized=True)
+    activations = forcing_term._activations(z)
 
     assert_equal(activations.shape[0], n_weights_per_dim)
     assert_equal(activations.shape[1], len(T))
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     forcing_term = ForcingTerm(n_dims=1, n_weights_per_dim=6, goal_t=1.0, start_t=0.0, overlap=0.8, alpha_z=alpha_z)
     T = np.linspace(0.0, 1.0, 1001)
     z = phase(T, alpha_z, goal_t=1.0, start_t=0.0)
-    activations = forcing_term._activations(z, normalized=True)
+    activations = forcing_term._activations(z)
 
     plt.figure()
     for rbf_idx in range(activations.shape[0]):
