@@ -170,6 +170,15 @@ with 1-sigma interval.
 
 [Script](examples/plot_promp_lasa.py)
 
+### Cartesian DMPs
+
+<img src="doc/source/_static/cart_dmp_ur5.png" width="100%" />
+
+A trajectory is created manually, imitated with a Cartesian DMP, converted
+to a joint trajectory by inverse kinematics, and executed with a UR5.
+
+[Script](examples/vis_cartesian_dmp.py)
+
 ### Contextual ProMPs
 
 <img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" />
