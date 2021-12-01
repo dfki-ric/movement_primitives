@@ -42,22 +42,21 @@ class ForcingTerm:
         self.widths[self.n_weights_per_dim - 1] = self.widths[
             self.n_weights_per_dim - 2]
 
-    def _activations(self, z, normalized):
+    def _activations(self, z):
         z = np.atleast_2d(z)  # 1 x n_steps
         squared_dist = (z - self.centers[:, np.newaxis]) ** 2
         activations = np.exp(-self.widths[:, np.newaxis] * squared_dist)
-        if normalized:
-            activations /= activations.sum(axis=0)
+        activations /= activations.sum(axis=0)  # normalize
         return activations
 
     def design_matrix(self, T, int_dt=0.001):  # returns: n_weights_per_dim x n_steps
         Z = phase(T, alpha=self.alpha_z, goal_t=T[-1], start_t=T[0],
                   int_dt=int_dt)
-        return Z[np.newaxis, :] * self._activations(Z, normalized=True)
+        return Z[np.newaxis, :] * self._activations(Z)
 
     def __call__(self, t, int_dt=0.001):
         z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
                   start_t=self.start_t, int_dt=int_dt)
         z = np.atleast_1d(z)
-        activations = self._activations(z, normalized=True)
+        activations = self._activations(z)
         return z[np.newaxis, :] * self.weights.dot(activations)
