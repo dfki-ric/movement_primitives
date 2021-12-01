@@ -1,9 +1,10 @@
 """Spring-damper based attractors."""
 import numpy as np
 import pytransform3d.rotations as pr
+from .base import PointToPointMovement
 
 
-class SpringDamper:
+class SpringDamper(PointToPointMovement):
     """Spring-damper system.
 
     This is similar to a DMP without the forcing term.
@@ -26,38 +27,15 @@ class SpringDamper:
         Time difference for Euler integration.
     """
     def __init__(self, n_dims, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        super(SpringDamper, self).__init__(n_dims, n_dims)
         self.n_dims = n_dims
         self.dt = dt
         self.k = k
         self.c = c
         self.int_dt = int_dt
 
-        self.last_t = None
-        self.t = 0.0
-        self.start_y = np.zeros(self.n_dims)
-        self.start_yd = np.zeros(self.n_dims)
-        self.start_ydd = np.zeros(self.n_dims)
-        self.goal_y = np.zeros(self.n_dims)
         self.initialized = False
-        self.current_y = np.zeros(self.n_dims)
-        self.current_yd = np.zeros(self.n_dims)
         self.configure()
-
-    def configure(
-            self, last_t=None, t=None, start_y=None, start_yd=None,
-            start_ydd=None, goal_y=None):
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-        if start_y is not None:
-            self.start_y = start_y
-        if start_yd is not None:
-            self.start_yd = start_yd
-        if start_ydd is not None:
-            self.start_ydd = start_ydd
-        if goal_y is not None:
-            self.goal_y = goal_y
 
     def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
@@ -87,7 +65,7 @@ class SpringDamper:
             run_t, self.int_dt)
 
 
-class SpringDamperOrientation:
+class SpringDamperOrientation(PointToPointMovement):
     """Spring-damper system for quaternions.
 
     This is similar to a Quaternion DMP without the forcing term.
@@ -107,37 +85,15 @@ class SpringDamperOrientation:
         Time difference for Euler integration.
     """
     def __init__(self, dt=0.01, k=1.0, c=None, int_dt=0.001):
+        super(SpringDamperOrientation, self).__init__(4, 3)
+
         self.dt = dt
         self.k = k
         self.c = c
         self.int_dt = int_dt
 
-        self.last_t = None
-        self.t = 0.0
-        self.start_y = np.zeros(4)
-        self.start_yd = np.zeros(3)
-        self.start_ydd = np.zeros(3)
-        self.goal_y = np.zeros(4)
         self.initialized = False
-        self.current_y = np.zeros(4)
-        self.current_yd = np.zeros(3)
         self.configure()
-
-    def configure(
-            self, last_t=None, t=None, start_y=None, start_yd=None,
-            start_ydd=None, goal_y=None):
-        if last_t is not None:
-            self.last_t = last_t
-        if t is not None:
-            self.t = t
-        if start_y is not None:
-            self.start_y = start_y
-        if start_yd is not None:
-            self.start_yd = start_yd
-        if start_ydd is not None:
-            self.start_ydd = start_ydd
-        if goal_y is not None:
-            self.goal_y = goal_y
 
     def step(self, last_y, last_yd, coupling_term=None):
         self.last_t = self.t
