@@ -195,7 +195,8 @@ class CartesianDMP(DMPBase):
         weights : array, shape (6 * n_weights_per_dim,)
             Current weights of the DMP.
         """
-        return np.concatenate(self.forcing_term.weights_pos.ravel(), self.forcing_term_rot.weights.ravel())
+        return np.concatenate(self.forcing_term.weights_pos.ravel(),
+                              self.forcing_term_rot.weights.ravel())
 
     def set_weights(self, weights):
         """Set weight vector of DMP.
@@ -205,8 +206,11 @@ class CartesianDMP(DMPBase):
         weights : array, shape (6 * n_weights_per_dim,)
             New weights of the DMP.
         """
-        self.forcing_term_pos.weights[:, :] = weights[:self.forcing_term_pos.weights.size].reshape(-1, self.n_weights_per_dim)
-        self.forcing_term_rot.weights[:, :] = weights[self.forcing_term_pos.weights.size:].reshape(-1, self.n_weights_per_dim)
+        n_pos_weights = self.forcing_term_pos.weights.size
+        self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
+            -1, self.n_weights_per_dim)
+        self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
+            -1, self.n_weights_per_dim)
 
 
 def dmp_step_quaternion_python(
@@ -249,7 +253,8 @@ def dmp_step_quaternion_python(
 
         current_ydd[:] = (
             alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                           pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
+                           pr.concatenate_quaternions(
+                               goal_y, pr.q_conj(current_y)))
                        - execution_time * current_yd)
             + f + cdd) / execution_time ** 2
         current_yd += dt * current_ydd + cd / execution_time
@@ -329,9 +334,11 @@ def dmp_quaternion_imitation(
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
-    forcing_term = ForcingTerm(3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
-    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces_quaternion(
-        T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+    forcing_term = ForcingTerm(
+        3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
+    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = \
+        determine_forces_quaternion(T, Y, alpha_y, beta_y,
+                                    allow_final_velocity)  # n_steps x n_dims
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
@@ -403,13 +410,15 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
         F[t, :] = (
             execution_time ** 2 * Ydd[t]
             - alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                                      pr.concatenate_quaternions(
-                                          goal_y, pr.q_conj(Y[t])))
+                             pr.concatenate_quaternions(
+                                 goal_y, pr.q_conj(Y[t])))
                          - Yd[t] * execution_time))
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
-def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term, coupling_term=None, run_t=None, int_dt=0.001):
+def dmp_open_loop_quaternion(
+        goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
+        coupling_term=None, run_t=None, int_dt=0.001):
     t = start_t
     y = np.copy(start_y)
     yd = np.zeros(3)
@@ -422,10 +431,13 @@ def dmp_open_loop_quaternion(goal_t, start_t, dt, start_y, goal_y, alpha_y, beta
         t += dt
         dmp_step_quaternion(
             last_t, t, y, yd,
-            goal_y=goal_y, goal_yd=np.zeros_like(yd), goal_ydd=np.zeros_like(yd),
-            start_y=start_y, start_yd=np.zeros_like(yd), start_ydd=np.zeros_like(yd),
-            goal_t=goal_t, start_t=start_t,
-            alpha_y=alpha_y, beta_y=beta_y, forcing_term=forcing_term, coupling_term=coupling_term, int_dt=int_dt)
+            goal_y=goal_y, goal_yd=np.zeros_like(yd),
+            goal_ydd=np.zeros_like(yd),
+            start_y=start_y, start_yd=np.zeros_like(yd),
+            start_ydd=np.zeros_like(yd),
+            goal_t=goal_t, start_t=start_t, alpha_y=alpha_y, beta_y=beta_y,
+            forcing_term=forcing_term, coupling_term=coupling_term,
+            int_dt=int_dt)
         T.append(t)
         Y.append(np.copy(y))
     return np.asarray(T), np.asarray(Y)

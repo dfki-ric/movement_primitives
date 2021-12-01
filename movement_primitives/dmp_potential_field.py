@@ -38,7 +38,8 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
         Acceleration from transformation system for each position.
 
     ct : array, shape (n_ticks, n_ticks, 2)
-        Acceleration from coupling term for obstacle avoidance for each position.
+        Acceleration from coupling term for obstacle avoidance for each
+        position.
 
     acc : array, shape (n_ticks, n_ticks, 2)
         Accumulated acceleration from all terms.
@@ -108,4 +109,5 @@ def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color="g")
     ax.quiver(xx, yy, ft[:, :, 0], ft[:, :, 1], scale=quiver_scale, color="r")
     ax.quiver(xx, yy, ct[:, :, 0], ct[:, :, 1], scale=quiver_scale, color="y")
-    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale, color="k")
+    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale,
+              color="k")

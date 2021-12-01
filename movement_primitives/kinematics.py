@@ -24,7 +24,8 @@ class FastUrdfTransformManager(UrdfTransformManager):
             Joint angle in radians in case of revolute joints or position
             in case of prismatic joint.
         """
-        from_frame, to_frame, child2parent, axis, limits, joint_type = self._joints[joint_name]
+        from_frame, to_frame, child2parent, axis, limits, joint_type = \
+            self._joints[joint_name]
         value = min(max(value, limits[0]), limits[1])
         if joint_type == "revolute":
             joint2A = _fast_matrix_from_axis_angle(axis, value)
@@ -335,12 +336,15 @@ class Chain:
 
 
 @numba.jit(nopython=True, cache=True)
-def pose_dist(ee2base_desired, ee2base_actual, orientation_weight, position_weight):
+def pose_dist(
+        ee2base_desired, ee2base_actual, orientation_weight, position_weight):
     ee_actual2ee_desired = np.linalg.inv(ee2base_actual).dot(ee2base_desired)
-    trace = ee_actual2ee_desired[0, 0] + ee_actual2ee_desired[1, 1] + ee_actual2ee_desired[2, 2]
+    trace = (ee_actual2ee_desired[0, 0] + ee_actual2ee_desired[1, 1]
+             + ee_actual2ee_desired[2, 2])
     angle = math.acos(min((trace - 1.0) / 2.0, 1.0))
     orientation_error = min(angle, 2.0 * math.pi - angle)
     position_error = math.sqrt(
         ee_actual2ee_desired[0, 3] ** 2 + ee_actual2ee_desired[1, 3] ** 2
         + ee_actual2ee_desired[2, 3] ** 2)
-    return orientation_weight * orientation_error + position_weight * position_error
+    return (orientation_weight * orientation_error
+            + position_weight * position_error)

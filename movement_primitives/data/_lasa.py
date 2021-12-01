@@ -59,7 +59,8 @@ def load_lasa(shape_idx):
     """
     dataset_path = get_common_dataset_path()
     if not os.path.isdir(dataset_path + "lasa_data"):  # pragma: no cover
-        url = urlopen("http://bitbucket.org/khansari/lasahandwritingdataset/get/38304f7c0ac4.zip")
+        url = urlopen(
+            "http://bitbucket.org/khansari/lasahandwritingdataset/get/38304f7c0ac4.zip")
         z = zipfile.ZipFile(io.BytesIO(url.read()))
         z.extractall(dataset_path)
         os.rename(dataset_path + z.namelist()[0],
