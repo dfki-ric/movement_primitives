@@ -1,17 +1,14 @@
 import numpy as np
-from movement_primitives.dmp import DMP, canonical_system_alpha
+from movement_primitives.dmp import DMP
 from nose.tools import (assert_almost_equal, assert_equal, assert_less,
                         assert_raises_regexp)
 from numpy.testing import assert_array_almost_equal
 
 
-def test_canonical_system_alpha_errors():
-    assert_raises_regexp(
-        ValueError, "Final phase must be > 0!",
-        canonical_system_alpha, -0.01, 1.0, 0.0)
-    assert_raises_regexp(
-        ValueError, "Goal must be chronologically after start!",
-        canonical_system_alpha, 0.01, 0.0, 1.0)
+def test_dmp_step_function_unknown():
+    dmp = DMP(n_dims=1, execution_time=1.0, dt=0.01, n_weights_per_dim=6)
+    assert_raises_regexp(ValueError, "Step function must be",
+                         dmp.open_loop, step_function="unknown")
 
 
 def test_dmp1d():
