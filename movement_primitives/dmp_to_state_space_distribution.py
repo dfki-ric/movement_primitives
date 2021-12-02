@@ -10,14 +10,19 @@ from .dmp import DualCartesianDMP
 
 def propagate_weight_distribution_to_state_space(
         dataset, n_weights_per_dim, cache_filename=None, alpha=1e-3,
-        kappa=10.0, verbose=0):
+        kappa=10.0, dt=0.1, int_dt=0.01, verbose=0):
     """Learn DMPs from dataset and propagate MVN of weights to state space.
+
+    This only works for dual Cartesian trajectories at the moment.
+
+    This code is experimental.
 
     Parameters
     ----------
     dataset : list of tuples
         Dataset for imitation. Each tuple contains the time steps and the
-        trajectory of a demonstration.
+        trajectory of a demonstration. Each step in a trajectory is given as
+        a pair of poses represented by positions and quaternions.
 
     n_weights_per_dim : int
         Number of DMP weights that will be used for each state dimension.
@@ -31,6 +36,12 @@ def propagate_weight_distribution_to_state_space(
 
     kappa : float, optional (default: 10.0)
         Parameter for sigma-point propagation.
+
+    dt : float, optional (default: 0.1)
+        Time delta between internal DMP steps.
+
+    int_dt : float, optional (default: 0.01)
+        Time delta between integration steps of internal DMP.
 
     verbose : int, optional (default: 0)
         Verbosity level
@@ -47,21 +58,21 @@ def propagate_weight_distribution_to_state_space(
     else:
         mvn, mean_execution_time = estimate_dmp_parameter_distribution(
             dataset=dataset, n_weights_per_dim=n_weights_per_dim,
-            verbose=verbose)
+            int_dt=int_dt, verbose=verbose)
         trajectories = propagate_to_state_space(
             mvn=mvn, n_weights_per_dim=n_weights_per_dim,
             execution_time=mean_execution_time, alpha=alpha, kappa=kappa,
-            verbose=verbose)
+            dt=dt, int_dt=int_dt, verbose=verbose)
 
         if cache_filename is not None:
             np.savetxt(cache_filename, trajectories)
 
     return estimate_state_distribution(
         trajectories, alpha=alpha, kappa=kappa,
-        n_weights_per_dim=n_weights_per_dim)
+        n_weights_per_dim=n_weights_per_dim, verbose=verbose)
 
 
-def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
+def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, int_dt, verbose=0):
     if verbose:
         print("Estimate DMP parameter distribution...")
 
@@ -69,7 +80,11 @@ def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
     all_starts = []
     all_goals = []
     all_execution_times = []
-    for T, P in tqdm(dataset):
+    if verbose:
+        iterator = tqdm(dataset)
+    else:
+        iterator = dataset
+    for T, P in iterator:
         execution_time = T[-1]
         dt = np.mean(np.diff(T))
         if dt < 0.005:  # HACK
@@ -77,7 +92,7 @@ def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
 
         dmp = DualCartesianDMP(
             execution_time=execution_time, dt=dt,
-            n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
+            n_weights_per_dim=n_weights_per_dim, int_dt=int_dt)
         dmp.imitate(T, P)
         weights = dmp.get_weights()
 
@@ -95,7 +110,7 @@ def estimate_dmp_parameter_distribution(dataset, n_weights_per_dim, verbose=0):
 
 
 def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
-                             kappa, verbose=0):
+                             kappa, dt, int_dt, verbose=0):
     if verbose:
         print("Propagating to state space...")
 
@@ -107,13 +122,17 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
 
     points = mvn.sigma_points(alpha=alpha, kappa=kappa)
     trajectories = []
-    for i, parameters in tqdm(list(enumerate(points))):
+    if verbose:
+        iterator = tqdm(list(enumerate(points)))
+    else:
+        iterator = list(enumerate(points))
+    for i, parameters in iterator:
         weights = parameters[weight_indices]
         start = parameters[start_indices]
         goal = parameters[goal_indices]
         dmp = DualCartesianDMP(
-            execution_time=execution_time, dt=0.1,
-            n_weights_per_dim=n_weights_per_dim, int_dt=0.01)
+            execution_time=execution_time, dt=dt,
+            n_weights_per_dim=n_weights_per_dim, int_dt=int_dt)
         dmp.configure(start_y=start, goal_y=goal)
         dmp.set_weights(weights)
         T, P = dmp.open_loop(run_t=execution_time)
@@ -122,8 +141,10 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
     return np.vstack(trajectories)
 
 
-def estimate_state_distribution(trajectories, alpha, kappa, n_weights_per_dim):
-    print("Estimate distribution in state space...")
+def estimate_state_distribution(trajectories, alpha, kappa, n_weights_per_dim,
+                                verbose=0):
+    if verbose:
+        print("Estimate distribution in state space...")
     n_weights = 2 * 6 * n_weights_per_dim
     n_dims = 2 * 7
     n_features = n_weights + 2 * n_dims + 1
