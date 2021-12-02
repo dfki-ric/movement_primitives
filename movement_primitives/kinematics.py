@@ -301,14 +301,14 @@ class Chain:
             orientation_weight=1.0, position_weight=1.0):
         Q = np.empty((len(H), len(self.joint_names)), dtype=float)
 
-        if initial_joint_angles is not None:
-            Q[0] = self.inverse(
-                H[0], initial_joint_angles, solver=solver,
+        if initial_joint_angles is None:
+            Q[0] = self.inverse_with_random_restarts(
+                H[0], random_state=random_state,
                 orientation_weight=orientation_weight,
                 position_weight=position_weight)
         else:
-            Q[0] = self.inverse_with_random_restarts(
-                H[0], random_state=random_state,
+            Q[0] = self.inverse(
+                H[0], initial_joint_angles, solver=solver,
                 orientation_weight=orientation_weight,
                 position_weight=position_weight)
 
