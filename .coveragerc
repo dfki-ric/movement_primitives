@@ -17,4 +17,5 @@ exclude_lines =
     def plot_*
     def _plot
     except ImportError:
-    if verbose:
+    if verbose
+    if self.verbose
