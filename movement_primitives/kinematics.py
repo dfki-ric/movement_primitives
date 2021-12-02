@@ -242,10 +242,8 @@ class Chain:
 
     def inverse_with_random_restarts(
             self, desired_pose, n_restarts=10, tolerance=1e-3,
-            random_state=None, solver="SLSQP",
+            random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
-        if random_state is None:
-            random_state = np.random
         assert n_restarts >= 1
         Q = []
         errors = []
@@ -265,10 +263,8 @@ class Chain:
 
     def local_inverse_with_random_restarts(
             self, desired_pose, joint_angles, interval, n_restarts=10,
-            tolerance=1e-3, random_state=None, solver="SLSQP",
+            tolerance=1e-3, random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
-        if random_state is None:
-            random_state = np.random
         assert n_restarts >= 1
         Q = []
         errors = []
@@ -301,7 +297,7 @@ class Chain:
 
     def inverse_trajectory(
             self, H, initial_joint_angles=None, interval=0.1 * math.pi,
-            random_restarts=True, random_state=None, solver="SLSQP",
+            random_restarts=True, random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
         Q = np.empty((len(H), len(self.joint_names)), dtype=float)
 
