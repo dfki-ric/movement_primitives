@@ -18,6 +18,11 @@ It provides implementations in Python and Cython.
 * Propagation of DMP weight distribution to state space distribution
 * Probabilistic Movement Primitives (ProMPs)
 
+Example of dual Cartesian DMP with
+[RH5 Manus](https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/):
+
+<img src="doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" />
+
 ## API Documentation
 
 The API documentation is available
