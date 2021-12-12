@@ -263,7 +263,9 @@ space through an unscented transform.
 * Dataset: panel rotation dataset of
   [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
 * MoCap library
-* URDF of dual arm Kuka system from
+* URDF of dual arm
+  [Kuka system](https://robotik.dfki-bremen.de/en/research/robot-systems/imrk/)
+  from
   [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
