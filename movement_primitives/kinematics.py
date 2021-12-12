@@ -183,6 +183,29 @@ class Chain:
 
     def ee_pose_error(self, joint_angles, desired_pose, orientation_weight=1.0,
                       position_weight=1.0):
+        """Compute pose error.
+
+        Parameters
+        ----------
+        joint_angles : array-like, shape (n_joints,)
+            Actual joint angles for which we compute forward kinematics.
+
+        desired_pose : array-like, shape (4, 4)
+            Desired pose.
+
+        orientation_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the orientation error.
+
+        position_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the position error.
+
+        Returns
+        -------
+        pose_error : float
+            Weighted error between actual pose and desired pose.
+        """
         return pose_dist(desired_pose, self.forward(joint_angles),
                          orientation_weight, position_weight)
 
@@ -244,6 +267,39 @@ class Chain:
             self, desired_pose, n_restarts=10, tolerance=1e-3,
             random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
+        """Compute inverse kinematics with multiple random restarts.
+
+        Parameters
+        ----------
+        desired_pose : array-like, shape (4, 4)
+            Desired pose.
+
+        n_restarts : int, optional (default: 10)
+            Maximum number of allowed restarts.
+
+        tolerance : float, optional (default: 1e-3)
+            Required tolerance to abort.
+
+        random_state : np.random.RandomState, optional (default: np.random)
+            Random state.
+
+        solver : str, optional (default: 'SLSQP')
+            Optimizer to solve inverse kinematics problem. Possible options:
+            'SLSQP', 'L-BFGS-B', and 'COBYLA'.
+
+        orientation_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the orientation error.
+
+        position_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the position error.
+
+        Returns
+        -------
+        joint_angles : array, shape (n_joints,)
+            Solution
+        """
         assert n_restarts >= 1
         Q = []
         errors = []
@@ -265,6 +321,46 @@ class Chain:
             self, desired_pose, joint_angles, interval, n_restarts=10,
             tolerance=1e-3, random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
+        """Compute inverse kinematics with multiple random restarts.
+
+        Parameters
+        ----------
+        desired_pose : array-like, shape (4, 4)
+            Desired pose.
+
+        joint_angles : array-like, shape (n_joints,)
+            Initial guess for joint angles.
+
+        interval : float
+            We will search for a solution within the range
+            [joint_angles - interval, joint_angles + interval].
+
+        n_restarts : int, optional (default: 10)
+            Maximum number of allowed restarts.
+
+        tolerance : float, optional (default: 1e-3)
+            Required tolerance to abort.
+
+        random_state : np.random.RandomState, optional (default: np.random)
+            Random state.
+
+        solver : str, optional (default: 'SLSQP')
+            Optimizer to solve inverse kinematics problem. Possible options:
+            'SLSQP', 'L-BFGS-B', and 'COBYLA'.
+
+        orientation_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the orientation error.
+
+        position_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the position error.
+
+        Returns
+        -------
+        joint_angles : array, shape (n_joints,)
+            Solution
+        """
         assert n_restarts >= 1
         Q = []
         errors = []
@@ -290,6 +386,18 @@ class Chain:
         return random_state.rand(len(bounds)) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
 
     def forward_trajectory(self, Q):
+        """Compute forward kinematics for a trajectory.
+
+        Parameters
+        ----------
+        Q : array-like, shape (n_steps, n_joints)
+            Joint angles.
+
+        Returns
+        -------
+        H : array, shape (n_steps, 4, 4)
+            End-effector poses.
+        """
         H = np.empty((len(Q), 4, 4))
         for t in range(len(Q)):
             H[t] = self.forward(Q[t])
@@ -299,6 +407,43 @@ class Chain:
             self, H, initial_joint_angles=None, interval=0.1 * math.pi,
             random_restarts=True, random_state=np.random, solver="SLSQP",
             orientation_weight=1.0, position_weight=1.0):
+        """Compute inverse kinematics for a trajectory.
+
+        Parameters
+        ----------
+        H : array-like, shape (n_steps, 4, 4)
+            Desired end-effector poses.
+
+        initial_joint_angles : array-like, shape (n_joints,), optional (default: None)
+            Initial guess for joint angles.
+
+        interval : float
+            We will search for a solution within the range
+            [joint_angles - interval, joint_angles + interval] in each step.
+
+        random_restarts : bool, optional (default: True)
+            Allow random restarts if no solution is found.
+
+        random_state : np.random.RandomState, optional (default: np.random)
+            Random state.
+
+        solver : str, optional (default: 'SLSQP')
+            Optimizer to solve inverse kinematics problem. Possible options:
+            'SLSQP', 'L-BFGS-B', and 'COBYLA'.
+
+        orientation_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the orientation error.
+
+        position_weight : float, optional (default: 1.0)
+            Should be between 0.0 and 1.0 and represent the weighting for
+            minimizing the position error.
+
+        Returns
+        -------
+        Q : array, shape (n_steps, n_joints)
+            Solution
+        """
         Q = np.empty((len(H), len(self.joint_names)), dtype=float)
 
         if initial_joint_angles is None:
