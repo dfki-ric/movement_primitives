@@ -171,6 +171,24 @@ def plot_distribution_in_rows(
 
 
 def create_axes(n_dims, subplot_shape, transpose):
+    """Create multiple axes to plot trajectories.
+
+    Parameters
+    ----------
+    n_dims : int
+        Number of dimensions to plot.
+
+    subplot_shape : tuple
+        Desired rows and columns of the figure.
+
+    transpose : bool
+        Switch rows and columns?
+
+    Returns
+    -------
+    axes : list of matplotlib axes
+        Matplotlib axes.
+    """
     h, w = subplot_shape
     if transpose:
         dim_order = [(i % h) * w + i // h for i in range(n_dims)]
