@@ -52,7 +52,7 @@ def test_step_through_cartesian_dmp():
 def test_compare_python_cython():
     from copy import deepcopy
     from movement_primitives.dmp._cartesian_dmp import dmp_step_quaternion_python
-    from dmp_fast import dmp_step_quaternion as dmp_step_quaternion_cython
+    from movement_primitives.dmp_fast import dmp_step_quaternion as dmp_step_quaternion_cython
     kwargs = dict(
         last_t=1.999, t=2.0,
         current_y=np.array([1.0, 0.0, 0.0, 0.0]), current_yd=np.zeros([3]),

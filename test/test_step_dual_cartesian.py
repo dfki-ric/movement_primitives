@@ -5,7 +5,7 @@ from numpy.testing import assert_array_almost_equal
 def test_compare_python_cython():
     from copy import deepcopy
     from movement_primitives.dmp._dual_cartesian_dmp import dmp_step_dual_cartesian_python
-    from dmp_fast import dmp_step_dual_cartesian as dmp_step_dual_cartesian_cython
+    from movement_primitives.dmp_fast import dmp_step_dual_cartesian as dmp_step_dual_cartesian_cython
     kwargs = dict(
         last_t=1.999, t=2.0,
         current_y=np.array([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]), current_yd=np.zeros([12]),

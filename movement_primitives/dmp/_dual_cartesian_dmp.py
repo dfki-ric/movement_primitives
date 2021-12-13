@@ -281,7 +281,7 @@ def dmp_step_dual_cartesian_python(
 
 
 try:
-    from dmp_fast import dmp_step_dual_cartesian
+    from ..dmp_fast import dmp_step_dual_cartesian
 except ImportError:
     warnings.warn(
         "Could not import fast dual cartesian DMP. "
