@@ -1,3 +1,4 @@
+"""Cython implementations of basic DMP functions."""
 import numpy as np
 cimport numpy as np
 cimport cython

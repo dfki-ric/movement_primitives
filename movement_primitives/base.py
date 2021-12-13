@@ -1,3 +1,4 @@
+"""Base classes of movement primitives."""
 import numpy as np
 
 
