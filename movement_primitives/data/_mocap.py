@@ -26,7 +26,8 @@ def smooth_dual_arm_trajectories_pq(Ps, median_filter_window=5):
     for P in Ps:
         P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
         P[:, 10:] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 10:])
-        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)
+        P[:, :] = mocap.cleaning.median_filter(
+            P, window_size=median_filter_window)
 
 
 def smooth_single_arm_trajectories_pq(Ps, median_filter_window=5):
@@ -46,7 +47,8 @@ def smooth_single_arm_trajectories_pq(Ps, median_filter_window=5):
     """
     for P in Ps:
         P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
-        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)
+        P[:, :] = mocap.cleaning.median_filter(
+            P, window_size=median_filter_window)
 
 
 def transpose_dataset(dataset):
@@ -111,7 +113,8 @@ def load_kuka_dataset(pattern, context_names=None, verbose=0):
     if verbose:
         print("Loading dataset...")
         filenames = tqdm(filenames)
-    return [load_kuka_demo(f, context_names, verbose=verbose) for f in filenames]
+    return [load_kuka_demo(f, context_names, verbose=verbose)
+            for f in filenames]
 
 
 def load_kuka_demo(filename, context_names=None, verbose=0):
@@ -151,22 +154,25 @@ def load_kuka_demo(filename, context_names=None, verbose=0):
         if verbose:
             tqdm.write("Context: %s" % (context,))
 
-    patterns = ["time\.microseconds",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.re.*",
-                "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.im.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.re.*",
-                "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.im.*"]
+    PREFIX_LEFT = "kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\."
+    PREFIX_RIGHT = "kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\."
+    patterns = [
+        "time\.microseconds",
+        f"{PREFIX_LEFT}position\.data.*",
+        f"{PREFIX_LEFT}orientation\.re.*",
+        f"{PREFIX_LEFT}orientation\.im.*",
+        f"{PREFIX_RIGHT}position\.data.*",
+        f"{PREFIX_RIGHT}orientation\.re.*",
+        f"{PREFIX_RIGHT}orientation\.im.*"]
     columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
         "(time\.microseconds)": "Time",
-        "(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data).*": "left_pose",
-        "(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation).*": "left_pose",
-        "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data).*": "right_pose",
-        "(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation).*": "right_pose"
+        f"({PREFIX_LEFT}position\.data).*": "left_pose",
+        f"({PREFIX_LEFT}orientation).*": "left_pose",
+        f"({PREFIX_RIGHT}position\.data).*": "right_pose",
+        f"({PREFIX_RIGHT}orientation).*": "right_pose"
     }
     trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
@@ -176,10 +182,10 @@ def load_kuka_demo(filename, context_names=None, verbose=0):
 
     P = mocap.array_from_dataframe(
         trajectory,
-        ["left_pose[0]", "left_pose[1]", "left_pose[2]",
-         "left_pose.re", "left_pose.im[0]", "left_pose.im[1]", "left_pose.im[2]",
-         "right_pose[0]", "right_pose[1]", "right_pose[2]",
-         "right_pose.re", "right_pose.im[0]", "right_pose.im[1]", "right_pose.im[2]"])
+        ["left_pose[0]", "left_pose[1]", "left_pose[2]", "left_pose.re",
+         "left_pose.im[0]", "left_pose.im[1]", "left_pose.im[2]",
+         "right_pose[0]", "right_pose[1]", "right_pose[2]", "right_pose.re",
+         "right_pose.im[0]", "right_pose.im[1]", "right_pose.im[2]"])
 
     if context_names is None:
         return T, P
@@ -211,22 +217,25 @@ def load_rh5_demo(filename, verbose=0):
     if verbose:
         tqdm.write("Loading '%s'" % filename)
     trajectory = pd.read_csv(filename, sep=" ")
-    patterns = ["time\.microseconds",
-                "rh5_left_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*",
-                "rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*",
-                "rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation\.im.*",
-                "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*",
-                "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*",
-                "rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.im.*"]
+    PREFIX_LEFT = "rh5_left_arm_posture_ctrl\.current_feedback\.pose\."
+    PREFIX_RIGHT = "rh5_right_arm_posture_ctrl\.current_feedback\.pose\."
+    patterns = [
+        "time\.microseconds",
+        f"{PREFIX_LEFT}position\.data.*",
+        f"{PREFIX_LEFT}orientation\.re.*",
+        f"{PREFIX_LEFT}orientation\.im.*",
+        f"{PREFIX_RIGHT}position\.data.*",
+        f"{PREFIX_RIGHT}orientation\.re.*",
+        f"{PREFIX_RIGHT}orientation\.im.*"]
     columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
         "(time\.microseconds)": "Time",
-        "(rh5_left_arm_posture_ctrl\.current_feedback\.pose\.position\.data).*": "left_pose",
-        "(rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation).*": "left_pose",
-        "(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data).*": "right_pose",
-        "(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation).*": "right_pose"
+        f"({PREFIX_LEFT}position\.data).*": "left_pose",
+        f"({PREFIX_LEFT}orientation).*": "left_pose",
+        f"({PREFIX_RIGHT}position\.data).*": "right_pose",
+        f"({PREFIX_RIGHT}orientation).*": "right_pose"
     }
     trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
@@ -236,10 +245,10 @@ def load_rh5_demo(filename, verbose=0):
 
     P = mocap.array_from_dataframe(
         trajectory,
-        ["left_pose[0]", "left_pose[1]", "left_pose[2]", "left_pose.re", "left_pose.im[0]", "left_pose.im[1]",
-         "left_pose.im[2]",
-         "right_pose[0]", "right_pose[1]", "right_pose[2]", "right_pose.re", "right_pose.im[0]", "right_pose.im[1]",
-         "right_pose.im[2]"])
+        ["left_pose[0]", "left_pose[1]", "left_pose[2]", "left_pose.re",
+         "left_pose.im[0]", "left_pose.im[1]", "left_pose.im[2]",
+         "right_pose[0]", "right_pose[1]", "right_pose[2]", "right_pose.re",
+         "right_pose.im[0]", "right_pose.im[1]", "right_pose.im[2]"])
 
     return T, P
 
