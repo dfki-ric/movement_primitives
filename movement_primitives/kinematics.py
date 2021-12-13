@@ -59,8 +59,11 @@ def _fast_matrix_from_axis_angle(axis, angle):
 
     Parameters
     ----------
-    a : array-like, shape (4,)
-        Axis of rotation and rotation angle: (x, y, z, angle)
+    axis : array-like, shape (3,)
+        Axis of rotation: (x, y, z).
+
+    angle : float
+        Rotation angle.
 
     Returns
     -------
