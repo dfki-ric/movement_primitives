@@ -4,8 +4,8 @@
 # Movement Primitives
 
 Movement primitives are a common group of policy representations in robotics.
-There are many different types and variations. This repository focuses mainly
-on imitation learning, generalization, and adaptation of movement primitives.
+There are many types and variations. This repository focuses mainly on
+imitation learning, generalization, and adaptation of movement primitives.
 It provides implementations in Python and Cython.
 
 ## Features
@@ -21,7 +21,7 @@ It provides implementations in Python and Cython.
 Example of dual Cartesian DMP with
 [RH5 Manus](https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/):
 
-<img src="doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" />
 
 ## API Documentation
 
@@ -135,7 +135,7 @@ Directly pushing to the main branch is not allowed.
 
 ### Conditional ProMPs
 
-<img src="doc/source/_static/conditional_promps.png" width="800px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
 
 Probabilistic Movement Primitives (ProMPs) define distributions over
 trajectories that can be conditioned on viapoints. In this example, we
@@ -146,7 +146,7 @@ start positions.
 
 ### Potential Field of 2D DMP
 
-<img src="doc/source/_static/dmp_potential_field.png" width="800px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_potential_field.png" width="800px" />
 
 A Dynamical Movement Primitive defines a potential field that superimposes
 several components: transformation system (goal-directed movement), forcing
@@ -156,7 +156,7 @@ term (learned shape), and coupling terms (e.g., obstacle avoidance).
 
 ### DMP with Final Velocity
 
-<img src="doc/source/_static/dmp_with_final_velocity.png" width="800px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_with_final_velocity.png" width="800px" />
 
 Not all DMPs allow a final velocity > 0. In this case we analyze the effect
 of changing final velocities in an appropriate variation of the DMP
@@ -166,7 +166,7 @@ formulation that allows to set the final velocity.
 
 ### ProMPs
 
-<img src="doc/source/_static/promp_lasa.png" width="800px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/promp_lasa.png" width="800px" />
 
 The LASA Handwriting dataset learned with ProMPs. The dataset consists of
 2D handwriting motions. The first and third column of the plot represent
@@ -177,7 +177,7 @@ with 1-sigma interval.
 
 ### Cartesian DMPs
 
-<img src="doc/source/_static/cart_dmp_ur5.png" width="100%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/cart_dmp_ur5.png" width="100%" />
 
 A trajectory is created manually, imitated with a Cartesian DMP, converted
 to a joint trajectory by inverse kinematics, and executed with a UR5.
@@ -186,7 +186,7 @@ to a joint trajectory by inverse kinematics, and executed with a UR5.
 
 ### Contextual ProMPs
 
-<img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" />
 
 We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
 with 10 demonstrations per 3 different panel widths that were obtained through
@@ -209,7 +209,7 @@ visualizations corresponds to a ProMP for a different context.
 
 ### Dual Cartesian DMP
 
-<img src="doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" />
 
 We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
 humanoid robots.
@@ -230,7 +230,7 @@ Scripts: [Open3D](examples/external_dependencies/vis_solar_panel.py), [PyBullet]
 
 ### Coupled Dual Cartesian DMP
 
-<img src="doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="60%" /><img src="doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="40%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="40%" />
 
 We can introduce a coupling term in a dual Cartesian DMP to constrain the
 relative position, orientation, or pose of two end-effectors of a dual-arm
@@ -251,7 +251,7 @@ Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [Py
 
 ### Propagation of DMP Distribution to State Space
 
-<img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="60%" /><img src="doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="40%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="40%" />
 
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
@@ -279,4 +279,4 @@ of the German Research Center for Artificial Intelligence (DFKI GmbH) in
 Bremen. At this phase the work was supported through a grant of the German
 Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).
 
-<img src="doc/source/_static/DFKI_Logo.jpg" height="50px" /><img src="doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/DFKI_Logo.jpg" height="50px" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
