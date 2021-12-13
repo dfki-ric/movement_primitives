@@ -263,7 +263,7 @@ def dmp_step_quaternion_python(
 
 
 try:
-    from dmp_fast import dmp_step_quaternion
+    from ..dmp_fast import dmp_step_quaternion
 except ImportError:
     warnings.warn(
         "Could not import fast quaternion DMP. "

@@ -72,4 +72,4 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
 
 
 # uncomment to overwrite with Cython implementation
-#from dmp_fast import phase
+#from ..dmp_fast import phase

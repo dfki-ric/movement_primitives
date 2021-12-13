@@ -8,7 +8,7 @@ from nose import SkipTest
 
 def test_compact_axis_angle_from_quaternion():
     try:
-        from dmp_fast import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_cython
+        from movement_primitives.dmp_fast import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_cython
     except ImportError:
         raise SkipTest("Cython extension is not available")
 
@@ -69,7 +69,7 @@ def test_compact_axis_angle_from_quaternion():
 
 def test_concatenate_quaternions():
     try:
-        from dmp_fast import concatenate_quaternions as concatenate_quaternions_cython
+        from movement_primitives.dmp_fast import concatenate_quaternions as concatenate_quaternions_cython
     except ImportError:
         raise SkipTest("Cython extension is not available")
 

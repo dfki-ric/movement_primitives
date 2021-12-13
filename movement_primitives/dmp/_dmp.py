@@ -237,7 +237,7 @@ def dmp_step_rk4(
 
 
 # uncomment to overwrite with cython implementation:
-#from dmp_fast import dmp_step_rk4
+#from ..dmp_fast import dmp_step_rk4
 
 
 def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
@@ -345,7 +345,7 @@ def dmp_step_euler(
 
 
 # uncomment to overwrite with cython implementation:
-#from dmp_fast import dmp_step as dmp_step_euler
+#from ..dmp_fast import dmp_step as dmp_step_euler
 
 
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):

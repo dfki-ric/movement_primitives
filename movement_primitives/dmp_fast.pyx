@@ -379,4 +379,3 @@ cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     # Source of the solution: http://stackoverflow.com/a/32266181
     cdef double angle = ((2 * acos(q_n[0]) + pi) % M_2PI - pi)
     return q_n[1:] / (p_norm / angle)
-
