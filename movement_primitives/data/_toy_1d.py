@@ -2,9 +2,8 @@ import numpy as np
 
 
 def generate_1d_trajectory_distribution(
-        n_demos, n_steps,
-        initial_offset_range=3.0, final_offset_range=0.1, noise_per_step_range=20.0,
-        random_state=np.random.RandomState(0)):
+        n_demos, n_steps, initial_offset_range=3.0, final_offset_range=0.1,
+        noise_per_step_range=20.0, random_state=np.random.RandomState(0)):
     """Generates toy data for testing and demonstration.
 
     Parameters
@@ -57,7 +56,21 @@ def generate_1d_trajectory_distribution(
 
 
 def create_finite_differences_matrix_1d(n_steps, dt):
-    """Finite difference matrix to compute accelerations from positions."""
+    """Finite difference matrix to compute accelerations from positions.
+
+    Parameters
+    ----------
+    n_steps : int
+        Number of steps of the resulting trajectory.
+
+    dt : float
+        Time between steps.
+
+    Returns
+    -------
+    A : array, shape (n_steps + 2, n_steps)
+        Finite difference matrix.
+    """
     A = np.zeros((n_steps + 2, n_steps), dtype=np.float)
     super_diagonal = (np.arange(n_steps), np.arange(n_steps))
     sub_diagonal = (np.arange(2, n_steps + 2), np.arange(n_steps))
