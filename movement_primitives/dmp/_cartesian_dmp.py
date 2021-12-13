@@ -195,8 +195,8 @@ class CartesianDMP(DMPBase):
         weights : array, shape (6 * n_weights_per_dim,)
             Current weights of the DMP.
         """
-        return np.concatenate(self.forcing_term_pos.weights.ravel(),
-                              self.forcing_term_rot.weights.ravel())
+        return np.concatenate((self.forcing_term_pos.weights.ravel(),
+                               self.forcing_term_rot.weights.ravel()))
 
     def set_weights(self, weights):
         """Set weight vector of DMP.
