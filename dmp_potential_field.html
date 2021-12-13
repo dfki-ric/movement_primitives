@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>movement_primitives.dmp_potential_field API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Visualization of DMP as potential field." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,13 @@
 <h1 class="title">Module <code>movement_primitives.dmp_potential_field</code></h1>
 </header>
 <section id="section-intro">
+<p>Visualization of DMP as potential field.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import numpy as np
+<pre><code class="python">&#34;&#34;&#34;Visualization of DMP as potential field.&#34;&#34;&#34;
+import numpy as np
 from .dmp import dmp_transformation_system, obstacle_avoidance_acceleration_2d
 
 
@@ -65,7 +67,8 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
         Acceleration from transformation system for each position.
 
     ct : array, shape (n_ticks, n_ticks, 2)
-        Acceleration from coupling term for obstacle avoidance for each position.
+        Acceleration from coupling term for obstacle avoidance for each
+        position.
 
     acc : array, shape (n_ticks, n_ticks, 2)
         Accumulated acceleration from all terms.
@@ -135,7 +138,8 @@ def plot_potential_field_2d(ax, dmp, x_range, y_range, n_ticks, obstacle=None,
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color=&#34;g&#34;)
     ax.quiver(xx, yy, ft[:, :, 0], ft[:, :, 1], scale=quiver_scale, color=&#34;r&#34;)
     ax.quiver(xx, yy, ct[:, :, 0], ct[:, :, 1], scale=quiver_scale, color=&#34;y&#34;)
-    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale, color=&#34;k&#34;)</code></pre>
+    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale,
+              color=&#34;k&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -219,7 +223,8 @@ and the combined acceleration with a black arrow.</p>
     ax.quiver(xx, yy, ts[:, :, 0], ts[:, :, 1], scale=quiver_scale, color=&#34;g&#34;)
     ax.quiver(xx, yy, ft[:, :, 0], ft[:, :, 1], scale=quiver_scale, color=&#34;r&#34;)
     ax.quiver(xx, yy, ct[:, :, 0], ct[:, :, 1], scale=quiver_scale, color=&#34;y&#34;)
-    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale, color=&#34;k&#34;)</code></pre>
+    ax.quiver(xx, yy, acc[:, :, 0], acc[:, :, 1], scale=quiver_scale,
+              color=&#34;k&#34;)</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.dmp_potential_field.potential_field_2d"><code class="name flex">
@@ -251,7 +256,8 @@ and the combined acceleration with a black arrow.</p>
 <dt><strong><code>ts</code></strong> :&ensp;<code>array, shape (n_ticks, n_ticks, 2)</code></dt>
 <dd>Acceleration from transformation system for each position.</dd>
 <dt><strong><code>ct</code></strong> :&ensp;<code>array, shape (n_ticks, n_ticks, 2)</code></dt>
-<dd>Acceleration from coupling term for obstacle avoidance for each position.</dd>
+<dd>Acceleration from coupling term for obstacle avoidance for each
+position.</dd>
 <dt><strong><code>acc</code></strong> :&ensp;<code>array, shape (n_ticks, n_ticks, 2)</code></dt>
 <dd>Accumulated acceleration from all terms.</dd>
 </dl></div>
@@ -294,7 +300,8 @@ and the combined acceleration with a black arrow.</p>
         Acceleration from transformation system for each position.
 
     ct : array, shape (n_ticks, n_ticks, 2)
-        Acceleration from coupling term for obstacle avoidance for each position.
+        Acceleration from coupling term for obstacle avoidance for each
+        position.
 
     acc : array, shape (n_ticks, n_ticks, 2)
         Accumulated acceleration from all terms.

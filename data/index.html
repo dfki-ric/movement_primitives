@@ -96,9 +96,8 @@ __all__ += [
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def generate_1d_trajectory_distribution(
-        n_demos, n_steps,
-        initial_offset_range=3.0, final_offset_range=0.1, noise_per_step_range=20.0,
-        random_state=np.random.RandomState(0)):
+        n_demos, n_steps, initial_offset_range=3.0, final_offset_range=0.1,
+        noise_per_step_range=20.0, random_state=np.random.RandomState(0)):
     &#34;&#34;&#34;Generates toy data for testing and demonstration.
 
     Parameters
@@ -141,9 +140,11 @@ __all__ += [
         if initial_offset_range or final_offset_range:
             initial_offset = initial_offset_range * (random_state.rand() - 0.5)
             final_offset = final_offset_range * (random_state.rand() - 0.5)
-            Y[demo_idx, :, 0] += np.linspace(initial_offset, final_offset, n_steps)
+            Y[demo_idx, :, 0] += np.linspace(
+                initial_offset, final_offset, n_steps)
         if noise_per_step_range:
-            noise_per_step = noise_per_step_range * L.dot(random_state.randn(n_steps))
+            noise_per_step = (noise_per_step_range
+                              * L.dot(random_state.randn(n_steps)))
             Y[demo_idx, :, 0] += noise_per_step
     return T, Y</code></pre>
 </details>
@@ -337,7 +338,8 @@ right arm, or T, P, and the context (shape, (n_context_dims,)).</dd>
     if verbose:
         print(&#34;Loading dataset...&#34;)
         filenames = tqdm(filenames)
-    return [load_kuka_demo(f, context_names, verbose=verbose) for f in filenames]</code></pre>
+    return [load_kuka_demo(f, context_names, verbose=verbose)
+            for f in filenames]</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.data.load_kuka_demo"><code class="name flex">
@@ -407,22 +409,25 @@ context_names are given.</dd>
         if verbose:
             tqdm.write(&#34;Context: %s&#34; % (context,))
 
-    patterns = [&#34;time\.microseconds&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data.*&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.re.*&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation\.im.*&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data.*&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.re.*&#34;,
-                &#34;kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation\.im.*&#34;]
+    PREFIX_LEFT = &#34;kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.&#34;
+    PREFIX_RIGHT = &#34;kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.&#34;
+    patterns = [
+        &#34;time\.microseconds&#34;,
+        f&#34;{PREFIX_LEFT}position\.data.*&#34;,
+        f&#34;{PREFIX_LEFT}orientation\.re.*&#34;,
+        f&#34;{PREFIX_LEFT}orientation\.im.*&#34;,
+        f&#34;{PREFIX_RIGHT}position\.data.*&#34;,
+        f&#34;{PREFIX_RIGHT}orientation\.re.*&#34;,
+        f&#34;{PREFIX_RIGHT}orientation\.im.*&#34;]
     columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
         &#34;(time\.microseconds)&#34;: &#34;Time&#34;,
-        &#34;(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.position\.data).*&#34;: &#34;left_pose&#34;,
-        &#34;(kuka_lbr_cart_pos_ctrl_left\.current_feedback\.pose\.orientation).*&#34;: &#34;left_pose&#34;,
-        &#34;(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.position\.data).*&#34;: &#34;right_pose&#34;,
-        &#34;(kuka_lbr_cart_pos_ctrl_right\.current_feedback\.pose\.orientation).*&#34;: &#34;right_pose&#34;
+        f&#34;({PREFIX_LEFT}position\.data).*&#34;: &#34;left_pose&#34;,
+        f&#34;({PREFIX_LEFT}orientation).*&#34;: &#34;left_pose&#34;,
+        f&#34;({PREFIX_RIGHT}position\.data).*&#34;: &#34;right_pose&#34;,
+        f&#34;({PREFIX_RIGHT}orientation).*&#34;: &#34;right_pose&#34;
     }
     trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
@@ -432,10 +437,10 @@ context_names are given.</dd>
 
     P = mocap.array_from_dataframe(
         trajectory,
-        [&#34;left_pose[0]&#34;, &#34;left_pose[1]&#34;, &#34;left_pose[2]&#34;,
-         &#34;left_pose.re&#34;, &#34;left_pose.im[0]&#34;, &#34;left_pose.im[1]&#34;, &#34;left_pose.im[2]&#34;,
-         &#34;right_pose[0]&#34;, &#34;right_pose[1]&#34;, &#34;right_pose[2]&#34;,
-         &#34;right_pose.re&#34;, &#34;right_pose.im[0]&#34;, &#34;right_pose.im[1]&#34;, &#34;right_pose.im[2]&#34;])
+        [&#34;left_pose[0]&#34;, &#34;left_pose[1]&#34;, &#34;left_pose[2]&#34;, &#34;left_pose.re&#34;,
+         &#34;left_pose.im[0]&#34;, &#34;left_pose.im[1]&#34;, &#34;left_pose.im[2]&#34;,
+         &#34;right_pose[0]&#34;, &#34;right_pose[1]&#34;, &#34;right_pose[2]&#34;, &#34;right_pose.re&#34;,
+         &#34;right_pose.im[0]&#34;, &#34;right_pose.im[1]&#34;, &#34;right_pose.im[2]&#34;])
 
     if context_names is None:
         return T, P
@@ -484,7 +489,7 @@ plt.show()</p>
 <dd>Time between steps</dd>
 <dt><strong><code>shape_name</code></strong> :&ensp;<code>string</code></dt>
 <dd>Name of the Matlab file from which we load the demonstrations
-(without suffix)</dd>
+(without suffix).</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -536,11 +541,11 @@ plt.show()</p>
 
     shape_name : string
         Name of the Matlab file from which we load the demonstrations
-        (without suffix)
+        (without suffix).
     &#34;&#34;&#34;
     dataset_path = get_common_dataset_path()
     if not os.path.isdir(dataset_path + &#34;lasa_data&#34;):  # pragma: no cover
-        url = urlopen(&#34;http://bitbucket.org/khansari/lasahandwritingdataset/get/38304f7c0ac4.zip&#34;)
+        url = urlopen(LASA_URL)
         z = zipfile.ZipFile(io.BytesIO(url.read()))
         z.extractall(dataset_path)
         os.rename(dataset_path + z.namelist()[0],
@@ -679,22 +684,25 @@ and orientation quaternion of the right arm.</dd>
     if verbose:
         tqdm.write(&#34;Loading &#39;%s&#39;&#34; % filename)
     trajectory = pd.read_csv(filename, sep=&#34; &#34;)
-    patterns = [&#34;time\.microseconds&#34;,
-                &#34;rh5_left_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*&#34;,
-                &#34;rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*&#34;,
-                &#34;rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation\.im.*&#34;,
-                &#34;rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data.*&#34;,
-                &#34;rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.re.*&#34;,
-                &#34;rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation\.im.*&#34;]
+    PREFIX_LEFT = &#34;rh5_left_arm_posture_ctrl\.current_feedback\.pose\.&#34;
+    PREFIX_RIGHT = &#34;rh5_right_arm_posture_ctrl\.current_feedback\.pose\.&#34;
+    patterns = [
+        &#34;time\.microseconds&#34;,
+        f&#34;{PREFIX_LEFT}position\.data.*&#34;,
+        f&#34;{PREFIX_LEFT}orientation\.re.*&#34;,
+        f&#34;{PREFIX_LEFT}orientation\.im.*&#34;,
+        f&#34;{PREFIX_RIGHT}position\.data.*&#34;,
+        f&#34;{PREFIX_RIGHT}orientation\.re.*&#34;,
+        f&#34;{PREFIX_RIGHT}orientation\.im.*&#34;]
     columns = mocap.pandas_utils.match_columns(trajectory, patterns)
     trajectory = trajectory[columns]
 
     group_rename = {
         &#34;(time\.microseconds)&#34;: &#34;Time&#34;,
-        &#34;(rh5_left_arm_posture_ctrl\.current_feedback\.pose\.position\.data).*&#34;: &#34;left_pose&#34;,
-        &#34;(rh5_left_arm_posture_ctrl\.current_feedback\.pose\.orientation).*&#34;: &#34;left_pose&#34;,
-        &#34;(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.position\.data).*&#34;: &#34;right_pose&#34;,
-        &#34;(rh5_right_arm_posture_ctrl\.current_feedback\.pose\.orientation).*&#34;: &#34;right_pose&#34;
+        f&#34;({PREFIX_LEFT}position\.data).*&#34;: &#34;left_pose&#34;,
+        f&#34;({PREFIX_LEFT}orientation).*&#34;: &#34;left_pose&#34;,
+        f&#34;({PREFIX_RIGHT}position\.data).*&#34;: &#34;right_pose&#34;,
+        f&#34;({PREFIX_RIGHT}orientation).*&#34;: &#34;right_pose&#34;
     }
     trajectory = mocap.pandas_utils.rename_stream_groups(trajectory, group_rename)
 
@@ -704,10 +712,10 @@ and orientation quaternion of the right arm.</dd>
 
     P = mocap.array_from_dataframe(
         trajectory,
-        [&#34;left_pose[0]&#34;, &#34;left_pose[1]&#34;, &#34;left_pose[2]&#34;, &#34;left_pose.re&#34;, &#34;left_pose.im[0]&#34;, &#34;left_pose.im[1]&#34;,
-         &#34;left_pose.im[2]&#34;,
-         &#34;right_pose[0]&#34;, &#34;right_pose[1]&#34;, &#34;right_pose[2]&#34;, &#34;right_pose.re&#34;, &#34;right_pose.im[0]&#34;, &#34;right_pose.im[1]&#34;,
-         &#34;right_pose.im[2]&#34;])
+        [&#34;left_pose[0]&#34;, &#34;left_pose[1]&#34;, &#34;left_pose[2]&#34;, &#34;left_pose.re&#34;,
+         &#34;left_pose.im[0]&#34;, &#34;left_pose.im[1]&#34;, &#34;left_pose.im[2]&#34;,
+         &#34;right_pose[0]&#34;, &#34;right_pose[1]&#34;, &#34;right_pose[2]&#34;, &#34;right_pose.re&#34;,
+         &#34;right_pose.im[0]&#34;, &#34;right_pose.im[1]&#34;, &#34;right_pose.im[2]&#34;])
 
     return T, P</code></pre>
 </details>
@@ -751,7 +759,8 @@ and orientation quaternion of the right arm.</dd>
     for P in Ps:
         P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
         P[:, 10:] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 10:])
-        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)</code></pre>
+        P[:, :] = mocap.cleaning.median_filter(
+            P, window_size=median_filter_window)</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.data.smooth_single_arm_trajectories_pq"><code class="name flex">
@@ -790,7 +799,8 @@ orientation quaternion of the arm.</dd>
     &#34;&#34;&#34;
     for P in Ps:
         P[:, 3:7] = mocap.cleaning.smooth_quaternion_trajectory(P[:, 3:7])
-        P[:, :] = mocap.cleaning.median_filter(P, window_size=median_filter_window)</code></pre>
+        P[:, :] = mocap.cleaning.median_filter(
+            P, window_size=median_filter_window)</code></pre>
 </details>
 </dd>
 </dl>

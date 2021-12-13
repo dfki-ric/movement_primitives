@@ -35,7 +35,29 @@ import pytransform3d.transformations as pt
 
 
 def plot_pointcloud(fig, pcl_points, color, uniform_down_sample=1):
-    pcl = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.array(pcl_points)))
+    &#34;&#34;&#34;Plot point cloud.
+
+    Parameters
+    ----------
+    fig : pytransform3d.visualizer.Figure
+        Figure.
+
+    pcl_points : array-like, shape (n_points, 3)
+        Points of the point cloud.
+
+    color : array-like, shape (3,)
+        Color as RGB values between 0 and 1.
+
+    uniform_down_sample : int, optional (default: 1)
+        Apply downsampling with this factor.
+
+    Returns
+    -------
+    pcl : open3d.geometry.PointCloud
+        Point cloud.
+    &#34;&#34;&#34;
+    pcl = o3d.geometry.PointCloud(
+        o3d.utility.Vector3dVector(np.array(pcl_points)))
     colors = o3d.utility.Vector3dVector(
         [color for _ in range(len(pcl.points))])
     pcl.colors = colors
@@ -46,7 +68,16 @@ def plot_pointcloud(fig, pcl_points, color, uniform_down_sample=1):
 
 
 class ToggleGeometry:
-    &#34;&#34;&#34;Open3D key action callback that toggles between displaying and hiding a geometry.&#34;&#34;&#34;
+    &#34;&#34;&#34;Key action callback to toggle between showing and hiding a geometry.
+
+    Parameters
+    ----------
+    fig : pytransform3d.visualizer.Figure
+        Figure.
+
+    geometry : open3d.geometry.Geometry
+        Geometry.
+    &#34;&#34;&#34;
     def __init__(self, fig, geometry):
         self.fig = fig
         self.geometry = geometry
@@ -100,13 +131,51 @@ def to_ellipsoid(mean, cov):
 <span>def <span class="ident">plot_pointcloud</span></span>(<span>fig, pcl_points, color, uniform_down_sample=1)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Plot point cloud.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>pytransform3d.visualizer.Figure</code></dt>
+<dd>Figure.</dd>
+<dt><strong><code>pcl_points</code></strong> :&ensp;<code>array-like, shape (n_points, 3)</code></dt>
+<dd>Points of the point cloud.</dd>
+<dt><strong><code>color</code></strong> :&ensp;<code>array-like, shape (3,)</code></dt>
+<dd>Color as RGB values between 0 and 1.</dd>
+<dt><strong><code>uniform_down_sample</code></strong> :&ensp;<code>int</code>, optional <code>(default: 1)</code></dt>
+<dd>Apply downsampling with this factor.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>pcl</code></strong> :&ensp;<code>open3d.geometry.PointCloud</code></dt>
+<dd>Point cloud.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def plot_pointcloud(fig, pcl_points, color, uniform_down_sample=1):
-    pcl = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.array(pcl_points)))
+    &#34;&#34;&#34;Plot point cloud.
+
+    Parameters
+    ----------
+    fig : pytransform3d.visualizer.Figure
+        Figure.
+
+    pcl_points : array-like, shape (n_points, 3)
+        Points of the point cloud.
+
+    color : array-like, shape (3,)
+        Color as RGB values between 0 and 1.
+
+    uniform_down_sample : int, optional (default: 1)
+        Apply downsampling with this factor.
+
+    Returns
+    -------
+    pcl : open3d.geometry.PointCloud
+        Point cloud.
+    &#34;&#34;&#34;
+    pcl = o3d.geometry.PointCloud(
+        o3d.utility.Vector3dVector(np.array(pcl_points)))
     colors = o3d.utility.Vector3dVector(
         [color for _ in range(len(pcl.points))])
     pcl.colors = colors
@@ -178,13 +247,29 @@ def to_ellipsoid(mean, cov):
 <span>(</span><span>fig, geometry)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Open3D key action callback that toggles between displaying and hiding a geometry.</p></div>
+<div class="desc"><p>Key action callback to toggle between showing and hiding a geometry.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>pytransform3d.visualizer.Figure</code></dt>
+<dd>Figure.</dd>
+<dt><strong><code>geometry</code></strong> :&ensp;<code>open3d.geometry.Geometry</code></dt>
+<dd>Geometry.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ToggleGeometry:
-    &#34;&#34;&#34;Open3D key action callback that toggles between displaying and hiding a geometry.&#34;&#34;&#34;
+    &#34;&#34;&#34;Key action callback to toggle between showing and hiding a geometry.
+
+    Parameters
+    ----------
+    fig : pytransform3d.visualizer.Figure
+        Figure.
+
+    geometry : open3d.geometry.Geometry
+        Geometry.
+    &#34;&#34;&#34;
     def __init__(self, fig, geometry):
         self.fig = fig
         self.geometry = geometry
