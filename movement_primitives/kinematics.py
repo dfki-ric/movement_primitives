@@ -386,7 +386,8 @@ class Chain:
     def _sample_joints_uniform(self, random_state, bounds=None):
         if bounds is None:
             bounds = self.joint_limits
-        return random_state.rand(len(bounds)) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
+        return (random_state.rand(len(bounds)) * (bounds[:, 1] - bounds[:, 0])
+                + bounds[:, 0])
 
     def forward_trajectory(self, Q):
         """Compute forward kinematics for a trajectory.

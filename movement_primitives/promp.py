@@ -303,10 +303,7 @@ class ProMP:
         verbose : int, optional (default: 0)
             Verbosity level
         """
-        # https://github.com/rock-learning/bolero/blob/master/src/representation/promp/implementation/src/Trajectory.cpp#L64
-        # https://git.hb.dfki.de/COROMA/PropMP/-/blob/master/prop_mp.ipynb
         # Section 3.2 of https://hal.inria.fr/inria-00475214/document
-
         # P = I
         # mu_0 = 0
         # k_0 = 0
@@ -350,7 +347,8 @@ class ProMP:
             RTR = Rs[demo_idx].T.dot(Rs[demo_idx])
             RTRs.append(RTR)
 
-        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_steps
+        # n_demos x self.n_dims*self.n_weights_per_dim
+        # x self.n_dims*self.n_steps
         # BH in original code
         PhiHTs = []
         for demo_idx in range(n_demos):
@@ -364,7 +362,8 @@ class ProMP:
             PhiHTR = PhiHTs[demo_idx].dot(Rs[demo_idx])
             PhiHTRs.append(PhiHTR)
 
-        # n_demos x self.n_dims*self.n_weights_per_dim x self.n_dims*self.n_weights_per_dim
+        # n_demos x self.n_dims*self.n_weights_per_dim
+        # x self.n_dims*self.n_weights_per_dim
         # cov_esteps in original code
         PhiHTHPhiTs = []
         for demo_idx in range(n_demos):
@@ -380,7 +379,8 @@ class ProMP:
                 means[demo_idx], covs[demo_idx] = self._expectation(
                         PhiHTRs[demo_idx], PhiHTHPhiTs[demo_idx])
 
-            self._maximization(means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
+            self._maximization(
+                means, covs, RTRs, PhiHTRs, PhiHTHPhiTs, n_samples)
 
             delta = np.linalg.norm(self.weight_mean - weight_mean_old)
             if verbose:
@@ -567,15 +567,19 @@ class ProMP:
 
         self.variance = 0.0
         for i in range(len(means)):
-            # a trace is the same irrelevant of the order of matrix multiplications,
-            # see: https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf, Equation 16
+            # a trace is the same irrelevant of the order of matrix
+            # multiplications, see:
+            # https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf,
+            # Equation 16
             self.variance += np.trace(PhiHTHPhiTs[i].dot(covs[i]))
 
             self.variance += RRs[i]
             self.variance -= 2.0 * PhiHTR[i].T.dot(means[i].T)
             self.variance += (means[i].dot(PhiHTHPhiTs[i].dot(means[i].T)))
 
-        self.variance /= np.linalg.norm(means) * M * self.n_dims * n_samples + 2.0  # TODO why these factors?
+        # TODO why these factors?
+        self.variance /= (np.linalg.norm(means) * M * self.n_dims * n_samples
+                          + 2.0)
         #self.variance /= self.n_dims * n_samples + 2.0
 
 
