@@ -19,3 +19,4 @@ exclude_lines =
     except ImportError:
     if verbose
     if self.verbose
+    if __name__ == "__main__"
