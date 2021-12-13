@@ -422,7 +422,23 @@ class ProMP:
         return activations
 
     def _rbfs_nd_sequence(self, T, overlap=0.7):
-        """Radial basis functions for n_dims dimensions and a sequence."""
+        """Radial basis functions for n_dims dimensions and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
+            Activations of RBFs for each time step and each dimension.
+        """
         return _nd_block_diagonal(
             self._rbfs_1d_sequence(T, overlap), self.n_dims)
 
@@ -468,7 +484,23 @@ class ProMP:
         return activations
 
     def _rbfs_derivative_nd_sequence(self, T, overlap=0.7):
-        """Derivative of RBFs for n_dims dimensions and a sequence."""
+        """Derivative of RBFs for n_dims dimensions and a sequence.
+
+        Parameters
+        ----------
+        T : array-like, shape (n_steps,)
+            Times at which the activations of RBFs will be queried. Note that
+            we assume that T[0] == 0.0 and the times will be normalized
+            internally so that T[-1] == 1.0.
+
+        overlap : float, optional (default: 0.7)
+            Indicates how much the RBFs are allowed to overlap.
+
+        Returns
+        -------
+        activations : array, shape (n_dims * n_weights_per_dim, n_dims * n_steps)
+            Activations of derivative of RBFs for each time step and dimension.
+        """
         return _nd_block_diagonal(
             self._rbfs_derivative_1d_sequence(T, overlap), self.n_dims)
 
@@ -552,6 +584,19 @@ def _nd_block_diagonal(partial_1d, n_dims):
 
     We also accept matrices of rectangular shape. In this case the result is
     not officially called a block-diagonal matrix anymore.
+
+    Parameters
+    ----------
+    partial_1d : array, shape (n_block_rows, n_block_cols)
+        Matrix that should be replicated.
+
+    n_dims : int
+        Number of times that the matrix has to be replicated.
+
+    Returns
+    -------
+    full_nd : array, shape (n_block_rows * n_dims, n_block_cols * n_dims)
+        Block-diagonal matrix with n_dims replications of the initial matrix.
     """
     assert partial_1d.ndim == 2
     n_block_rows, n_block_cols = partial_1d.shape
