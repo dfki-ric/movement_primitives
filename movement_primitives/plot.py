@@ -35,7 +35,7 @@ def plot_trajectory_in_rows(
         Number of rows and number of columns.
 
     transpose : bool, optional (default: False)
-        Fill first column first, then second column and so on. Typically
+        Fill first column first, then second column and so on. Typically,
         matplotlib fills rows before columns.
 
     axis_titles : list of str, optional (default: ['Dimension #0', ...])
@@ -113,7 +113,7 @@ def plot_distribution_in_rows(
         Number of rows and number of columns.
 
     transpose : bool, optional (default: False)
-        Fill first column first, then second column and so on. Typically
+        Fill first column first, then second column and so on. Typically,
         matplotlib fills rows before columns.
 
     axis_titles : list of str, optional (default: ['Dimension #0', ...])
@@ -156,8 +156,9 @@ def plot_distribution_in_rows(
         for f_idx, f in enumerate(std_factors):
             if fill_between:
                 axes[i].fill_between(
-                    t, mean[:, i] - f * std_dev[:, i], mean[:, i] + f * std_dev[:, i],
-                    color=color, alpha=alpha, label=label if f_idx == 0 else None)
+                    t, mean[:, i] - f * std_dev[:, i],
+                    mean[:, i] + f * std_dev[:, i], color=color, alpha=alpha,
+                    label=label if f_idx == 0 else None)
             else:
                 axes[i].plot(t, mean[:, i] - f * std_dev[:, i], color, ls="--",
                              label=label if f_idx == 0 else None)
@@ -206,7 +207,8 @@ def layout_axes(axes, n_dims, subplot_shape, xlabel, xlim, transpose,
             axis_title = "Dimension #%d" % i
         axes[i].set_title(axis_title, loc="center", y=0,
                           backgroundcolor="#ffffff80")
-        if not transpose and subplot_shape[0] * subplot_shape[1] - i in range(1, subplot_shape[1] + 1):
+        if not transpose and subplot_shape[0] * subplot_shape[1] - i in range(
+                1, subplot_shape[1] + 1):
             axes[i].set_xlabel(xlabel)
         elif transpose and i % subplot_shape[0] == subplot_shape[0] - 1:
             axes[i].set_xlabel(xlabel)

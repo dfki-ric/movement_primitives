@@ -15,8 +15,8 @@ from ._canonical_system import canonical_system_alpha, phase
 
 __all__ = [
     "DMP", "dmp_transformation_system", "DMPWithFinalVelocity", "CartesianDMP",
-    "DualCartesianDMP", "CouplingTermPos1DToPos1D", "CouplingTermObstacleAvoidance2D",
-    "CouplingTermObstacleAvoidance3D",
+    "DualCartesianDMP", "CouplingTermPos1DToPos1D",
+    "CouplingTermObstacleAvoidance2D", "CouplingTermObstacleAvoidance3D",
     "CouplingTermPos3DToPos3D", "CouplingTermDualCartesianOrientation",
     "CouplingTermDualCartesianPose", "CouplingTermDualCartesianDistance",
     "CouplingTermDualCartesianTrajectory", "canonical_system_alpha", "phase",

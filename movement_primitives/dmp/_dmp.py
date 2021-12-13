@@ -41,7 +41,8 @@ class DMP(DMPBase):
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
+                 int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt_ = dt
@@ -49,8 +50,10 @@ class DMP(DMPBase):
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim, self.execution_time, 0.0, 0.8, alpha_z)
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
+                                        self.execution_time, 0.0, 0.8, alpha_z)
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
@@ -140,7 +143,8 @@ class DMP(DMPBase):
             run_t, self.int_dt,
             step_function)
 
-    def imitate(self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False):
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
         """Imitate demonstration.
 
         Parameters
@@ -183,7 +187,8 @@ class DMP(DMPBase):
         weights : array, shape (n_dims * n_weights_per_dim,)
             New weights of the DMP.
         """
-        self.forcing_term.weights[:, :] = weights.reshape(-1, self.n_weights_per_dim)
+        self.forcing_term.weights[:, :] = weights.reshape(
+            -1, self.n_weights_per_dim)
 
 
 def dmp_step_rk4(
@@ -481,7 +486,8 @@ def dmp_imitate(
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
-    forcing_term = ForcingTerm(Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
+    forcing_term = ForcingTerm(
+        Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces(
         T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
 
@@ -492,7 +498,9 @@ def dmp_imitate(
 
 
 def ridge_regression(X, F, regularization_coefficient):  # returns: n_dims x n_weights_per_dim
-    return np.linalg.pinv(X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])).dot(X).dot(F).T
+    return np.linalg.pinv(
+        X.dot(X.T) + regularization_coefficient * np.eye(X.shape[0])
+    ).dot(X).dot(F).T
 
 
 def dmp_open_loop(

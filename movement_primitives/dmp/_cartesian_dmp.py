@@ -330,7 +330,6 @@ def dmp_quaternion_imitation(
     goal_ydd : array, shape (3,)
         Final acceleration.
     """
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L702
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
@@ -389,7 +388,6 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
     goal_ydd : array, shape (3,)
         Final acceleration.
     """
-    # https://github.com/rock-learning/bolero/blob/master/src/representation/dmp/implementation/src/Dmp.cpp#L670
     n_dims = 3
 
     DT = np.gradient(T)

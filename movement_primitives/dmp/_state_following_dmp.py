@@ -119,7 +119,8 @@ class StateFollowingForcingTerm:
         return activations
 
     def __call__(self, t, int_dt=0.001):
-        z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t, start_t=self.start_t, int_dt=int_dt)
+        z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
+                  start_t=self.start_t, int_dt=int_dt)
         z = np.atleast_1d(z)
         return self._activations(z, normalized=True).T
 

@@ -257,8 +257,10 @@ def dmp_step_dual_cartesian_python(
         f = forcing_term(current_t).squeeze()
         if tracking_error is not None:
             cdd[pvs] += p_gain * tracking_error[pps] / dt
-            for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
-                cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(tracking_error[ops]) / dt
+            for ops, ovs in ((slice(3, 7), slice(3, 6)),
+                             (slice(10, 14), slice(9, 12))):
+                cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(
+                    tracking_error[ops]) / dt
 
         # position components
         current_ydd[pvs] = (
@@ -270,7 +272,8 @@ def dmp_step_dual_cartesian_python(
         current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
-        for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+        for ops, ovs in ((slice(3, 7), slice(3, 6)),
+                         (slice(10, 14), slice(9, 12))):
             current_ydd[ovs] = (
                 alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
                                    pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops])))
