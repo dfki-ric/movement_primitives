@@ -5,7 +5,7 @@ import scipy.io
 import numpy as np
 try:
     from urllib2 import urlopen
-except:
+except ImportError:
     from urllib.request import urlopen
 
 
@@ -55,7 +55,7 @@ def load_lasa(shape_idx):
 
     shape_name : string
         Name of the Matlab file from which we load the demonstrations
-        (without suffix)
+        (without suffix).
     """
     dataset_path = get_common_dataset_path()
     if not os.path.isdir(dataset_path + "lasa_data"):  # pragma: no cover
@@ -75,14 +75,52 @@ def load_lasa(shape_idx):
 
 
 def _load_from_matlab_file(dataset_path, shape_idx):
-    """Load demonstrations from Matlab files."""
+    """Load demonstrations from Matlab files.
+
+    Parameters
+    ----------
+    dataset_path : str
+        Path where external datasets are stored.
+
+    shape_idx : int
+        Index of the shape in the LASA dataset.
+
+    Returns
+    -------
+    demos : array
+        Demonstrations.
+
+    shape_name : string
+        Name of the Matlab file from which we load the demonstrations
+        (without suffix).
+    """
     file_name = sorted(os.listdir(dataset_path))[shape_idx]
     return (scipy.io.loadmat(dataset_path + file_name)["demos"][0],
             file_name[:-4])
 
 
 def _convert_demonstrations(demos):
-    """Convert Matlab struct to numpy arrays."""
+    """Convert Matlab struct to numpy arrays.
+
+    Parameters
+    ----------
+    demos : array
+        Demonstrations.
+
+    Returns
+    -------
+    X : array, shape (n_demos, n_steps, n_dims)
+        Positions
+
+    Xd : array, shape (n_demos, n_steps, n_dims)
+        Velocities
+
+    Xdd : array, shape (n_demos, n_steps, n_dims)
+        Accelerations
+
+    dt : float
+        Time between steps
+    """
     tmp = []
     for demo_idx in range(demos.shape[0]):
         # The Matlab format is strange...
@@ -100,7 +138,13 @@ def _convert_demonstrations(demos):
 
 
 def get_common_dataset_path():
-    """Returns the path where all external datasets are stored."""
+    """Returns the path where all external datasets are stored.
+
+    Returns
+    -------
+    dataset_path : str
+        Path where external datasets are stored.
+    """
     dataset_path = os.path.expanduser("~")
     dataset_path += os.sep + ".movement_primitive_data" + os.sep
     return dataset_path
