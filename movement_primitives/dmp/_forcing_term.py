@@ -6,7 +6,7 @@ from ._canonical_system import phase
 class ForcingTerm:
     """Defines the shape of a DMP."""
     def __init__(self, n_dims, n_weights_per_dim, goal_t, start_t, overlap, alpha_z):
-        if n_weights_per_dim <= 0:
+        if n_weights_per_dim <= 1:
             raise ValueError("The number of weights per dimension must be > 1!")
         self.n_weights_per_dim = n_weights_per_dim
         if start_t >= goal_t:
