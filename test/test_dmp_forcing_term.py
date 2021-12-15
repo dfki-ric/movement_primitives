@@ -12,7 +12,7 @@ def test_invalid_arguments():
         overlap=0.7, alpha_z=alpha_z)
     assert_raises_regexp(
         ValueError, "Goal must be chronologically after start!",
-        ForcingTerm, n_dims=2, n_weights_per_dim=1, goal_t=0.0, start_t=1.0,
+        ForcingTerm, n_dims=2, n_weights_per_dim=2, goal_t=0.0, start_t=1.0,
         overlap=0.7, alpha_z=alpha_z)
 
 
