@@ -1,5 +1,6 @@
 import numpy as np
-from movement_primitives.data import generate_minimum_jerk, load_lasa
+from movement_primitives.data import (
+    generate_minimum_jerk, load_lasa, generate_1d_trajectory_distribution)
 from numpy.testing import assert_array_almost_equal
 from nose.tools import (assert_raises_regexp, assert_greater_equal,
                         assert_less_equal, assert_equal)
@@ -39,3 +40,16 @@ def test_lasa():
     assert_equal(Xdd.shape[1], X.shape[1])
     assert_equal(Xdd.shape[2], X.shape[2])
     assert_equal(shape_name, "Angle")
+
+
+def test_toy1d():
+    T1, X1 = generate_1d_trajectory_distribution(
+        n_demos=1, n_steps=11, noise_per_step_range=0.0,
+        initial_offset_range=0, final_offset_range=0)
+
+    T2, X2 = generate_1d_trajectory_distribution(
+        n_demos=1000, n_steps=11, noise_per_step_range=20.0,
+        initial_offset_range=0, final_offset_range=0)
+
+    assert_array_almost_equal(
+        np.mean(X1, axis=0), np.mean(X2, axis=0), decimal=1)
