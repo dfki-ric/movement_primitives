@@ -142,6 +142,26 @@ def test_compare_integrators():
     assert_less(error_rk4, error_euler)
 
 
+def test_set_current_time():
+    start_y = np.array([0.0])
+    goal_y = np.array([1.0])
+    dt = 0.05
+
+    execution_time = 1.0
+    dmp = DMP(n_dims=1, execution_time=execution_time, dt=dt, n_weights_per_dim=6)
+    dmp.configure(start_y=start_y, goal_y=goal_y)
+    random_state = np.random.RandomState(0)
+    dmp.forcing_term.weights = 200 * random_state.randn(*dmp.forcing_term.weights.shape)
+
+    dmp.configure(t=0.5)  # fast forward to middle of execution
+    y = np.array([0.0])  # current state is different though
+    yd = np.array([0.0])
+    for i in range(13):
+        y, yd = dmp.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(error, 1e-2)
+
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     start_y = np.array([0.0])
