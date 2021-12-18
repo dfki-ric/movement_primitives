@@ -145,7 +145,6 @@ def test_forward_inverse_trajectory_without_restarts():
     Q[:, 5] = np.linspace(-0.5 * np.pi, 0.5 * np.pi, len(Q))
 
     H = chain.forward_trajectory(Q)
-    random_state = np.random.RandomState(2)
     Q2 = chain.inverse_trajectory(H, Q[0], random_restarts=False)
     H2 = chain.forward_trajectory(Q2)
 
