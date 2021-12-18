@@ -573,6 +573,67 @@ def dmp_open_loop(
         coupling_term=None, run_t=None, int_dt=0.001,
         step_function=dmp_step_rk4, start_yd=None, start_ydd=None,
         goal_yd=None, goal_ydd=None):
+    """Run DMP without external feedback.
+
+    Parameters
+    ----------
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    start_y : array, shape (7,)
+        Start position.
+
+    goal_y : array, shape (7,)
+        Goal position.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    run_t : float, optional (default: goal_t)
+        Time at which the DMP will be stopped.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+
+    step_function : callable, optional (default: dmp_step_rk4)
+        DMP integration function.
+
+    start_yd : shape (n_dims,)
+        Start state derivative (velocity).
+
+    start_ydd : shape (n_dims,)
+        Second start state derivative (acceleration).
+
+    goal_yd : shape (n_dims,)
+        Goal state derivative (velocity).
+
+    goal_ydd : shape (n_dims,)
+        Second goal state derivative (acceleration).
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Times.
+
+    Y : array, shape (n_steps,)
+        Positions.
+    """
     if goal_yd is None:
         goal_yd = np.zeros_like(goal_y)
     if goal_ydd is None:

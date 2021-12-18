@@ -476,6 +476,44 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
 def dmp_open_loop_quaternion(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
         coupling_term=None, run_t=None, int_dt=0.001):
+    """Run Cartesian DMP without external feedback.
+
+    Parameters
+    ----------
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    start_y : array, shape (7,)
+        Start position.
+
+    goal_y : array, shape (7,)
+        Goal position.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    run_t : float, optional (default: goal_t)
+        Time at which the DMP will be stopped.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+    """
     t = start_t
     y = np.copy(start_y)
     yd = np.zeros(3)
