@@ -223,7 +223,66 @@ def dmp_step_quaternion_python(
         coupling_term=None,
         coupling_term_precomputed=None,
         int_dt=0.001):
-    """Integrate quaternion DMP for one step with Euler integration."""
+    """Integrate quaternion DMP for one step with Euler integration.
+
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (7,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (6,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (7,)
+        Goal position.
+
+    goal_yd : array, shape (6,)
+        Goal velocity.
+
+    goal_ydd : array, shape (6,)
+        Goal acceleration.
+
+    start_y : array, shape (7,)
+        Start position.
+
+    start_yd : array, shape (6,)
+        Start velocity.
+
+    start_ydd : array, shape (6,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    coupling_term_precomputed : tuple
+        A precomputed coupling term, i.e., additional velocity and
+        acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+    """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
