@@ -3,7 +3,16 @@ import numpy as np
 
 
 class PointToPointMovement:
-    """Base class for point to point movements (discrete motions)."""
+    """Base class for point to point movements (discrete motions).
+
+    Parameters
+    ----------
+    n_pos_dims : int
+        Number of dimensions of the position that will be controlled.
+
+    n_vel_dims : int
+        Number of dimensions of the velocity that will be controlled.
+    """
     def __init__(self, n_pos_dims, n_vel_dims):
         self.n_dims = n_pos_dims
         self.n_vel_dims = n_vel_dims
