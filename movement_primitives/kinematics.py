@@ -7,6 +7,10 @@ from scipy.optimize import minimize
 
 
 class FastUrdfTransformManager(UrdfTransformManager):
+    """Fast transformation manager that can load URDF files.
+
+    This version has efficient numba-accelerated code to update joints.
+    """
     def __init__(self):
         super(FastUrdfTransformManager, self).__init__(check=False)
 
