@@ -286,10 +286,6 @@ def dmp_step_dual_cartesian_python(
         Coupling term. Must have a function coupling(y, yd) that returns
         additional velocity and acceleration.
 
-    coupling_term_precomputed : tuple
-        A precomputed coupling term, i.e., additional velocity and
-        acceleration.
-
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
 
