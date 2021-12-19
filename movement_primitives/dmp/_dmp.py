@@ -126,6 +126,11 @@ class DMP(DMPBase):
 
         Y : array, shape (n_steps, n_dims)
             State at each step.
+
+        Raises
+        ------
+        ValueError
+            If step function is unknown.
         """
         if step_function == "rk4":
             step_function = dmp_step_rk4
