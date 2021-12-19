@@ -25,7 +25,7 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
         Initial state
 
     goal : array-like, shape (n_dims,)
-        Goal
+        Goal state
 
     execution_time : float, optional (default: 1)
         Execution time in seconds
@@ -43,6 +43,11 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
 
     Xdd : array, shape (n_task_dims, n_steps)
         The accelerations of the trajectory
+
+    Raises
+    ------
+    ValueError
+        If the shapes of the initial and goal state do not match.
     """
     x0 = np.asarray(start)
     g = np.asarray(goal)

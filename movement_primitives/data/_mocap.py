@@ -73,6 +73,11 @@ def transpose_dataset(dataset):
         corresponds to an attribute of the i-th demo. For example, the first
         list might contain to all time arrays of the demonstrations and the
         second entry might correspond to all trajectories.
+
+    Raises
+    ------
+    ValueError
+        If the dataset is empty.
     """
     n_samples = len(dataset)
     if n_samples == 0:
