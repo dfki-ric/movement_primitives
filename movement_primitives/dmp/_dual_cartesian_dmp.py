@@ -233,7 +233,72 @@ def dmp_step_dual_cartesian_python(
         goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, int_dt=0.001,
         p_gain=0.0, tracking_error=None):
-    """Integrate bimanual Cartesian DMP for one step with Euler integration."""
+    """Integrate bimanual Cartesian DMP for one step with Euler integration.
+
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (14,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (12,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (14,)
+        Goal position.
+
+    goal_yd : array, shape (12,)
+        Goal velocity.
+
+    goal_ydd : array, shape (12,)
+        Goal acceleration.
+
+    start_y : array, shape (14,)
+        Start position.
+
+    start_yd : array, shape (12,)
+        Start velocity.
+
+    start_ydd : array, shape (12,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    coupling_term_precomputed : tuple
+        A precomputed coupling term, i.e., additional velocity and
+        acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+
+    p_gain : float, optional (default: 0)
+        Proportional gain for tracking error.
+
+    tracking_error : float, optional (default: 0)
+        Tracking error from last step.
+    """
     if t <= start_t:
         current_y[:] = start_y
         current_yd[:] = start_yd
