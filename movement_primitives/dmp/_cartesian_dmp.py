@@ -282,6 +282,11 @@ def dmp_step_quaternion_python(
 
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
+
+    Raises
+    ------
+    ValueError
+        If goal time is before start time.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
