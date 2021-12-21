@@ -11,7 +11,7 @@ int_dt = 0.001
 
 dmp = DualCartesianDMP(execution_time=1.0, dt=dt, n_weights_per_dim=6, int_dt=int_dt)
 dmp.configure(start_y=start_y, goal_y=goal_y)
-dmp.forcing_term.weights = 1000 * np.random.randn(*dmp.forcing_term.weights.shape)
+dmp.set_weights(1000 * np.random.randn(*dmp.get_weights().shape))
 
 times = timeit.repeat(partial(dmp.open_loop, step_function="cython"), repeat=10, number=1)
 print("Cython")
