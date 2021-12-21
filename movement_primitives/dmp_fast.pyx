@@ -234,14 +234,15 @@ cpdef dmp_step_dual_cartesian(
 
     cdef int n_vel_dims = current_yd.shape[0]
 
-    cdef np.ndarray[double, ndim=1] cd = np.zeros(n_vel_dims, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] cdd = np.zeros(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cd = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=np.float64)
 
     cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=np.float64)
 
     cdef int pps
     cdef int pvs
-    cdef np.ndarray[long, ndim=2] POS_INDICES = np.array([[0, 0], [1, 1], [2, 2], [7, 6], [8, 7], [9, 8]], dtype=long)
+    cdef np.ndarray[long, ndim=2] POS_INDICES = np.array(
+        [[0, 0], [1, 1], [2, 2], [7, 6], [8, 7], [9, 8]], dtype=long)
 
     cdef double dt
     cdef double current_t = last_t
@@ -251,7 +252,10 @@ cpdef dmp_step_dual_cartesian(
             dt = t - current_t
         current_t += dt
 
-        if coupling_term is not None:
+        if coupling_term is None:
+            cd[:] = 0.0
+            cdd[:] = 0.0
+        else:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
         f[:] = forcing_term(current_t).squeeze()
@@ -263,15 +267,29 @@ cpdef dmp_step_dual_cartesian(
 
         # position components
         for pps, pvs in POS_INDICES:
-            current_ydd[pvs] = (alpha_y * (beta_y * (goal_y[pps] - current_y[pps]) + execution_time * (goal_yd[pvs] - current_yd[pvs])) + f[pvs] + cdd[pvs]) / execution_time ** 2 + goal_ydd[pvs]
+            current_ydd[pvs] = (
+                alpha_y * (beta_y * (goal_y[pps] - current_y[pps])
+                           + execution_time * (goal_yd[pvs] - current_yd[pvs]))
+                + f[pvs] + cdd[pvs]
+                ) / execution_time ** 2 + goal_ydd[pvs]
             current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
             current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
-            current_ydd[ovs] = (alpha_y * (beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops]))) - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+            current_ydd[ovs] = (
+                alpha_y * (
+                    beta_y * compact_axis_angle_from_quaternion(
+                        concatenate_quaternions(
+                            goal_y[ops], q_conj(current_y[ops]))
+                    )
+                    - execution_time * current_yd[ovs]
+                ) + f[ovs] + cdd[ovs]
+            ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
-            current_y[ops] = concatenate_quaternions(quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
+            current_y[ops] = concatenate_quaternions(
+                quaternion_from_compact_axis_angle(dt * current_yd[ovs]),
+                current_y[ops])
 
 
 @cython.boundscheck(False)
