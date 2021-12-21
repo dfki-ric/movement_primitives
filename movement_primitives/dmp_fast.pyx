@@ -50,8 +50,8 @@ cpdef dmp_step(
 
     cdef np.ndarray[double, ndim=1] current_ydd = np.empty(n_dims, dtype=np.float64)
 
-    cdef np.ndarray[double, ndim=1] cd = np.zeros(n_dims, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] cdd = np.zeros(n_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cd = np.empty(n_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_dims, dtype=np.float64)
 
     cdef np.ndarray[double, ndim=1] f = np.empty(n_dims, dtype=np.float64)
 
@@ -71,13 +71,22 @@ cpdef dmp_step(
         elif coupling_term_precomputed is not None:
             cd[:] = coupling_term_precomputed[0]
             cdd[:] = coupling_term_precomputed[1]
+        else:
+            cd[:] = 0.0
+            cdd[:] = 0.0
         if tracking_error is not None:
             cdd += p_gain * tracking_error / dt
 
         f[:] = forcing_term(current_t).squeeze()
 
         for d in range(n_dims):
-            current_ydd[d] = (alpha_y * (beta_y * (goal_y[d] - current_y[d]) + execution_time * goal_yd[d] - execution_time * current_yd[d]) + goal_ydd[d] * execution_time ** 2 + f[d] + cdd[d]) / execution_time ** 2
+            current_ydd[d] = (
+                alpha_y * (beta_y * (goal_y[d] - current_y[d])
+                           + execution_time * goal_yd[d]
+                           - execution_time * current_yd[d])
+                + goal_ydd[d] * execution_time ** 2 + f[d]
+                + cdd[d]
+            ) / execution_time ** 2
             current_yd[d] += dt * current_ydd[d] + cd[d] / execution_time
             current_y[d] += dt * current_yd[d]
 
