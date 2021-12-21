@@ -3,7 +3,7 @@ from pytransform3d import rotations as pr
 from movement_primitives.dmp import DMP
 from nose.tools import (assert_almost_equal, assert_equal, assert_less,
                         assert_raises_regexp)
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_raises_regex
 
 
 def test_dmp_step_function_unknown():
@@ -196,6 +196,14 @@ def test_get_set_weights():
     T3, Y3 = dmp.open_loop()
     assert_array_almost_equal(T, T3)
     assert_array_almost_equal(Y, Y3, decimal=2)
+
+
+def test_invalid_step_function():
+    dmp = DMP(
+        execution_time=1.0, n_dims=3, dt=0.01,
+        n_weights_per_dim=10, int_dt=0.001)
+    assert_raises_regex(ValueError, "Step function", dmp.open_loop,
+                        step_function="invalid")
 
 
 if __name__ == "__main__":
