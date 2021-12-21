@@ -117,7 +117,8 @@ class DMP(DMPBase):
             Coupling term that will be added to velocity.
 
         step_function : str, optional (default: 'rk4')
-            DMP integration function. Possible options: 'rk4', 'euler'.
+            DMP integration function. Possible options: 'rk4', 'euler',
+            'euler-cython'.
 
         Returns
         -------
@@ -132,12 +133,11 @@ class DMP(DMPBase):
         ValueError
             If step function is unknown.
         """
-        if step_function == "rk4":
-            step_function = dmp_step_rk4
-        elif step_function == "euler":
-            step_function = dmp_step_euler
-        else:
-            raise ValueError("Step function must be 'rk4' or 'euler'.")
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f"Step function must be in {DMP_STEP_FUNCTIONS.keys()}.")
 
         return dmp_open_loop(
             self.execution_time, 0.0, self.dt_,
@@ -484,10 +484,6 @@ def dmp_step_euler(
         current_y += dt * current_yd
 
 
-# uncomment to overwrite with cython implementation:
-#from ..dmp_fast import dmp_step as dmp_step_euler
-
-
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
     """Determine forces that the forcing term should generate.
 
@@ -761,3 +757,15 @@ def dmp_open_loop(
         Y.append(np.copy(current_y))
 
     return np.array(T), np.array(Y)
+
+
+DMP_STEP_FUNCTIONS = {
+    "rk4": dmp_step_rk4,
+    "euler": dmp_step_euler
+}
+
+try:
+    from ..dmp_fast import dmp_step as dmp_step_euler_cython
+    DMP_STEP_FUNCTIONS["euler-cython"] = dmp_step_euler_cython
+except ImportError:
+    pass

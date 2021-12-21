@@ -15,4 +15,13 @@ dmp.configure(start_y=start_y, goal_y=goal_y)
 dmp.forcing_term.weights = 1000 * np.random.randn(*dmp.forcing_term.weights.shape)
 
 times = timeit.repeat(partial(dmp.open_loop, step_function="rk4"), repeat=10, number=1)
+print("RK4")
+print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
+
+times = timeit.repeat(partial(dmp.open_loop, step_function="euler"), repeat=10, number=1)
+print("Euler (Python)")
+print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
+
+times = timeit.repeat(partial(dmp.open_loop, step_function="euler-cython"), repeat=10, number=1)
+print("Euler (Cython)")
 print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
