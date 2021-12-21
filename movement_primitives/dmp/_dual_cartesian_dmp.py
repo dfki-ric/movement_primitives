@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase
@@ -217,8 +216,8 @@ class DualCartesianDMP(DMPBase):
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
-        step_function : str, optional (default: 'cython' if available)
-            DMP integration function. Possible options: 'python', 'cython'.
+        step_function : callable, optional (default: cython code if available)
+            DMP integration function.
 
         Returns
         -------
