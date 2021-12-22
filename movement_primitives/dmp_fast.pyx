@@ -17,6 +17,33 @@ cdef double M_2PI = 2.0 * pi
 @cython.nonecheck(False)
 @cython.cdivision(True)
 cpdef phase(t, double alpha, double goal_t, double start_t, double int_dt=0.001, double eps=1e-10):
+    """Map time to phase.
+
+    Parameters
+    ----------
+    t : float
+        Current time.
+
+    alpha : float
+        Value of the alpha parameter of the canonical system.
+
+    goal_t : float
+        Time at which the execution should be done.
+
+    start_t : float
+        Time at which the execution should start.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta that is used internally for integration.
+
+    eps : float, optional (default: 1e-10)
+        Small number used to avoid numerical issues.
+
+    Returns
+    -------
+    z : float
+        Value of phase variable.
+    """
     cdef double execution_time = goal_t - start_t
     cdef double b = max(1.0 - alpha * int_dt / execution_time, eps)
     return b ** ((t - start_t) / int_dt)
@@ -36,7 +63,72 @@ cpdef dmp_step(
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
         np.ndarray tracking_error=None):
+    """Integrate regular DMP for one step with Euler integration.
 
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (n_dims,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (n_dims,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (n_dims,)
+        Goal position.
+
+    goal_yd : array, shape (n_dims,)
+        Goal velocity.
+
+    goal_ydd : array, shape (n_dims,)
+        Goal acceleration.
+
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    start_yd : array, shape (n_dims,)
+        Start velocity.
+
+    start_ydd : array, shape (n_dims,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    coupling_term_precomputed : tuple
+        A precomputed coupling term, i.e., additional velocity and
+        acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+
+    p_gain : float, optional (default: 0)
+        Proportional gain for tracking error.
+
+    tracking_error : float, optional (default: 0)
+        Tracking error from last step.
+    """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
@@ -105,6 +197,72 @@ cpdef dmp_step_rk4(
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
         np.ndarray tracking_error=None):
+    """Integrate regular DMP for one step with RK4 integration.
+
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (n_dims,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (n_dims,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (n_dims,)
+        Goal position.
+
+    goal_yd : array, shape (n_dims,)
+        Goal velocity.
+
+    goal_ydd : array, shape (n_dims,)
+        Goal acceleration.
+
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    start_yd : array, shape (n_dims,)
+        Start velocity.
+
+    start_ydd : array, shape (n_dims,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    coupling_term_precomputed : tuple
+        A precomputed coupling term, i.e., additional velocity and
+        acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+
+    p_gain : float, optional (default: 0)
+        Proportional gain for tracking error.
+
+    tracking_error : float, optional (default: 0)
+        Tracking error from last step.
+    """
     cdef int n_dims = current_y.shape[0]
 
     cdef np.ndarray[double, ndim=1] cd = np.zeros(n_dims, dtype=np.float64)
@@ -178,15 +336,77 @@ cdef _dmp_acc(
 @cython.cdivision(True)
 cpdef dmp_step_quaternion(
         double last_t, double t,
-        np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,
-        np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd, np.ndarray[double, ndim=1] goal_ydd,
-        np.ndarray[double, ndim=1] start_y, np.ndarray[double, ndim=1] start_yd, np.ndarray[double, ndim=1] start_ydd,
+        np.ndarray[double, ndim=1] current_y,
+        np.ndarray[double, ndim=1] current_yd,
+        np.ndarray[double, ndim=1] goal_y,
+        np.ndarray[double, ndim=1] goal_yd,
+        np.ndarray[double, ndim=1] goal_ydd,
+        np.ndarray[double, ndim=1] start_y,
+        np.ndarray[double, ndim=1] start_yd,
+        np.ndarray[double, ndim=1] start_ydd,
         double goal_t, double start_t, double alpha_y, double beta_y,
-        forcing_term,
-        coupling_term=None,
-        coupling_term_precomputed=None,
+        forcing_term, coupling_term=None, coupling_term_precomputed=None,
         double int_dt=0.001):
+    """Integrate quaternion DMP for one step with Euler integration.
 
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (7,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (6,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (7,)
+        Goal position.
+
+    goal_yd : array, shape (6,)
+        Goal velocity.
+
+    goal_ydd : array, shape (6,)
+        Goal acceleration.
+
+    start_y : array, shape (7,)
+        Start position.
+
+    start_yd : array, shape (6,)
+        Start velocity.
+
+    start_ydd : array, shape (6,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    coupling_term_precomputed : tuple
+        A precomputed coupling term, i.e., additional velocity and
+        acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+    """
     if t <= start_t:
         current_y[:] = start_y
         current_yd[:] = start_yd
@@ -237,6 +457,68 @@ cpdef dmp_step_dual_cartesian(
         forcing_term, coupling_term=None,
         double int_dt=0.001,
         double p_gain=0.0, np.ndarray tracking_error=None):
+    """Integrate bimanual Cartesian DMP for one step with Euler integration.
+
+    Parameters
+    ----------
+    last_t : float
+        Time at last step.
+
+    t : float
+        Time at current step.
+
+    current_y : array, shape (14,)
+        Current position. Will be modified.
+
+    current_yd : array, shape (12,)
+        Current velocity. Will be modified.
+
+    goal_y : array, shape (14,)
+        Goal position.
+
+    goal_yd : array, shape (12,)
+        Goal velocity.
+
+    goal_ydd : array, shape (12,)
+        Goal acceleration.
+
+    start_y : array, shape (14,)
+        Start position.
+
+    start_yd : array, shape (12,)
+        Start velocity.
+
+    start_ydd : array, shape (12,)
+        Start acceleration.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    alpha_y : float
+        Constant in transformation system.
+
+    beta_y : float
+        Constant in transformation system.
+
+    forcing_term : ForcingTerm
+        Forcing term.
+
+    coupling_term : CouplingTerm, optional (default: None)
+        Coupling term. Must have a function coupling(y, yd) that returns
+        additional velocity and acceleration.
+
+    int_dt : float, optional (default: 0.001)
+        Time delta used internally for integration.
+
+    p_gain : float, optional (default: 0)
+        Proportional gain for tracking error.
+
+    tracking_error : float, optional (default: 0)
+        Tracking error from last step.
+    """
     if t <= start_t:
         current_y[:] = start_y
         current_yd[:] = start_yd
@@ -309,15 +591,20 @@ cpdef dmp_step_dual_cartesian(
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
+cpdef concatenate_quaternions(
+        np.ndarray[double, ndim=1] q1, np.ndarray[double, ndim=1] q2):
     """Concatenate two quaternions.
+
     We use Hamilton's quaternion multiplication.
+
     Parameters
     ----------
     q1 : array-like, shape (4,)
         First quaternion
+
     q2 : array-like, shape (4,)
         Second quaternion
+
     Returns
     -------
     q12 : array-like, shape (4,)
@@ -346,11 +633,14 @@ cpdef concatenate_quaternions(np.ndarray[double, ndim=1] q1, np.ndarray[double, 
 @cython.cdivision(True)
 cdef quaternion_from_compact_axis_angle(np.ndarray[double, ndim=1] a):
     """Compute quaternion from compact axis-angle (exponential map).
+
     We usually assume active rotations.
+
     Parameters
     ----------
     a : array-like, shape (4,)
         Axis of rotation and rotation angle: angle * (x, y, z)
+
     Returns
     -------
     q : array-like, shape (4,)
@@ -379,13 +669,16 @@ cdef quaternion_from_compact_axis_angle(np.ndarray[double, ndim=1] a):
 @cython.cdivision(True)
 cdef q_conj(np.ndarray[double, ndim=1] q):
     """Conjugate of quaternion.
+
     The conjugate of a unit quaternion inverts the rotation represented by
     this unit quaternion. The conjugate of a quaternion q is often denoted
     as q*.
+
     Parameters
     ----------
     q : array-like, shape (4,)
         Unit quaternion to represent rotation: (w, x, y, z)
+
     Returns
     -------
     q_c : array-like, shape (4,)
@@ -400,11 +693,14 @@ cdef q_conj(np.ndarray[double, ndim=1] q):
 @cython.cdivision(True)
 cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     """Compute compact axis-angle from quaternion (logarithmic map).
+
     We usually assume active rotations.
+
     Parameters
     ----------
     q : array-like, shape (4,)
         Unit quaternion to represent rotation: (w, x, y, z)
+
     Returns
     -------
     a : array-like, shape (3,)
