@@ -3,7 +3,7 @@ import pytransform3d.rotations as pr
 from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
-from ._dmp import (dmp_step_rk4, dmp_open_loop, dmp_imitate, ridge_regression,
+from ._dmp import (dmp_open_loop, dmp_imitate, ridge_regression,
                    DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION)
 
 
