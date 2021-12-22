@@ -288,8 +288,9 @@ DMP_STEP_FUNCTIONS = {
 DEFAULT_DMP_STEP_FUNCTION = "rk4"
 
 try:
-    from ..dmp_fast import dmp_step as dmp_step_euler_cython
+    from ..dmp_fast import dmp_step as dmp_step_euler_cython, dmp_step_rk4 as dmp_step_rk4_cython
     DMP_STEP_FUNCTIONS["euler-cython"] = dmp_step_euler_cython
+    DMP_STEP_FUNCTIONS["rk4-cython"] = dmp_step_rk4_cython
 except ImportError:
     pass
 

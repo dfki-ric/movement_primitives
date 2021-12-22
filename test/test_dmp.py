@@ -143,6 +143,25 @@ def test_compare_integrators():
     assert_less(error_rk4, error_euler)
 
 
+def test_compare_rk4_python_cython():
+    execution_time = 1.0
+    dt = 0.001
+
+    dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt,
+              n_weights_per_dim=100)
+
+    T = np.arange(0.0, execution_time + dt, dt)
+    Y_demo = np.empty((len(T), 2))
+    Y_demo[:, 0] = np.cos(2.5 * np.pi * T)
+    Y_demo[:, 1] = 0.5 + np.cos(1.5 * np.pi * T)
+    dmp.imitate(T, Y_demo)
+
+    dmp.configure(start_y=Y_demo[0], goal_y=Y_demo[-1])
+    T_python, Y_python = dmp.open_loop(step_function="rk4")
+    T_cython, Y_cython = dmp.open_loop(step_function="rk4-cython")
+    assert_array_almost_equal(Y_cython, Y_python)
+
+
 def test_set_current_time():
     start_y = np.array([0.0])
     goal_y = np.array([1.0])

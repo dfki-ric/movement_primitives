@@ -25,3 +25,7 @@ print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
 times = timeit.repeat(partial(dmp.open_loop, step_function="euler-cython"), repeat=10, number=1)
 print("Euler (Cython)")
 print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
+
+times = timeit.repeat(partial(dmp.open_loop, step_function="rk4-cython"), repeat=10, number=1)
+print("RK4 (Cython)")
+print("Mean: %.5f; Std. dev.: %.5f" % (np.mean(times), np.std(times)))
