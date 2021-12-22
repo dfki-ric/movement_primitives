@@ -1,216 +1,10 @@
-import warnings
 import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
-from ._dmp import dmp_step_rk4, dmp_open_loop, dmp_imitate, ridge_regression
-
-
-class CartesianDMP(DMPBase):
-    """Cartesian dynamical movement primitive.
-
-    The Cartesian DMP handles orientation and position separately. The
-    orientation is represented by a quaternion. The quaternion DMP is
-    implemented according to
-
-    A. Ude, B. Nemec, T. Petric, J. Murimoto:
-    Orientation in Cartesian space dynamic movement primitives (2014),
-    IEEE International Conference on Robotics and Automation (ICRA),
-    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
-    https://ieeexplore.ieee.org/document/6907291
-
-    While the dimension of the state space is 7, the dimension of the
-    velocity, acceleration, and forcing term is 6.
-
-    Parameters
-    ----------
-    execution_time : float
-        Execution time of the DMP.
-
-    dt : float, optional (default: 0.01)
-        Time difference between DMP steps.
-
-    n_weights_per_dim : int, optional (default: 10)
-        Number of weights of the function approximator per dimension.
-
-    int_dt : float, optional (default: 0.001)
-        Time difference for Euler integration.
-
-    Attributes
-    ----------
-    dt_ : float
-        Time difference between DMP steps. This value can be changed to adapt
-        the frequency.
-    """
-    def __init__(
-            self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
-        super(CartesianDMP, self).__init__(7, 6)
-        self.execution_time = execution_time
-        self.dt_ = dt
-        self.n_weights_per_dim = n_weights_per_dim
-        self.int_dt = int_dt
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term_pos = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_rot = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
-
-    def step(self, last_y, last_yd, coupling_term=None):
-        """DMP step.
-
-        Parameters
-        ----------
-        last_y : array, shape (7,)
-            Last state.
-
-        last_yd : array, shape (6,)
-            Last time derivative of state (velocity).
-
-        coupling_term : object, optional (default: None)
-            Coupling term that will be added to velocity.
-
-        Returns
-        -------
-        y : array, shape (14,)
-            Next state.
-
-        yd : array, shape (12,)
-            Next time derivative of state (velocity).
-        """
-        assert len(last_y) == 7
-        assert len(last_yd) == 6
-
-        self.last_t = self.t
-        self.t += self.dt_
-
-        # TODO tracking error
-
-        self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_step_rk4(
-            self.last_t, self.t,
-            self.current_y[:3], self.current_yd[:3],
-            self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
-            self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_pos,
-            coupling_term=coupling_term,
-            int_dt=self.int_dt)
-        dmp_step_quaternion(
-            self.last_t, self.t,
-            self.current_y[3:], self.current_yd[3:],
-            self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
-            self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term_rot,
-            coupling_term=coupling_term,
-            int_dt=self.int_dt)
-        return np.copy(self.current_y), np.copy(self.current_yd)
-
-    def open_loop(self, run_t=None, coupling_term=None):
-        """Run DMP open loop.
-
-        Parameters
-        ----------
-        run_t : float, optional (default: execution_time)
-            Run time of DMP. Can be shorter or longer than execution_time.
-
-        coupling_term : object, optional (default: None)
-            Coupling term that will be added to velocity.
-
-        Returns
-        -------
-        T : array, shape (n_steps,)
-            Time for each step.
-
-        Y : array, shape (n_steps, 7)
-            State at each step.
-        """
-        T, Yp = dmp_open_loop(
-                self.execution_time, 0.0, self.dt_,
-                self.start_y[:3], self.goal_y[:3],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_pos,
-                coupling_term,
-                run_t, self.int_dt)
-        _, Yr = dmp_open_loop_quaternion(
-                self.execution_time, 0.0, self.dt_,
-                self.start_y[3:], self.goal_y[3:],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_rot,
-                coupling_term,
-                run_t, self.int_dt)
-        return T, np.hstack((Yp, Yr))
-
-    def imitate(self, T, Y, regularization_coefficient=0.0,
-                allow_final_velocity=False):
-        """Imitate demonstration.
-
-        Parameters
-        ----------
-        T : array, shape (n_steps,)
-            Time for each step.
-
-        Y : array, shape (n_steps, 7)
-            State at each step.
-
-        regularization_coefficient : float, optional (default: 0)
-            Regularization coefficient for regression.
-
-        allow_final_velocity : bool, optional (default: False)
-            Allow a final velocity.
-        """
-        self.forcing_term_pos.weights[:, :] = dmp_imitate(
-            T, Y[:, :3],
-            n_weights_per_dim=self.n_weights_per_dim,
-            regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
-            overlap=self.forcing_term_pos.overlap,
-            alpha_z=self.forcing_term_pos.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
-            T, Y[:, 3:],
-            n_weights_per_dim=self.n_weights_per_dim,
-            regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
-            overlap=self.forcing_term_rot.overlap,
-            alpha_z=self.forcing_term_rot.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
-
-        self.configure(start_y=Y[0], goal_y=Y[-1])
-
-    def get_weights(self):
-        """Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (6 * n_weights_per_dim,)
-            Current weights of the DMP.
-        """
-        return np.concatenate((self.forcing_term_pos.weights.ravel(),
-                               self.forcing_term_rot.weights.ravel()))
-
-    def set_weights(self, weights):
-        """Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (6 * n_weights_per_dim,)
-            New weights of the DMP.
-        """
-        n_pos_weights = self.forcing_term_pos.weights.size
-        self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
-            -1, self.n_weights_per_dim)
-        self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
-            -1, self.n_weights_per_dim)
+from ._dmp import (dmp_open_loop, dmp_imitate, ridge_regression,
+                   DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION)
 
 
 def dmp_step_quaternion_python(
@@ -326,14 +120,256 @@ def dmp_step_quaternion_python(
             pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
 
 
+CARTESIAN_DMP_STEP_FUNCTIONS = {
+    "python": dmp_step_quaternion_python
+}
+
+
 try:
     from ..dmp_fast import dmp_step_quaternion
+    CARTESIAN_DMP_STEP_FUNCTIONS["cython"] = dmp_step_quaternion
+    DEFAULT_CARTESIAN_DMP_STEP_FUNCTION = "cython"
 except ImportError:
-    warnings.warn(
-        "Could not import fast quaternion DMP. "
-        "Build Cython extension if you want it.",
-        UserWarning)
-    dmp_step_quaternion = dmp_step_quaternion_python
+    DEFAULT_CARTESIAN_DMP_STEP_FUNCTION = "python"
+
+
+class CartesianDMP(DMPBase):
+    """Cartesian dynamical movement primitive.
+
+    The Cartesian DMP handles orientation and position separately. The
+    orientation is represented by a quaternion. The quaternion DMP is
+    implemented according to
+
+    A. Ude, B. Nemec, T. Petric, J. Murimoto:
+    Orientation in Cartesian space dynamic movement primitives (2014),
+    IEEE International Conference on Robotics and Automation (ICRA),
+    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
+    https://ieeexplore.ieee.org/document/6907291
+
+    While the dimension of the state space is 7, the dimension of the
+    velocity, acceleration, and forcing term is 6.
+
+    Parameters
+    ----------
+    execution_time : float
+        Execution time of the DMP.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+
+    Attributes
+    ----------
+    dt_ : float
+        Time difference between DMP steps. This value can be changed to adapt
+        the frequency.
+    """
+    def __init__(
+            self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+        super(CartesianDMP, self).__init__(7, 6)
+        self.execution_time = execution_time
+        self.dt_ = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term_pos = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
+            alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+    def step(self, last_y, last_yd, coupling_term=None,
+             step_function=DMP_STEP_FUNCTIONS[DEFAULT_DMP_STEP_FUNCTION],
+             quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
+                 DEFAULT_CARTESIAN_DMP_STEP_FUNCTION]):
+        """DMP step.
+
+        Parameters
+        ----------
+        last_y : array, shape (7,)
+            Last state.
+
+        last_yd : array, shape (6,)
+            Last time derivative of state (velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        step_function : callable, optional (default: RK4)
+            DMP integration function.
+
+        quaternion_step_function : callable, optional (default: cython code if available)
+            DMP integration function.
+
+        Returns
+        -------
+        y : array, shape (14,)
+            Next state.
+
+        yd : array, shape (12,)
+            Next time derivative of state (velocity).
+        """
+        assert len(last_y) == 7
+        assert len(last_yd) == 6
+
+        self.last_t = self.t
+        self.t += self.dt_
+
+        # TODO tracking error
+
+        self.current_y[:], self.current_yd[:] = last_y, last_yd
+        step_function(
+            self.last_t, self.t,
+            self.current_y[:3], self.current_yd[:3],
+            self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
+            self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        quaternion_step_function(
+            self.last_t, self.t,
+            self.current_y[3:], self.current_yd[3:],
+            self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
+            self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=None, coupling_term=None,
+                  step_function=DEFAULT_DMP_STEP_FUNCTION,
+                  quaternion_step_function=DEFAULT_CARTESIAN_DMP_STEP_FUNCTION):
+        """Run DMP open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time of DMP. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        step_function : str, optional (default: 'rk4')
+            DMP integration function. Possible options: 'rk4', 'euler',
+            'euler-cython', 'rk4-cython'.
+
+        quaternion_step_function : str, optional (default: 'cython' if available)
+            DMP integration function. Possible options: 'python', 'cython'.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 7)
+            State at each step.
+        """
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f"Step function must be in "
+                f"{DMP_STEP_FUNCTIONS.keys()}.")
+        T, Yp = dmp_open_loop(
+            self.execution_time, 0.0, self.dt_,
+            self.start_y[:3], self.goal_y[:3],
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos,
+            coupling_term,
+            run_t, self.int_dt,
+            step_function=step_function)
+        try:
+            quaternion_step_function = CARTESIAN_DMP_STEP_FUNCTIONS[
+                quaternion_step_function]
+        except KeyError:
+            raise ValueError(
+                f"Step function must be in "
+                f"{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.")
+        _, Yr = dmp_open_loop_quaternion(
+            self.execution_time, 0.0, self.dt_,
+            self.start_y[3:], self.goal_y[3:],
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot,
+            coupling_term,
+            run_t, self.int_dt,
+            quaternion_step_function)
+        return T, np.hstack((Yp, Yr))
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        """Imitate demonstration.
+
+        Parameters
+        ----------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, 7)
+            State at each step.
+
+        regularization_coefficient : float, optional (default: 0)
+            Regularization coefficient for regression.
+
+        allow_final_velocity : bool, optional (default: False)
+            Allow a final velocity.
+        """
+        self.forcing_term_pos.weights[:, :] = dmp_imitate(
+            T, Y[:, :3],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term_pos.overlap,
+            alpha_z=self.forcing_term_pos.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
+        self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
+            T, Y[:, 3:],
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term_rot.overlap,
+            alpha_z=self.forcing_term_rot.alpha_z,
+            allow_final_velocity=allow_final_velocity)[0]
+
+        self.configure(start_y=Y[0], goal_y=Y[-1])
+
+    def get_weights(self):
+        """Get weight vector of DMP.
+
+        Returns
+        -------
+        weights : array, shape (6 * n_weights_per_dim,)
+            Current weights of the DMP.
+        """
+        return np.concatenate((self.forcing_term_pos.weights.ravel(),
+                               self.forcing_term_rot.weights.ravel()))
+
+    def set_weights(self, weights):
+        """Set weight vector of DMP.
+
+        Parameters
+        ----------
+        weights : array, shape (6 * n_weights_per_dim,)
+            New weights of the DMP.
+        """
+        n_pos_weights = self.forcing_term_pos.weights.size
+        self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
+            -1, self.n_weights_per_dim)
+        self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
+            -1, self.n_weights_per_dim)
 
 
 def dmp_quaternion_imitation(
@@ -480,7 +516,9 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
 
 def dmp_open_loop_quaternion(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
-        coupling_term=None, run_t=None, int_dt=0.001):
+        coupling_term=None, run_t=None, int_dt=0.001,
+        quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
+            DEFAULT_CARTESIAN_DMP_STEP_FUNCTION]):
     """Run Cartesian DMP without external feedback.
 
     Parameters
@@ -518,6 +556,9 @@ def dmp_open_loop_quaternion(
 
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
+
+    quaternion_step_function : callable, optional (default: cython code if available)
+        DMP integration function.
     """
     t = start_t
     y = np.copy(start_y)
@@ -529,7 +570,7 @@ def dmp_open_loop_quaternion(
     while t < run_t:
         last_t = t
         t += dt
-        dmp_step_quaternion(
+        quaternion_step_function(
             last_t, t, y, yd,
             goal_y=goal_y, goal_yd=np.zeros_like(yd),
             goal_ydd=np.zeros_like(yd),

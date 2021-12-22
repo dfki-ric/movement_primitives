@@ -3,7 +3,7 @@ from pytransform3d import rotations as pr
 from movement_primitives.dmp import DMP
 from nose.tools import (assert_almost_equal, assert_equal, assert_less,
                         assert_raises_regexp)
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_raises_regex
 
 
 def test_dmp_step_function_unknown():
@@ -143,6 +143,25 @@ def test_compare_integrators():
     assert_less(error_rk4, error_euler)
 
 
+def test_compare_rk4_python_cython():
+    execution_time = 1.0
+    dt = 0.001
+
+    dmp = DMP(n_dims=2, execution_time=execution_time, dt=dt,
+              n_weights_per_dim=100)
+
+    T = np.arange(0.0, execution_time + dt, dt)
+    Y_demo = np.empty((len(T), 2))
+    Y_demo[:, 0] = np.cos(2.5 * np.pi * T)
+    Y_demo[:, 1] = 0.5 + np.cos(1.5 * np.pi * T)
+    dmp.imitate(T, Y_demo)
+
+    dmp.configure(start_y=Y_demo[0], goal_y=Y_demo[-1])
+    T_python, Y_python = dmp.open_loop(step_function="rk4")
+    T_cython, Y_cython = dmp.open_loop(step_function="rk4-cython")
+    assert_array_almost_equal(Y_cython, Y_python)
+
+
 def test_set_current_time():
     start_y = np.array([0.0])
     goal_y = np.array([1.0])
@@ -196,6 +215,14 @@ def test_get_set_weights():
     T3, Y3 = dmp.open_loop()
     assert_array_almost_equal(T, T3)
     assert_array_almost_equal(Y, Y3, decimal=2)
+
+
+def test_invalid_step_function():
+    dmp = DMP(
+        execution_time=1.0, n_dims=3, dt=0.01,
+        n_weights_per_dim=10, int_dt=0.001)
+    assert_raises_regex(ValueError, "Step function", dmp.open_loop,
+                        step_function="invalid")
 
 
 if __name__ == "__main__":

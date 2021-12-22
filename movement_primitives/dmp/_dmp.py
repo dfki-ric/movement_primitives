@@ -4,198 +4,6 @@ from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 
 
-class DMP(DMPBase):
-    """Dynamical movement primitive (DMP).
-
-    Implementation according to
-
-    A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
-    Dynamical Movement Primitives: Learning Attractor Models for Motor
-    Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
-    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340
-
-    Parameters
-    ----------
-    n_dims : int
-        State space dimensions.
-
-    execution_time : float
-        Execution time of the DMP.
-
-    dt : float, optional (default: 0.01)
-        Time difference between DMP steps.
-
-    n_weights_per_dim : int, optional (default: 10)
-        Number of weights of the function approximator per dimension.
-
-    int_dt : float, optional (default: 0.001)
-        Time difference for Euler integration.
-
-    p_gain : float, optional (default: 0)
-        Gain for proportional controller of DMP tracking error.
-        The domain is [0, execution_time**2/dt].
-
-    Attributes
-    ----------
-    dt_ : float
-        Time difference between DMP steps. This value can be changed to adapt
-        the frequency.
-    """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
-        super(DMP, self).__init__(n_dims, n_dims)
-        self.execution_time = execution_time
-        self.dt_ = dt
-        self.n_weights_per_dim = n_weights_per_dim
-        self.int_dt = int_dt
-        self.p_gain = p_gain
-
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
-                                        self.execution_time, 0.0, 0.8, alpha_z)
-
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
-
-    def step(self, last_y, last_yd, coupling_term=None):
-        """DMP step.
-
-        Parameters
-        ----------
-        last_y : array, shape (n_dims,)
-            Last state.
-
-        last_yd : array, shape (n_dims,)
-            Last time derivative of state (e.g., velocity).
-
-        coupling_term : object, optional (default: None)
-            Coupling term that will be added to velocity.
-
-        Returns
-        -------
-        y : array, shape (n_dims,)
-            Next state.
-
-        yd : array, shape (n_dims,)
-            Next time derivative of state (e.g., velocity).
-        """
-        self.last_t = self.t
-        self.t += self.dt_
-
-        if not self.initialized:
-            self.current_y = np.copy(self.start_y)
-            self.current_yd = np.copy(self.start_yd)
-            self.initialized = True
-
-        # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
-        tracking_error = self.current_y - last_y
-
-        dmp_step_rk4(
-            self.last_t, self.t,
-            self.current_y, self.current_yd,
-            self.goal_y, self.goal_yd, self.goal_ydd,
-            self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
-            self.alpha_y, self.beta_y,
-            self.forcing_term,
-            coupling_term=coupling_term,
-            int_dt=self.int_dt,
-            p_gain=self.p_gain,
-            tracking_error=tracking_error)
-        return np.copy(self.current_y), np.copy(self.current_yd)
-
-    def open_loop(self, run_t=None, coupling_term=None, step_function="rk4"):
-        """Run DMP open loop.
-
-        Parameters
-        ----------
-        run_t : float, optional (default: execution_time)
-            Run time of DMP. Can be shorter or longer than execution_time.
-
-        coupling_term : object, optional (default: None)
-            Coupling term that will be added to velocity.
-
-        step_function : str, optional (default: 'rk4')
-            DMP integration function. Possible options: 'rk4', 'euler'.
-
-        Returns
-        -------
-        T : array, shape (n_steps,)
-            Time for each step.
-
-        Y : array, shape (n_steps, n_dims)
-            State at each step.
-
-        Raises
-        ------
-        ValueError
-            If step function is unknown.
-        """
-        if step_function == "rk4":
-            step_function = dmp_step_rk4
-        elif step_function == "euler":
-            step_function = dmp_step_euler
-        else:
-            raise ValueError("Step function must be 'rk4' or 'euler'.")
-
-        return dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
-            self.start_y, self.goal_y,
-            self.alpha_y, self.beta_y,
-            self.forcing_term,
-            coupling_term,
-            run_t, self.int_dt,
-            step_function)
-
-    def imitate(self, T, Y, regularization_coefficient=0.0,
-                allow_final_velocity=False):
-        """Imitate demonstration.
-
-        Parameters
-        ----------
-        T : array, shape (n_steps,)
-            Time for each step.
-
-        Y : array, shape (n_steps, n_dims)
-            State at each step.
-
-        regularization_coefficient : float, optional (default: 0)
-            Regularization coefficient for regression.
-
-        allow_final_velocity : bool, optional (default: False)
-            Allow a final velocity.
-        """
-        self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
-            T, Y,
-            n_weights_per_dim=self.n_weights_per_dim,
-            regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.configure(start_y=start_y, goal_y=goal_y)
-
-    def get_weights(self):
-        """Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (n_dims * n_weights_per_dim,)
-            Current weights of the DMP.
-        """
-        return self.forcing_term.weights.ravel()
-
-    def set_weights(self, weights):
-        """Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (n_dims * n_weights_per_dim,)
-            New weights of the DMP.
-        """
-        self.forcing_term.weights[:, :] = weights.reshape(
-            -1, self.n_weights_per_dim)
-
-
 def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y,
         start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term,
@@ -311,10 +119,6 @@ def dmp_step_rk4(
         current_yd += cd / execution_time
 
 
-# uncomment to overwrite with cython implementation:
-#from ..dmp_fast import dmp_step_rk4
-
-
 def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
              execution_time, f, coupling_term, tdd):
     """DMP acceleration.
@@ -369,13 +173,6 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     return ((alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
              + f + cdd + tdd) / execution_time ** 2
             + goal_ydd)
-
-
-def dmp_transformation_system(Y, V, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-                              execution_time):
-    """Compute acceleration generated by transformation system of DMP."""
-    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
-            ) / execution_time ** 2 + goal_ydd
 
 
 def dmp_step_euler(
@@ -484,8 +281,219 @@ def dmp_step_euler(
         current_y += dt * current_yd
 
 
-# uncomment to overwrite with cython implementation:
-#from ..dmp_fast import dmp_step as dmp_step_euler
+DMP_STEP_FUNCTIONS = {
+    "rk4": dmp_step_rk4,
+    "euler": dmp_step_euler
+}
+DEFAULT_DMP_STEP_FUNCTION = "rk4"
+
+try:
+    from ..dmp_fast import dmp_step as dmp_step_euler_cython, dmp_step_rk4 as dmp_step_rk4_cython
+    DMP_STEP_FUNCTIONS["euler-cython"] = dmp_step_euler_cython
+    DMP_STEP_FUNCTIONS["rk4-cython"] = dmp_step_rk4_cython
+    DEFAULT_DMP_STEP_FUNCTION = "rk4-cython"
+except ImportError:
+    pass
+
+
+class DMP(DMPBase):
+    """Dynamical movement primitive (DMP).
+
+    Implementation according to
+
+    A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
+    Dynamical Movement Primitives: Learning Attractor Models for Motor
+    Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
+    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    execution_time : float
+        Execution time of the DMP.
+
+    dt : float, optional (default: 0.01)
+        Time difference between DMP steps.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    int_dt : float, optional (default: 0.001)
+        Time difference for Euler integration.
+
+    p_gain : float, optional (default: 0)
+        Gain for proportional controller of DMP tracking error.
+        The domain is [0, execution_time**2/dt].
+
+    Attributes
+    ----------
+    dt_ : float
+        Time difference between DMP steps. This value can be changed to adapt
+        the frequency.
+    """
+    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
+                 int_dt=0.001, p_gain=0.0):
+        super(DMP, self).__init__(n_dims, n_dims)
+        self.execution_time = execution_time
+        self.dt_ = dt
+        self.n_weights_per_dim = n_weights_per_dim
+        self.int_dt = int_dt
+        self.p_gain = p_gain
+
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
+                                        self.execution_time, 0.0, 0.8, alpha_z)
+
+        self.alpha_y = 25.0
+        self.beta_y = self.alpha_y / 4.0
+
+    def step(self, last_y, last_yd, coupling_term=None):
+        """DMP step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
+        self.last_t = self.t
+        self.t += self.dt_
+
+        if not self.initialized:
+            self.current_y = np.copy(self.start_y)
+            self.current_yd = np.copy(self.start_yd)
+            self.initialized = True
+
+        # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
+        tracking_error = self.current_y - last_y
+
+        dmp_step_rk4(
+            self.last_t, self.t,
+            self.current_y, self.current_yd,
+            self.goal_y, self.goal_yd, self.goal_ydd,
+            self.start_y, self.start_yd, self.start_ydd,
+            self.execution_time, 0.0,
+            self.alpha_y, self.beta_y,
+            self.forcing_term,
+            coupling_term=coupling_term,
+            int_dt=self.int_dt,
+            p_gain=self.p_gain,
+            tracking_error=tracking_error)
+        return np.copy(self.current_y), np.copy(self.current_yd)
+
+    def open_loop(self, run_t=None, coupling_term=None,
+                  step_function=DEFAULT_DMP_STEP_FUNCTION):
+        """Run DMP open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time of DMP. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        step_function : str, optional (default: 'rk4')
+            DMP integration function. Possible options: 'rk4', 'euler',
+            'euler-cython', 'rk4-cython'.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+
+        Raises
+        ------
+        ValueError
+            If step function is unknown.
+        """
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f"Step function must be in {DMP_STEP_FUNCTIONS.keys()}.")
+
+        return dmp_open_loop(
+            self.execution_time, 0.0, self.dt_,
+            self.start_y, self.goal_y,
+            self.alpha_y, self.beta_y,
+            self.forcing_term,
+            coupling_term,
+            run_t, self.int_dt,
+            step_function)
+
+    def imitate(self, T, Y, regularization_coefficient=0.0,
+                allow_final_velocity=False):
+        """Imitate demonstration.
+
+        Parameters
+        ----------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+
+        regularization_coefficient : float, optional (default: 0)
+            Regularization coefficient for regression.
+
+        allow_final_velocity : bool, optional (default: False)
+            Allow a final velocity.
+        """
+        self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
+            T, Y,
+            n_weights_per_dim=self.n_weights_per_dim,
+            regularization_coefficient=regularization_coefficient,
+            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+        self.configure(start_y=start_y, goal_y=goal_y)
+
+    def get_weights(self):
+        """Get weight vector of DMP.
+
+        Returns
+        -------
+        weights : array, shape (n_dims * n_weights_per_dim,)
+            Current weights of the DMP.
+        """
+        return self.forcing_term.weights.ravel()
+
+    def set_weights(self, weights):
+        """Set weight vector of DMP.
+
+        Parameters
+        ----------
+        weights : array, shape (n_dims * n_weights_per_dim,)
+            New weights of the DMP.
+        """
+        self.forcing_term.weights[:, :] = weights.reshape(
+            -1, self.n_weights_per_dim)
+
+
+def dmp_transformation_system(Y, V, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
+                              execution_time):
+    """Compute acceleration generated by transformation system of DMP."""
+    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
+            ) / execution_time ** 2 + goal_ydd
 
 
 def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):

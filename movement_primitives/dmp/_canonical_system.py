@@ -69,7 +69,3 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     execution_time = goal_t - start_t
     b = max(1.0 - alpha * int_dt / execution_time, eps)
     return b ** ((t - start_t) / int_dt)
-
-
-# uncomment to overwrite with Cython implementation
-#from ..dmp_fast import phase
