@@ -140,8 +140,10 @@ cpdef dmp_step_rk4(
         current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, execution_time, F[:, 2], coupling_term, p_gain, tdd)
 
-    current_y += dt * (current_yd + 2 * C1 + 2 * C2 + C3) / 6.0
-    current_yd += dt * (K0 + 2 * K1 + 2 * K2 + K3) / 6.0
+    cdef int i
+    for i in range(n_dims):
+        current_y[i] += dt * (current_yd[i] + 2 * C1[i] + 2 * C2[i] + C3[i]) / 6.0
+        current_yd[i] += dt * (K0[i] + 2 * K1[i] + 2 * K2[i] + K3[i]) / 6.0
 
     if coupling_term is not None:
         cd[:], _ = coupling_term.coupling(current_y, current_yd)
@@ -158,11 +160,16 @@ cdef _dmp_acc(
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
 
-    return ((
-        alpha_y * (beta_y * (goal_y - Y)
-                   + execution_time * goal_yd - execution_time * V)
-        + f + cdd + tdd
-    ) / execution_time ** 2) + goal_ydd
+    cdef int n_dims = Y.shape[0]
+    cdef np.ndarray[double, ndim=1] Ydd = np.empty(n_dims, dtype=np.float64)
+    cdef int i
+    for i in range(n_dims):
+        Ydd[i] = ((
+            alpha_y * (beta_y * (goal_y[i] - Y[i])
+                       + execution_time * goal_yd[i] - execution_time * V[i])
+            + f[i] + cdd[i] + tdd[i]
+        ) / execution_time ** 2) + goal_ydd[i]
+    return Ydd
 
 
 @cython.boundscheck(False)
