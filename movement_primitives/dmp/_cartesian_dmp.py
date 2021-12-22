@@ -265,7 +265,7 @@ class CartesianDMP(DMPBase):
 
         step_function : str, optional (default: 'rk4')
             DMP integration function. Possible options: 'rk4', 'euler',
-            'euler-cython'.
+            'euler-cython', 'rk4-cython'.
 
         quaternion_step_function : str, optional (default: 'cython' if available)
             DMP integration function. Possible options: 'python', 'cython'.

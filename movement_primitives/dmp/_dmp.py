@@ -291,6 +291,7 @@ try:
     from ..dmp_fast import dmp_step as dmp_step_euler_cython, dmp_step_rk4 as dmp_step_rk4_cython
     DMP_STEP_FUNCTIONS["euler-cython"] = dmp_step_euler_cython
     DMP_STEP_FUNCTIONS["rk4-cython"] = dmp_step_rk4_cython
+    DEFAULT_DMP_STEP_FUNCTION = "rk4-cython"
 except ImportError:
     pass
 
@@ -410,7 +411,7 @@ class DMP(DMPBase):
 
         step_function : str, optional (default: 'rk4')
             DMP integration function. Possible options: 'rk4', 'euler',
-            'euler-cython'.
+            'euler-cython', 'rk4-cython'.
 
         Returns
         -------
