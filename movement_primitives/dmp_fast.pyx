@@ -120,34 +120,31 @@ cpdef dmp_step_rk4(
     cdef np.ndarray[double, ndim=2] F = forcing_term(np.array([t, t + dt_2, t + dt]))
     cdef np.ndarray[double, ndim=1] tdd
     if tracking_error is not None:
-        tdd = p_gain * tracking_error / dt
+        tdd = p_gain / dt * tracking_error
     else:
         tdd = np.zeros(n_dims, dtype=np.float64)
 
-    cdef np.ndarray[double, ndim=1] Y = current_y
-    cdef np.ndarray[double, ndim=1] V = current_yd
-    cdef np.ndarray[double, ndim=1] C0 = current_yd
     cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(
-        Y, C0, cdd, dt, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 0], coupling_term, p_gain, tdd)
-    cdef np.ndarray[double, ndim=1] C1 = V + dt_2 * K0
+        current_y, current_yd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
+        goal_ydd, execution_time, F[:, 0], coupling_term, p_gain, tdd)
+    cdef np.ndarray[double, ndim=1] C1 = current_yd + dt_2 * K0
     cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(
-        Y + dt_2 * C0, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
+        current_y + dt_2 * current_yd, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
-    cdef np.ndarray[double, ndim=1] C2 = V + dt_2 * K1
+    cdef np.ndarray[double, ndim=1] C2 = current_yd + dt_2 * K1
     cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(
-        Y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
+        current_y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
-    cdef np.ndarray[double, ndim=1] C3 = V + dt * K2
+    cdef np.ndarray[double, ndim=1] C3 = current_yd + dt * K2
     cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(
-        Y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
+        current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, execution_time, F[:, 2], coupling_term, p_gain, tdd)
 
-    current_y += dt * (C0 + 2 * C1 + 2 * C2 + C3) / 6.0
+    current_y += dt * (current_yd + 2 * C1 + 2 * C2 + C3) / 6.0
     current_yd += dt * (K0 + 2 * K1 + 2 * K2 + K3) / 6.0
 
     if coupling_term is not None:
-        cd[:], _ = coupling_term.coupling(Y, V)
+        cd[:], _ = coupling_term.coupling(current_y, current_yd)
         current_yd += cd / execution_time
 
 
