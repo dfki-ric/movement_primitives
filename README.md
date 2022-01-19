@@ -35,7 +35,13 @@ installation. In the following instructions, we assume that the command
 `python` refers to Python 3. If you use the system's Python version, you
 might have to add the flag `--user` to any installation command.
 
-I recommend to install the library via pip in editable mode:
+I recommend to install the library via pip:
+
+```bash
+python -m pip install movement_primitives
+```
+
+or clone the git repository and install it in editable mode:
 
 ```bash
 python -m pip install -e .[all]
