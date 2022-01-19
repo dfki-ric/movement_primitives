@@ -167,7 +167,7 @@ The trajectory will have</p>
 <dt><strong><code>start</code></strong> :&ensp;<code>array-like, shape (n_dims,)</code></dt>
 <dd>Initial state</dd>
 <dt><strong><code>goal</code></strong> :&ensp;<code>array-like, shape (n_dims,)</code></dt>
-<dd>Goal</dd>
+<dd>Goal state</dd>
 <dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
 <dd>Execution time in seconds</dd>
 <dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
@@ -181,6 +181,11 @@ The trajectory will have</p>
 <dd>The velocities of the trajectory</dd>
 <dt><strong><code>Xdd</code></strong> :&ensp;<code>array, shape (n_task_dims, n_steps)</code></dt>
 <dd>The accelerations of the trajectory</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If the shapes of the initial and goal state do not match.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -210,7 +215,7 @@ The trajectory will have</p>
         Initial state
 
     goal : array-like, shape (n_dims,)
-        Goal
+        Goal state
 
     execution_time : float, optional (default: 1)
         Execution time in seconds
@@ -228,6 +233,11 @@ The trajectory will have</p>
 
     Xdd : array, shape (n_task_dims, n_steps)
         The accelerations of the trajectory
+
+    Raises
+    ------
+    ValueError
+        If the shapes of the initial and goal state do not match.
     &#34;&#34;&#34;
     x0 = np.asarray(start)
     g = np.asarray(goal)

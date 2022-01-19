@@ -445,7 +445,10 @@ the frequency.</dd>
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
 
-    def step(self, last_y, last_yd, coupling_term=None):
+    def step(self, last_y, last_yd, coupling_term=None,
+             step_function=DMP_STEP_FUNCTIONS[DEFAULT_DMP_STEP_FUNCTION],
+             quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
+                 DEFAULT_CARTESIAN_DMP_STEP_FUNCTION]):
         &#34;&#34;&#34;DMP step.
 
         Parameters
@@ -458,6 +461,12 @@ the frequency.</dd>
 
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
+
+        step_function : callable, optional (default: RK4)
+            DMP integration function.
+
+        quaternion_step_function : callable, optional (default: cython code if available)
+            DMP integration function.
 
         Returns
         -------
@@ -476,7 +485,7 @@ the frequency.</dd>
         # TODO tracking error
 
         self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_step_rk4(
+        step_function(
             self.last_t, self.t,
             self.current_y[:3], self.current_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
@@ -486,7 +495,7 @@ the frequency.</dd>
             self.forcing_term_pos,
             coupling_term=coupling_term,
             int_dt=self.int_dt)
-        dmp_step_quaternion(
+        quaternion_step_function(
             self.last_t, self.t,
             self.current_y[3:], self.current_yd[3:],
             self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
@@ -498,7 +507,9 @@ the frequency.</dd>
             int_dt=self.int_dt)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
-    def open_loop(self, run_t=None, coupling_term=None):
+    def open_loop(self, run_t=None, coupling_term=None,
+                  step_function=DEFAULT_DMP_STEP_FUNCTION,
+                  quaternion_step_function=DEFAULT_CARTESIAN_DMP_STEP_FUNCTION):
         &#34;&#34;&#34;Run DMP open loop.
 
         Parameters
@@ -509,6 +520,13 @@ the frequency.</dd>
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
+        step_function : str, optional (default: &#39;rk4&#39;)
+            DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+            &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
+
+        quaternion_step_function : str, optional (default: &#39;cython&#39; if available)
+            DMP integration function. Possible options: &#39;python&#39;, &#39;cython&#39;.
+
         Returns
         -------
         T : array, shape (n_steps,)
@@ -517,20 +535,35 @@ the frequency.</dd>
         Y : array, shape (n_steps, 7)
             State at each step.
         &#34;&#34;&#34;
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f&#34;Step function must be in &#34;
+                f&#34;{DMP_STEP_FUNCTIONS.keys()}.&#34;)
         T, Yp = dmp_open_loop(
-                self.execution_time, 0.0, self.dt_,
-                self.start_y[:3], self.goal_y[:3],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_pos,
-                coupling_term,
-                run_t, self.int_dt)
+            self.execution_time, 0.0, self.dt_,
+            self.start_y[:3], self.goal_y[:3],
+            self.alpha_y, self.beta_y,
+            self.forcing_term_pos,
+            coupling_term,
+            run_t, self.int_dt,
+            step_function=step_function)
+        try:
+            quaternion_step_function = CARTESIAN_DMP_STEP_FUNCTIONS[
+                quaternion_step_function]
+        except KeyError:
+            raise ValueError(
+                f&#34;Step function must be in &#34;
+                f&#34;{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
         _, Yr = dmp_open_loop_quaternion(
-                self.execution_time, 0.0, self.dt_,
-                self.start_y[3:], self.goal_y[3:],
-                self.alpha_y, self.beta_y,
-                self.forcing_term_rot,
-                coupling_term,
-                run_t, self.int_dt)
+            self.execution_time, 0.0, self.dt_,
+            self.start_y[3:], self.goal_y[3:],
+            self.alpha_y, self.beta_y,
+            self.forcing_term_rot,
+            coupling_term,
+            run_t, self.int_dt,
+            quaternion_step_function)
         return T, np.hstack((Yp, Yr))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -687,7 +720,7 @@ the frequency.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.CartesianDMP.open_loop"><code class="name flex">
-<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None)</span>
+<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None, step_function='rk4-cython', quaternion_step_function='cython')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run DMP open loop.</p>
@@ -697,6 +730,11 @@ the frequency.</dd>
 <dd>Run time of DMP. Can be shorter or longer than execution_time.</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'rk4')</code></dt>
+<dd>DMP integration function. Possible options: 'rk4', 'euler',
+'euler-cython', 'rk4-cython'.</dd>
+<dt><strong><code>quaternion_step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'cython' if available)</code></dt>
+<dd>DMP integration function. Possible options: 'python', 'cython'.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -709,7 +747,9 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None):
+<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None,
+              step_function=DEFAULT_DMP_STEP_FUNCTION,
+              quaternion_step_function=DEFAULT_CARTESIAN_DMP_STEP_FUNCTION):
     &#34;&#34;&#34;Run DMP open loop.
 
     Parameters
@@ -720,6 +760,13 @@ the frequency.</dd>
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
 
+    step_function : str, optional (default: &#39;rk4&#39;)
+        DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+        &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
+
+    quaternion_step_function : str, optional (default: &#39;cython&#39; if available)
+        DMP integration function. Possible options: &#39;python&#39;, &#39;cython&#39;.
+
     Returns
     -------
     T : array, shape (n_steps,)
@@ -728,20 +775,35 @@ the frequency.</dd>
     Y : array, shape (n_steps, 7)
         State at each step.
     &#34;&#34;&#34;
+    try:
+        step_function = DMP_STEP_FUNCTIONS[step_function]
+    except KeyError:
+        raise ValueError(
+            f&#34;Step function must be in &#34;
+            f&#34;{DMP_STEP_FUNCTIONS.keys()}.&#34;)
     T, Yp = dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
-            self.start_y[:3], self.goal_y[:3],
-            self.alpha_y, self.beta_y,
-            self.forcing_term_pos,
-            coupling_term,
-            run_t, self.int_dt)
+        self.execution_time, 0.0, self.dt_,
+        self.start_y[:3], self.goal_y[:3],
+        self.alpha_y, self.beta_y,
+        self.forcing_term_pos,
+        coupling_term,
+        run_t, self.int_dt,
+        step_function=step_function)
+    try:
+        quaternion_step_function = CARTESIAN_DMP_STEP_FUNCTIONS[
+            quaternion_step_function]
+    except KeyError:
+        raise ValueError(
+            f&#34;Step function must be in &#34;
+            f&#34;{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
     _, Yr = dmp_open_loop_quaternion(
-            self.execution_time, 0.0, self.dt_,
-            self.start_y[3:], self.goal_y[3:],
-            self.alpha_y, self.beta_y,
-            self.forcing_term_rot,
-            coupling_term,
-            run_t, self.int_dt)
+        self.execution_time, 0.0, self.dt_,
+        self.start_y[3:], self.goal_y[3:],
+        self.alpha_y, self.beta_y,
+        self.forcing_term_rot,
+        coupling_term,
+        run_t, self.int_dt,
+        quaternion_step_function)
     return T, np.hstack((Yp, Yr))</code></pre>
 </details>
 </dd>
@@ -775,7 +837,7 @@ the frequency.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.CartesianDMP.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;built-in function dmp_step_rk4&gt;, quaternion_step_function=&lt;built-in function dmp_step_quaternion&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DMP step.</p>
@@ -787,6 +849,10 @@ the frequency.</dd>
 <dd>Last time derivative of state (velocity).</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>callable</code>, optional <code>(default: RK4)</code></dt>
+<dd>DMP integration function.</dd>
+<dt><strong><code>quaternion_step_function</code></strong> :&ensp;<code>callable</code>, optional <code>(default: cython code if available)</code></dt>
+<dd>DMP integration function.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -799,7 +865,10 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None,
+         step_function=DMP_STEP_FUNCTIONS[DEFAULT_DMP_STEP_FUNCTION],
+         quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
+             DEFAULT_CARTESIAN_DMP_STEP_FUNCTION]):
     &#34;&#34;&#34;DMP step.
 
     Parameters
@@ -812,6 +881,12 @@ the frequency.</dd>
 
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
+
+    step_function : callable, optional (default: RK4)
+        DMP integration function.
+
+    quaternion_step_function : callable, optional (default: cython code if available)
+        DMP integration function.
 
     Returns
     -------
@@ -830,7 +905,7 @@ the frequency.</dd>
     # TODO tracking error
 
     self.current_y[:], self.current_yd[:] = last_y, last_yd
-    dmp_step_rk4(
+    step_function(
         self.last_t, self.t,
         self.current_y[:3], self.current_yd[:3],
         self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
@@ -840,7 +915,7 @@ the frequency.</dd>
         self.forcing_term_pos,
         coupling_term=coupling_term,
         int_dt=self.int_dt)
-    dmp_step_quaternion(
+    quaternion_step_function(
         self.last_t, self.t,
         self.current_y[3:], self.current_yd[3:],
         self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
@@ -1736,7 +1811,8 @@ the frequency.</dd>
             tracking_error=tracking_error)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
-    def open_loop(self, run_t=None, coupling_term=None, step_function=&#34;rk4&#34;):
+    def open_loop(self, run_t=None, coupling_term=None,
+                  step_function=DEFAULT_DMP_STEP_FUNCTION):
         &#34;&#34;&#34;Run DMP open loop.
 
         Parameters
@@ -1748,7 +1824,8 @@ the frequency.</dd>
             Coupling term that will be added to velocity.
 
         step_function : str, optional (default: &#39;rk4&#39;)
-            DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;.
+            DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+            &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
 
         Returns
         -------
@@ -1757,13 +1834,17 @@ the frequency.</dd>
 
         Y : array, shape (n_steps, n_dims)
             State at each step.
+
+        Raises
+        ------
+        ValueError
+            If step function is unknown.
         &#34;&#34;&#34;
-        if step_function == &#34;rk4&#34;:
-            step_function = dmp_step_rk4
-        elif step_function == &#34;euler&#34;:
-            step_function = dmp_step_euler
-        else:
-            raise ValueError(&#34;Step function must be &#39;rk4&#39; or &#39;euler&#39;.&#34;)
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
         return dmp_open_loop(
             self.execution_time, 0.0, self.dt_,
@@ -1901,7 +1982,7 @@ the frequency.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.DMP.open_loop"><code class="name flex">
-<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None, step_function='rk4')</span>
+<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None, step_function='rk4-cython')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run DMP open loop.</p>
@@ -1912,7 +1993,8 @@ the frequency.</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
 <dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'rk4')</code></dt>
-<dd>DMP integration function. Possible options: 'rk4', 'euler'.</dd>
+<dd>DMP integration function. Possible options: 'rk4', 'euler',
+'euler-cython', 'rk4-cython'.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1920,12 +2002,18 @@ the frequency.</dd>
 <dd>Time for each step.</dd>
 <dt><strong><code>Y</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
 <dd>State at each step.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If step function is unknown.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None, step_function=&#34;rk4&#34;):
+<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None,
+              step_function=DEFAULT_DMP_STEP_FUNCTION):
     &#34;&#34;&#34;Run DMP open loop.
 
     Parameters
@@ -1937,7 +2025,8 @@ the frequency.</dd>
         Coupling term that will be added to velocity.
 
     step_function : str, optional (default: &#39;rk4&#39;)
-        DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;.
+        DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+        &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
 
     Returns
     -------
@@ -1946,13 +2035,17 @@ the frequency.</dd>
 
     Y : array, shape (n_steps, n_dims)
         State at each step.
+
+    Raises
+    ------
+    ValueError
+        If step function is unknown.
     &#34;&#34;&#34;
-    if step_function == &#34;rk4&#34;:
-        step_function = dmp_step_rk4
-    elif step_function == &#34;euler&#34;:
-        step_function = dmp_step_euler
-    else:
-        raise ValueError(&#34;Step function must be &#39;rk4&#39; or &#39;euler&#39;.&#34;)
+    try:
+        step_function = DMP_STEP_FUNCTIONS[step_function]
+    except KeyError:
+        raise ValueError(
+            f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
     return dmp_open_loop(
         self.execution_time, 0.0, self.dt_,
@@ -2536,8 +2629,8 @@ the frequency.</dd>
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     &#34;&#34;&#34;
-    def __init__(self, execution_time, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+    def __init__(self, execution_time, dt=0.01, n_weights_per_dim=10,
+                 int_dt=0.001, p_gain=0.0):
         super(DualCartesianDMP, self).__init__(14, 12)
         self.execution_time = execution_time
         self.dt_ = dt
@@ -2553,7 +2646,9 @@ the frequency.</dd>
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
 
-    def step(self, last_y, last_yd, coupling_term=None):
+    def step(self, last_y, last_yd, coupling_term=None,
+             step_function=DUAL_CARTESIAN_DMP_STEP_FUNCTIONS[
+                 DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION]):
         &#34;&#34;&#34;DMP step.
 
         Parameters
@@ -2566,6 +2661,9 @@ the frequency.</dd>
 
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
+
+        step_function : callable, optional (default: cython code if available)
+            DMP integration function.
 
         Returns
         -------
@@ -2591,7 +2689,7 @@ the frequency.</dd>
             tracking_error[ops] = pr.concatenate_quaternions(
                 self.current_y[ops], pr.q_conj(last_y[ops]))
         self.current_y[:], self.current_yd[:] = last_y, last_yd
-        dmp_step_dual_cartesian(
+        step_function(
             self.last_t, self.t, self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
@@ -2603,7 +2701,8 @@ the frequency.</dd>
 
         return np.copy(self.current_y), np.copy(self.current_yd)
 
-    def open_loop(self, run_t=None, coupling_term=None):
+    def open_loop(self, run_t=None, coupling_term=None,
+                  step_function=DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION):
         &#34;&#34;&#34;Run DMP open loop.
 
         Parameters
@@ -2614,6 +2713,9 @@ the frequency.</dd>
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
+        step_function : str, optional (default: &#39;cython&#39; if available)
+            DMP integration function. Possible options: &#39;python&#39;, &#39;cython&#39;.
+
         Returns
         -------
         T : array, shape (n_steps,)
@@ -2622,16 +2724,25 @@ the frequency.</dd>
         Y : array, shape (n_steps, 14)
             State at each step.
         &#34;&#34;&#34;
+        try:
+            step_function = DUAL_CARTESIAN_DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f&#34;Step function must be in &#34;
+                f&#34;{DUAL_CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
+
         if run_t is None:
             run_t = self.execution_time
-        T = [0.0]
+        self.t = 0.0
+        T = [self.t]
         Y = [np.copy(self.start_y)]
         y = np.copy(self.start_y)
         yd = np.copy(self.start_yd)
         while self.t &lt; run_t:
-            y, yd = self.step(y, yd, coupling_term)
+            y, yd = self.step(y, yd, coupling_term, step_function)
             T.append(self.t)
             Y.append(np.copy(self.current_y))
+        self.t = 0.0
         return np.array(T), np.vstack(Y)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -2815,7 +2926,7 @@ the frequency.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.open_loop"><code class="name flex">
-<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None)</span>
+<span>def <span class="ident">open_loop</span></span>(<span>self, run_t=None, coupling_term=None, step_function='cython')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run DMP open loop.</p>
@@ -2825,6 +2936,8 @@ the frequency.</dd>
 <dd>Run time of DMP. Can be shorter or longer than execution_time.</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'cython' if available)</code></dt>
+<dd>DMP integration function. Possible options: 'python', 'cython'.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2837,7 +2950,8 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None):
+<pre><code class="python">def open_loop(self, run_t=None, coupling_term=None,
+              step_function=DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION):
     &#34;&#34;&#34;Run DMP open loop.
 
     Parameters
@@ -2848,6 +2962,9 @@ the frequency.</dd>
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
 
+    step_function : str, optional (default: &#39;cython&#39; if available)
+        DMP integration function. Possible options: &#39;python&#39;, &#39;cython&#39;.
+
     Returns
     -------
     T : array, shape (n_steps,)
@@ -2856,16 +2973,25 @@ the frequency.</dd>
     Y : array, shape (n_steps, 14)
         State at each step.
     &#34;&#34;&#34;
+    try:
+        step_function = DUAL_CARTESIAN_DMP_STEP_FUNCTIONS[step_function]
+    except KeyError:
+        raise ValueError(
+            f&#34;Step function must be in &#34;
+            f&#34;{DUAL_CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
+
     if run_t is None:
         run_t = self.execution_time
-    T = [0.0]
+    self.t = 0.0
+    T = [self.t]
     Y = [np.copy(self.start_y)]
     y = np.copy(self.start_y)
     yd = np.copy(self.start_yd)
     while self.t &lt; run_t:
-        y, yd = self.step(y, yd, coupling_term)
+        y, yd = self.step(y, yd, coupling_term, step_function)
         T.append(self.t)
         Y.append(np.copy(self.current_y))
+    self.t = 0.0
     return np.array(T), np.vstack(Y)</code></pre>
 </details>
 </dd>
@@ -2896,7 +3022,7 @@ the frequency.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;built-in function dmp_step_dual_cartesian&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DMP step.</p>
@@ -2908,6 +3034,8 @@ the frequency.</dd>
 <dd>Last time derivative of state (velocity).</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>callable</code>, optional <code>(default: cython code if available)</code></dt>
+<dd>DMP integration function.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2920,7 +3048,9 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None,
+         step_function=DUAL_CARTESIAN_DMP_STEP_FUNCTIONS[
+             DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION]):
     &#34;&#34;&#34;DMP step.
 
     Parameters
@@ -2933,6 +3063,9 @@ the frequency.</dd>
 
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
+
+    step_function : callable, optional (default: cython code if available)
+        DMP integration function.
 
     Returns
     -------
@@ -2958,7 +3091,7 @@ the frequency.</dd>
         tracking_error[ops] = pr.concatenate_quaternions(
             self.current_y[ops], pr.q_conj(last_y[ops]))
     self.current_y[:], self.current_yd[:] = last_y, last_yd
-    dmp_step_dual_cartesian(
+    step_function(
         self.last_t, self.t, self.current_y, self.current_yd,
         self.goal_y, self.goal_yd, self.goal_ydd,
         self.start_y, self.start_yd, self.start_ydd,

@@ -36,6 +36,10 @@ from scipy.optimize import minimize
 
 
 class FastUrdfTransformManager(UrdfTransformManager):
+    &#34;&#34;&#34;Fast transformation manager that can load URDF files.
+
+    This version has efficient numba-accelerated code to update joints.
+    &#34;&#34;&#34;
     def __init__(self):
         super(FastUrdfTransformManager, self).__init__(check=False)
 
@@ -1468,34 +1472,17 @@ minimizing the position error.</dd>
 <span>class <span class="ident">FastUrdfTransformManager</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Transformation manager that can load URDF files.</p>
-<p>URDF is the <code>Unified Robot Description Format &lt;http://wiki.ros.org/urdf&gt;</code>_.
-URDF allows to define joints between links that can be rotated about one
-axis. This transformation manager allows to set the joint angles after
-joints have been added or loaded from an URDF.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Note that this module requires the Python package beautifulsoup4.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Joint angles must be given in radians.</p>
-</div>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>strict_check</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
-<dd>Raise a ValueError if the transformation matrix is not numerically
-close enough to a real transformation matrix. Otherwise we print a
-warning.</dd>
-<dt><strong><code>check</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
-<dd>Check if transformation matrices are valid and requested nodes exist,
-which might significantly slow down some operations.</dd>
-</dl></div>
+<div class="desc"><p>Fast transformation manager that can load URDF files.</p>
+<p>This version has efficient numba-accelerated code to update joints.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FastUrdfTransformManager(UrdfTransformManager):
+    &#34;&#34;&#34;Fast transformation manager that can load URDF files.
+
+    This version has efficient numba-accelerated code to update joints.
+    &#34;&#34;&#34;
     def __init__(self):
         super(FastUrdfTransformManager, self).__init__(check=False)
 

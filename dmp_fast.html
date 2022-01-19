@@ -35,10 +35,9 @@
 <span>def <span class="ident">compact_axis_angle_from_quaternion</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Compute compact axis-angle from quaternion (logarithmic map).
-We usually assume active rotations.
-Parameters</p>
-<hr>
+<div class="desc"><p>Compute compact axis-angle from quaternion (logarithmic map).</p>
+<p>We usually assume active rotations.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>q</code></strong> :&ensp;<code>array-like, shape (4,)</code></dt>
 <dd>Unit quaternion to represent rotation: (w, x, y, z)</dd>
@@ -54,10 +53,9 @@ constrained to [0, pi).</dd>
 <span>def <span class="ident">concatenate_quaternions</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Concatenate two quaternions.
-We use Hamilton's quaternion multiplication.
-Parameters</p>
-<hr>
+<div class="desc"><p>Concatenate two quaternions.</p>
+<p>We use Hamilton's quaternion multiplication.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>q1</code></strong> :&ensp;<code>array-like, shape (4,)</code></dt>
 <dd>First quaternion</dd>
@@ -74,31 +72,224 @@ Parameters</p>
 <span>def <span class="ident">dmp_step</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Integrate regular DMP for one step with Euler integration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at last step.</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at current step.</dd>
+<dt><strong><code>current_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Current position. Will be modified.</dd>
+<dt><strong><code>current_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Current velocity. Will be modified.</dd>
+<dt><strong><code>goal_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal position.</dd>
+<dt><strong><code>goal_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal velocity.</dd>
+<dt><strong><code>goal_ydd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal acceleration.</dd>
+<dt><strong><code>start_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start position.</dd>
+<dt><strong><code>start_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start velocity.</dd>
+<dt><strong><code>start_ydd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start acceleration.</dd>
+<dt><strong><code>goal_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the end.</dd>
+<dt><strong><code>start_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the start.</dd>
+<dt><strong><code>alpha_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>beta_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>forcing_term</code></strong> :&ensp;<code>ForcingTerm</code></dt>
+<dd>Forcing term.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>CouplingTerm</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term. Must have a function coupling(y, yd) that returns
+additional velocity and acceleration.</dd>
+<dt><strong><code>coupling_term_precomputed</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>A precomputed coupling term, i.e., additional velocity and
+acceleration.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time delta used internally for integration.</dd>
+<dt><strong><code>p_gain</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Proportional gain for tracking error.</dd>
+<dt><strong><code>tracking_error</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Tracking error from last step.</dd>
+</dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_dual_cartesian"><code class="name flex">
 <span>def <span class="ident">dmp_step_dual_cartesian</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Integrate bimanual Cartesian DMP for one step with Euler integration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at last step.</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at current step.</dd>
+<dt><strong><code>current_y</code></strong> :&ensp;<code>array, shape (14,)</code></dt>
+<dd>Current position. Will be modified.</dd>
+<dt><strong><code>current_yd</code></strong> :&ensp;<code>array, shape (12,)</code></dt>
+<dd>Current velocity. Will be modified.</dd>
+<dt><strong><code>goal_y</code></strong> :&ensp;<code>array, shape (14,)</code></dt>
+<dd>Goal position.</dd>
+<dt><strong><code>goal_yd</code></strong> :&ensp;<code>array, shape (12,)</code></dt>
+<dd>Goal velocity.</dd>
+<dt><strong><code>goal_ydd</code></strong> :&ensp;<code>array, shape (12,)</code></dt>
+<dd>Goal acceleration.</dd>
+<dt><strong><code>start_y</code></strong> :&ensp;<code>array, shape (14,)</code></dt>
+<dd>Start position.</dd>
+<dt><strong><code>start_yd</code></strong> :&ensp;<code>array, shape (12,)</code></dt>
+<dd>Start velocity.</dd>
+<dt><strong><code>start_ydd</code></strong> :&ensp;<code>array, shape (12,)</code></dt>
+<dd>Start acceleration.</dd>
+<dt><strong><code>goal_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the end.</dd>
+<dt><strong><code>start_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the start.</dd>
+<dt><strong><code>alpha_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>beta_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>forcing_term</code></strong> :&ensp;<code>ForcingTerm</code></dt>
+<dd>Forcing term.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>CouplingTerm</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term. Must have a function coupling(y, yd) that returns
+additional velocity and acceleration.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time delta used internally for integration.</dd>
+<dt><strong><code>p_gain</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Proportional gain for tracking error.</dd>
+<dt><strong><code>tracking_error</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Tracking error from last step.</dd>
+</dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_quaternion"><code class="name flex">
 <span>def <span class="ident">dmp_step_quaternion</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Integrate quaternion DMP for one step with Euler integration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at last step.</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at current step.</dd>
+<dt><strong><code>current_y</code></strong> :&ensp;<code>array, shape (7,)</code></dt>
+<dd>Current position. Will be modified.</dd>
+<dt><strong><code>current_yd</code></strong> :&ensp;<code>array, shape (6,)</code></dt>
+<dd>Current velocity. Will be modified.</dd>
+<dt><strong><code>goal_y</code></strong> :&ensp;<code>array, shape (7,)</code></dt>
+<dd>Goal position.</dd>
+<dt><strong><code>goal_yd</code></strong> :&ensp;<code>array, shape (6,)</code></dt>
+<dd>Goal velocity.</dd>
+<dt><strong><code>goal_ydd</code></strong> :&ensp;<code>array, shape (6,)</code></dt>
+<dd>Goal acceleration.</dd>
+<dt><strong><code>start_y</code></strong> :&ensp;<code>array, shape (7,)</code></dt>
+<dd>Start position.</dd>
+<dt><strong><code>start_yd</code></strong> :&ensp;<code>array, shape (6,)</code></dt>
+<dd>Start velocity.</dd>
+<dt><strong><code>start_ydd</code></strong> :&ensp;<code>array, shape (6,)</code></dt>
+<dd>Start acceleration.</dd>
+<dt><strong><code>goal_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the end.</dd>
+<dt><strong><code>start_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the start.</dd>
+<dt><strong><code>alpha_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>beta_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>forcing_term</code></strong> :&ensp;<code>ForcingTerm</code></dt>
+<dd>Forcing term.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>CouplingTerm</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term. Must have a function coupling(y, yd) that returns
+additional velocity and acceleration.</dd>
+<dt><strong><code>coupling_term_precomputed</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>A precomputed coupling term, i.e., additional velocity and
+acceleration.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time delta used internally for integration.</dd>
+</dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_rk4"><code class="name flex">
 <span>def <span class="ident">dmp_step_rk4</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Integrate regular DMP for one step with RK4 integration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at last step.</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at current step.</dd>
+<dt><strong><code>current_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Current position. Will be modified.</dd>
+<dt><strong><code>current_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Current velocity. Will be modified.</dd>
+<dt><strong><code>goal_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal position.</dd>
+<dt><strong><code>goal_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal velocity.</dd>
+<dt><strong><code>goal_ydd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Goal acceleration.</dd>
+<dt><strong><code>start_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start position.</dd>
+<dt><strong><code>start_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start velocity.</dd>
+<dt><strong><code>start_ydd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Start acceleration.</dd>
+<dt><strong><code>goal_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the end.</dd>
+<dt><strong><code>start_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at the start.</dd>
+<dt><strong><code>alpha_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>beta_y</code></strong> :&ensp;<code>float</code></dt>
+<dd>Constant in transformation system.</dd>
+<dt><strong><code>forcing_term</code></strong> :&ensp;<code>ForcingTerm</code></dt>
+<dd>Forcing term.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>CouplingTerm</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term. Must have a function coupling(y, yd) that returns
+additional velocity and acceleration.</dd>
+<dt><strong><code>coupling_term_precomputed</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>A precomputed coupling term, i.e., additional velocity and
+acceleration.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time delta used internally for integration.</dd>
+<dt><strong><code>p_gain</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Proportional gain for tracking error.</dd>
+<dt><strong><code>tracking_error</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0)</code></dt>
+<dd>Tracking error from last step.</dd>
+</dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.phase"><code class="name flex">
 <span>def <span class="ident">phase</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Map time to phase.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Current time.</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code></dt>
+<dd>Value of the alpha parameter of the canonical system.</dd>
+<dt><strong><code>goal_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at which the execution should be done.</dd>
+<dt><strong><code>start_t</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time at which the execution should start.</dd>
+<dt><strong><code>int_dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Time delta that is used internally for integration.</dd>
+<dt><strong><code>eps</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1e-10)</code></dt>
+<dd>Small number used to avoid numerical issues.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>z</code></strong> :&ensp;<code>float</code></dt>
+<dd>Value of phase variable.</dd>
+</dl></div>
 </dd>
 </dl>
 </section>

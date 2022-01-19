@@ -32,7 +32,16 @@ import numpy as np
 
 
 class PointToPointMovement:
-    &#34;&#34;&#34;Base class for point to point movements (discrete motions).&#34;&#34;&#34;
+    &#34;&#34;&#34;Base class for point to point movements (discrete motions).
+
+    Parameters
+    ----------
+    n_pos_dims : int
+        Number of dimensions of the position that will be controlled.
+
+    n_vel_dims : int
+        Number of dimensions of the velocity that will be controlled.
+    &#34;&#34;&#34;
     def __init__(self, n_pos_dims, n_vel_dims):
         self.n_dims = n_pos_dims
         self.n_vel_dims = n_vel_dims
@@ -109,13 +118,29 @@ class PointToPointMovement:
 <span>(</span><span>n_pos_dims, n_vel_dims)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for point to point movements (discrete motions).</p></div>
+<div class="desc"><p>Base class for point to point movements (discrete motions).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>n_pos_dims</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of dimensions of the position that will be controlled.</dd>
+<dt><strong><code>n_vel_dims</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of dimensions of the velocity that will be controlled.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PointToPointMovement:
-    &#34;&#34;&#34;Base class for point to point movements (discrete motions).&#34;&#34;&#34;
+    &#34;&#34;&#34;Base class for point to point movements (discrete motions).
+
+    Parameters
+    ----------
+    n_pos_dims : int
+        Number of dimensions of the position that will be controlled.
+
+    n_vel_dims : int
+        Number of dimensions of the velocity that will be controlled.
+    &#34;&#34;&#34;
     def __init__(self, n_pos_dims, n_vel_dims):
         self.n_dims = n_pos_dims
         self.n_vel_dims = n_vel_dims
