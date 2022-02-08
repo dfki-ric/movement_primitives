@@ -12,6 +12,19 @@ import pytransform3d.transformations as pt
 # Quaternion convention: x, y, z, w
 
 class PybulletSimulation:
+    """PyBullet simulation of a robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    """
     def __init__(self, dt, gui=True, real_time=False):
         assert pybullet_available
         self.dt = dt
@@ -155,6 +168,19 @@ def get_absolute_path(urdf_path, model_prefix_path):
 
 
 class UR5Simulation(PybulletSimulation):
+    """PyBullet simulation of UR5 robot arm.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    """
     def __init__(self, dt, gui=True, real_time=False):
         super(UR5Simulation, self).__init__(dt, gui, real_time)
 
@@ -393,7 +419,35 @@ class KinematicsChain:
                 break
 
 
-class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
+class RH5Simulation(PybulletSimulation):
+    """PyBullet simulation of RH5 humanoid robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+
+    left_joints : tuple, optional
+        Joints of the left arm
+
+    right_joints : tuple, optional
+        Joints of the right arm
+
+    urdf_path : str, optional
+        Path to URDF file
+
+    left_arm_path : str, optional
+        Path to URDF of left arm
+
+    right_arm_path : str, optional
+        Path to URDF of right arm
+    """
     def __init__(self, dt, gui=True, real_time=False,
                  left_ee_frame="LTCP_Link", right_ee_frame="RTCP_Link",
                  left_joints=("ALShoulder1", "ALShoulder2", "ALShoulder3", "ALElbow", "ALWristRoll", "ALWristYaw", "ALWristPitch"),
@@ -431,6 +485,19 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
             right_ee_frame, right_joints, right_arm_path)
 
     def inverse_kinematics(self, ee2robot):
+        """Inverse kinematics of RH5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (14,)
+            End-effector poses: two 7-tuples that contain the pose of the
+            left and right end effector in the order (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        """
         q = np.empty(self.n_joints)
 
         left_q = np.array([js[0] for js in pybullet.getJointStates(
@@ -708,15 +775,11 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None,
 
 
 def _joint_type(id):
-    if id == pybullet.JOINT_REVOLUTE:
-        return "revolute"
-    elif id == pybullet.JOINT_PRISMATIC:
-        return "prismatic"
-    elif id == pybullet.JOINT_SPHERICAL:
-        return "spherical"
-    elif id == pybullet.JOINT_PLANAR:
-        return "planar"
-    elif id == pybullet.JOINT_FIXED:
-        return "fixed"
-    else:
+    try:
+        return {pybullet.JOINT_REVOLUTE: "revolute",
+                pybullet.JOINT_PRISMATIC: "prismatic",
+                pybullet.JOINT_SPHERICAL: "spherical",
+                pybullet.JOINT_PLANAR: "planar",
+                pybullet.JOINT_FIXED: "fixed"}[id]
+    except KeyError:
         raise ValueError(f"Unknown joint type id {id}")
