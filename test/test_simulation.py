@@ -1,7 +1,8 @@
 import numpy as np
 import pytransform3d.transformations as pt
 import pytransform3d.rotations as pr
-from movement_primitives.testing.simulation import KinematicsChain
+from movement_primitives.testing.simulation import (
+    KinematicsChain, UR5Simulation)
 from movement_primitives.kinematics import Kinematics
 from numpy.testing import assert_array_almost_equal
 
@@ -36,3 +37,14 @@ def test_inverse_kinematics():
 
     assert_array_almost_equal(ee_pose1, desired_ee2base, decimal=2)
     assert_array_almost_equal(ee_pose2, desired_ee2base, decimal=2)
+
+
+def test_ur5():
+    desired_ee2base = pt.transform_from(
+        R=pr.active_matrix_from_extrinsic_roll_pitch_yaw([0.5, 0, 0]),
+        p=np.array([-0.3, 0, 0.5]))
+
+    ur5 = UR5Simulation(dt=0.01, gui=False, real_time=False)
+    for _ in range(4):
+        ur5.goto_ee_state(pt.pq_from_transform(desired_ee2base), wait_time=1.0)
+        ur5.stop()
