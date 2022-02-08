@@ -294,47 +294,101 @@ class UR5Simulation(PybulletSimulation):
 
 
 class KinematicsChain:
+    """Wrapper of PyBullet simulation of one kinematic chain.
+
+    This can be used to compute inverse kinematics.
+
+    Parameters
+    ----------
+    ee_frame : str
+        Frame of the end-effector.
+
+    joints : list
+        Names of joints.
+
+    urdf_path : str
+        Path to URDF file.
+
+    debug_gui : bool, optional (default: False)
+        Start PyBullet with GUI for debugging purposes.
+
+    Attributes
+    ----------
+    client_id_ : int
+        ID of the PyBullet instance.
+    """
     def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
         if debug_gui:
-            self.client_id = pybullet.connect(pybullet.GUI)
+            self.client_id_ = pybullet.connect(pybullet.GUI)
         else:
-            self.client_id = pybullet.connect(pybullet.DIRECT)
-        pybullet.resetSimulation(physicsClientId=self.client_id)
-        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+            self.client_id_ = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id_)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id_)
 
         self.chain = pybullet.loadURDF(
-            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
-        self.joint_indices, self.link_indices = analyze_robot(
-            robot=self.chain, physicsClientId=self.client_id)
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id_)
+        self.joint_indices, self.link_indices, \
+        self.joint_name_to_joint_idx_ik = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id_,
+            return_joint_indices=True, verbose=0)
 
         self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
-        self.n_chain_joints = len(self.chain_joint_indices)
         self.ee_idx = self.link_indices[ee_frame]
+        self.q_indices = [self.joint_name_to_joint_idx_ik[jn] for jn in joints]
 
-    def inverse(self, desired_ee_state, q_current=None):
+        self.n_all_chain_joints = pybullet.getNumJoints(
+            self.chain, self.client_id_)
+
+    def inverse(self, desired_ee_state, q_current=None, n_iter=100,
+                threshold=0.001):
+        """Compute inverse kinematics.
+
+        Parameters
+        ----------
+        desired_ee_state : array-like, shape (7,)
+            Desired pose of end effector: (x, y, z, qw, qx, qy, qz)
+
+        q_current : array-like, shape (n_joints,)
+            Current joint angles.
+
+        n_iter : int, optional (default: 100)
+            Number of iterations for the numerical inverse kinematics solver.
+
+        threshold : float, optional (default: 0.001)
+            Threshold for residual.
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles to reach the desired pose of the end effector.
+            If the desired pose cannot be reached, this function will return
+            joint angles that come as close as possible.
+        """
         if q_current is not None:
             # we have to actively go to the current joint state
             # before computing inverse kinematics
-            self._goto_joint_state(q_current)
+            self.goto_joint_state(q_current)
+
         ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
         q = pybullet.calculateInverseKinematics(
             self.chain, self.ee_idx, ee_pos, ee_rot,
-            maxNumIterations=100, residualThreshold=0.001,
-            jointDamping=[0.1] * self.n_chain_joints,
-            physicsClientId=self.client_id)
-        return q
+            maxNumIterations=n_iter, residualThreshold=threshold,
+            jointDamping=[0.1] * self.n_all_chain_joints,
+            physicsClientId=self.client_id_)
+        return np.asarray(q)[self.q_indices]
 
-    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+    def goto_joint_state(self, q_current, max_steps_to_joint_state=50,
+                         joint_state_eps=0.001):
         pybullet.setJointMotorControlArray(
             self.chain, self.chain_joint_indices,
             pybullet.POSITION_CONTROL,
-            targetPositions=q_current, physicsClientId=self.client_id)
+            targetPositions=q_current, physicsClientId=self.client_id_)
 
         for _ in range(max_steps_to_joint_state):
-            pybullet.stepSimulation(physicsClientId=self.client_id)
+            pybullet.stepSimulation(physicsClientId=self.client_id_)
             q_internal = np.array([js[0] for js in pybullet.getJointStates(
                 self.chain, self.chain_joint_indices,
-                physicsClientId=self.client_id)])
+                physicsClientId=self.client_id_)])
             if np.linalg.norm(q_current - q_internal) < joint_state_eps:
                 break
 
@@ -546,8 +600,39 @@ class SimulationMockup:  # runs steppables open loop
                 np.asarray(velocities))
 
 
-def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
-    """Compute mappings between joint and link names and their indices."""
+def analyze_robot(urdf_path=None, robot=None, physicsClientId=None,
+                  return_joint_indices=False, verbose=0):
+    """Compute mappings between joint and link names and their indices.
+
+    Parameters
+    ----------
+    urdf_path : str, optional (default: None)
+        Path to URDF file.
+
+    robot : int, optional (default: None)
+        PyBullet ID of robot.
+
+    physicsClientId : int, optional (default: None)
+        ID of a running bullet instance.
+
+    return_joint_indices : bool, optional (default: False)
+        Return joint indices used in inverse kinematics.
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    joint_name_to_joint_id : dict
+        Mapping from joint names to PyBullet IDs
+
+    link_name_to_link_id : dict
+        Mapping from link names to PyBullet IDs
+
+    joint_name_to_joint_idx_ik : dict
+        Mapping from joint names to array indices in result of inverse
+        kinematics
+    """
     if urdf_path is not None:
         assert robot is None
         physicsClientId = pybullet.connect(pybullet.DIRECT)
@@ -568,9 +653,12 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
     last_link_idx = -1
     link_id_to_link_name = {last_link_idx: base_link}
     joint_name_to_joint_id = {}
+    joint_name_to_joint_idx_ik = {}
 
     if verbose:
         print(f"Number of joints: {n_joints}")
+
+    joint_idx_ik = 0
 
     for joint_idx in range(n_joints):
         _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
@@ -590,6 +678,10 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
 
         joint_type = _joint_type(joint_type)
 
+        if joint_type != "fixed":
+            joint_name_to_joint_idx_ik[joint_name] = joint_idx_ik
+            joint_idx_ik += 1
+
         if verbose:
             print(f"Joint #{joint_idx}: {joint_name} ({joint_type}), "
                   f"child link: {child_link_name}, parent link index: {parent_idx}")
@@ -606,7 +698,13 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
         for link_idx in sorted(link_id_to_link_name.keys()):
             print(f"Link #{link_idx}: {link_id_to_link_name[link_idx]}")
 
-    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}
+    link_name_to_link_id = {v: k for k, v in link_id_to_link_name.items()}
+
+    if return_joint_indices:
+        return (joint_name_to_joint_id, link_name_to_link_id,
+                joint_name_to_joint_idx_ik)
+    else:
+        return joint_name_to_joint_id, link_name_to_link_id
 
 
 def _joint_type(id):
