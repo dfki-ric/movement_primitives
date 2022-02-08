@@ -1,3 +1,8 @@
+"""Robot simulations based on PyBullet.
+
+Note that PyBullet internally represents orientations as quaternions with
+scalar-last convention: (qx, qy, qz, qw).
+"""
 import numpy as np
 import os
 try:
@@ -8,8 +13,6 @@ except ImportError:
     pybullet_available = False
 import pytransform3d.transformations as pt
 
-
-# Quaternion convention: x, y, z, w
 
 class PybulletSimulation:
     """PyBullet simulation of a robot.
@@ -44,10 +47,18 @@ class PybulletSimulation:
         pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
 
     def step(self):
+        """Simulation step."""
         assert pybullet.isConnected(self.client_id)
         pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def sim_loop(self, n_steps=None):
+        """Run simulation loop.
+
+        Parameters
+        ----------
+        n_steps : int, optional (default: infinite)
+            Number of simulation steps.
+        """
         if n_steps is None:
             while pybullet.isConnected(self.client_id):
                 pybullet.stepSimulation(physicsClientId=self.client_id)
@@ -59,6 +70,7 @@ class PybulletSimulation:
 
 
 def _pybullet_pose(pose):
+    """Convert pose from (x, y, z, qw, qx, qy, qz) to ((x, y, z), (qx, qy, qz, qw))."""
     pos = pose[:3]
     rot = pose[3:]
     rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -> xyzw
@@ -66,11 +78,12 @@ def _pybullet_pose(pose):
 
 
 def _pytransform_pose(pos, rot):
+    """Convert pose from ((x, y, z), (qx, qy, qz, qw)) to (x, y, z, qw, qx, qy, qz)."""
     return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -> wxyz
 
 
 def draw_transform(pose2origin, s, client_id, lw=1):
-    """Draw transformation matrix.
+    """Draw pose represented by transformation matrix.
 
     Parameters
     ----------
@@ -99,7 +112,7 @@ def draw_transform(pose2origin, s, client_id, lw=1):
 
 
 def draw_pose(pose2origin, s, client_id, lw=1):
-    """Draw transformation matrix.
+    """Draw pose represented by position and quaternion.
 
     Parameters
     ----------
@@ -128,7 +141,7 @@ def draw_pose(pose2origin, s, client_id, lw=1):
 
 
 def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
-    """Draw transformation matrix.
+    """Draw trajectory.
 
     Parameters
     ----------
@@ -209,6 +222,18 @@ class UR5Simulation(PybulletSimulation):
                                      for i in self.joint_indices]
 
     def inverse_kinematics(self, ee2robot):
+        """Inverse kinematics of UR5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (7,)
+            End-effector pose: (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        """
         pos, rot = _pybullet_pose(ee2robot)
         # ee2world
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
@@ -222,6 +247,16 @@ class UR5Simulation(PybulletSimulation):
         return q
 
     def get_joint_state(self):
+        """Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        """
         joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
         positions = []
         velocities = []
@@ -511,6 +546,16 @@ class RH5Simulation(PybulletSimulation):
         return q
 
     def get_joint_state(self):
+        """Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        """
         joint_states = pybullet.getJointStates(
             self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
             physicsClientId=self.client_id)
