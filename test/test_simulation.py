@@ -30,7 +30,8 @@ def test_inverse_kinematics():
         pt.pq_from_transform(desired_ee2base), q0, n_iter=500,
         threshold=0.0001)
     q2 = chain2.inverse_with_random_restarts(
-        desired_ee2base, n_restarts=10, tolerance=0.0001)
+        desired_ee2base, n_restarts=10, tolerance=0.0001,
+        random_state=np.random.RandomState(42))
 
     ee_pose1 = chain2.forward(q1)
     ee_pose2 = chain2.forward(q2)
