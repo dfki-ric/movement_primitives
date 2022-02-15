@@ -351,24 +351,3 @@ class DualCartesianDMP(DMPBase):
             allow_final_velocity=allow_final_velocity)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
-
-    def get_weights(self):
-        """Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (12 * n_weights_per_dim,)
-            Current weights of the DMP.
-        """
-        return self.forcing_term.weights.ravel()
-
-    def set_weights(self, weights):
-        """Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (12 * n_weights_per_dim,)
-            New weights of the DMP.
-        """
-        self.forcing_term.weights[:, :] = weights.reshape(
-            -1, self.n_weights_per_dim)
