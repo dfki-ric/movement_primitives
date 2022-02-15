@@ -1,8 +1,9 @@
 """Base classes of movement primitives."""
+import abc
 import numpy as np
 
 
-class PointToPointMovement:
+class PointToPointMovement(abc.ABC):
     """Base class for point to point movements (discrete motions).
 
     Parameters
@@ -73,3 +74,50 @@ class PointToPointMovement:
             self.goal_yd = goal_yd
         if goal_ydd is not None:
             self.goal_ydd = goal_ydd
+
+    @abc.abstractmethod
+    def step(self, last_y, last_yd):
+        """Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
+
+    def n_steps_open_loop(self, last_y, last_yd, n_steps):
+        """Perform 'n_steps' steps.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        n_steps : int
+            Number of steps.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
+        for _ in range(n_steps):
+            last_y, last_yd = self.step(last_y, last_yd)
+        return last_y, last_yd
