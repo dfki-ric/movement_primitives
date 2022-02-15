@@ -35,13 +35,13 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
 
     Returns
     -------
-    X : array, shape (n_dims, n_steps)
+    X : array, shape (n_steps, n_dims)
         The positions of the trajectory
 
-    Xd : array, shape (n_dims, n_steps)
+    Xd : array, shape (n_steps, n_dims)
         The velocities of the trajectory
 
-    Xdd : array, shape (n_task_dims, n_steps)
+    Xdd : array, shape (n_steps, n_dims)
         The accelerations of the trajectory
 
     Raises
@@ -55,18 +55,18 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
         raise ValueError("Shape of initial state %s and goal %s must be equal"
                          % (x0.shape, g.shape))
 
-    n_task_dims = x0.shape[0]
+    n_dims = x0.shape[0]
     n_steps = 1 + int(execution_time / dt)
 
-    X = np.zeros((n_task_dims, n_steps))
-    Xd = np.zeros((n_task_dims, n_steps))
-    Xdd = np.zeros((n_task_dims, n_steps))
+    X = np.zeros((n_steps, n_dims))
+    Xd = np.zeros((n_steps, n_dims))
+    Xdd = np.zeros((n_steps, n_dims))
 
     x = x0.copy()
-    xd = np.zeros(n_task_dims)
-    xdd = np.zeros(n_task_dims)
+    xd = np.zeros(n_dims)
+    xdd = np.zeros(n_dims)
 
-    X[:, 0] = x
+    X[0] = x
     for t in range(1, n_steps):
         tau = execution_time - t * dt
 
@@ -97,8 +97,8 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
             xd = (5. * c1 * t4 + 4 * c2 * t3 + 3 * c3 * t2 + 2 * c4 * t1 + c5)
             xdd = (20. * c1 * t3 + 12. * c2 * t2 + 6. * c3 * t1 + 2. * c4)
 
-        X[:, t] = x
-        Xd[:, t] = xd
-        Xdd[:, t] = xdd
+        X[t] = x
+        Xd[t] = xd
+        Xdd[t] = xdd
 
     return X, Xd, Xdd
