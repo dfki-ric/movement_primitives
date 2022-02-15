@@ -1,6 +1,6 @@
 import numpy as np
 import pytransform3d.rotations as pr
-from ._base import DMPBase
+from ._base import DMPBase, WeightParametersMixin
 from ._canonical_system import canonical_system_alpha
 from ._forcing_term import ForcingTerm
 from ._dmp import dmp_imitate
@@ -143,7 +143,7 @@ except ImportError:
     DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION = "python"
 
 
-class DualCartesianDMP(DMPBase):
+class DualCartesianDMP(WeightParametersMixin, DMPBase):
     """Dual cartesian dynamical movement primitive.
 
     Each of the two Cartesian DMPs handles orientation and position separately.

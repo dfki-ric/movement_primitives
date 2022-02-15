@@ -1,5 +1,5 @@
 import numpy as np
-from ._base import DMPBase
+from ._base import DMPBase, WeightParametersMixin
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 
@@ -296,7 +296,7 @@ except ImportError:
     pass
 
 
-class DMP(DMPBase):
+class DMP(WeightParametersMixin, DMPBase):
     """Dynamical movement primitive (DMP).
 
     Implementation according to

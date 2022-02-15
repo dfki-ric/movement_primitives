@@ -1,10 +1,10 @@
 import math
 import numpy as np
-from ._base import DMPBase
+from ._base import DMPBase, WeightParametersMixin
 from ._canonical_system import canonical_system_alpha, phase
 
 
-class StateFollowingDMP(DMPBase):
+class StateFollowingDMP(WeightParametersMixin, DMPBase):
     """State following DMP (highly experimental).
 
     The DMP variant that is implemented here is described in
