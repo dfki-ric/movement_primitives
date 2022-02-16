@@ -63,3 +63,8 @@ class ForcingTerm:
         z = np.atleast_1d(z)
         activations = self._activations(z)
         return z[np.newaxis, :] * self.weights.dot(activations)
+
+    @property
+    def shape(self):
+        """Shape (n_dims, n_weights_per_dim) of weights configuring the forcing term."""
+        return self.weights.shape
