@@ -11,7 +11,7 @@ class ProMP:
     Note that internally we represented trajectories with the task space
     dimension as the first axis and the time step as the second axis while
     the exposed trajectory interface is transposed. In addition, we internally
-    only use the a 1d array representation to make handling of the covariance
+    only use a 1d array representation to make handling of the covariance
     simpler.
 
     Parameters

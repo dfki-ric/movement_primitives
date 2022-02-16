@@ -1,6 +1,6 @@
 import numpy as np
 import pytransform3d.rotations as pr
-from ._base import DMPBase
+from ._base import DMPBase, WeightParametersMixin
 from ._canonical_system import canonical_system_alpha
 from ._forcing_term import ForcingTerm
 from ._dmp import dmp_imitate
@@ -143,7 +143,7 @@ except ImportError:
     DEFAULT_DUAL_CARTESIAN_DMP_STEP_FUNCTION = "python"
 
 
-class DualCartesianDMP(DMPBase):
+class DualCartesianDMP(WeightParametersMixin, DMPBase):
     """Dual cartesian dynamical movement primitive.
 
     Each of the two Cartesian DMPs handles orientation and position separately.
@@ -351,24 +351,3 @@ class DualCartesianDMP(DMPBase):
             allow_final_velocity=allow_final_velocity)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
-
-    def get_weights(self):
-        """Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (12 * n_weights_per_dim,)
-            Current weights of the DMP.
-        """
-        return self.forcing_term.weights.ravel()
-
-    def set_weights(self, weights):
-        """Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (12 * n_weights_per_dim,)
-            New weights of the DMP.
-        """
-        self.forcing_term.weights[:, :] = weights.reshape(
-            -1, self.n_weights_per_dim)
