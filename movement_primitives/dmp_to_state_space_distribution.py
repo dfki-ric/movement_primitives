@@ -123,10 +123,10 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
     points = mvn.sigma_points(alpha=alpha, kappa=kappa)
     trajectories = []
     if verbose:
-        iterator = tqdm(list(enumerate(points)))
+        iterator = tqdm(list(points))
     else:
-        iterator = list(enumerate(points))
-    for i, parameters in iterator:
+        iterator = list(points)
+    for parameters in iterator:
         weights = parameters[weight_indices]
         start = parameters[start_indices]
         goal = parameters[goal_indices]
@@ -135,7 +135,7 @@ def propagate_to_state_space(mvn, n_weights_per_dim, execution_time, alpha,
             n_weights_per_dim=n_weights_per_dim, int_dt=int_dt)
         dmp.configure(start_y=start, goal_y=goal)
         dmp.set_weights(weights)
-        T, P = dmp.open_loop(run_t=execution_time)
+        P = dmp.open_loop(run_t=execution_time)[1]
         trajectories.append(P.ravel())
 
     return np.vstack(trajectories)
