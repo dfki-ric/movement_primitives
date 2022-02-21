@@ -78,6 +78,24 @@ class SpringDamper(PointToPointMovement):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        """Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        """
         return spring_damper_open_loop(
             self.dt,
             self.start_y, self.goal_y,
@@ -117,6 +135,27 @@ class SpringDamperOrientation(PointToPointMovement):
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        """Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
         self.last_t = self.t
         self.t += self.dt
 
@@ -136,6 +175,24 @@ class SpringDamperOrientation(PointToPointMovement):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        """Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        """
         return spring_damper_open_loop_quaternion(
             self.dt,
             self.start_y, self.goal_y,
