@@ -142,14 +142,8 @@ def plot_distribution_in_rows(
     else:
         xlabel = "Time [s]"
 
-    if "color" in kwargs:
-        color = kwargs["color"]
-    else:
-        color = None
-    if "alpha" in kwargs:
-        alpha = kwargs.pop("alpha")
-    else:
-        alpha = 0.1
+    color = kwargs.get("color", None)
+    alpha = kwargs.get("alpha", 0.1)
 
     for i in range(n_dims):
         axes[i].plot(t, mean[:, i], **kwargs)
