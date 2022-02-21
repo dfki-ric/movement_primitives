@@ -1,3 +1,4 @@
+"""Minimum jerk trajectory."""
 import numpy as np
 from .base import PointToPointMovement
 from .data._minimum_jerk import generate_minimum_jerk
