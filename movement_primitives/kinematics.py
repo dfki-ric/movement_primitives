@@ -1,6 +1,6 @@
 """Forward kinematics and a simple implementation of inverse kinematics."""
-import numpy as np
 import math
+import numpy as np
 import numba
 from pytransform3d.urdf import UrdfTransformManager
 from scipy.optimize import minimize
