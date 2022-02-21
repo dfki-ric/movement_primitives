@@ -38,6 +38,27 @@ class SpringDamper(PointToPointMovement):
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        """Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        """
         self.last_t = self.t
         self.t += self.dt
 
