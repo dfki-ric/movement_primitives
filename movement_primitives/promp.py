@@ -560,10 +560,8 @@ class ProMP:
         self.weight_mean = np.mean(means, axis=0)
 
         centered = means - self.weight_mean
-        self.weight_cov = centered.T.dot(centered)
-        for i in range(len(covs)):
-            self.weight_cov += covs[i]
-        self.weight_cov /= M  # TODO what is d + 2?
+        self.weight_cov = (centered.T.dot(centered) + np.sum(covs, axis=0)) / M
+        # TODO what is d + 2?
 
         self.variance = 0.0
         for i in range(len(means)):
