@@ -710,7 +710,7 @@ def dmp_open_loop(
     T : array, shape (n_steps,)
         Times.
 
-    Y : array, shape (n_steps,)
+    Y : array, shape (n_steps, n_dims)
         Positions.
     """
     if goal_yd is None:
@@ -731,9 +731,12 @@ def dmp_open_loop(
 
     if run_t is None:
         run_t = goal_t
-    while t < run_t:
-        last_t = t
-        t += dt
+
+    duration = run_t - start_t
+    n_steps = int(round(duration / dt))
+    time_steps = np.linspace(start_t, run_t, n_steps+1)
+
+    for last_t, t in zip(time_steps[:-1], time_steps[1:]):
 
         step_function(
             last_t, t, current_y, current_yd,
