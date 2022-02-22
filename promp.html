@@ -40,7 +40,7 @@ class ProMP:
     Note that internally we represented trajectories with the task space
     dimension as the first axis and the time step as the second axis while
     the exposed trajectory interface is transposed. In addition, we internally
-    only use the a 1d array representation to make handling of the covariance
+    only use a 1d array representation to make handling of the covariance
     simpler.
 
     Parameters
@@ -589,10 +589,8 @@ class ProMP:
         self.weight_mean = np.mean(means, axis=0)
 
         centered = means - self.weight_mean
-        self.weight_cov = centered.T.dot(centered)
-        for i in range(len(covs)):
-            self.weight_cov += covs[i]
-        self.weight_cov /= M  # TODO what is d + 2?
+        self.weight_cov = (centered.T.dot(centered) + np.sum(covs, axis=0)) / M
+        # TODO what is d + 2?
 
         self.variance = 0.0
         for i in range(len(means)):
@@ -661,7 +659,7 @@ The learning algorithm is a specialized form of the one presented in [4].</p>
 <p>Note that internally we represented trajectories with the task space
 dimension as the first axis and the time step as the second axis while
 the exposed trajectory interface is transposed. In addition, we internally
-only use the a 1d array representation to make handling of the covariance
+only use a 1d array representation to make handling of the covariance
 simpler.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -694,7 +692,7 @@ multiple human–robot collaborative tasks, AuRo 2017,
     Note that internally we represented trajectories with the task space
     dimension as the first axis and the time step as the second axis while
     the exposed trajectory interface is transposed. In addition, we internally
-    only use the a 1d array representation to make handling of the covariance
+    only use a 1d array representation to make handling of the covariance
     simpler.
 
     Parameters
@@ -1243,10 +1241,8 @@ multiple human–robot collaborative tasks, AuRo 2017,
         self.weight_mean = np.mean(means, axis=0)
 
         centered = means - self.weight_mean
-        self.weight_cov = centered.T.dot(centered)
-        for i in range(len(covs)):
-            self.weight_cov += covs[i]
-        self.weight_cov /= M  # TODO what is d + 2?
+        self.weight_cov = (centered.T.dot(centered) + np.sum(covs, axis=0)) / M
+        # TODO what is d + 2?
 
         self.variance = 0.0
         for i in range(len(means)):

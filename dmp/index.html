@@ -632,6 +632,7 @@ the frequency.</dd>
 <ul class="hlist">
 <li>movement_primitives.dmp._base.DMPBase</li>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -934,6 +935,7 @@ the frequency.</dd>
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="../base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="../base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1710,7 +1712,7 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DMP(DMPBase):
+<pre><code class="python">class DMP(WeightParametersMixin, DMPBase):
     &#34;&#34;&#34;Dynamical movement primitive (DMP).
 
     Implementation according to
@@ -1879,61 +1881,17 @@ the frequency.</dd>
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
-        self.configure(start_y=start_y, goal_y=goal_y)
-
-    def get_weights(self):
-        &#34;&#34;&#34;Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (n_dims * n_weights_per_dim,)
-            Current weights of the DMP.
-        &#34;&#34;&#34;
-        return self.forcing_term.weights.ravel()
-
-    def set_weights(self, weights):
-        &#34;&#34;&#34;Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (n_dims * n_weights_per_dim,)
-            New weights of the DMP.
-        &#34;&#34;&#34;
-        self.forcing_term.weights[:, :] = weights.reshape(
-            -1, self.n_weights_per_dim)</code></pre>
+        self.configure(start_y=start_y, goal_y=goal_y)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>movement_primitives.dmp._base.WeightParametersMixin</li>
 <li>movement_primitives.dmp._base.DMPBase</li>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="movement_primitives.dmp.DMP.get_weights"><code class="name flex">
-<span>def <span class="ident">get_weights</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Get weight vector of DMP.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>weights</code></strong> :&ensp;<code>array, shape (n_dims * n_weights_per_dim,)</code></dt>
-<dd>Current weights of the DMP.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_weights(self):
-    &#34;&#34;&#34;Get weight vector of DMP.
-
-    Returns
-    -------
-    weights : array, shape (n_dims * n_weights_per_dim,)
-        Current weights of the DMP.
-    &#34;&#34;&#34;
-    return self.forcing_term.weights.ravel()</code></pre>
-</details>
-</dd>
 <dt id="movement_primitives.dmp.DMP.imitate"><code class="name flex">
 <span>def <span class="ident">imitate</span></span>(<span>self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False)</span>
 </code></dt>
@@ -2057,32 +2015,6 @@ the frequency.</dd>
         step_function)</code></pre>
 </details>
 </dd>
-<dt id="movement_primitives.dmp.DMP.set_weights"><code class="name flex">
-<span>def <span class="ident">set_weights</span></span>(<span>self, weights)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set weight vector of DMP.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>weights</code></strong> :&ensp;<code>array, shape (n_dims * n_weights_per_dim,)</code></dt>
-<dd>New weights of the DMP.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_weights(self, weights):
-    &#34;&#34;&#34;Set weight vector of DMP.
-
-    Parameters
-    ----------
-    weights : array, shape (n_dims * n_weights_per_dim,)
-        New weights of the DMP.
-    &#34;&#34;&#34;
-    self.forcing_term.weights[:, :] = weights.reshape(
-        -1, self.n_weights_per_dim)</code></pre>
-</details>
-</dd>
 <dt id="movement_primitives.dmp.DMP.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
 </code></dt>
@@ -2162,6 +2094,7 @@ the frequency.</dd>
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="../base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="../base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2203,7 +2136,7 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DMPWithFinalVelocity(DMPBase):
+<pre><code class="python">class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     &#34;&#34;&#34;Dynamical movement primitive (DMP) with final velocity.
 
     Implementation according to
@@ -2362,8 +2295,10 @@ the frequency.</dd>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>movement_primitives.dmp._base.WeightParametersMixin</li>
 <li>movement_primitives.dmp._base.DMPBase</li>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -2545,6 +2480,7 @@ the frequency.</dd>
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="../base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="../base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2589,7 +2525,7 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DualCartesianDMP(DMPBase):
+<pre><code class="python">class DualCartesianDMP(WeightParametersMixin, DMPBase):
     &#34;&#34;&#34;Dual cartesian dynamical movement primitive.
 
     Each of the two Cartesian DMPs handles orientation and position separately.
@@ -2796,61 +2732,17 @@ the frequency.</dd>
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
 
-        self.configure(start_y=Y[0], goal_y=Y[-1])
-
-    def get_weights(self):
-        &#34;&#34;&#34;Get weight vector of DMP.
-
-        Returns
-        -------
-        weights : array, shape (12 * n_weights_per_dim,)
-            Current weights of the DMP.
-        &#34;&#34;&#34;
-        return self.forcing_term.weights.ravel()
-
-    def set_weights(self, weights):
-        &#34;&#34;&#34;Set weight vector of DMP.
-
-        Parameters
-        ----------
-        weights : array, shape (12 * n_weights_per_dim,)
-            New weights of the DMP.
-        &#34;&#34;&#34;
-        self.forcing_term.weights[:, :] = weights.reshape(
-            -1, self.n_weights_per_dim)</code></pre>
+        self.configure(start_y=Y[0], goal_y=Y[-1])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>movement_primitives.dmp._base.WeightParametersMixin</li>
 <li>movement_primitives.dmp._base.DMPBase</li>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="movement_primitives.dmp.DualCartesianDMP.get_weights"><code class="name flex">
-<span>def <span class="ident">get_weights</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Get weight vector of DMP.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>weights</code></strong> :&ensp;<code>array, shape (12 * n_weights_per_dim,)</code></dt>
-<dd>Current weights of the DMP.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_weights(self):
-    &#34;&#34;&#34;Get weight vector of DMP.
-
-    Returns
-    -------
-    weights : array, shape (12 * n_weights_per_dim,)
-        Current weights of the DMP.
-    &#34;&#34;&#34;
-    return self.forcing_term.weights.ravel()</code></pre>
-</details>
-</dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.imitate"><code class="name flex">
 <span>def <span class="ident">imitate</span></span>(<span>self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False)</span>
 </code></dt>
@@ -2995,32 +2887,6 @@ the frequency.</dd>
     return np.array(T), np.vstack(Y)</code></pre>
 </details>
 </dd>
-<dt id="movement_primitives.dmp.DualCartesianDMP.set_weights"><code class="name flex">
-<span>def <span class="ident">set_weights</span></span>(<span>self, weights)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set weight vector of DMP.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>weights</code></strong> :&ensp;<code>array, shape (12 * n_weights_per_dim,)</code></dt>
-<dd>New weights of the DMP.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_weights(self, weights):
-    &#34;&#34;&#34;Set weight vector of DMP.
-
-    Parameters
-    ----------
-    weights : array, shape (12 * n_weights_per_dim,)
-        New weights of the DMP.
-    &#34;&#34;&#34;
-    self.forcing_term.weights[:, :] = weights.reshape(
-        -1, self.n_weights_per_dim)</code></pre>
-</details>
-</dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;built-in function dmp_step_dual_cartesian&gt;)</span>
 </code></dt>
@@ -3110,6 +2976,7 @@ the frequency.</dd>
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="../base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="../base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -3202,10 +3069,8 @@ the frequency.</dd>
 <li>
 <h4><code><a title="movement_primitives.dmp.DMP" href="#movement_primitives.dmp.DMP">DMP</a></code></h4>
 <ul class="">
-<li><code><a title="movement_primitives.dmp.DMP.get_weights" href="#movement_primitives.dmp.DMP.get_weights">get_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.imitate" href="#movement_primitives.dmp.DMP.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.open_loop" href="#movement_primitives.dmp.DMP.open_loop">open_loop</a></code></li>
-<li><code><a title="movement_primitives.dmp.DMP.set_weights" href="#movement_primitives.dmp.DMP.set_weights">set_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.step" href="#movement_primitives.dmp.DMP.step">step</a></code></li>
 </ul>
 </li>
@@ -3220,10 +3085,8 @@ the frequency.</dd>
 <li>
 <h4><code><a title="movement_primitives.dmp.DualCartesianDMP" href="#movement_primitives.dmp.DualCartesianDMP">DualCartesianDMP</a></code></h4>
 <ul class="">
-<li><code><a title="movement_primitives.dmp.DualCartesianDMP.get_weights" href="#movement_primitives.dmp.DualCartesianDMP.get_weights">get_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.imitate" href="#movement_primitives.dmp.DualCartesianDMP.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.open_loop" href="#movement_primitives.dmp.DualCartesianDMP.open_loop">open_loop</a></code></li>
-<li><code><a title="movement_primitives.dmp.DualCartesianDMP.set_weights" href="#movement_primitives.dmp.DualCartesianDMP.set_weights">set_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.step" href="#movement_primitives.dmp.DualCartesianDMP.step">step</a></code></li>
 </ul>
 </li>

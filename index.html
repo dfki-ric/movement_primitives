@@ -53,7 +53,10 @@ It provides implementations in Python and Cython.</p>
 installation. In the following instructions, we assume that the command
 <code>python</code> refers to Python 3. If you use the system's Python version, you
 might have to add the flag <code>--user</code> to any installation command.</p>
-<p>I recommend to install the library via pip in editable mode:</p>
+<p>I recommend to install the library via pip:</p>
+<pre><code class="language-bash">python -m pip install movement_primitives
+</code></pre>
+<p>or clone the git repository and install it in editable mode:</p>
 <pre><code class="language-bash">python -m pip install -e .[all]
 </code></pre>
 <p>If you don't want to have all dependencies installed, just omit <code>[all]</code>.
@@ -265,6 +268,10 @@ __all__ = [&#34;__version__&#34;]</code></pre>
 <dd>
 <div class="desc"><p>Forward kinematics and a simple implementation of inverse kinematics.</p></div>
 </dd>
+<dt><code class="name"><a title="movement_primitives.minimum_jerk_trajectory" href="minimum_jerk_trajectory.html">movement_primitives.minimum_jerk_trajectory</a></code></dt>
+<dd>
+<div class="desc"><p>Minimum jerk trajectory.</p></div>
+</dd>
 <dt><code class="name"><a title="movement_primitives.plot" href="plot.html">movement_primitives.plot</a></code></dt>
 <dd>
 <div class="desc"><p>Tools for plotting multi-dimensional trajectories.</p></div>
@@ -343,6 +350,7 @@ __all__ = [&#34;__version__&#34;]</code></pre>
 <li><code><a title="movement_primitives.dmp_to_state_space_distribution" href="dmp_to_state_space_distribution.html">movement_primitives.dmp_to_state_space_distribution</a></code></li>
 <li><code><a title="movement_primitives.io" href="io.html">movement_primitives.io</a></code></li>
 <li><code><a title="movement_primitives.kinematics" href="kinematics.html">movement_primitives.kinematics</a></code></li>
+<li><code><a title="movement_primitives.minimum_jerk_trajectory" href="minimum_jerk_trajectory.html">movement_primitives.minimum_jerk_trajectory</a></code></li>
 <li><code><a title="movement_primitives.plot" href="plot.html">movement_primitives.plot</a></code></li>
 <li><code><a title="movement_primitives.promp" href="promp.html">movement_primitives.promp</a></code></li>
 <li><code><a title="movement_primitives.spring_damper" href="spring_damper.html">movement_primitives.spring_damper</a></code></li>

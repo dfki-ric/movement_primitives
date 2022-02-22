@@ -67,6 +67,27 @@ class SpringDamper(PointToPointMovement):
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
         self.last_t = self.t
         self.t += self.dt
 
@@ -86,6 +107,24 @@ class SpringDamper(PointToPointMovement):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        &#34;&#34;&#34;Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        &#34;&#34;&#34;
         return spring_damper_open_loop(
             self.dt,
             self.start_y, self.goal_y,
@@ -125,6 +164,27 @@ class SpringDamperOrientation(PointToPointMovement):
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
         self.last_t = self.t
         self.t += self.dt
 
@@ -144,6 +204,24 @@ class SpringDamperOrientation(PointToPointMovement):
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        &#34;&#34;&#34;Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        &#34;&#34;&#34;
         return spring_damper_open_loop_quaternion(
             self.dt,
             self.start_y, self.goal_y,
@@ -456,6 +534,27 @@ def spring_damper_open_loop_quaternion(
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
         self.last_t = self.t
         self.t += self.dt
 
@@ -475,6 +574,24 @@ def spring_damper_open_loop_quaternion(
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        &#34;&#34;&#34;Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        &#34;&#34;&#34;
         return spring_damper_open_loop(
             self.dt,
             self.start_y, self.goal_y,
@@ -485,6 +602,7 @@ def spring_damper_open_loop_quaternion(
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="movement_primitives.base.PointToPointMovement" href="base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -492,12 +610,44 @@ def spring_damper_open_loop_quaternion(
 <span>def <span class="ident">open_loop</span></span>(<span>self, run_t=1.0, coupling_term=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run open loop.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>run_t</code></strong> :&ensp;<code>float</code>, optional <code>(default: execution_time)</code></dt>
+<dd>Run time. Can be shorter or longer than execution_time.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term that will be added to velocity.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array, shape (n_steps,)</code></dt>
+<dd>Time for each step.</dd>
+<dt><strong><code>Y</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>State at each step.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def open_loop(self, run_t=1.0, coupling_term=None):
+    &#34;&#34;&#34;Run open loop.
+
+    Parameters
+    ----------
+    run_t : float, optional (default: execution_time)
+        Run time. Can be shorter or longer than execution_time.
+
+    coupling_term : object, optional (default: None)
+        Coupling term that will be added to velocity.
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Time for each step.
+
+    Y : array, shape (n_steps, n_dims)
+        State at each step.
+    &#34;&#34;&#34;
     return spring_damper_open_loop(
         self.dt,
         self.start_y, self.goal_y,
@@ -510,12 +660,49 @@ def spring_damper_open_loop_quaternion(
 <span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Perform step.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last state.</dd>
+<dt><strong><code>last_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last time derivative of state (e.g., velocity).</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term that will be added to velocity.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next state.</dd>
+<dt><strong><code>yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next time derivative of state (e.g., velocity).</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+    &#34;&#34;&#34;Perform step.
+
+    Parameters
+    ----------
+    last_y : array, shape (n_dims,)
+        Last state.
+
+    last_yd : array, shape (n_dims,)
+        Last time derivative of state (e.g., velocity).
+
+    coupling_term : object, optional (default: None)
+        Coupling term that will be added to velocity.
+
+    Returns
+    -------
+    y : array, shape (n_dims,)
+        Next state.
+
+    yd : array, shape (n_dims,)
+        Next time derivative of state (e.g., velocity).
+    &#34;&#34;&#34;
     self.last_t = self.t
     self.t += self.dt
 
@@ -541,6 +728,7 @@ def spring_damper_open_loop_quaternion(
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -598,6 +786,27 @@ def spring_damper_open_loop_quaternion(
         self.configure()
 
     def step(self, last_y, last_yd, coupling_term=None):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
         self.last_t = self.t
         self.t += self.dt
 
@@ -617,6 +826,24 @@ def spring_damper_open_loop_quaternion(
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=1.0, coupling_term=None):
+        &#34;&#34;&#34;Run open loop.
+
+        Parameters
+        ----------
+        run_t : float, optional (default: execution_time)
+            Run time. Can be shorter or longer than execution_time.
+
+        coupling_term : object, optional (default: None)
+            Coupling term that will be added to velocity.
+
+        Returns
+        -------
+        T : array, shape (n_steps,)
+            Time for each step.
+
+        Y : array, shape (n_steps, n_dims)
+            State at each step.
+        &#34;&#34;&#34;
         return spring_damper_open_loop_quaternion(
             self.dt,
             self.start_y, self.goal_y,
@@ -627,6 +854,7 @@ def spring_damper_open_loop_quaternion(
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="movement_primitives.base.PointToPointMovement" href="base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -634,12 +862,44 @@ def spring_damper_open_loop_quaternion(
 <span>def <span class="ident">open_loop</span></span>(<span>self, run_t=1.0, coupling_term=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run open loop.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>run_t</code></strong> :&ensp;<code>float</code>, optional <code>(default: execution_time)</code></dt>
+<dd>Run time. Can be shorter or longer than execution_time.</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term that will be added to velocity.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>T</code></strong> :&ensp;<code>array, shape (n_steps,)</code></dt>
+<dd>Time for each step.</dd>
+<dt><strong><code>Y</code></strong> :&ensp;<code>array, shape (n_steps, n_dims)</code></dt>
+<dd>State at each step.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def open_loop(self, run_t=1.0, coupling_term=None):
+    &#34;&#34;&#34;Run open loop.
+
+    Parameters
+    ----------
+    run_t : float, optional (default: execution_time)
+        Run time. Can be shorter or longer than execution_time.
+
+    coupling_term : object, optional (default: None)
+        Coupling term that will be added to velocity.
+
+    Returns
+    -------
+    T : array, shape (n_steps,)
+        Time for each step.
+
+    Y : array, shape (n_steps, n_dims)
+        State at each step.
+    &#34;&#34;&#34;
     return spring_damper_open_loop_quaternion(
         self.dt,
         self.start_y, self.goal_y,
@@ -652,12 +912,49 @@ def spring_damper_open_loop_quaternion(
 <span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Perform step.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last state.</dd>
+<dt><strong><code>last_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last time derivative of state (e.g., velocity).</dd>
+<dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
+<dd>Coupling term that will be added to velocity.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next state.</dd>
+<dt><strong><code>yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next time derivative of state (e.g., velocity).</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+    &#34;&#34;&#34;Perform step.
+
+    Parameters
+    ----------
+    last_y : array, shape (n_dims,)
+        Last state.
+
+    last_yd : array, shape (n_dims,)
+        Last time derivative of state (e.g., velocity).
+
+    coupling_term : object, optional (default: None)
+        Coupling term that will be added to velocity.
+
+    Returns
+    -------
+    y : array, shape (n_dims,)
+        Next state.
+
+    yd : array, shape (n_dims,)
+        Next time derivative of state (e.g., velocity).
+    &#34;&#34;&#34;
     self.last_t = self.t
     self.t += self.dt
 
@@ -683,6 +980,7 @@ def spring_damper_open_loop_quaternion(
 <li><code><b><a title="movement_primitives.base.PointToPointMovement" href="base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></b></code>:
 <ul class="hlist">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="base.html#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="base.html#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
 </ul>
 </li>
 </ul>

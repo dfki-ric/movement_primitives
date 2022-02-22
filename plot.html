@@ -171,14 +171,8 @@ def plot_distribution_in_rows(
     else:
         xlabel = &#34;Time [s]&#34;
 
-    if &#34;color&#34; in kwargs:
-        color = kwargs[&#34;color&#34;]
-    else:
-        color = None
-    if &#34;alpha&#34; in kwargs:
-        alpha = kwargs.pop(&#34;alpha&#34;)
-    else:
-        alpha = 0.1
+    color = kwargs.get(&#34;color&#34;, None)
+    alpha = kwargs.get(&#34;alpha&#34;, 0.1)
 
     for i in range(n_dims):
         axes[i].plot(t, mean[:, i], **kwargs)
@@ -446,14 +440,8 @@ matplotlib fills rows before columns.</dd>
     else:
         xlabel = &#34;Time [s]&#34;
 
-    if &#34;color&#34; in kwargs:
-        color = kwargs[&#34;color&#34;]
-    else:
-        color = None
-    if &#34;alpha&#34; in kwargs:
-        alpha = kwargs.pop(&#34;alpha&#34;)
-    else:
-        alpha = 0.1
+    color = kwargs.get(&#34;color&#34;, None)
+    alpha = kwargs.get(&#34;alpha&#34;, 0.1)
 
     for i in range(n_dims):
         axes[i].plot(t, mean[:, i], **kwargs)

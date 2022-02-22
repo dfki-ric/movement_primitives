@@ -28,10 +28,11 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Base classes of movement primitives.&#34;&#34;&#34;
+import abc
 import numpy as np
 
 
-class PointToPointMovement:
+class PointToPointMovement(abc.ABC):
     &#34;&#34;&#34;Base class for point to point movements (discrete motions).
 
     Parameters
@@ -101,7 +102,54 @@ class PointToPointMovement:
         if goal_yd is not None:
             self.goal_yd = goal_yd
         if goal_ydd is not None:
-            self.goal_ydd = goal_ydd</code></pre>
+            self.goal_ydd = goal_ydd
+
+    @abc.abstractmethod
+    def step(self, last_y, last_yd):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
+
+    def n_steps_open_loop(self, last_y, last_yd, n_steps):
+        &#34;&#34;&#34;Perform &#39;n_steps&#39; steps.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        n_steps : int
+            Number of steps.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
+        for _ in range(n_steps):
+            last_y, last_yd = self.step(last_y, last_yd)
+        return last_y, last_yd</code></pre>
 </details>
 </section>
 <section>
@@ -130,7 +178,7 @@ class PointToPointMovement:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class PointToPointMovement:
+<pre><code class="python">class PointToPointMovement(abc.ABC):
     &#34;&#34;&#34;Base class for point to point movements (discrete motions).
 
     Parameters
@@ -200,11 +248,63 @@ class PointToPointMovement:
         if goal_yd is not None:
             self.goal_yd = goal_yd
         if goal_ydd is not None:
-            self.goal_ydd = goal_ydd</code></pre>
+            self.goal_ydd = goal_ydd
+
+    @abc.abstractmethod
+    def step(self, last_y, last_yd):
+        &#34;&#34;&#34;Perform step.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
+
+    def n_steps_open_loop(self, last_y, last_yd, n_steps):
+        &#34;&#34;&#34;Perform &#39;n_steps&#39; steps.
+
+        Parameters
+        ----------
+        last_y : array, shape (n_dims,)
+            Last state.
+
+        last_yd : array, shape (n_dims,)
+            Last time derivative of state (e.g., velocity).
+
+        n_steps : int
+            Number of steps.
+
+        Returns
+        -------
+        y : array, shape (n_dims,)
+            Next state.
+
+        yd : array, shape (n_dims,)
+            Next time derivative of state (e.g., velocity).
+        &#34;&#34;&#34;
+        for _ in range(n_steps):
+            last_y, last_yd = self.step(last_y, last_yd)
+        return last_y, last_yd</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li>movement_primitives.dmp._base.DMPBase</li>
+<li><a title="movement_primitives.minimum_jerk_trajectory.MinimumJerkTrajectory" href="minimum_jerk_trajectory.html#movement_primitives.minimum_jerk_trajectory.MinimumJerkTrajectory">MinimumJerkTrajectory</a></li>
 <li><a title="movement_primitives.spring_damper.SpringDamper" href="spring_damper.html#movement_primitives.spring_damper.SpringDamper">SpringDamper</a></li>
 <li><a title="movement_primitives.spring_damper.SpringDamperOrientation" href="spring_damper.html#movement_primitives.spring_damper.SpringDamperOrientation">SpringDamperOrientation</a></li>
 </ul>
@@ -280,6 +380,103 @@ class PointToPointMovement:
         self.goal_ydd = goal_ydd</code></pre>
 </details>
 </dd>
+<dt id="movement_primitives.base.PointToPointMovement.n_steps_open_loop"><code class="name flex">
+<span>def <span class="ident">n_steps_open_loop</span></span>(<span>self, last_y, last_yd, n_steps)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform 'n_steps' steps.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last state.</dd>
+<dt><strong><code>last_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last time derivative of state (e.g., velocity).</dd>
+<dt><strong><code>n_steps</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of steps.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next state.</dd>
+<dt><strong><code>yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next time derivative of state (e.g., velocity).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def n_steps_open_loop(self, last_y, last_yd, n_steps):
+    &#34;&#34;&#34;Perform &#39;n_steps&#39; steps.
+
+    Parameters
+    ----------
+    last_y : array, shape (n_dims,)
+        Last state.
+
+    last_yd : array, shape (n_dims,)
+        Last time derivative of state (e.g., velocity).
+
+    n_steps : int
+        Number of steps.
+
+    Returns
+    -------
+    y : array, shape (n_dims,)
+        Next state.
+
+    yd : array, shape (n_dims,)
+        Next time derivative of state (e.g., velocity).
+    &#34;&#34;&#34;
+    for _ in range(n_steps):
+        last_y, last_yd = self.step(last_y, last_yd)
+    return last_y, last_yd</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.base.PointToPointMovement.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform step.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>last_y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last state.</dd>
+<dt><strong><code>last_yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Last time derivative of state (e.g., velocity).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next state.</dd>
+<dt><strong><code>yd</code></strong> :&ensp;<code>array, shape (n_dims,)</code></dt>
+<dd>Next time derivative of state (e.g., velocity).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def step(self, last_y, last_yd):
+    &#34;&#34;&#34;Perform step.
+
+    Parameters
+    ----------
+    last_y : array, shape (n_dims,)
+        Last state.
+
+    last_yd : array, shape (n_dims,)
+        Last time derivative of state (e.g., velocity).
+
+    Returns
+    -------
+    y : array, shape (n_dims,)
+        Next state.
+
+    yd : array, shape (n_dims,)
+        Next time derivative of state (e.g., velocity).
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -302,6 +499,8 @@ class PointToPointMovement:
 <h4><code><a title="movement_primitives.base.PointToPointMovement" href="#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></code></h4>
 <ul class="">
 <li><code><a title="movement_primitives.base.PointToPointMovement.configure" href="#movement_primitives.base.PointToPointMovement.configure">configure</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.n_steps_open_loop" href="#movement_primitives.base.PointToPointMovement.n_steps_open_loop">n_steps_open_loop</a></code></li>
+<li><code><a title="movement_primitives.base.PointToPointMovement.step" href="#movement_primitives.base.PointToPointMovement.step">step</a></code></li>
 </ul>
 </li>
 </ul>

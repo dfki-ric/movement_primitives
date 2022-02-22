@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>movement_primitives.testing.simulation API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Robot simulations based on PyBullet …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,19 @@
 <h1 class="title">Module <code>movement_primitives.testing.simulation</code></h1>
 </header>
 <section id="section-intro">
+<p>Robot simulations based on PyBullet.</p>
+<p>Note that PyBullet internally represents orientations as quaternions with
+scalar-last convention: (qx, qy, qz, qw).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import numpy as np
+<pre><code class="python">&#34;&#34;&#34;Robot simulations based on PyBullet.
+
+Note that PyBullet internally represents orientations as quaternions with
+scalar-last convention: (qx, qy, qz, qw).
+&#34;&#34;&#34;
+import numpy as np
 import os
 try:
     import pybullet
@@ -37,9 +45,20 @@ except ImportError:
 import pytransform3d.transformations as pt
 
 
-# Quaternion convention: x, y, z, w
-
 class PybulletSimulation:
+    &#34;&#34;&#34;PyBullet simulation of a robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False):
         assert pybullet_available
         self.dt = dt
@@ -59,10 +78,18 @@ class PybulletSimulation:
         pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
 
     def step(self):
+        &#34;&#34;&#34;Simulation step.&#34;&#34;&#34;
         assert pybullet.isConnected(self.client_id)
         pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def sim_loop(self, n_steps=None):
+        &#34;&#34;&#34;Run simulation loop.
+
+        Parameters
+        ----------
+        n_steps : int, optional (default: infinite)
+            Number of simulation steps.
+        &#34;&#34;&#34;
         if n_steps is None:
             while pybullet.isConnected(self.client_id):
                 pybullet.stepSimulation(physicsClientId=self.client_id)
@@ -74,6 +101,7 @@ class PybulletSimulation:
 
 
 def _pybullet_pose(pose):
+    &#34;&#34;&#34;Convert pose from (x, y, z, qw, qx, qy, qz) to ((x, y, z), (qx, qy, qz, qw)).&#34;&#34;&#34;
     pos = pose[:3]
     rot = pose[3:]
     rot = np.hstack((rot[1:], [rot[0]]))  # wxyz -&gt; xyzw
@@ -81,11 +109,12 @@ def _pybullet_pose(pose):
 
 
 def _pytransform_pose(pos, rot):
+    &#34;&#34;&#34;Convert pose from ((x, y, z), (qx, qy, qz, qw)) to (x, y, z, qw, qx, qy, qz).&#34;&#34;&#34;
     return np.hstack((pos, [rot[-1]], rot[:-1]))  # xyzw -&gt; wxyz
 
 
 def draw_transform(pose2origin, s, client_id, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw pose represented by transformation matrix.
 
     Parameters
     ----------
@@ -114,7 +143,7 @@ def draw_transform(pose2origin, s, client_id, lw=1):
 
 
 def draw_pose(pose2origin, s, client_id, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw pose represented by position and quaternion.
 
     Parameters
     ----------
@@ -143,7 +172,7 @@ def draw_pose(pose2origin, s, client_id, lw=1):
 
 
 def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw trajectory.
 
     Parameters
     ----------
@@ -183,6 +212,19 @@ def get_absolute_path(urdf_path, model_prefix_path):
 
 
 class UR5Simulation(PybulletSimulation):
+    &#34;&#34;&#34;PyBullet simulation of UR5 robot arm.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False):
         super(UR5Simulation, self).__init__(dt, gui, real_time)
 
@@ -211,6 +253,18 @@ class UR5Simulation(PybulletSimulation):
                                      for i in self.joint_indices]
 
     def inverse_kinematics(self, ee2robot):
+        &#34;&#34;&#34;Inverse kinematics of UR5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (7,)
+            End-effector pose: (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        &#34;&#34;&#34;
         pos, rot = _pybullet_pose(ee2robot)
         # ee2world
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
@@ -224,6 +278,16 @@ class UR5Simulation(PybulletSimulation):
         return q
 
     def get_joint_state(self):
+        &#34;&#34;&#34;Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        &#34;&#34;&#34;
         joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
         positions = []
         velocities = []
@@ -322,52 +386,134 @@ class UR5Simulation(PybulletSimulation):
 
 
 class KinematicsChain:
+    &#34;&#34;&#34;Wrapper of PyBullet simulation of one kinematic chain.
+
+    This can be used to compute inverse kinematics.
+
+    Parameters
+    ----------
+    ee_frame : str
+        Frame of the end-effector.
+
+    joints : list
+        Names of joints.
+
+    urdf_path : str
+        Path to URDF file.
+
+    debug_gui : bool, optional (default: False)
+        Start PyBullet with GUI for debugging purposes.
+
+    Attributes
+    ----------
+    client_id_ : int
+        ID of the PyBullet instance.
+    &#34;&#34;&#34;
     def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
         if debug_gui:
-            self.client_id = pybullet.connect(pybullet.GUI)
+            self.client_id_ = pybullet.connect(pybullet.GUI)
         else:
-            self.client_id = pybullet.connect(pybullet.DIRECT)
-        pybullet.resetSimulation(physicsClientId=self.client_id)
-        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+            self.client_id_ = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id_)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id_)
 
         self.chain = pybullet.loadURDF(
-            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
-        self.joint_indices, self.link_indices = analyze_robot(
-            robot=self.chain, physicsClientId=self.client_id)
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id_)
+        self.joint_indices, self.link_indices, \
+        self.joint_name_to_joint_idx_ik = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id_,
+            return_joint_indices=True, verbose=0)
 
         self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
-        self.n_chain_joints = len(self.chain_joint_indices)
         self.ee_idx = self.link_indices[ee_frame]
+        self.q_indices = [self.joint_name_to_joint_idx_ik[jn] for jn in joints]
 
-    def inverse(self, desired_ee_state, q_current=None):
+        self.n_all_chain_joints = pybullet.getNumJoints(
+            self.chain, self.client_id_)
+
+    def inverse(self, desired_ee_state, q_current=None, n_iter=100,
+                threshold=0.001):
+        &#34;&#34;&#34;Compute inverse kinematics.
+
+        Parameters
+        ----------
+        desired_ee_state : array-like, shape (7,)
+            Desired pose of end effector: (x, y, z, qw, qx, qy, qz)
+
+        q_current : array-like, shape (n_joints,)
+            Current joint angles.
+
+        n_iter : int, optional (default: 100)
+            Number of iterations for the numerical inverse kinematics solver.
+
+        threshold : float, optional (default: 0.001)
+            Threshold for residual.
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles to reach the desired pose of the end effector.
+            If the desired pose cannot be reached, this function will return
+            joint angles that come as close as possible.
+        &#34;&#34;&#34;
         if q_current is not None:
             # we have to actively go to the current joint state
             # before computing inverse kinematics
-            self._goto_joint_state(q_current)
+            self.goto_joint_state(q_current)
+
         ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
         q = pybullet.calculateInverseKinematics(
             self.chain, self.ee_idx, ee_pos, ee_rot,
-            maxNumIterations=100, residualThreshold=0.001,
-            jointDamping=[0.1] * self.n_chain_joints,
-            physicsClientId=self.client_id)
-        return q
+            maxNumIterations=n_iter, residualThreshold=threshold,
+            jointDamping=[0.1] * self.n_all_chain_joints,
+            physicsClientId=self.client_id_)
+        return np.asarray(q)[self.q_indices]
 
-    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+    def goto_joint_state(self, q_current, max_steps_to_joint_state=50,
+                         joint_state_eps=0.001):
         pybullet.setJointMotorControlArray(
             self.chain, self.chain_joint_indices,
             pybullet.POSITION_CONTROL,
-            targetPositions=q_current, physicsClientId=self.client_id)
+            targetPositions=q_current, physicsClientId=self.client_id_)
 
         for _ in range(max_steps_to_joint_state):
-            pybullet.stepSimulation(physicsClientId=self.client_id)
+            pybullet.stepSimulation(physicsClientId=self.client_id_)
             q_internal = np.array([js[0] for js in pybullet.getJointStates(
                 self.chain, self.chain_joint_indices,
-                physicsClientId=self.client_id)])
+                physicsClientId=self.client_id_)])
             if np.linalg.norm(q_current - q_internal) &lt; joint_state_eps:
                 break
 
 
-class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
+class RH5Simulation(PybulletSimulation):
+    &#34;&#34;&#34;PyBullet simulation of RH5 humanoid robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+
+    left_joints : tuple, optional
+        Joints of the left arm
+
+    right_joints : tuple, optional
+        Joints of the right arm
+
+    urdf_path : str, optional
+        Path to URDF file
+
+    left_arm_path : str, optional
+        Path to URDF of left arm
+
+    right_arm_path : str, optional
+        Path to URDF of right arm
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False,
                  left_ee_frame=&#34;LTCP_Link&#34;, right_ee_frame=&#34;RTCP_Link&#34;,
                  left_joints=(&#34;ALShoulder1&#34;, &#34;ALShoulder2&#34;, &#34;ALShoulder3&#34;, &#34;ALElbow&#34;, &#34;ALWristRoll&#34;, &#34;ALWristYaw&#34;, &#34;ALWristPitch&#34;),
@@ -405,6 +551,19 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
             right_ee_frame, right_joints, right_arm_path)
 
     def inverse_kinematics(self, ee2robot):
+        &#34;&#34;&#34;Inverse kinematics of RH5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (14,)
+            End-effector poses: two 7-tuples that contain the pose of the
+            left and right end effector in the order (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        &#34;&#34;&#34;
         q = np.empty(self.n_joints)
 
         left_q = np.array([js[0] for js in pybullet.getJointStates(
@@ -418,6 +577,16 @@ class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-enviro
         return q
 
     def get_joint_state(self):
+        &#34;&#34;&#34;Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        &#34;&#34;&#34;
         joint_states = pybullet.getJointStates(
             self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
             physicsClientId=self.client_id)
@@ -574,8 +743,39 @@ class SimulationMockup:  # runs steppables open loop
                 np.asarray(velocities))
 
 
-def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
-    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.&#34;&#34;&#34;
+def analyze_robot(urdf_path=None, robot=None, physicsClientId=None,
+                  return_joint_indices=False, verbose=0):
+    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.
+
+    Parameters
+    ----------
+    urdf_path : str, optional (default: None)
+        Path to URDF file.
+
+    robot : int, optional (default: None)
+        PyBullet ID of robot.
+
+    physicsClientId : int, optional (default: None)
+        ID of a running bullet instance.
+
+    return_joint_indices : bool, optional (default: False)
+        Return joint indices used in inverse kinematics.
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    joint_name_to_joint_id : dict
+        Mapping from joint names to PyBullet IDs
+
+    link_name_to_link_id : dict
+        Mapping from link names to PyBullet IDs
+
+    joint_name_to_joint_idx_ik : dict
+        Mapping from joint names to array indices in result of inverse
+        kinematics
+    &#34;&#34;&#34;
     if urdf_path is not None:
         assert robot is None
         physicsClientId = pybullet.connect(pybullet.DIRECT)
@@ -596,9 +796,12 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
     last_link_idx = -1
     link_id_to_link_name = {last_link_idx: base_link}
     joint_name_to_joint_id = {}
+    joint_name_to_joint_idx_ik = {}
 
     if verbose:
         print(f&#34;Number of joints: {n_joints}&#34;)
+
+    joint_idx_ik = 0
 
     for joint_idx in range(n_joints):
         _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
@@ -618,6 +821,10 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
 
         joint_type = _joint_type(joint_type)
 
+        if joint_type != &#34;fixed&#34;:
+            joint_name_to_joint_idx_ik[joint_name] = joint_idx_ik
+            joint_idx_ik += 1
+
         if verbose:
             print(f&#34;Joint #{joint_idx}: {joint_name} ({joint_type}), &#34;
                   f&#34;child link: {child_link_name}, parent link index: {parent_idx}&#34;)
@@ -634,21 +841,23 @@ def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
         for link_idx in sorted(link_id_to_link_name.keys()):
             print(f&#34;Link #{link_idx}: {link_id_to_link_name[link_idx]}&#34;)
 
-    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}
+    link_name_to_link_id = {v: k for k, v in link_id_to_link_name.items()}
+
+    if return_joint_indices:
+        return (joint_name_to_joint_id, link_name_to_link_id,
+                joint_name_to_joint_idx_ik)
+    else:
+        return joint_name_to_joint_id, link_name_to_link_id
 
 
 def _joint_type(id):
-    if id == pybullet.JOINT_REVOLUTE:
-        return &#34;revolute&#34;
-    elif id == pybullet.JOINT_PRISMATIC:
-        return &#34;prismatic&#34;
-    elif id == pybullet.JOINT_SPHERICAL:
-        return &#34;spherical&#34;
-    elif id == pybullet.JOINT_PLANAR:
-        return &#34;planar&#34;
-    elif id == pybullet.JOINT_FIXED:
-        return &#34;fixed&#34;
-    else:
+    try:
+        return {pybullet.JOINT_REVOLUTE: &#34;revolute&#34;,
+                pybullet.JOINT_PRISMATIC: &#34;prismatic&#34;,
+                pybullet.JOINT_SPHERICAL: &#34;spherical&#34;,
+                pybullet.JOINT_PLANAR: &#34;planar&#34;,
+                pybullet.JOINT_FIXED: &#34;fixed&#34;}[id]
+    except KeyError:
         raise ValueError(f&#34;Unknown joint type id {id}&#34;)</code></pre>
 </details>
 </section>
@@ -660,16 +869,70 @@ def _joint_type(id):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="movement_primitives.testing.simulation.analyze_robot"><code class="name flex">
-<span>def <span class="ident">analyze_robot</span></span>(<span>urdf_path=None, robot=None, physicsClientId=None, verbose=0)</span>
+<span>def <span class="ident">analyze_robot</span></span>(<span>urdf_path=None, robot=None, physicsClientId=None, return_joint_indices=False, verbose=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Compute mappings between joint and link names and their indices.</p></div>
+<div class="desc"><p>Compute mappings between joint and link names and their indices.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>urdf_path</code></strong> :&ensp;<code>str</code>, optional <code>(default: None)</code></dt>
+<dd>Path to URDF file.</dd>
+<dt><strong><code>robot</code></strong> :&ensp;<code>int</code>, optional <code>(default: None)</code></dt>
+<dd>PyBullet ID of robot.</dd>
+<dt><strong><code>physicsClientId</code></strong> :&ensp;<code>int</code>, optional <code>(default: None)</code></dt>
+<dd>ID of a running bullet instance.</dd>
+<dt><strong><code>return_joint_indices</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Return joint indices used in inverse kinematics.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code>, optional <code>(default: 0)</code></dt>
+<dd>Verbosity level</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>joint_name_to_joint_id</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Mapping from joint names to PyBullet IDs</dd>
+<dt><strong><code>link_name_to_link_id</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Mapping from link names to PyBullet IDs</dd>
+<dt><strong><code>joint_name_to_joint_idx_ik</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Mapping from joint names to array indices in result of inverse
+kinematics</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def analyze_robot(urdf_path=None, robot=None, physicsClientId=None, verbose=0):
-    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.&#34;&#34;&#34;
+<pre><code class="python">def analyze_robot(urdf_path=None, robot=None, physicsClientId=None,
+                  return_joint_indices=False, verbose=0):
+    &#34;&#34;&#34;Compute mappings between joint and link names and their indices.
+
+    Parameters
+    ----------
+    urdf_path : str, optional (default: None)
+        Path to URDF file.
+
+    robot : int, optional (default: None)
+        PyBullet ID of robot.
+
+    physicsClientId : int, optional (default: None)
+        ID of a running bullet instance.
+
+    return_joint_indices : bool, optional (default: False)
+        Return joint indices used in inverse kinematics.
+
+    verbose : int, optional (default: 0)
+        Verbosity level
+
+    Returns
+    -------
+    joint_name_to_joint_id : dict
+        Mapping from joint names to PyBullet IDs
+
+    link_name_to_link_id : dict
+        Mapping from link names to PyBullet IDs
+
+    joint_name_to_joint_idx_ik : dict
+        Mapping from joint names to array indices in result of inverse
+        kinematics
+    &#34;&#34;&#34;
     if urdf_path is not None:
         assert robot is None
         physicsClientId = pybullet.connect(pybullet.DIRECT)
@@ -690,9 +953,12 @@ def _joint_type(id):
     last_link_idx = -1
     link_id_to_link_name = {last_link_idx: base_link}
     joint_name_to_joint_id = {}
+    joint_name_to_joint_idx_ik = {}
 
     if verbose:
         print(f&#34;Number of joints: {n_joints}&#34;)
+
+    joint_idx_ik = 0
 
     for joint_idx in range(n_joints):
         _, joint_name, joint_type, q_index, u_index, _, jd, jf, lo, hi,\
@@ -712,6 +978,10 @@ def _joint_type(id):
 
         joint_type = _joint_type(joint_type)
 
+        if joint_type != &#34;fixed&#34;:
+            joint_name_to_joint_idx_ik[joint_name] = joint_idx_ik
+            joint_idx_ik += 1
+
         if verbose:
             print(f&#34;Joint #{joint_idx}: {joint_name} ({joint_type}), &#34;
                   f&#34;child link: {child_link_name}, parent link index: {parent_idx}&#34;)
@@ -728,14 +998,20 @@ def _joint_type(id):
         for link_idx in sorted(link_id_to_link_name.keys()):
             print(f&#34;Link #{link_idx}: {link_id_to_link_name[link_idx]}&#34;)
 
-    return joint_name_to_joint_id, {v: k for k, v in link_id_to_link_name.items()}</code></pre>
+    link_name_to_link_id = {v: k for k, v in link_id_to_link_name.items()}
+
+    if return_joint_indices:
+        return (joint_name_to_joint_id, link_name_to_link_id,
+                joint_name_to_joint_idx_ik)
+    else:
+        return joint_name_to_joint_id, link_name_to_link_id</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.testing.simulation.draw_pose"><code class="name flex">
 <span>def <span class="ident">draw_pose</span></span>(<span>pose2origin, s, client_id, lw=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Draw transformation matrix.</p>
+<div class="desc"><p>Draw pose represented by position and quaternion.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>pose2origin</code></strong> :&ensp;<code>array-like, shape (7,)</code></dt>
@@ -752,7 +1028,7 @@ def _joint_type(id):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def draw_pose(pose2origin, s, client_id, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw pose represented by position and quaternion.
 
     Parameters
     ----------
@@ -784,7 +1060,7 @@ def _joint_type(id):
 <span>def <span class="ident">draw_trajectory</span></span>(<span>A2Bs, client_id, n_key_frames=10, s=1.0, lw=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Draw transformation matrix.</p>
+<div class="desc"><p>Draw trajectory.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>A2Bs</code></strong> :&ensp;<code>array-like, shape (n_steps, 4, 4)</code></dt>
@@ -803,7 +1079,7 @@ def _joint_type(id):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw trajectory.
 
     Parameters
     ----------
@@ -836,7 +1112,7 @@ def _joint_type(id):
 <span>def <span class="ident">draw_transform</span></span>(<span>pose2origin, s, client_id, lw=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Draw transformation matrix.</p>
+<div class="desc"><p>Draw pose represented by transformation matrix.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>pose2origin</code></strong> :&ensp;<code>array-like, shape (4, 4)</code></dt>
@@ -853,7 +1129,7 @@ def _joint_type(id):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def draw_transform(pose2origin, s, client_id, lw=1):
-    &#34;&#34;&#34;Draw transformation matrix.
+    &#34;&#34;&#34;Draw pose represented by transformation matrix.
 
     Parameters
     ----------
@@ -910,60 +1186,131 @@ def _joint_type(id):
 <span>(</span><span>ee_frame, joints, urdf_path, debug_gui=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Wrapper of PyBullet simulation of one kinematic chain.</p>
+<p>This can be used to compute inverse kinematics.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ee_frame</code></strong> :&ensp;<code>str</code></dt>
+<dd>Frame of the end-effector.</dd>
+<dt><strong><code>joints</code></strong> :&ensp;<code>list</code></dt>
+<dd>Names of joints.</dd>
+<dt><strong><code>urdf_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to URDF file.</dd>
+<dt><strong><code>debug_gui</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Start PyBullet with GUI for debugging purposes.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>client_id_</code></strong> :&ensp;<code>int</code></dt>
+<dd>ID of the PyBullet instance.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class KinematicsChain:
+    &#34;&#34;&#34;Wrapper of PyBullet simulation of one kinematic chain.
+
+    This can be used to compute inverse kinematics.
+
+    Parameters
+    ----------
+    ee_frame : str
+        Frame of the end-effector.
+
+    joints : list
+        Names of joints.
+
+    urdf_path : str
+        Path to URDF file.
+
+    debug_gui : bool, optional (default: False)
+        Start PyBullet with GUI for debugging purposes.
+
+    Attributes
+    ----------
+    client_id_ : int
+        ID of the PyBullet instance.
+    &#34;&#34;&#34;
     def __init__(self, ee_frame, joints, urdf_path, debug_gui=False):
         if debug_gui:
-            self.client_id = pybullet.connect(pybullet.GUI)
+            self.client_id_ = pybullet.connect(pybullet.GUI)
         else:
-            self.client_id = pybullet.connect(pybullet.DIRECT)
-        pybullet.resetSimulation(physicsClientId=self.client_id)
-        pybullet.setTimeStep(1.0, physicsClientId=self.client_id)
+            self.client_id_ = pybullet.connect(pybullet.DIRECT)
+        pybullet.resetSimulation(physicsClientId=self.client_id_)
+        pybullet.setTimeStep(1.0, physicsClientId=self.client_id_)
 
         self.chain = pybullet.loadURDF(
-            urdf_path, useFixedBase=1, physicsClientId=self.client_id)
-        self.joint_indices, self.link_indices = analyze_robot(
-            robot=self.chain, physicsClientId=self.client_id)
+            urdf_path, useFixedBase=1, physicsClientId=self.client_id_)
+        self.joint_indices, self.link_indices, \
+        self.joint_name_to_joint_idx_ik = analyze_robot(
+            robot=self.chain, physicsClientId=self.client_id_,
+            return_joint_indices=True, verbose=0)
 
         self.chain_joint_indices = [self.joint_indices[jn] for jn in joints]
-        self.n_chain_joints = len(self.chain_joint_indices)
         self.ee_idx = self.link_indices[ee_frame]
+        self.q_indices = [self.joint_name_to_joint_idx_ik[jn] for jn in joints]
 
-    def inverse(self, desired_ee_state, q_current=None):
+        self.n_all_chain_joints = pybullet.getNumJoints(
+            self.chain, self.client_id_)
+
+    def inverse(self, desired_ee_state, q_current=None, n_iter=100,
+                threshold=0.001):
+        &#34;&#34;&#34;Compute inverse kinematics.
+
+        Parameters
+        ----------
+        desired_ee_state : array-like, shape (7,)
+            Desired pose of end effector: (x, y, z, qw, qx, qy, qz)
+
+        q_current : array-like, shape (n_joints,)
+            Current joint angles.
+
+        n_iter : int, optional (default: 100)
+            Number of iterations for the numerical inverse kinematics solver.
+
+        threshold : float, optional (default: 0.001)
+            Threshold for residual.
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles to reach the desired pose of the end effector.
+            If the desired pose cannot be reached, this function will return
+            joint angles that come as close as possible.
+        &#34;&#34;&#34;
         if q_current is not None:
             # we have to actively go to the current joint state
             # before computing inverse kinematics
-            self._goto_joint_state(q_current)
+            self.goto_joint_state(q_current)
+
         ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
         q = pybullet.calculateInverseKinematics(
             self.chain, self.ee_idx, ee_pos, ee_rot,
-            maxNumIterations=100, residualThreshold=0.001,
-            jointDamping=[0.1] * self.n_chain_joints,
-            physicsClientId=self.client_id)
-        return q
+            maxNumIterations=n_iter, residualThreshold=threshold,
+            jointDamping=[0.1] * self.n_all_chain_joints,
+            physicsClientId=self.client_id_)
+        return np.asarray(q)[self.q_indices]
 
-    def _goto_joint_state(self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001):
+    def goto_joint_state(self, q_current, max_steps_to_joint_state=50,
+                         joint_state_eps=0.001):
         pybullet.setJointMotorControlArray(
             self.chain, self.chain_joint_indices,
             pybullet.POSITION_CONTROL,
-            targetPositions=q_current, physicsClientId=self.client_id)
+            targetPositions=q_current, physicsClientId=self.client_id_)
 
         for _ in range(max_steps_to_joint_state):
-            pybullet.stepSimulation(physicsClientId=self.client_id)
+            pybullet.stepSimulation(physicsClientId=self.client_id_)
             q_internal = np.array([js[0] for js in pybullet.getJointStates(
                 self.chain, self.chain_joint_indices,
-                physicsClientId=self.client_id)])
+                physicsClientId=self.client_id_)])
             if np.linalg.norm(q_current - q_internal) &lt; joint_state_eps:
                 break</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="movement_primitives.testing.simulation.KinematicsChain.inverse"><code class="name flex">
-<span>def <span class="ident">inverse</span></span>(<span>self, desired_ee_state, q_current=None)</span>
+<dt id="movement_primitives.testing.simulation.KinematicsChain.goto_joint_state"><code class="name flex">
+<span>def <span class="ident">goto_joint_state</span></span>(<span>self, q_current, max_steps_to_joint_state=50, joint_state_eps=0.001)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -971,18 +1318,86 @@ def _joint_type(id):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def inverse(self, desired_ee_state, q_current=None):
+<pre><code class="python">def goto_joint_state(self, q_current, max_steps_to_joint_state=50,
+                     joint_state_eps=0.001):
+    pybullet.setJointMotorControlArray(
+        self.chain, self.chain_joint_indices,
+        pybullet.POSITION_CONTROL,
+        targetPositions=q_current, physicsClientId=self.client_id_)
+
+    for _ in range(max_steps_to_joint_state):
+        pybullet.stepSimulation(physicsClientId=self.client_id_)
+        q_internal = np.array([js[0] for js in pybullet.getJointStates(
+            self.chain, self.chain_joint_indices,
+            physicsClientId=self.client_id_)])
+        if np.linalg.norm(q_current - q_internal) &lt; joint_state_eps:
+            break</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.testing.simulation.KinematicsChain.inverse"><code class="name flex">
+<span>def <span class="ident">inverse</span></span>(<span>self, desired_ee_state, q_current=None, n_iter=100, threshold=0.001)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute inverse kinematics.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>desired_ee_state</code></strong> :&ensp;<code>array-like, shape (7,)</code></dt>
+<dd>Desired pose of end effector: (x, y, z, qw, qx, qy, qz)</dd>
+<dt><strong><code>q_current</code></strong> :&ensp;<code>array-like, shape (n_joints,)</code></dt>
+<dd>Current joint angles.</dd>
+<dt><strong><code>n_iter</code></strong> :&ensp;<code>int</code>, optional <code>(default: 100)</code></dt>
+<dd>Number of iterations for the numerical inverse kinematics solver.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.001)</code></dt>
+<dd>Threshold for residual.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>q</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint angles to reach the desired pose of the end effector.
+If the desired pose cannot be reached, this function will return
+joint angles that come as close as possible.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inverse(self, desired_ee_state, q_current=None, n_iter=100,
+            threshold=0.001):
+    &#34;&#34;&#34;Compute inverse kinematics.
+
+    Parameters
+    ----------
+    desired_ee_state : array-like, shape (7,)
+        Desired pose of end effector: (x, y, z, qw, qx, qy, qz)
+
+    q_current : array-like, shape (n_joints,)
+        Current joint angles.
+
+    n_iter : int, optional (default: 100)
+        Number of iterations for the numerical inverse kinematics solver.
+
+    threshold : float, optional (default: 0.001)
+        Threshold for residual.
+
+    Returns
+    -------
+    q : array, shape (n_joints,)
+        Joint angles to reach the desired pose of the end effector.
+        If the desired pose cannot be reached, this function will return
+        joint angles that come as close as possible.
+    &#34;&#34;&#34;
     if q_current is not None:
         # we have to actively go to the current joint state
         # before computing inverse kinematics
-        self._goto_joint_state(q_current)
+        self.goto_joint_state(q_current)
+
     ee_pos, ee_rot = _pybullet_pose(desired_ee_state)
     q = pybullet.calculateInverseKinematics(
         self.chain, self.ee_idx, ee_pos, ee_rot,
-        maxNumIterations=100, residualThreshold=0.001,
-        jointDamping=[0.1] * self.n_chain_joints,
-        physicsClientId=self.client_id)
-    return q</code></pre>
+        maxNumIterations=n_iter, residualThreshold=threshold,
+        jointDamping=[0.1] * self.n_all_chain_joints,
+        physicsClientId=self.client_id_)
+    return np.asarray(q)[self.q_indices]</code></pre>
 </details>
 </dd>
 </dl>
@@ -992,12 +1407,34 @@ def _joint_type(id):
 <span>(</span><span>dt, gui=True, real_time=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>PyBullet simulation of a robot.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dt</code></strong> :&ensp;<code>float</code></dt>
+<dd>Length of time step</dd>
+<dt><strong><code>gui</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Show PyBullet GUI</dd>
+<dt><strong><code>real_time</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Simulate in real time</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PybulletSimulation:
+    &#34;&#34;&#34;PyBullet simulation of a robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False):
         assert pybullet_available
         self.dt = dt
@@ -1017,10 +1454,18 @@ def _joint_type(id):
         pybullet.setGravity(0, 0, -9.81, physicsClientId=self.client_id)
 
     def step(self):
+        &#34;&#34;&#34;Simulation step.&#34;&#34;&#34;
         assert pybullet.isConnected(self.client_id)
         pybullet.stepSimulation(physicsClientId=self.client_id)
 
     def sim_loop(self, n_steps=None):
+        &#34;&#34;&#34;Run simulation loop.
+
+        Parameters
+        ----------
+        n_steps : int, optional (default: infinite)
+            Number of simulation steps.
+        &#34;&#34;&#34;
         if n_steps is None:
             while pybullet.isConnected(self.client_id):
                 pybullet.stepSimulation(physicsClientId=self.client_id)
@@ -1041,12 +1486,24 @@ def _joint_type(id):
 <span>def <span class="ident">sim_loop</span></span>(<span>self, n_steps=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run simulation loop.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>n_steps</code></strong> :&ensp;<code>int</code>, optional <code>(default: infinite)</code></dt>
+<dd>Number of simulation steps.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sim_loop(self, n_steps=None):
+    &#34;&#34;&#34;Run simulation loop.
+
+    Parameters
+    ----------
+    n_steps : int, optional (default: infinite)
+        Number of simulation steps.
+    &#34;&#34;&#34;
     if n_steps is None:
         while pybullet.isConnected(self.client_id):
             pybullet.stepSimulation(physicsClientId=self.client_id)
@@ -1061,12 +1518,13 @@ def _joint_type(id):
 <span>def <span class="ident">step</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Simulation step.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def step(self):
+    &#34;&#34;&#34;Simulation step.&#34;&#34;&#34;
     assert pybullet.isConnected(self.client_id)
     pybullet.stepSimulation(physicsClientId=self.client_id)</code></pre>
 </details>
@@ -1078,12 +1536,59 @@ def _joint_type(id):
 <span>(</span><span>dt, gui=True, real_time=False, left_ee_frame='LTCP_Link', right_ee_frame='RTCP_Link', left_joints=('ALShoulder1', 'ALShoulder2', 'ALShoulder3', 'ALElbow', 'ALWristRoll', 'ALWristYaw', 'ALWristPitch'), right_joints=('ARShoulder1', 'ARShoulder2', 'ARShoulder3', 'ARElbow', 'ARWristRoll', 'ARWristYaw', 'ARWristPitch'), urdf_path='pybullet-only-arms-urdf/urdf/RH5.urdf', left_arm_path='pybullet-only-arms-urdf/submodels/left_arm.urdf', right_arm_path='pybullet-only-arms-urdf/submodels/right_arm.urdf')</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>PyBullet simulation of RH5 humanoid robot.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dt</code></strong> :&ensp;<code>float</code></dt>
+<dd>Length of time step</dd>
+<dt><strong><code>gui</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Show PyBullet GUI</dd>
+<dt><strong><code>real_time</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Simulate in real time</dd>
+<dt><strong><code>left_joints</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>Joints of the left arm</dd>
+<dt><strong><code>right_joints</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>Joints of the right arm</dd>
+<dt><strong><code>urdf_path</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Path to URDF file</dd>
+<dt><strong><code>left_arm_path</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Path to URDF of left arm</dd>
+<dt><strong><code>right_arm_path</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Path to URDF of right arm</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class RH5Simulation(PybulletSimulation):  # https://git.hb.dfki.de/bolero-environments/graspbullet/-/blob/transfit_wp5300/Grasping/grasping_env_rh5.py
+<pre><code class="python">class RH5Simulation(PybulletSimulation):
+    &#34;&#34;&#34;PyBullet simulation of RH5 humanoid robot.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+
+    left_joints : tuple, optional
+        Joints of the left arm
+
+    right_joints : tuple, optional
+        Joints of the right arm
+
+    urdf_path : str, optional
+        Path to URDF file
+
+    left_arm_path : str, optional
+        Path to URDF of left arm
+
+    right_arm_path : str, optional
+        Path to URDF of right arm
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False,
                  left_ee_frame=&#34;LTCP_Link&#34;, right_ee_frame=&#34;RTCP_Link&#34;,
                  left_joints=(&#34;ALShoulder1&#34;, &#34;ALShoulder2&#34;, &#34;ALShoulder3&#34;, &#34;ALElbow&#34;, &#34;ALWristRoll&#34;, &#34;ALWristYaw&#34;, &#34;ALWristPitch&#34;),
@@ -1121,6 +1626,19 @@ def _joint_type(id):
             right_ee_frame, right_joints, right_arm_path)
 
     def inverse_kinematics(self, ee2robot):
+        &#34;&#34;&#34;Inverse kinematics of RH5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (14,)
+            End-effector poses: two 7-tuples that contain the pose of the
+            left and right end effector in the order (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        &#34;&#34;&#34;
         q = np.empty(self.n_joints)
 
         left_q = np.array([js[0] for js in pybullet.getJointStates(
@@ -1134,6 +1652,16 @@ def _joint_type(id):
         return q
 
     def get_joint_state(self):
+        &#34;&#34;&#34;Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        &#34;&#34;&#34;
         joint_states = pybullet.getJointStates(
             self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
             physicsClientId=self.client_id)
@@ -1309,12 +1837,29 @@ def _joint_type(id):
 <span>def <span class="ident">get_joint_state</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get joint state.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>positions</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint angles</dd>
+<dt><strong><code>velocities</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint velocities</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_joint_state(self):
+    &#34;&#34;&#34;Get joint state.
+
+    Returns
+    -------
+    positions : array, shape (n_joints,)
+        Joint angles
+
+    velocities : array, shape (n_joints,)
+        Joint velocities
+    &#34;&#34;&#34;
     joint_states = pybullet.getJointStates(
         self.robot, self.left_arm_joint_indices + self.right_arm_joint_indices,
         physicsClientId=self.client_id)
@@ -1347,12 +1892,36 @@ def _joint_type(id):
 <span>def <span class="ident">inverse_kinematics</span></span>(<span>self, ee2robot)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Inverse kinematics of RH5.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ee2robot</code></strong> :&ensp;<code>array-like, shape (14,)</code></dt>
+<dd>End-effector poses: two 7-tuples that contain the pose of the
+left and right end effector in the order (x, y, z, qw, qx, qy, qz).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>q</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint angles</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def inverse_kinematics(self, ee2robot):
+    &#34;&#34;&#34;Inverse kinematics of RH5.
+
+    Parameters
+    ----------
+    ee2robot : array-like, shape (14,)
+        End-effector poses: two 7-tuples that contain the pose of the
+        left and right end effector in the order (x, y, z, qw, qx, qy, qz).
+
+    Returns
+    -------
+    q : array, shape (n_joints,)
+        Joint angles
+    &#34;&#34;&#34;
     q = np.empty(self.n_joints)
 
     left_q = np.array([js[0] for js in pybullet.getJointStates(
@@ -1491,6 +2060,15 @@ def _joint_type(id):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="movement_primitives.testing.simulation.PybulletSimulation" href="#movement_primitives.testing.simulation.PybulletSimulation">PybulletSimulation</a></b></code>:
+<ul class="hlist">
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.sim_loop" href="#movement_primitives.testing.simulation.PybulletSimulation.sim_loop">sim_loop</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.step" href="#movement_primitives.testing.simulation.PybulletSimulation.step">step</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 <dt id="movement_primitives.testing.simulation.SimulationMockup"><code class="flex name class">
 <span>class <span class="ident">SimulationMockup</span></span>
@@ -1588,12 +2166,34 @@ def _joint_type(id):
 <span>(</span><span>dt, gui=True, real_time=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>PyBullet simulation of UR5 robot arm.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dt</code></strong> :&ensp;<code>float</code></dt>
+<dd>Length of time step</dd>
+<dt><strong><code>gui</code></strong> :&ensp;<code>bool</code>, optional <code>(default: True)</code></dt>
+<dd>Show PyBullet GUI</dd>
+<dt><strong><code>real_time</code></strong> :&ensp;<code>bool</code>, optional <code>(default: False)</code></dt>
+<dd>Simulate in real time</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class UR5Simulation(PybulletSimulation):
+    &#34;&#34;&#34;PyBullet simulation of UR5 robot arm.
+
+    Parameters
+    ----------
+    dt : float
+        Length of time step
+
+    gui : bool, optional (default: True)
+        Show PyBullet GUI
+
+    real_time : bool, optional (default: False)
+        Simulate in real time
+    &#34;&#34;&#34;
     def __init__(self, dt, gui=True, real_time=False):
         super(UR5Simulation, self).__init__(dt, gui, real_time)
 
@@ -1622,6 +2222,18 @@ def _joint_type(id):
                                      for i in self.joint_indices]
 
     def inverse_kinematics(self, ee2robot):
+        &#34;&#34;&#34;Inverse kinematics of UR5.
+
+        Parameters
+        ----------
+        ee2robot : array-like, shape (7,)
+            End-effector pose: (x, y, z, qw, qx, qy, qz).
+
+        Returns
+        -------
+        q : array, shape (n_joints,)
+            Joint angles
+        &#34;&#34;&#34;
         pos, rot = _pybullet_pose(ee2robot)
         # ee2world
         pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
@@ -1635,6 +2247,16 @@ def _joint_type(id):
         return q
 
     def get_joint_state(self):
+        &#34;&#34;&#34;Get joint state.
+
+        Returns
+        -------
+        positions : array, shape (n_joints,)
+            Joint angles
+
+        velocities : array, shape (n_joints,)
+            Joint velocities
+        &#34;&#34;&#34;
         joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
         positions = []
         velocities = []
@@ -1770,12 +2392,29 @@ def _joint_type(id):
 <span>def <span class="ident">get_joint_state</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get joint state.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>positions</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint angles</dd>
+<dt><strong><code>velocities</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint velocities</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_joint_state(self):
+    &#34;&#34;&#34;Get joint state.
+
+    Returns
+    -------
+    positions : array, shape (n_joints,)
+        Joint angles
+
+    velocities : array, shape (n_joints,)
+        Joint velocities
+    &#34;&#34;&#34;
     joint_states = pybullet.getJointStates(self.robot, self.joint_indices[:self.n_ur5_joints])
     positions = []
     velocities = []
@@ -1808,12 +2447,34 @@ def _joint_type(id):
 <span>def <span class="ident">inverse_kinematics</span></span>(<span>self, ee2robot)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Inverse kinematics of UR5.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ee2robot</code></strong> :&ensp;<code>array-like, shape (7,)</code></dt>
+<dd>End-effector pose: (x, y, z, qw, qx, qy, qz).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>q</code></strong> :&ensp;<code>array, shape (n_joints,)</code></dt>
+<dd>Joint angles</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def inverse_kinematics(self, ee2robot):
+    &#34;&#34;&#34;Inverse kinematics of UR5.
+
+    Parameters
+    ----------
+    ee2robot : array-like, shape (7,)
+        End-effector pose: (x, y, z, qw, qx, qy, qz).
+
+    Returns
+    -------
+    q : array, shape (n_joints,)
+        Joint angles
+    &#34;&#34;&#34;
     pos, rot = _pybullet_pose(ee2robot)
     # ee2world
     pos, rot = pybullet.multiplyTransforms(pos, rot, *self.base_pose)
@@ -1938,6 +2599,15 @@ def _joint_type(id):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="movement_primitives.testing.simulation.PybulletSimulation" href="#movement_primitives.testing.simulation.PybulletSimulation">PybulletSimulation</a></b></code>:
+<ul class="hlist">
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.sim_loop" href="#movement_primitives.testing.simulation.PybulletSimulation.sim_loop">sim_loop</a></code></li>
+<li><code><a title="movement_primitives.testing.simulation.PybulletSimulation.step" href="#movement_primitives.testing.simulation.PybulletSimulation.step">step</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -1967,6 +2637,7 @@ def _joint_type(id):
 <li>
 <h4><code><a title="movement_primitives.testing.simulation.KinematicsChain" href="#movement_primitives.testing.simulation.KinematicsChain">KinematicsChain</a></code></h4>
 <ul class="">
+<li><code><a title="movement_primitives.testing.simulation.KinematicsChain.goto_joint_state" href="#movement_primitives.testing.simulation.KinematicsChain.goto_joint_state">goto_joint_state</a></code></li>
 <li><code><a title="movement_primitives.testing.simulation.KinematicsChain.inverse" href="#movement_primitives.testing.simulation.KinematicsChain.inverse">inverse</a></code></li>
 </ul>
 </li>
