@@ -2,8 +2,8 @@ import numpy as np
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 from gmr import GMM
+from mocap.dataset_loader import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 
-from movement_primitives.data import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from movement_primitives.promp import ProMP
 from movement_primitives.visualization import to_ellipsoid
 

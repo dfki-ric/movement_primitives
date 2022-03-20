@@ -3,9 +3,9 @@ import pytransform3d.visualizer as pv
 import pytransform3d.trajectories as ptr
 from pytransform3d.urdf import UrdfTransformManager
 from mocap.cleaning import smooth_exponential_coordinates, median_filter
+from mocap.dataset_loader import load_kuka_dataset, transpose_dataset
 
 from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
-from movement_primitives.data import load_kuka_dataset, transpose_dataset
 from movement_primitives.promp import ProMP
 from gmr import GMM
 
