@@ -1,6 +1,6 @@
 import numpy as np
 import tqdm
-from movement_primitives.data import load_kuka_dataset, transpose_dataset
+from mocap.dataset_loader import load_kuka_dataset, transpose_dataset
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.dmp_to_state_space_distribution import propagate_to_state_space, estimate_state_distribution
 from movement_primitives.visualization import plot_pointcloud, ToggleGeometry

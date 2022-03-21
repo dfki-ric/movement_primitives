@@ -1,7 +1,7 @@
 import numpy as np
 from tqdm import tqdm
+from mocap.dataset_loader import load_kuka_dataset
 
-from movement_primitives.data import load_kuka_dataset
 from movement_primitives.dmp_to_state_space_distribution import propagate_weight_distribution_to_state_space
 from movement_primitives.plot import plot_trajectory_in_rows, plot_distribution_in_rows
 from pytransform3d import transformations as pt

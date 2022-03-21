@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import tqdm
 from pytransform3d import trajectories as ptr
 from pytransform3d import transformations as pt
+from mocap.dataset_loader import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from mocap.cleaning import smooth_quaternion_trajectory, median_filter
 from gmr import GMM
 
-from movement_primitives.data import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 from movement_primitives.promp import ProMP
 from movement_primitives.plot import plot_distribution_in_rows, PALETTE
 

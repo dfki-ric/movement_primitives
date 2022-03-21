@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pytransform3d.plot_utils import make_3d_axis
 import pytransform3d.trajectories as ptr
-from movement_primitives.data import load_rh5_demo
+from mocap.dataset_loader import load_rh5_demo
 from movement_primitives.dmp import DualCartesianDMP, CouplingTermDualCartesianTrajectory
 
 

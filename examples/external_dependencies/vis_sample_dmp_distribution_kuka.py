@@ -1,5 +1,5 @@
 import numpy as np
-from movement_primitives.data import load_kuka_dataset
+from mocap.dataset_loader import load_kuka_dataset
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 from movement_primitives.dmp import DualCartesianDMP
