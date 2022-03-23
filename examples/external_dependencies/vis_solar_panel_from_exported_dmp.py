@@ -1,5 +1,6 @@
 import numpy as np
 import pytransform3d.visualizer as pv
+import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
 from movement_primitives.kinematics import Kinematics
@@ -61,9 +62,8 @@ dmp = read_yaml("rh5_dual_arm_dmp.yaml")
 # does not move at all, while a DMP that moves from q to -q moves a lot. We
 # have to make sure that start_y always contains the quaternion representation
 # that is closest to the previous start_y!
-from movement_primitives.utils import pick_closest_quaternion
-start_y[3:7] = pick_closest_quaternion(start_y[3:7], target_quaternion=dmp.start_y[3:7])
-start_y[10:14] = pick_closest_quaternion(start_y[10:14], target_quaternion=dmp.start_y[10:14])
+start_y[3:7] = pr.pick_closest_quaternion(start_y[3:7], target_quaternion=dmp.start_y[3:7])
+start_y[10:14] = pr.pick_closest_quaternion(start_y[10:14], target_quaternion=dmp.start_y[10:14])
 dmp.configure(start_y=start_y)
 
 # Generate trajectory with open loop.
