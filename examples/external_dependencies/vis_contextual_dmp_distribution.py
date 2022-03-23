@@ -4,8 +4,9 @@ from mocap.dataset_loader import load_kuka_dataset, transpose_dataset
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.dmp_to_state_space_distribution import propagate_to_state_space, estimate_state_distribution
 from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
-from mocap.cleaning import smooth_quaternion_trajectory, median_filter
+from mocap.cleaning import median_filter
 from gmr import GMM
+from pytransform3d.batch_rotations import smooth_quaternion_trajectory
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
 

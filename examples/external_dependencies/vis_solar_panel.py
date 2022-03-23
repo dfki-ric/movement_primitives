@@ -3,7 +3,8 @@ import pytransform3d.visualizer as pv
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
-from mocap.cleaning import smooth_exponential_coordinates, smooth_quaternion_trajectory
+from pytransform3d.batch_rotations import smooth_quaternion_trajectory
+from mocap.cleaning import smooth_exponential_coordinates
 from movement_primitives.kinematics import Kinematics
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.io import (write_json, write_yaml, write_pickle)

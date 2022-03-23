@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mocap.dataset_loader import load_kuka_dataset
 from movement_primitives.plot import plot_trajectory_in_rows
-from mocap.cleaning import smooth_quaternion_trajectory, median_filter
+from mocap.cleaning import median_filter
+from pytransform3d.batch_rotations import smooth_quaternion_trajectory
 from pytransform3d import trajectories as ptr
 
 

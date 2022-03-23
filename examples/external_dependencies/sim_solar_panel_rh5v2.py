@@ -4,10 +4,11 @@ import pybullet
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
+from pytransform3d.batch_rotations import smooth_quaternion_trajectory
 from movement_primitives.dmp import DualCartesianDMP
 from movement_primitives.kinematics import Kinematics
 from movement_primitives.testing.simulation import RH5Simulation, draw_transform, _pybullet_pose, get_absolute_path
-from mocap.cleaning import smooth_quaternion_trajectory, smooth_exponential_coordinates
+from mocap.cleaning import smooth_exponential_coordinates
 from movement_primitives.io import write_json, write_yaml, write_pickle
 
 
