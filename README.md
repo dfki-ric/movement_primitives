@@ -23,6 +23,10 @@ Example of dual Cartesian DMP with
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" />
 
+Example of joint space DMP with UR5:
+
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" width="256px" />
+
 ## API Documentation
 
 The API documentation is available
