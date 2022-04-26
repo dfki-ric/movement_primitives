@@ -43,7 +43,7 @@ might have to add the flag `--user` to any installation command.
 I recommend to install the library via pip:
 
 ```bash
-python -m pip install movement_primitives
+python -m pip install movement_primitives[all]
 ```
 
 or clone the git repository and install it in editable mode:
