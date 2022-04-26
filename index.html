@@ -24,7 +24,8 @@
 <section id="section-intro">
 <p>Movement primitives.</p>
 <p><img alt="CI" src="https://github.com/dfki-ric/movement_primitives/actions/workflows/python-package.yml/badge.svg">
-<a href="https://codecov.io/gh/dfki-ric/movement_primitives"><img alt="codecov" src="https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL"></a></p>
+<a href="https://codecov.io/gh/dfki-ric/movement_primitives"><img alt="codecov" src="https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL"></a>
+<a href="https://doi.org/10.5281/zenodo.6491361"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.6491361.svg"></a></p>
 <h1 id="movement-primitives">Movement Primitives</h1>
 <p>Movement primitives are a common group of policy representations in robotics.
 There are many types and variations. This repository focuses mainly on
@@ -45,6 +46,8 @@ It provides implementations in Python and Cython.</p>
 <p>Example of dual Cartesian DMP with
 <a href="https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/">RH5 Manus</a>:</p>
 <p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" /></p>
+<p>Example of joint space DMP with UR5:</p>
+<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" width="256px" /></p>
 <h2 id="api-documentation">API Documentation</h2>
 <p>The API documentation is available
 <a href="https://dfki-ric.github.io/movement_primitives/">here</a>.</p>
@@ -288,10 +291,6 @@ __all__ = [&#34;__version__&#34;]</code></pre>
 <dd>
 <div class="desc"><p>Modules that are only required for test purposes.</p></div>
 </dd>
-<dt><code class="name"><a title="movement_primitives.utils" href="utils.html">movement_primitives.utils</a></code></dt>
-<dd>
-<div class="desc"><p>Utility functions.</p></div>
-</dd>
 <dt><code class="name"><a title="movement_primitives.visualization" href="visualization.html">movement_primitives.visualization</a></code></dt>
 <dd>
 <div class="desc"><p>3D visualization tools for movement primitives.</p></div>
@@ -355,7 +354,6 @@ __all__ = [&#34;__version__&#34;]</code></pre>
 <li><code><a title="movement_primitives.promp" href="promp.html">movement_primitives.promp</a></code></li>
 <li><code><a title="movement_primitives.spring_damper" href="spring_damper.html">movement_primitives.spring_damper</a></code></li>
 <li><code><a title="movement_primitives.testing" href="testing/index.html">movement_primitives.testing</a></code></li>
-<li><code><a title="movement_primitives.utils" href="utils.html">movement_primitives.utils</a></code></li>
 <li><code><a title="movement_primitives.visualization" href="visualization.html">movement_primitives.visualization</a></code></li>
 </ul>
 </li>
