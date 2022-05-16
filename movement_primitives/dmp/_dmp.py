@@ -722,29 +722,25 @@ def dmp_open_loop(
     if start_ydd is None:
         start_ydd = np.zeros_like(start_y)
 
-    t = start_t
+    if run_t is None:
+        run_t = goal_t
+
+    T = np.arange(start_t, run_t + dt, dt)
     current_y = np.copy(start_y)
     current_yd = np.copy(start_yd)
 
-    T = [start_t]
-    Y = [np.copy(current_y)]
+    Y = np.empty((len(T), len(current_y)))
+    Y[0] = current_y
 
-    if run_t is None:
-        run_t = goal_t
-    while t < run_t:
-        last_t = t
-        t += dt
-
+    for i in range(1, len(T)):
         step_function(
-            last_t, t, current_y, current_yd,
+            T[i - 1], T[i], current_y, current_yd,
             goal_y=goal_y, goal_yd=goal_yd, goal_ydd=goal_ydd,
             start_y=start_y, start_yd=start_yd, start_ydd=start_ydd,
             goal_t=goal_t, start_t=start_t,
             alpha_y=alpha_y, beta_y=beta_y,
             forcing_term=forcing_term, coupling_term=coupling_term,
             int_dt=int_dt)
+        Y[i] = current_y
 
-        T.append(t)
-        Y.append(np.copy(current_y))
-
-    return np.array(T), np.array(Y)
+    return T, Y

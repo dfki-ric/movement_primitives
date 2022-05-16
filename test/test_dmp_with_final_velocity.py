@@ -36,4 +36,4 @@ def test_step_through_dmp_with_final_velocity():
     while dmp.t <= dmp.execution_time:
         current_y, current_yd = dmp.step(current_y, current_yd)
         path.append(np.copy(current_y))
-    assert_array_almost_equal(np.vstack(path), dmp.open_loop()[1])
+    assert_array_almost_equal(np.vstack(path), dmp.open_loop()[1], decimal=5)
