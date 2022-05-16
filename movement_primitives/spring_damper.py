@@ -204,8 +204,7 @@ class SpringDamperOrientation(PointToPointMovement):
 def spring_damper_step(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
@@ -229,11 +228,16 @@ def spring_damper_step(
         current_y += dt * current_yd
 
 
+def _default_critically_damped_c(c, k):
+    if c is None:
+        c = 2.0 * np.sqrt(k)
+    return c
+
+
 def spring_damper_step_quaternion(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
