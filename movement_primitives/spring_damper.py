@@ -268,37 +268,32 @@ def spring_damper_step_quaternion(
 def spring_damper_open_loop(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
-    yd = np.zeros_like(y)
-    T = [t]
-    Y = [np.copy(y)]
-    while t < run_t:
-        last_t = t
-        t += dt
+    yd = np.zeros_like(start_y)
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step(
-            last_t, t, y, yd,
-            goal_y=goal_y,
-            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
+            coupling_term=coupling_term, int_dt=int_dt)
+        Y[i] = y
+    return T, Y
 
 
 def spring_damper_open_loop_quaternion(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
     yd = np.zeros(3)
-    T = [t]
-    Y = [np.copy(y)]
-    while t < run_t:
-        last_t = t
-        t += dt
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step_quaternion(
-            last_t, t, y, yd, goal_y=goal_y, k=k, c=c,
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
             coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)
+        Y[i] = y
+    return T, Y

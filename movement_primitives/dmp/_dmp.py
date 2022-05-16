@@ -725,10 +725,10 @@ def dmp_open_loop(
     if run_t is None:
         run_t = goal_t
 
-    T = np.arange(start_t, run_t + dt, dt)
     current_y = np.copy(start_y)
     current_yd = np.copy(start_yd)
 
+    T = np.arange(start_t, run_t + dt, dt)
     Y = np.empty((len(T), len(current_y)))
     Y[0] = current_y
 
