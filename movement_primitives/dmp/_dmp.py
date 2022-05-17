@@ -372,6 +372,8 @@ class DMP(WeightParametersMixin, DMPBase):
         yd : array, shape (n_dims,)
             Next time derivative of state (e.g., velocity).
         """
+        assert len(last_y) == self.n_dims
+        assert len(last_yd) == self.n_dims
         self.last_t = self.t
         self.t += self.dt_
 
