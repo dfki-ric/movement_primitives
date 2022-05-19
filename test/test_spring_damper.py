@@ -3,7 +3,7 @@ from pytransform3d import rotations as pr
 from pytransform3d import trajectories as ptr
 from movement_primitives.spring_damper import SpringDamper, SpringDamperOrientation
 from numpy.testing import assert_array_almost_equal
-from nose.tools import assert_less
+from nose.tools import assert_less, assert_almost_equal
 
 
 def test_spring_damper():
@@ -34,6 +34,25 @@ def test_spring_damper_steps():
         y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal_y - y)
     assert_less(error, 6e-4)
+
+
+def test_spring_damper_reset():
+    start_y = np.array([0.0])
+    start_yd = np.array([0.0])
+    goal_y = np.array([1.0])
+
+    k = 100.0
+    sd = SpringDamper(n_dims=1, dt=0.01, k=k, int_dt=0.001)
+    sd.configure(start_y=start_y, goal_y=goal_y, start_yd=start_yd)
+    y = np.copy(start_y)
+    yd = np.copy(start_yd)
+    for i in range(100):
+        y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal_y - y)
+    assert_less(error, 6e-4)
+    assert_almost_equal(1, sd.t)
+    sd.reset()
+    assert_almost_equal(0, sd.t)
 
 
 def test_spring_damper_quaternion():
@@ -67,6 +86,26 @@ def test_spring_damper_quaternion_steps():
         y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal - y)
     assert_less(error, 1e-3)
+
+
+def test_spring_damper_quaternion_reset():
+    random_state = np.random.RandomState(42)
+    start = pr.random_quaternion(random_state)
+    start_d = np.array([0.0, 0.0, 0.0])
+    goal = np.array([0.0, 0.0, 1.0, 0.0])
+
+    k = 100.0
+    sd = SpringDamperOrientation(dt=0.01, k=k, int_dt=0.001)
+    sd.configure(start_y=start, goal_y=goal, start_yd=start_d)
+    y = np.copy(start)
+    yd = np.copy(start_d)
+    for i in range(100):
+        y, yd = sd.step(y, yd)
+    error = np.linalg.norm(goal - y)
+    assert_less(error, 1e-3)
+    assert_almost_equal(1, sd.t)
+    sd.reset()
+    assert_almost_equal(0, sd.t)
 
 
 if __name__ == "__main__":

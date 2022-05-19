@@ -37,6 +37,11 @@ class SpringDamper(PointToPointMovement):
         self.initialized = False
         self.configure()
 
+    def reset(self):
+        """Reset time."""
+        self.t = 0.0
+        self.last_t = None
+
     def step(self, last_y, last_yd, coupling_term=None):
         """Perform step.
 
@@ -133,6 +138,11 @@ class SpringDamperOrientation(PointToPointMovement):
 
         self.initialized = False
         self.configure()
+
+    def reset(self):
+        """Reset time."""
+        self.t = 0.0
+        self.last_t = None
 
     def step(self, last_y, last_yd, coupling_term=None):
         """Perform step.
