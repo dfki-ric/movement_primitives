@@ -583,4 +583,5 @@ def dmp_open_loop_quaternion(
             int_dt=int_dt)
         #T.append(t)
         Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)
+    #return np.asarray(T), np.asarray(Y)
+    return T, np.asarray(Y)
