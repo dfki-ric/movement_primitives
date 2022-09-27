@@ -712,7 +712,7 @@ def dmp_open_loop(
     T : array, shape (n_steps,)
         Times.
 
-    Y : array, shape (n_steps,)
+    Y : array, shape (n_steps, n_dims)
         Positions.
     """
     if goal_yd is None:
