@@ -563,15 +563,17 @@ def dmp_open_loop_quaternion(
     t = start_t
     y = np.copy(start_y)
     yd = np.zeros(3)
-    T = [start_t]
+    #T = [start_t]
     Y = [np.copy(y)]
     if run_t is None:
         run_t = goal_t
-    while t < run_t:
-        last_t = t
-        t += dt
-        quaternion_step_function(
-            last_t, t, y, yd,
+    T = np.arange(start_t, run_t+dt, dt)
+    #while t < run_t:
+        #last_t = t
+        #t += dt
+    for i in range(1,len(T)):
+        quaternion_step_function( #last_t, t, y, yd,
+            T[i-1], T[i], y, yd,
             goal_y=goal_y, goal_yd=np.zeros_like(yd),
             goal_ydd=np.zeros_like(yd),
             start_y=start_y, start_yd=np.zeros_like(yd),
@@ -579,6 +581,6 @@ def dmp_open_loop_quaternion(
             goal_t=goal_t, start_t=start_t, alpha_y=alpha_y, beta_y=beta_y,
             forcing_term=forcing_term, coupling_term=coupling_term,
             int_dt=int_dt)
-        T.append(t)
+        #T.append(t)
         Y.append(np.copy(y))
     return np.asarray(T), np.asarray(Y)
