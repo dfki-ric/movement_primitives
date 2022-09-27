@@ -2,6 +2,7 @@ import numpy as np
 from movement_primitives.dmp import CartesianDMP
 from pytransform3d import rotations as pr
 from numpy.testing import assert_array_almost_equal, assert_raises_regex
+from nose.tools import assert_equal
 
 
 def test_imitate_cartesian_dmp():
@@ -29,6 +30,18 @@ def test_imitate_cartesian_dmp():
     T2, Y2 = dmp.open_loop()
     assert_array_almost_equal(T, T2)
     assert_array_almost_equal(Y, Y2, decimal=2)
+
+
+def test_imitate_cartesian_dmp_rounding_error():
+    dt = 0.01
+    execution_time = 6.0
+
+    dmp = CartesianDMP(
+        execution_time=execution_time, dt=dt,
+        n_weights_per_dim=10)
+    T, Y = dmp.open_loop()
+    assert_equal(len(T), 601)
+    assert_equal(len(Y), 601)
 
 
 def test_step_through_cartesian_dmp():
