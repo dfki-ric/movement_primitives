@@ -1,13 +1,73 @@
 import numpy as np
+import open3d as o3d
+from matplotlib import cbook
 import pytransform3d.visualizer as pv
+import pytransform3d.transformations as pt
 import pytransform3d.trajectories as ptr
+import pytransform3d.uncertainty as pu
 from pytransform3d.urdf import UrdfTransformManager
 from mocap.cleaning import smooth_exponential_coordinates, median_filter
 from mocap.dataset_loader import load_kuka_dataset, transpose_dataset
 
-from movement_primitives.visualization import plot_pointcloud, ToggleGeometry
 from movement_primitives.promp import ProMP
 from gmr import GMM
+
+
+class Surface(pv.Artist):
+    """Surface.
+
+    Parameters
+    ----------
+    x : array, shape (n_steps, n_steps)
+        Coordinates on x-axis of grid on surface.
+    y : array, shape (n_steps, n_steps)
+        Coordinates on y-axis of grid on surface.
+    z : array, shape (n_steps, n_steps)
+        Coordinates on z-axis of grid on surface.
+    c : array-like, shape (3,), optional (default: None)
+        Color
+    """
+    def __init__(self, x, y, z, c=None):
+        self.c = c
+        self.mesh = o3d.geometry.TriangleMesh()
+        self.set_data(x, y, z)
+
+    def set_data(self, x, y, z):
+        """Update data.
+
+        Parameters
+        ----------
+        x : array, shape (n_steps, n_steps)
+            Coordinates on x-axis of grid on surface.
+        y : array, shape (n_steps, n_steps)
+            Coordinates on y-axis of grid on surface.
+        z : array, shape (n_steps, n_steps)
+            Coordinates on z-axis of grid on surface.
+        """
+        polys = np.stack([cbook._array_patch_perimeters(a, 1, 1)
+                          for a in (x, y, z)], axis=-1)
+        vertices = polys.reshape(-1, 3)
+        triangles = (
+            [[4 * i + 0, 4 * i + 1, 4 * i + 2] for i in range(len(polys))] +
+            [[4 * i + 2, 4 * i + 3, 4 * i + 0] for i in range(len(polys))] +
+            [[4 * i + 0, 4 * i + 3, 4 * i + 2] for i in range(len(polys))] +
+            [[4 * i + 2, 4 * i + 1, 4 * i + 0] for i in range(len(polys))]
+        )
+        self.mesh.vertices = o3d.utility.Vector3dVector(vertices)
+        self.mesh.triangles = o3d.utility.Vector3iVector(triangles)
+        if self.c is not None:
+            self.mesh.paint_uniform_color(self.c)
+        self.mesh.compute_vertex_normals()
+
+    @property
+    def geometries(self):
+        """Expose geometries.
+        Returns
+        -------
+        geometries : list
+            List of geometries that can be added to the visualizer.
+        """
+        return [self.mesh]
 
 
 def generate_training_data(
@@ -78,36 +138,22 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     promp.from_weight_distribution(
         conditional_weight_distribution.mean,
         conditional_weight_distribution.covariance)
+
+    # mean and covariance in state space
     mean = promp.mean_trajectory(T_query)
-    var = promp.var_trajectory(T_query)
-    samples = promp.sample_trajectories(T_query, 100, random_state)
+    cov = promp.cov_trajectory(T_query).reshape(
+        mean.shape[0], mean.shape[1], mean.shape[1], mean.shape[0])
 
-    c = [0, 0, 0]
-    c[idx] = 1
-    fig.plot_trajectory(ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(mean[:, :6])), s=0.05, c=tuple(c))
-    fig.plot_trajectory(ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(mean[:, 6:])), s=0.05, c=tuple(c))
-
-    pcl_points = []
-    distances = []
-    stds = []
-    for E in samples:
-        P_left = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(E[:, :6]))
-        P_right = ptr.pqs_from_transforms(ptr.transforms_from_exponential_coordinates(E[:, 6:]))
-        left2base_ee_pos = P_left[:, :3]
-        right2base_ee_pos = P_right[:, :3]
-        pcl_points.extend(left2base_ee_pos)
-        pcl_points.extend(right2base_ee_pos)
-
-        ee_distances = np.linalg.norm(left2base_ee_pos - right2base_ee_pos, axis=1)
-        distances.append(np.mean(ee_distances))
-        stds.append(np.std(ee_distances))
-    print("Mean average distance of end-effectors = %.2f, mean std. dev. = %.3f"
-          % (np.mean(distances), np.mean(stds)))
-
-    pcl = plot_pointcloud(fig, pcl_points, color)
-
-    key = ord(str((idx + 1) % 10))
-    fig.visualizer.register_key_action_callback(key, ToggleGeometry(fig, pcl))
+    for t in range(0, len(mean), 1):
+        mean_left = pt.transform_from_exponential_coordinates(mean[t, :6])
+        mean_right = pt.transform_from_exponential_coordinates(mean[t, 6:12])
+        cov_left = cov[t, :6, :6, t]
+        cov_right = cov[t, 6:, 6:, t]
+        x, y, z = pu.to_projected_ellipsoid(mean_left, cov_left, 0.5, 20)
+        surface = Surface(x, y, z, c=color)
+        surface.add_artist(fig)
+        x, y, z = pu.to_projected_ellipsoid(mean_right, cov_right, 0.5, 20)
+        surface = Surface(x, y, z, c=color)
 
 if plot_training_data:
     for E in Es:

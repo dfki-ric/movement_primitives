@@ -3,6 +3,7 @@ import numpy as np
 import open3d as o3d
 import scipy as sp
 import pytransform3d.transformations as pt
+import pytransform3d.uncertainty as pu
 
 
 def plot_pointcloud(fig, pcl_points, color, uniform_down_sample=1):
@@ -84,8 +85,4 @@ def to_ellipsoid(mean, cov):
     radii : array, shape (3,)
         Radii of ellipsoid
     """
-    radii, R = sp.linalg.eigh(cov)
-    if np.linalg.det(R) < 0:  # undo reflection (exploit symmetry)
-        R *= -1
-    ellipsoid2origin = pt.transform_from(R=R, p=mean)
-    return ellipsoid2origin, np.sqrt(np.abs(radii))
+    return pu.to_ellipsoid(mean, cov)
