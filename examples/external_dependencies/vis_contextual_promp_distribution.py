@@ -77,7 +77,7 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     for t in range(0, len(mean), 1):
         p_left = mean[t, :3]
         p_right = mean[t, 7:10]
-        cov_left = cov[t, 7:10, 7:10, t]
+        cov_left = cov[t, :3, :3, t]
         cov_right = cov[t, 7:10, 7:10, t]
         ellipsoid2origin, radii = to_ellipsoid(p_left, cov_left)
         fig.plot_ellipsoid(A2B=ellipsoid2origin, radii=0.5 * radii, c=color)
