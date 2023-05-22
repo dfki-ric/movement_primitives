@@ -165,6 +165,9 @@ class CartesianDMP(DMPBase):
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
