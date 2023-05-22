@@ -42,10 +42,10 @@ def test_pickle_io():
 
 def test_yaml_io():
     dmp = DualCartesianDMP(
-        execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001)
+        execution_time=2.0, dt=0.02, n_weights_per_dim=10, int_dt=0.001)
 
     Y = np.zeros((1001, 14))
-    T = np.linspace(0, 1, len(Y))
+    T = np.linspace(0, 2, len(Y))
     sigmoid = 0.5 * (np.tanh(1.5 * np.pi * (T - 0.5)) + 1.0)
     radius = 0.5
 
