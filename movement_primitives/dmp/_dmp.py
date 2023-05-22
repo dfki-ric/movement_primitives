@@ -344,6 +344,8 @@ class DMP(WeightParametersMixin, DMPBase):
         self.int_dt = int_dt
         self.p_gain = p_gain
 
+        self.forcing_term = None
+
         self.execution_time_ = execution_time
 
         self.alpha_y = 25.0
@@ -354,10 +356,16 @@ class DMP(WeightParametersMixin, DMPBase):
 
     def set_execution_time_(self, execution_time):
         self._execution_time = execution_time
+        if self.forcing_term is not None:
+            weights = self.forcing_term.weights
+        else:
+            weights = None
         alpha_z = canonical_system_alpha(
             0.01, execution_time, 0.0, self.int_dt)
         self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
                                         execution_time, 0.0, 0.8, alpha_z)
+        if weights is not None:
+            self.forcing_term.weights = weights
 
     execution_time_ = property(get_execution_time_, set_execution_time_)
 
