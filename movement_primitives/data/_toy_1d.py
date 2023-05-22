@@ -71,7 +71,7 @@ def create_finite_differences_matrix_1d(n_steps, dt):
     A : array, shape (n_steps + 2, n_steps)
         Finite difference matrix.
     """
-    A = np.zeros((n_steps + 2, n_steps), dtype=np.float)
+    A = np.zeros((n_steps + 2, n_steps), dtype=float)
     super_diagonal = (np.arange(n_steps), np.arange(n_steps))
     sub_diagonal = (np.arange(2, n_steps + 2), np.arange(n_steps))
     A[super_diagonal] = np.ones(n_steps)
