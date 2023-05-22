@@ -172,21 +172,38 @@ class CartesianDMP(DMPBase):
     def __init__(
             self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
         super(CartesianDMP, self).__init__(7, 6)
-        self.execution_time = execution_time
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term_pos = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_rot = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
+
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time_, 0.0, self.int_dt)
+        self.forcing_term_pos = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
+            alpha_z)
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        weights_pos = self.forcing_term_pos.weights_
+        weights_rot = self.forcing_term_rot.weights_
+        self._init_forcing_term()
+        self.forcing_term_pos.weights_ = weights_pos
+        self.forcing_term_rot.weights_ = weights_rot
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
 
     def step(self, last_y, last_yd, coupling_term=None,
              step_function=DMP_STEP_FUNCTIONS[DEFAULT_DMP_STEP_FUNCTION],
@@ -233,7 +250,7 @@ class CartesianDMP(DMPBase):
             self.current_y[:3], self.current_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
             self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
             coupling_term=coupling_term,
@@ -243,7 +260,7 @@ class CartesianDMP(DMPBase):
             self.current_y[3:], self.current_yd[3:],
             self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
             self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,
             coupling_term=coupling_term,
@@ -285,7 +302,7 @@ class CartesianDMP(DMPBase):
                 f"Step function must be in "
                 f"{DMP_STEP_FUNCTIONS.keys()}.")
         T, Yp = dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y[:3], self.goal_y[:3],
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
@@ -300,7 +317,7 @@ class CartesianDMP(DMPBase):
                 f"Step function must be in "
                 f"{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.")
         _, Yr = dmp_open_loop_quaternion(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y[3:], self.goal_y[3:],
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,

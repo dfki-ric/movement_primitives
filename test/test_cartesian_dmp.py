@@ -56,7 +56,7 @@ def test_step_through_cartesian_dmp():
     current_y = np.copy(dmp.start_y)
     current_yd = np.copy(dmp.start_yd)
     path = [np.copy(current_y)]
-    while dmp.t <= dmp.execution_time:
+    while dmp.t <= dmp.execution_time_:
         current_y, current_yd = dmp.step(current_y, current_yd)
         path.append(np.copy(current_y))
     assert_array_almost_equal(np.vstack(path), dmp.open_loop()[1])
