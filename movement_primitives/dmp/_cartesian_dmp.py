@@ -151,7 +151,7 @@ class CartesianDMP(DMPBase):
 
     Parameters
     ----------
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -173,7 +173,8 @@ class CartesianDMP(DMPBase):
         the frequency.
     """
     def __init__(
-            self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+            self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
+            int_dt=0.001):
         super(CartesianDMP, self).__init__(7, 6)
         self._execution_time = execution_time
         self.dt_ = dt

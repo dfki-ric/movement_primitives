@@ -20,7 +20,7 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     n_dims : int
         State space dimensions.
 
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -45,8 +45,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     """
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
+    def __init__(self, n_dims, execution_time=1.0, dt=0.01,
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
