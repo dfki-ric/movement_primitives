@@ -329,6 +329,9 @@ class DMP(WeightParametersMixin, DMPBase):
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
@@ -336,19 +339,27 @@ class DMP(WeightParametersMixin, DMPBase):
     def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
                  int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
-        self.execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
-                                        self.execution_time, 0.0, 0.8, alpha_z)
+        self.execution_time_ = execution_time
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        alpha_z = canonical_system_alpha(
+            0.01, execution_time, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
+                                        execution_time, 0.0, 0.8, alpha_z)
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
 
     def step(self, last_y, last_yd, coupling_term=None):
         """DMP step.
@@ -390,7 +401,7 @@ class DMP(WeightParametersMixin, DMPBase):
             self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term,
             coupling_term=coupling_term,
@@ -435,7 +446,7 @@ class DMP(WeightParametersMixin, DMPBase):
                 f"Step function must be in {DMP_STEP_FUNCTIONS.keys()}.")
 
         return dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,

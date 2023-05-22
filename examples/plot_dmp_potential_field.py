@@ -79,7 +79,7 @@ for i in range(n_subplots):
     if i == n_subplots - 1:
         break
 
-    while dmp.t <= dmp.execution_time * (1 + i) / (n_subplots - 1):
+    while dmp.t <= dmp.execution_time_ * (1 + i) / (n_subplots - 1):
         position, velocity = dmp.step(position, velocity)
         positions.append(position)
         position_ft, velocity_ft = dmp_ft.step(position_ft, velocity_ft)

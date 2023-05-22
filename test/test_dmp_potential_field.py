@@ -23,7 +23,7 @@ def test_potential_field_2d():
     position = np.copy(start_y)
     velocity = np.zeros_like(start_y)
 
-    while dmp.t <= dmp.execution_time:
+    while dmp.t <= dmp.execution_time_:
         xx, yy, ft, ts, ct, acc = potential_field_2d(
             dmp, x_range, y_range, n_ticks, obstacle)
 
