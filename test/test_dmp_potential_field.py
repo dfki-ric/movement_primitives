@@ -11,8 +11,8 @@ def test_potential_field_2d():
     random_state = np.random.RandomState(1)
 
     dmp = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
-    dmp.forcing_term.weights[:, :] = random_state.randn(
-        *dmp.forcing_term.weights.shape) * 500.0
+    dmp.forcing_term.weights_[:, :] = random_state.randn(
+        *dmp.forcing_term.weights_.shape) * 500.0
     dmp.configure(start_y=start_y, goal_y=goal_y)
     coupling_term = CouplingTermObstacleAvoidance2D(obstacle)
 

@@ -27,7 +27,7 @@ class WeightParametersMixin:
         weights : array, shape (N * n_weights_per_dim,)
             Current weights of the DMP. N depends on the type of DMP
         """
-        return self.forcing_term.weights.ravel()
+        return self.forcing_term.weights_.ravel()
 
     def set_weights(self, weights):
         """Set weight vector of DMP.
@@ -37,7 +37,7 @@ class WeightParametersMixin:
         weights : array, shape (N * n_weights_per_dim,)
             New weights of the DMP. N depends on the type of DMP
         """
-        self.forcing_term.weights[:, :] = weights.reshape(*self.forcing_term.shape)
+        self.forcing_term.weights_[:, :] = weights.reshape(*self.forcing_term.shape)
 
     @property
     def n_weights(self):

@@ -21,7 +21,7 @@ def test_dmp1d():
     dmp = DMP(n_dims=1, execution_time=execution_time, dt=dt, n_weights_per_dim=6)
     dmp.configure(start_y=start_y, goal_y=goal_y)
     random_state = np.random.RandomState(0)
-    dmp.forcing_term.weights = 200 * random_state.randn(*dmp.forcing_term.weights.shape)
+    dmp.forcing_term.weights_ = 200 * random_state.randn(*dmp.forcing_term.weights_.shape)
 
     T, Y = dmp.open_loop(run_t=2 * execution_time)
     assert_almost_equal(T[0], 0.0)
@@ -171,7 +171,7 @@ def test_set_current_time():
     dmp = DMP(n_dims=1, execution_time=execution_time, dt=dt, n_weights_per_dim=6)
     dmp.configure(start_y=start_y, goal_y=goal_y)
     random_state = np.random.RandomState(0)
-    dmp.forcing_term.weights = 200 * random_state.randn(*dmp.forcing_term.weights.shape)
+    dmp.forcing_term.weights_ = 200 * random_state.randn(*dmp.forcing_term.weights_.shape)
 
     dmp.configure(t=0.5)  # fast forward to middle of execution
     y = np.array([0.0])  # current state is different though
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     dmp = DMP(n_dims=1, execution_time=execution_time, dt=0.001, n_weights_per_dim=6)
     dmp.configure(start_y=start_y, goal_y=goal_y)
     random_state = np.random.RandomState(0)
-    dmp.forcing_term.weights = 200 * random_state.randn(*dmp.forcing_term.weights.shape)
+    dmp.forcing_term.weights_ = 200 * random_state.randn(*dmp.forcing_term.weights_.shape)
 
     T, Y = dmp.open_loop(run_t=2 * execution_time)
 

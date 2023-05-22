@@ -7,8 +7,35 @@ except ImportError:
 
 
 class ForcingTerm:
-    """Defines the shape of a DMP."""
-    def __init__(self, n_dims, n_weights_per_dim, goal_t, start_t, overlap, alpha_z):
+    """Defines the shape of a DMP.
+
+    Parameters
+    ----------
+    n_dims : int
+        State space dimensions.
+
+    n_weights_per_dim : int, optional (default: 10)
+        Number of weights of the function approximator per dimension.
+
+    goal_t : float
+        Time at the end.
+
+    start_t : float
+        Time at the start.
+
+    overlap : float
+        Value at which radial basis functions overlap.
+
+    alpha_z : float
+        Value of the alpha parameter of the canonical system.
+
+    Attributes
+    ----------
+    weights_ : array, shape (n_dims, n_weights_per_dim)
+        Weights of the forcing term.
+    """
+    def __init__(self, n_dims, n_weights_per_dim, goal_t, start_t, overlap,
+                 alpha_z):
         if n_weights_per_dim <= 1:
             raise ValueError("The number of weights per dimension must be > 1!")
         self.n_weights_per_dim = n_weights_per_dim
@@ -24,7 +51,7 @@ class ForcingTerm:
     def _init_rbfs(self, n_dims, n_weights_per_dim, start_t):
         self.log_overlap = float(-math.log(self.overlap))
         self.execution_time = self.goal_t - self.start_t
-        self.weights = np.zeros((n_dims, n_weights_per_dim))
+        self.weights_ = np.zeros((n_dims, n_weights_per_dim))
         self.centers = np.empty(n_weights_per_dim)
         self.widths = np.empty(n_weights_per_dim)
         # -1 because we want the last entry to be execution_time
@@ -62,9 +89,9 @@ class ForcingTerm:
                   start_t=self.start_t, int_dt=int_dt)
         z = np.atleast_1d(z)
         activations = self._activations(z)
-        return z[np.newaxis, :] * self.weights.dot(activations)
+        return z[np.newaxis, :] * self.weights_.dot(activations)
 
     @property
     def shape(self):
         """Shape (n_dims, n_weights_per_dim) of weights configuring the forcing term."""
-        return self.weights.shape
+        return self.weights_.shape

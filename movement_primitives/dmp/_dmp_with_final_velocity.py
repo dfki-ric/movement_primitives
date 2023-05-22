@@ -150,7 +150,7 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         regularization_coefficient : float, optional (default: 0)
             Regularization coefficient for regression.
         """
-        self.forcing_term.weights[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,

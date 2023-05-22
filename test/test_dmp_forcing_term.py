@@ -24,7 +24,7 @@ def test_forcing_term():
         overlap=0.8, alpha_z=alpha_z)
     T = np.linspace(0.0, 1.0, 1001)
     random_state = np.random.RandomState(22)
-    forcing_term.weights = random_state.randn(*forcing_term.weights.shape)
+    forcing_term.weights_ = random_state.randn(*forcing_term.weights_.shape)
     f = forcing_term(T)
 
     assert_equal(f.ndim, 2)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     forcing_term = ForcingTerm(n_dims=2, n_weights_per_dim=6, goal_t=1.0, start_t=0.0, overlap=0.8, alpha_z=alpha_z)
     T = np.linspace(0.0, 1.0, 1001)
     random_state = np.random.RandomState(22)
-    forcing_term.weights = random_state.randn(*forcing_term.weights.shape)
+    forcing_term.weights_ = random_state.randn(*forcing_term.weights_.shape)
     f = forcing_term(T)
 
     plt.figure()

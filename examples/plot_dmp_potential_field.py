@@ -25,12 +25,12 @@ dmp = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
 dmp.configure(start_y=start_y, goal_y=goal_y)
 
 dmp_ft = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
-dmp_ft.forcing_term.weights[:, :] = random_state.randn(
-    *dmp_ft.forcing_term.weights.shape) * 500.0
+dmp_ft.forcing_term.weights_[:, :] = random_state.randn(
+    *dmp_ft.forcing_term.weights_.shape) * 500.0
 dmp_ft.configure(start_y=start_y, goal_y=goal_y)
 
 dmp_ct = DMP(n_dims=2, n_weights_per_dim=10, dt=0.01, execution_time=1.0)
-dmp_ct.forcing_term.weights[:, :] = dmp_ft.forcing_term.weights[:, :]
+dmp_ct.forcing_term.weights_[:, :] = dmp_ft.forcing_term.weights_[:, :]
 dmp_ct.configure(start_y=start_y, goal_y=goal_y)
 coupling_term = CouplingTermObstacleAvoidance2D(obstacle)
 

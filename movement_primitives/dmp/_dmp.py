@@ -339,33 +339,32 @@ class DMP(WeightParametersMixin, DMPBase):
     def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
                  int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        self.forcing_term = None
-
-        self.execution_time_ = execution_time
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time_, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(
+            self.n_dims, self.n_weights_per_dim, self.execution_time_,
+            0.0, 0.8, alpha_z)
 
     def get_execution_time_(self):
         return self._execution_time
 
     def set_execution_time_(self, execution_time):
         self._execution_time = execution_time
-        if self.forcing_term is not None:
-            weights = self.forcing_term.weights
-        else:
-            weights = None
-        alpha_z = canonical_system_alpha(
-            0.01, execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
-                                        execution_time, 0.0, 0.8, alpha_z)
-        if weights is not None:
-            self.forcing_term.weights = weights
+        weights = self.forcing_term.weights_
+        self._init_forcing_term()
+        self.forcing_term.weights_ = weights
 
     execution_time_ = property(get_execution_time_, set_execution_time_)
 
@@ -480,7 +479,7 @@ class DMP(WeightParametersMixin, DMPBase):
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         """
-        self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,

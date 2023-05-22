@@ -327,7 +327,7 @@ class CartesianDMP(DMPBase):
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         """
-        self.forcing_term_pos.weights[:, :] = dmp_imitate(
+        self.forcing_term_pos.weights_[:, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -335,7 +335,7 @@ class CartesianDMP(DMPBase):
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
+        self.forcing_term_rot.weights_[:, :] = dmp_quaternion_imitation(
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -354,8 +354,8 @@ class CartesianDMP(DMPBase):
         weights : array, shape (6 * n_weights_per_dim,)
             Current weights of the DMP.
         """
-        return np.concatenate((self.forcing_term_pos.weights.ravel(),
-                               self.forcing_term_rot.weights.ravel()))
+        return np.concatenate((self.forcing_term_pos.weights_.ravel(),
+                               self.forcing_term_rot.weights_.ravel()))
 
     def set_weights(self, weights):
         """Set weight vector of DMP.
@@ -365,10 +365,10 @@ class CartesianDMP(DMPBase):
         weights : array, shape (6 * n_weights_per_dim,)
             New weights of the DMP.
         """
-        n_pos_weights = self.forcing_term_pos.weights.size
-        self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
+        n_pos_weights = self.forcing_term_pos.weights_.size
+        self.forcing_term_pos.weights_[:, :] = weights[:n_pos_weights].reshape(
             -1, self.n_weights_per_dim)
-        self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
+        self.forcing_term_rot.weights_[:, :] = weights[n_pos_weights:].reshape(
             -1, self.n_weights_per_dim)
 
 
