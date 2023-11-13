@@ -3,13 +3,15 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from libcpp cimport bool
-from libc.math cimport sqrt, cos, sin, acos, pi
+from libc.math cimport sqrt, cos, sin, acos, pi, exp
 
 
 np.import_array()
 
 
 cdef double M_2PI = 2.0 * pi
+cdef double M_PI_HALF = 0.5 * pi
+cdef double EPSILON = 1e-10
 
 
 @cython.boundscheck(False)
@@ -716,3 +718,77 @@ cpdef compact_axis_angle_from_quaternion(np.ndarray[double, ndim=1] q):
     # Source of the solution: http://stackoverflow.com/a/32266181
     cdef double angle = ((2 * acos(q_n[0]) + pi) % M_2PI - pi)
     return q_n[1:] / (p_norm / angle)
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+cpdef matrix_from_compact_axis_angle(np.ndarray[double, ndim=1] r):
+    cdef double theta = np.linalg.norm(r)
+    if theta == 0.0:
+        return np.eye(3)
+    cdef double ux = r[0] / theta
+    cdef double uy = r[1] / theta
+    cdef double uz = r[2] / theta
+    cdef double c = cos(theta)
+    cdef double s = sin(theta)
+    cdef double ci = 1.0 - c
+    cdef np.ndarray[double, ndim=2] R = np.empty((3, 3), dtype=float)
+    R[0, 0] = ci * ux * ux + c
+    R[0, 1] = ci * ux * uy - uz * s
+    R[0, 2] = ci * ux * uz + uy * s
+    R[1, 0] = ci * uy * ux + uz * s
+    R[1, 1] = ci * uy * uy + c
+    R[1, 2] = ci * uy * uz - ux * s
+    R[2, 0] = ci * uz * ux - uy * s
+    R[2, 1] = ci * uz * uy + ux * s
+    R[2, 2] = ci * uz * uz + c
+    return R
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+cpdef obstacle_avoidance_acceleration_2d(
+        np.ndarray[double, ndim=1] y, np.ndarray[double, ndim=1] yd,
+        np.ndarray[double, ndim=1] obstacle_position, double gamma, double beta):
+    """Compute acceleration for obstacle avoidance in 2D.
+
+    Parameters
+    ----------
+    y : array, shape (2,)
+        Current position.
+
+    yd : array, shape (2,)
+        Current velocity.
+
+    obstacle_position : array, shape (2,)
+        Position of the point obstacle.
+
+    gamma : float
+        Obstacle avoidance parameter.
+
+    beta : float
+        Obstacle avoidance parameter.
+
+    Returns
+    -------
+    cdd : array, shape (2,)
+        Acceleration.
+    """
+    cdef np.ndarray[double, ndim=1] obstacle_diff = obstacle_position - y
+    cdef double r = obstacle_diff[0] * yd[1] - obstacle_diff[1] * yd[0]
+    if r != 0.0:
+        r *= M_PI_HALF / abs(r)
+    cdef np.ndarray[double, ndim=1] r_vec = np.array([0.0, 0.0, r])
+    cdef np.ndarray[double, ndim=2] R = matrix_from_compact_axis_angle(r_vec)[:2, :2]
+    cdef double theta_nom = obstacle_diff[0] * yd[0] + obstacle_diff[1] * yd[1]
+    cdef double obstacle_diff_norm = sqrt(obstacle_diff[0] * obstacle_diff[0] + obstacle_diff[1] * obstacle_diff[1])
+    cdef double yd_norm = sqrt(yd[0] * yd[0] + yd[1] * yd[1])
+    cdef double theta_denom = obstacle_diff_norm * yd_norm + EPSILON
+    cdef double theta = acos(theta_nom / theta_denom)
+    cdef np.ndarray[double, ndim=1] rotated_velocity = np.dot(R, yd)
+    cdef np.ndarray[double, ndim=1] cdd = gamma * rotated_velocity * (theta * exp(-beta * theta))
+    return cdd

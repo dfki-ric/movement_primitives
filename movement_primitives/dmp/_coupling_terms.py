@@ -8,18 +8,11 @@ import pytransform3d.transformations as pt
 
 EPSILON = 1e-10
 
-
-class CouplingTermObstacleAvoidance2D:  # for DMP
-    """Coupling term for obstacle avoidance in 2D."""
-    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
-        self.obstacle_position = obstacle_position
-        self.gamma = gamma
-        self.beta = beta
-
-    def coupling(self, y, yd):
-        cdd = obstacle_avoidance_acceleration_2d(
-            y, yd, self.obstacle_position, self.gamma, self.beta)
-        return np.zeros_like(cdd), cdd
+try:
+    from ..dmp_fast import obstacle_avoidance_acceleration_2d as obstacle_avoidance_acceleration_2d_fast
+    obstacle_avoidance_acceleration_2d_fast_available = True
+except ImportError:
+    obstacle_avoidance_acceleration_2d_fast_available = False
 
 
 def obstacle_avoidance_acceleration_2d(
@@ -70,6 +63,24 @@ def obstacle_avoidance_acceleration_2d(
     cdd = (gamma * rotated_velocity
            * (theta * np.exp(-beta * theta))[..., np.newaxis])
     return np.squeeze(cdd)
+
+
+class CouplingTermObstacleAvoidance2D:  # for DMP
+    """Coupling term for obstacle avoidance in 2D."""
+    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi,
+                 fast=False):
+        self.obstacle_position = obstacle_position
+        self.gamma = gamma
+        self.beta = beta
+        if fast and obstacle_avoidance_acceleration_2d_fast_available:
+            self.step_function = obstacle_avoidance_acceleration_2d_fast
+        else:
+            self.step_function = obstacle_avoidance_acceleration_2d
+
+    def coupling(self, y, yd):
+        cdd = self.step_function(
+            y, yd, self.obstacle_position, self.gamma, self.beta)
+        return np.zeros_like(cdd), cdd
 
 
 class CouplingTermObstacleAvoidance3D:  # for DMP
