@@ -383,7 +383,7 @@ class DMP(WeightParametersMixin, DMPBase):
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
-        step_function : str, optional (default: 'rk4')
+        step_function : str, optional (default: 'rk4-cython')
             DMP integration function. Possible options: 'rk4', 'euler',
             'euler-cython', 'rk4-cython'.
 
@@ -440,7 +440,7 @@ class DMP(WeightParametersMixin, DMPBase):
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
-        step_function : str, optional (default: 'rk4')
+        step_function : str, optional (default: 'rk4-cython')
             DMP integration function. Possible options: 'rk4', 'euler',
             'euler-cython', 'rk4-cython'.
 
