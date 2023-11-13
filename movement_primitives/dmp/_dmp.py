@@ -368,7 +368,8 @@ class DMP(WeightParametersMixin, DMPBase):
 
     execution_time_ = property(get_execution_time_, set_execution_time_)
 
-    def step(self, last_y, last_yd, coupling_term=None):
+    def step(self, last_y, last_yd, coupling_term=None,
+             step_function=DEFAULT_DMP_STEP_FUNCTION):
         """DMP step.
 
         Parameters
@@ -382,6 +383,10 @@ class DMP(WeightParametersMixin, DMPBase):
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
+        step_function : str, optional (default: 'rk4-cython')
+            DMP integration function. Possible options: 'rk4', 'euler',
+            'euler-cython', 'rk4-cython'.
+
         Returns
         -------
         y : array, shape (n_dims,)
@@ -390,6 +395,12 @@ class DMP(WeightParametersMixin, DMPBase):
         yd : array, shape (n_dims,)
             Next time derivative of state (e.g., velocity).
         """
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f"Step function must be in {DMP_STEP_FUNCTIONS.keys()}.")
+
         assert len(last_y) == self.n_dims
         assert len(last_yd) == self.n_dims
         self.last_t = self.t
@@ -403,7 +414,7 @@ class DMP(WeightParametersMixin, DMPBase):
         # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
         tracking_error = self.current_y - last_y
 
-        dmp_step_rk4(
+        step_function(
             self.last_t, self.t,
             self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
@@ -429,7 +440,7 @@ class DMP(WeightParametersMixin, DMPBase):
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
-        step_function : str, optional (default: 'rk4')
+        step_function : str, optional (default: 'rk4-cython')
             DMP integration function. Possible options: 'rk4', 'euler',
             'euler-cython', 'rk4-cython'.
 
