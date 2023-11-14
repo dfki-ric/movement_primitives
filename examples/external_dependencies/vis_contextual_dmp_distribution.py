@@ -97,7 +97,8 @@ for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0,
     context = np.array([panel_width, 0.0, 1.0])
     conditional_weight_distribution = gmm.condition(np.arange(len(context)), context).to_mvn()
     average_execution_time = np.mean([T[-1] for T in Ts])
-    trajectories = propagate_to_state_space(conditional_weight_distribution, n_weights_per_dim, average_execution_time, alpha=alpha, kappa=kappa, verbose=1)
+    trajectories = propagate_to_state_space(conditional_weight_distribution, n_weights_per_dim, average_execution_time,
+                                            alpha=alpha, kappa=kappa, dt=0.01, int_dt=0.001, verbose=1)
     conditional_state_distribution = estimate_state_distribution(trajectories, alpha=alpha, kappa=kappa, n_weights_per_dim=n_weights_per_dim)
 
     mean = conditional_state_distribution.mean.reshape(-1, 14)
