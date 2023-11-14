@@ -52,5 +52,8 @@ for color, y_cond in zip("rgbcmyk", np.linspace(-1, 2.5, 7)):
     ax2.set_ylim((-2.5, 3))
     ax2.legend(loc="best")
 
+ax1.set_xlabel("First position dimension")
+ax1.set_ylabel("Second position dimension")
+ax2.set_xlabel("First position dimension")
 plt.tight_layout()
 plt.show()
