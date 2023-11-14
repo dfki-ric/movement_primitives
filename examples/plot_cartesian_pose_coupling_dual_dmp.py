@@ -75,9 +75,9 @@ for i, t in enumerate(T):
 tm = UrdfTransformManager()
 try:
     with open("abstract-urdf-gripper/urdf/GripperLeft.urdf", "r") as f:
-        tm.load_urdf(f, mesh_path="abstract-urdf-gripper/urdf/")
+        tm.load_urdf(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
     with open("abstract-urdf-gripper/urdf/GripperRight.urdf", "r") as f:
-        tm.load_urdf(f, mesh_path="abstract-urdf-gripper/urdf/")
+        tm.load_urdf(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
 except FileNotFoundError:
     warnings.warn("URDF not found")
 
