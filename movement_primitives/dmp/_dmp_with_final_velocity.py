@@ -3,6 +3,7 @@ from ._base import DMPBase, WeightParametersMixin
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 from ._dmp import dmp_imitate, dmp_open_loop
+from ._forcing_term import phase
 
 
 class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
@@ -226,7 +227,7 @@ def apply_constraints(t, goal_y, goal_t, coefficients):
         return g, gd, gdd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
+def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -242,6 +243,9 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
 
     beta_y : float
         Parameter of the transformation system.
+
+    alpha_z : float
+        Parameter of the canonical system.
 
     allow_final_velocity : bool
         Whether a final velocity is allowed. This should always be True for
@@ -289,12 +293,16 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
         T[0], T[-1], Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1])
 
     execution_time = T[-1] - T[0]
+    S = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
-    for i in range(len(T)):
-        g, gd, gdd = apply_constraints(T[i], Y[-1], T[-1], coefficients)
-        F[i, :] = execution_time ** 2 * Ydd[i] - alpha_y * (
-            beta_y * (g - Y[i]) + gd * execution_time
-            - Yd[i] * execution_time) - execution_time ** 2 * gdd
+    for t in range(len(T)):
+        g, gd, gdd = apply_constraints(T[t], Y[-1], T[-1], coefficients)
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
+            beta_y * (g - Y[t])
+            + gd * execution_time
+            - Yd[t] * execution_time
+            - beta_y * (g - Y[0]) * S[t]
+        ) - execution_time ** 2 * gdd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
@@ -398,13 +406,20 @@ def dmp_step_euler_with_constraints(
 
         f = forcing_term(current_t).squeeze()
 
+        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)
 
         coupling_sum = cdd + p_gain * tracking_error / dt
-        ydd = (alpha_y * (beta_y * (g - current_y)
-                          + execution_time * gd
-                          - execution_time * current_yd)
-               + gdd * execution_time ** 2
-               + f + coupling_sum) / execution_time ** 2
+        ydd = (
+            alpha_y * (
+                beta_y * (g - current_y)
+                + execution_time * gd
+                - execution_time * current_yd
+                - beta_y * (g - start_y) * s
+            )
+            + gdd * execution_time ** 2
+            + f + coupling_sum
+        ) / execution_time ** 2
         current_yd += dt * ydd + cd / execution_time
         current_y += dt * current_yd

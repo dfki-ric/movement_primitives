@@ -4,7 +4,7 @@ from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 from ._dmp import (dmp_open_loop, dmp_imitate, ridge_regression,
-                   DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION)
+                   DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION, phase)
 
 
 def dmp_step_quaternion_python(
@@ -109,12 +109,21 @@ def dmp_step_quaternion_python(
 
         f = forcing_term(current_t).squeeze()
 
+        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+
+        goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
+
         current_ydd[:] = (
-            alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                           pr.concatenate_quaternions(
-                               goal_y, pr.q_conj(current_y)))
-                       - execution_time * current_yd)
-            + f + cdd) / execution_time ** 2
+            alpha_y * (
+                beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
+                + execution_time * goal_yd
+                - execution_time * current_yd
+                - beta_y * s * goal_y_minus_start_y
+            )
+            + goal_ydd * execution_time ** 2
+            + f
+            + cdd
+        ) / execution_time ** 2
         current_yd += dt * current_ydd + cd / execution_time
         current_y[:] = pr.concatenate_quaternions(
             pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
@@ -457,8 +466,8 @@ def dmp_quaternion_imitation(
     forcing_term = ForcingTerm(
         3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = \
-        determine_forces_quaternion(T, Y, alpha_y, beta_y,
-                                    allow_final_velocity)  # n_steps x n_dims
+        determine_forces_quaternion(
+            T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity)  # n_steps x n_dims
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
@@ -466,7 +475,7 @@ def dmp_quaternion_imitation(
             start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)
 
 
-def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
+def determine_forces_quaternion(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -482,6 +491,9 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
 
     beta_y : float
         Parameter of the transformation system.
+
+    alpha_z : float
+        Parameter of the canonical system.
 
     allow_final_velocity : bool
         Whether a final velocity is allowed. Will be set to 0 otherwise.
@@ -524,14 +536,19 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, allow_final_velocity):
 
     execution_time = T[-1] - T[0]
     goal_y = Y[-1]
+    goal_yd = Yd[-1]
+    goal_ydd = Ydd[-1]
+    start_y = Y[0]
+    goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
+    S = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
-        F[t, :] = (
-            execution_time ** 2 * Ydd[t]
-            - alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                             pr.concatenate_quaternions(
-                                 goal_y, pr.q_conj(Y[t])))
-                         - Yd[t] * execution_time))
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
+            beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t])))
+            + goal_yd * execution_time
+            - Yd[t] * execution_time
+            - beta_y * S[t] * goal_y_minus_start_y
+        ) - execution_time ** 2 * goal_ydd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 

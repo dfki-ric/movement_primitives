@@ -2,7 +2,7 @@ import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase, WeightParametersMixin
 from ._canonical_system import canonical_system_alpha
-from ._forcing_term import ForcingTerm
+from ._forcing_term import ForcingTerm, phase
 from ._dmp import dmp_imitate
 from ._cartesian_dmp import dmp_quaternion_imitation
 
@@ -109,22 +109,40 @@ def dmp_step_dual_cartesian_python(
                 cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(
                     tracking_error[ops]) / dt
 
+        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+
         # position components
         current_ydd[pvs] = (
-            alpha_y * (beta_y * (goal_y[pps] - current_y[pps])
-                       + execution_time * goal_yd[pvs]
-                       - execution_time * current_yd[pvs])
-            + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+            alpha_y * (
+                beta_y * (goal_y[pps] - current_y[pps])
+                + execution_time * goal_yd[pvs]
+                - execution_time * current_yd[pvs]
+                - beta_y * (goal_y[pps] - start_y[pps]) * s
+            )
+            + goal_ydd[pvs] * execution_time ** 2
+            + f[pvs]
+            + cdd[pvs]
+        ) / execution_time ** 2
         current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
         current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)),
                          (slice(10, 14), slice(9, 12))):
+            goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
+                pr.concatenate_quaternions(goal_y[ops], pr.q_conj(start_y[ops])))
             current_ydd[ovs] = (
-                alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                                   pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops])))
-                           - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+                alpha_y * (
+                    beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
+                        goal_y[ops], pr.q_conj(current_y[ops])))
+                    + execution_time * goal_yd[ovs]
+                    - execution_time * current_yd[ovs]
+                    - beta_y * s * goal_y_minus_start_y
+                )
+                + goal_ydd[ovs] * execution_time ** 2
+                + f[ovs]
+                + cdd[ovs]
+            ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = pr.concatenate_quaternions(
                 pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
