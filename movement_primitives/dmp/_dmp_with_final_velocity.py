@@ -1,9 +1,8 @@
 import numpy as np
 from ._base import DMPBase, WeightParametersMixin
-from ._forcing_term import ForcingTerm
+from ._forcing_term import ForcingTerm, phase
 from ._canonical_system import canonical_system_alpha
 from ._dmp import dmp_imitate, dmp_open_loop
-from ._forcing_term import phase
 
 
 class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
@@ -293,7 +292,7 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
         T[0], T[-1], Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1])
 
     execution_time = T[-1] - T[0]
-    S = phase(T, alpha_z, T[-1], T[0])
+    Z = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
         g, gd, gdd = apply_constraints(T[t], Y[-1], T[-1], coefficients)
@@ -301,7 +300,7 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
             beta_y * (g - Y[t])
             + gd * execution_time
             - Yd[t] * execution_time
-            - beta_y * (g - Y[0]) * S[t]
+            - beta_y * (g - Y[0]) * Z[t]
         ) - execution_time ** 2 * gdd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
@@ -404,9 +403,8 @@ def dmp_step_euler_with_constraints(
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        f = forcing_term(current_t).squeeze()
-
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
 
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)
 
@@ -416,7 +414,7 @@ def dmp_step_euler_with_constraints(
                 beta_y * (g - current_y)
                 + execution_time * gd
                 - execution_time * current_yd
-                - beta_y * (g - start_y) * s
+                - beta_y * (g - start_y) * z
             )
             + gdd * execution_time ** 2
             + f + coupling_sum

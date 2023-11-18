@@ -152,6 +152,7 @@ cpdef dmp_step(
     cdef int d
     cdef double current_t
     cdef double dt
+    cdef double z
 
     current_t = last_t
     while current_t < t:
@@ -171,7 +172,8 @@ cpdef dmp_step(
         if tracking_error is not None:
             cdd += p_gain * tracking_error / dt
 
-        f[:] = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
 
         s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
 
@@ -181,7 +183,7 @@ cpdef dmp_step(
                     beta_y * (goal_y[d] - current_y[d])
                     + execution_time * goal_yd[d]
                     - execution_time * current_yd[d]
-                    - beta_y * (goal_y[d] - start_y[d]) * s
+                    - beta_y * (goal_y[d] - start_y[d]) * z
                 )
                 + goal_ydd[d] * execution_time ** 2
                 + f[d]
@@ -284,8 +286,8 @@ cpdef dmp_step_rk4(
     cdef double dt = t - last_t
     cdef double dt_2 = 0.5 * dt
     cdef np.ndarray[double, ndim=1] T = np.array([t, t + dt_2, t + dt])
-    cdef np.ndarray[double, ndim=1] S = phase(T, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
-    cdef np.ndarray[double, ndim=2] F = forcing_term(T)
+    cdef np.ndarray[double, ndim=1] Z = forcing_term.phase(T, int_dt=int_dt)
+    cdef np.ndarray[double, ndim=2] F = forcing_term.forcing_term(Z)
     cdef np.ndarray[double, ndim=1] tdd
     if tracking_error is not None:
         tdd = p_gain / dt * tracking_error
@@ -294,22 +296,22 @@ cpdef dmp_step_rk4(
 
     cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(
         current_y, current_yd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, start_y, S[0], execution_time, F[:, 0], coupling_term,
+        goal_ydd, start_y, Z[0], execution_time, F[:, 0], coupling_term,
         p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C1 = current_yd + dt_2 * K0
     cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(
         current_y + dt_2 * current_yd, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term,
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
         p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C2 = current_yd + dt_2 * K1
     cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term,
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
         p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C3 = current_yd + dt * K2
     cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, start_y, S[2], execution_time, F[:, 2], coupling_term,
+        goal_ydd, start_y, Z[2], execution_time, F[:, 2], coupling_term,
         p_gain, tdd)
 
     cdef int i
@@ -327,7 +329,7 @@ cdef _dmp_acc(
         np.ndarray[double, ndim=1] cdd, double dt, double alpha_y, double beta_y,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
-        double s, double execution_time, np.ndarray[double, ndim=1] f,
+        double z, double execution_time, np.ndarray[double, ndim=1] f,
         object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd):
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
@@ -342,7 +344,7 @@ cdef _dmp_acc(
                     beta_y * (goal_y[d] - Y[d])
                     + execution_time * goal_yd[d]
                     - execution_time * V[d]
-                    - beta_y * (goal_y[d] - start_y[d]) * s
+                    - beta_y * (goal_y[d] - start_y[d]) * z
                 )
                 + f[d]
                 + cdd[d]
@@ -447,7 +449,7 @@ cpdef dmp_step_quaternion(
     cdef int d
     cdef double current_t
     cdef double dt
-    cdef double s
+    cdef double z
 
     current_t = last_t
     while current_t < t:
@@ -462,9 +464,8 @@ cpdef dmp_step_quaternion(
             cd[:] = coupling_term_precomputed[0]
             cdd[:] = coupling_term_precomputed[1]
 
-        f[:] = forcing_term(current_t).squeeze()
-
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
 
         goal_y_minus_start_y = compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(start_y)))
 
@@ -473,7 +474,7 @@ cpdef dmp_step_quaternion(
                 beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(current_y)))
                 + execution_time * goal_yd
                 - execution_time * current_yd
-                - beta_y * s * goal_y_minus_start_y
+                - beta_y * z * goal_y_minus_start_y
             )
             + goal_ydd * execution_time ** 2
             + f
@@ -575,6 +576,8 @@ cpdef dmp_step_dual_cartesian(
     cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] goal_y_minus_start_y
 
+    cdef double z
+
     cdef int pps
     cdef int pvs
     cdef np.ndarray[long, ndim=2] POS_INDICES = np.array(
@@ -594,14 +597,13 @@ cpdef dmp_step_dual_cartesian(
         else:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        f[:] = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             for pps, pvs in POS_INDICES:
                 cdd[pvs] += p_gain * tracking_error[pps] / dt
             for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
                 cdd[ovs] += p_gain * compact_axis_angle_from_quaternion(tracking_error[ops]) / dt
-
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
 
         # position components
         for pps, pvs in POS_INDICES:
@@ -609,7 +611,7 @@ cpdef dmp_step_dual_cartesian(
                 alpha_y * (
                     beta_y * (goal_y[pps] - current_y[pps])
                     + execution_time * (goal_yd[pvs] - current_yd[pvs])
-                    - beta_y * (goal_y[pps] - start_y[pps]) * s
+                    - beta_y * (goal_y[pps] - start_y[pps]) * z
                 )
                 + f[pvs]
                 + cdd[pvs]
@@ -626,7 +628,7 @@ cpdef dmp_step_dual_cartesian(
                     beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
                     + execution_time * goal_yd[ovs]
                     - execution_time * current_yd[ovs]
-                    - beta_y * s * goal_y_minus_start_y
+                    - beta_y * z * goal_y_minus_start_y
                 )
                 + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]

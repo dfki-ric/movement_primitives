@@ -84,12 +84,17 @@ class ForcingTerm:
                   int_dt=int_dt)
         return Z[np.newaxis, :] * self._activations(Z)
 
-    def __call__(self, t, int_dt=0.001):
-        z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
-                  start_t=self.start_t, int_dt=int_dt)
+    def phase(self, t, int_dt=0.001):
+        return phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
+                     start_t=self.start_t, int_dt=int_dt)
+
+    def forcing_term(self, z):
         z = np.atleast_1d(z)
         activations = self._activations(z)
         return z[np.newaxis, :] * self.weights_.dot(activations)
+
+    def __call__(self, t, int_dt=0.001):
+        return self.forcing_term(self.phase(t, int_dt))
 
     @property
     def shape(self):

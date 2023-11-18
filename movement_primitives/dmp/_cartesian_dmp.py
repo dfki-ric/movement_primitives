@@ -107,9 +107,8 @@ def dmp_step_quaternion_python(
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        f = forcing_term(current_t).squeeze()
-
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
 
         goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
 
@@ -118,7 +117,7 @@ def dmp_step_quaternion_python(
                 beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
                 + execution_time * goal_yd
                 - execution_time * current_yd
-                - beta_y * s * goal_y_minus_start_y
+                - beta_y * z * goal_y_minus_start_y
             )
             + goal_ydd * execution_time ** 2
             + f

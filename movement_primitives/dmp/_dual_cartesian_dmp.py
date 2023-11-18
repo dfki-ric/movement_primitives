@@ -101,7 +101,8 @@ def dmp_step_dual_cartesian_python(
         if coupling_term is not None:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        f = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             cdd[pvs] += p_gain * tracking_error[pps] / dt
             for ops, ovs in ((slice(3, 7), slice(3, 6)),
@@ -109,15 +110,13 @@ def dmp_step_dual_cartesian_python(
                 cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(
                     tracking_error[ops]) / dt
 
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
-
         # position components
         current_ydd[pvs] = (
             alpha_y * (
                 beta_y * (goal_y[pps] - current_y[pps])
                 + execution_time * goal_yd[pvs]
                 - execution_time * current_yd[pvs]
-                - beta_y * (goal_y[pps] - start_y[pps]) * s
+                - beta_y * (goal_y[pps] - start_y[pps]) * z
             )
             + goal_ydd[pvs] * execution_time ** 2
             + f[pvs]
@@ -137,7 +136,7 @@ def dmp_step_dual_cartesian_python(
                         goal_y[ops], pr.q_conj(current_y[ops])))
                     + execution_time * goal_yd[ovs]
                     - execution_time * current_yd[ovs]
-                    - beta_y * s * goal_y_minus_start_y
+                    - beta_y * z * goal_y_minus_start_y
                 )
                 + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]
