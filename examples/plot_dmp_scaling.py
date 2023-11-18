@@ -24,15 +24,15 @@ x = np.sin(T ** 2 * 1.99 * np.pi)
 y = np.cos(T ** 2 * 1.99 * np.pi)
 z = qx = qy = qz = np.zeros_like(x)
 qw = np.ones_like(x)
-Y = np.column_stack((x, y, z, qw, qx, qy, qz, x, y, z, qw, qx, qy, qz))
+Y = np.column_stack((x, y, z, qw, qx, qy, qz))#, x, y, z, qw, qx, qy, qz))
 start = Y[0]
 goal = Y[-1]
-new_start = np.array([0.5, 0.5, 0, 1, 0, 0, 0, 0.5, 0.5, 0, 1, 0, 0, 0])
-new_goal = np.array([-0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, 0, 1, 0, 0, 0])
+new_start = np.array([0.5, 0.5, 0, 1, 0, 0, 0])#, 0.5, 0.5, 0, 1, 0, 0, 0])
+new_goal = np.array([-0.5, 0.5, 0, 1, 0, 0, 0])#, -0.5, 0.5, 0, 1, 0, 0, 0])
 Y_shifted = Y - goal[np.newaxis] + new_goal[np.newaxis]
 
-dmp = DMP(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20)
-#dmp = CartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20)
+#dmp = DMP(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20)
+dmp = CartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20)
 #dmp = DualCartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20)
 dmp.imitate(T, Y)
 dmp.configure(start_y=new_start, goal_y=new_goal)
