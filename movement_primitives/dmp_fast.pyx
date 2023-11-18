@@ -182,8 +182,6 @@ cpdef dmp_step(
         z = forcing_term.phase(current_t, int_dt)
         f[:] = forcing_term.forcing_term(z).squeeze()
 
-        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
-
         for d in range(n_dims):
             if smooth_scaling:
                 smoothing = beta_y * (goal_y[d] - start_y[d]) * z
