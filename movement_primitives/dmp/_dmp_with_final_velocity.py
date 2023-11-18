@@ -36,6 +36,11 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -46,13 +51,15 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         the frequency.
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
+                 smooth_scaling=False):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -121,7 +128,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             coupling_term=coupling_term,
             int_dt=self.int_dt,
             p_gain=self.p_gain,
-            tracking_error=tracking_error)
+            tracking_error=tracking_error,
+            smooth_scaling=self.smooth_scaling)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
@@ -152,7 +160,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             run_t, self.int_dt,
             dmp_step_euler_with_constraints,
             start_yd=self.start_yd, start_ydd=self.start_ydd,
-            goal_yd=self.goal_yd, goal_ydd=self.goal_ydd)
+            goal_yd=self.goal_yd, goal_ydd=self.goal_ydd,
+            smooth_scaling=self.smooth_scaling)
 
     def imitate(self, T, Y, regularization_coefficient=0.0):
         """Imitate demonstration.
@@ -309,7 +318,7 @@ def dmp_step_euler_with_constraints(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd,
         start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, coupling_term_precomputed=None,
-        int_dt=0.001, p_gain=0.0, tracking_error=0.0):
+        int_dt=0.001, p_gain=0.0, tracking_error=0.0, smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -375,6 +384,11 @@ def dmp_step_euler_with_constraints(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -408,13 +422,18 @@ def dmp_step_euler_with_constraints(
 
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)
 
+        if smooth_scaling:
+            smoothing = beta_y * (g - start_y) * z
+        else:
+            smoothing = 0.0
+
         coupling_sum = cdd + p_gain * tracking_error / dt
         ydd = (
             alpha_y * (
                 beta_y * (g - current_y)
                 + execution_time * gd
                 - execution_time * current_yd
-                - beta_y * (g - start_y) * z
+                - smoothing
             )
             + gdd * execution_time ** 2
             + f + coupling_sum

@@ -494,14 +494,15 @@ cpdef dmp_step_quaternion(
         z = forcing_term.phase(current_t, int_dt)
         f[:] = forcing_term.forcing_term(z).squeeze()
 
-        goal_y_minus_start_y = compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(start_y)))
-
         if smooth_scaling:
+            goal_y_minus_start_y = compact_axis_angle_from_quaternion(
+                concatenate_quaternions(goal_y, q_conj(start_y)))
             smoothing[:] = beta_y * z * goal_y_minus_start_y
 
         current_ydd[:] = (
             alpha_y * (
-                beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(current_y)))
+                beta_y * compact_axis_angle_from_quaternion(
+                    concatenate_quaternions(goal_y, q_conj(current_y)))
                 + execution_time * goal_yd
                 - execution_time * current_yd
                 - smoothing
@@ -527,7 +528,8 @@ cpdef dmp_step_dual_cartesian(
         double goal_t, double start_t, double alpha_y, double beta_y,
         forcing_term, coupling_term=None,
         double int_dt=0.001,
-        double p_gain=0.0, np.ndarray tracking_error=None):
+        double p_gain=0.0, np.ndarray tracking_error=None,
+        bint smooth_scaling=False):
     """Integrate bimanual Cartesian DMP for one step with Euler integration.
 
     Parameters
@@ -589,6 +591,11 @@ cpdef dmp_step_dual_cartesian(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -600,11 +607,15 @@ cpdef dmp_step_dual_cartesian(
 
     cdef int n_vel_dims = current_yd.shape[0]
 
-    cdef np.ndarray[double, ndim=1] cd = np.empty(n_vel_dims, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cd = np.empty(n_vel_dims, dtype=float)
+    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=float)
 
-    cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=float)
     cdef np.ndarray[double, ndim=1] goal_y_minus_start_y
+    cdef double smoothing_pos
+    cdef np.ndarray[double, ndim=1] smoothing_orn = np.empty(3, dtype=float)
+    if not smooth_scaling:
+        smoothing_orn[:] = 0.0
 
     cdef double z
 
@@ -637,11 +648,15 @@ cpdef dmp_step_dual_cartesian(
 
         # position components
         for pps, pvs in POS_INDICES:
+            if smooth_scaling:
+                smoothing_pos = beta_y * (goal_y[pps] - start_y[pps]) * z
+            else:
+                smoothing_pos = 0.0
             current_ydd[pvs] = (
                 alpha_y * (
                     beta_y * (goal_y[pps] - current_y[pps])
                     + execution_time * (goal_yd[pvs] - current_yd[pvs])
-                    - beta_y * (goal_y[pps] - start_y[pps]) * z
+                    - smoothing_pos
                 )
                 + f[pvs]
                 + cdd[pvs]
@@ -651,14 +666,16 @@ cpdef dmp_step_dual_cartesian(
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
-            goal_y_minus_start_y = compact_axis_angle_from_quaternion(
-                concatenate_quaternions(goal_y[ops], q_conj(start_y[ops])))
+            if smooth_scaling:
+                goal_y_minus_start_y = compact_axis_angle_from_quaternion(
+                    concatenate_quaternions(goal_y[ops], q_conj(start_y[ops])))
+                smoothing_orn[:] = beta_y * z * goal_y_minus_start_y
             current_ydd[ovs] = (
                 alpha_y * (
                     beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
                     + execution_time * goal_yd[ovs]
                     - execution_time * current_yd[ovs]
-                    - beta_y * z * goal_y_minus_start_y
+                    - smoothing_orn
                 )
                 + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]

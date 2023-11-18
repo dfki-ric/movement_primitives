@@ -116,9 +116,9 @@ def dmp_step_quaternion_python(
         z = forcing_term.phase(current_t, int_dt)
         f = forcing_term.forcing_term(z).squeeze()
 
-        goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
-
         if smooth_scaling:
+            goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
+                pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
             smoothing = beta_y * z * goal_y_minus_start_y
         else:
             smoothing = 0.0

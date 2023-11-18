@@ -18,7 +18,7 @@ def dmp_step_dual_cartesian_python(
         start_y, start_yd, start_ydd,
         goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, int_dt=0.001,
-        p_gain=0.0, tracking_error=None):
+        p_gain=0.0, tracking_error=None, smooth_scaling=False):
     """Integrate bimanual Cartesian DMP for one step with Euler integration.
 
     Parameters
@@ -80,6 +80,11 @@ def dmp_step_dual_cartesian_python(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -110,13 +115,18 @@ def dmp_step_dual_cartesian_python(
                 cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(
                     tracking_error[ops]) / dt
 
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y[pps] - start_y[pps]) * z
+        else:
+            smoothing = 0.0
+
         # position components
         current_ydd[pvs] = (
             alpha_y * (
                 beta_y * (goal_y[pps] - current_y[pps])
                 + execution_time * goal_yd[pvs]
                 - execution_time * current_yd[pvs]
-                - beta_y * (goal_y[pps] - start_y[pps]) * z
+                - smoothing
             )
             + goal_ydd[pvs] * execution_time ** 2
             + f[pvs]
@@ -128,15 +138,19 @@ def dmp_step_dual_cartesian_python(
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)),
                          (slice(10, 14), slice(9, 12))):
-            goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
-                pr.concatenate_quaternions(goal_y[ops], pr.q_conj(start_y[ops])))
+            if smooth_scaling:
+                goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
+                    pr.concatenate_quaternions(goal_y[ops], pr.q_conj(start_y[ops])))
+                smoothing = beta_y * z * goal_y_minus_start_y
+            else:
+                smoothing = 0.0
             current_ydd[ovs] = (
                 alpha_y * (
                     beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
                         goal_y[ops], pr.q_conj(current_y[ops])))
                     + execution_time * goal_yd[ovs]
                     - execution_time * current_yd[ovs]
-                    - beta_y * z * goal_y_minus_start_y
+                    - smoothing
                 )
                 + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]
@@ -194,6 +208,11 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -204,13 +223,14 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         the frequency.
     """
     def __init__(self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
+                 int_dt=0.001, p_gain=0.0, smooth_scaling=False):
         super(DualCartesianDMP, self).__init__(14, 12)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -286,7 +306,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             self.alpha_y, self.beta_y,
             self.forcing_term, coupling_term,
             self.int_dt,
-            self.p_gain, tracking_error)
+            self.p_gain, tracking_error,
+            self.smooth_scaling)
 
         return np.copy(self.current_y), np.copy(self.current_yd)
 
