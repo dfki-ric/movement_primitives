@@ -573,6 +573,7 @@ cpdef dmp_step_dual_cartesian(
     cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=np.float64)
 
     cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] goal_y_minus_start_y
 
     cdef int pps
     cdef int pvs
@@ -600,26 +601,36 @@ cpdef dmp_step_dual_cartesian(
             for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
                 cdd[ovs] += p_gain * compact_axis_angle_from_quaternion(tracking_error[ops]) / dt
 
+        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+
         # position components
         for pps, pvs in POS_INDICES:
             current_ydd[pvs] = (
-                alpha_y * (beta_y * (goal_y[pps] - current_y[pps])
-                           + execution_time * (goal_yd[pvs] - current_yd[pvs]))
-                + f[pvs] + cdd[pvs]
-                ) / execution_time ** 2 + goal_ydd[pvs]
+                alpha_y * (
+                    beta_y * (goal_y[pps] - current_y[pps])
+                    + execution_time * (goal_yd[pvs] - current_yd[pvs])
+                    - beta_y * (goal_y[pps] - start_y[pps]) * s
+                )
+                + f[pvs]
+                + cdd[pvs]
+            ) / execution_time ** 2 + goal_ydd[pvs]
             current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
             current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+            goal_y_minus_start_y = compact_axis_angle_from_quaternion(
+                concatenate_quaternions(goal_y[ops], q_conj(start_y[ops])))
             current_ydd[ovs] = (
                 alpha_y * (
-                    beta_y * compact_axis_angle_from_quaternion(
-                        concatenate_quaternions(
-                            goal_y[ops], q_conj(current_y[ops]))
-                    )
+                    beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
+                    + execution_time * goal_yd[ovs]
                     - execution_time * current_yd[ovs]
-                ) + f[ovs] + cdd[ovs]
+                    - beta_y * s * goal_y_minus_start_y
+                )
+                + goal_ydd[ovs] * execution_time ** 2
+                + f[ovs]
+                + cdd[ovs]
             ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = concatenate_quaternions(
