@@ -91,25 +91,27 @@ def dmp_step_rk4(
     execution_time = goal_t - start_t
     dt = t - last_t
     dt_2 = 0.5 * dt
-    F = forcing_term(np.array([t, t + dt_2, t + dt]))
+    T = np.array([t, t + dt_2, t + dt])
+    S = phase(T, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+    F = forcing_term(T)
     tdd = p_gain * tracking_error / dt
 
     C0 = current_yd
     K0 = _dmp_acc(
         current_y, C0, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 0], coupling_term, tdd)
+        start_y, S[0], execution_time, F[:, 0], coupling_term, tdd)
     C1 = current_yd + dt_2 * K0
     K1 = _dmp_acc(
         current_y + dt_2 * C0, C1, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, tdd)
+        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term, tdd)
     C2 = current_yd + dt_2 * K1
     K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, tdd)
+        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term, tdd)
     C3 = current_yd + dt * K2
     K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 2], coupling_term, tdd)
+        goal_ydd, start_y, S[2], execution_time, F[:, 2], coupling_term, tdd)
 
     current_y += dt * (current_yd + dt / 6.0 * (K0 + K1 + K2))
     current_yd += dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
@@ -120,7 +122,7 @@ def dmp_step_rk4(
 
 
 def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-             execution_time, f, coupling_term, tdd):
+             start_y, s, execution_time, f, coupling_term, tdd):
     """DMP acceleration.
 
     Parameters
@@ -149,6 +151,12 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     goal_ydd : shape (n_dims,)
         Second goal state derivative (acceleration).
 
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    s : float
+        Current phase.
+
     execution_time : float
         Time to execute the DMP.
 
@@ -170,9 +178,19 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     """
     if coupling_term is not None:
         _, cdd = coupling_term.coupling(Y, V)
-    return ((alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
-             + f + cdd + tdd) / execution_time ** 2
-            + goal_ydd)
+    return (
+        (
+            alpha_y * (
+                beta_y * (goal_y - Y)
+                + execution_time * (goal_yd - V)
+                - beta_y * (goal_y - start_y) * s
+            )
+            + f
+            + cdd
+            + tdd
+        ) / execution_time ** 2
+        + goal_ydd
+    )
 
 
 def dmp_step_euler(
