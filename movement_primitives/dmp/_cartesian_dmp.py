@@ -126,14 +126,12 @@ def dmp_step_quaternion_python(
         current_ydd[:] = (
             alpha_y * (
                 beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
-                + execution_time * goal_yd
-                - execution_time * current_yd
+                + execution_time * (goal_yd - current_yd)
                 - smoothing
             )
-            + goal_ydd * execution_time ** 2
             + f
             + cdd
-        ) / execution_time ** 2
+        ) / execution_time ** 2 + goal_ydd
         current_yd += dt * current_ydd + cd / execution_time
         current_y[:] = pr.concatenate_quaternions(
             pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
@@ -163,7 +161,8 @@ class CartesianDMP(DMPBase):
     Orientation in Cartesian space dynamic movement primitives (2014),
     IEEE International Conference on Robotics and Automation (ICRA),
     pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
-    https://ieeexplore.ieee.org/document/6907291
+    https://ieeexplore.ieee.org/document/6907291,
+    https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
 
     While the dimension of the state space is 7, the dimension of the
     velocity, acceleration, and forcing term is 6.

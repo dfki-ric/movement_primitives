@@ -507,10 +507,9 @@ cpdef dmp_step_quaternion(
                 - execution_time * current_yd
                 - smoothing
             )
-            + goal_ydd * execution_time ** 2
             + f
             + cdd
-        ) / execution_time ** 2
+        ) / execution_time ** 2 + goal_ydd
         current_yd += dt * current_ydd + cd / execution_time
         current_y[:] = concatenate_quaternions(
             quaternion_from_compact_axis_angle(dt * current_yd), current_y)
@@ -677,10 +676,9 @@ cpdef dmp_step_dual_cartesian(
                     - execution_time * current_yd[ovs]
                     - smoothing_orn
                 )
-                + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]
                 + cdd[ovs]
-            ) / execution_time ** 2
+            ) / execution_time ** 2 + goal_ydd[ovs]
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = concatenate_quaternions(
                 quaternion_from_compact_axis_angle(dt * current_yd[ovs]),

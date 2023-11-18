@@ -356,14 +356,16 @@ class DMP(WeightParametersMixin, DMPBase):
     A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
     Dynamical Movement Primitives: Learning Attractor Models for Motor
     Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
-    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340
+    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340,
+    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
 
     (if smooth scaling is activated) with modification of scaling proposed by
 
     P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
     Learning and Generalization of Motor Skills by Learning from Demonstration,
     2009 IEEE International Conference on Robotics and Automation,
-    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385.
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
 
     Parameters
     ----------
