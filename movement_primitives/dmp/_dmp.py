@@ -492,7 +492,7 @@ class DMP(WeightParametersMixin, DMPBase):
             int_dt=self.int_dt,
             p_gain=self.p_gain,
             tracking_error=tracking_error,
-            smooth_scaling=smooth_scaling)
+            smooth_scaling=self.smooth_scaling)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None,
@@ -538,7 +538,7 @@ class DMP(WeightParametersMixin, DMPBase):
             coupling_term,
             run_t, self.int_dt,
             step_function,
-            smooth_scaling=smooth_scaling)
+            smooth_scaling=self.smooth_scaling)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):

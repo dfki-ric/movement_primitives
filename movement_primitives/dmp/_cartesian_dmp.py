@@ -16,7 +16,8 @@ def dmp_step_quaternion_python(
         forcing_term,
         coupling_term=None,
         coupling_term_precomputed=None,
-        int_dt=0.001):
+        int_dt=0.001,
+        smooth_scaling=False):
     """Integrate quaternion DMP for one step with Euler integration.
 
     Parameters
@@ -77,6 +78,11 @@ def dmp_step_quaternion_python(
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Raises
     ------
     ValueError
@@ -112,12 +118,17 @@ def dmp_step_quaternion_python(
 
         goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
 
+        if smooth_scaling:
+            smoothing = beta_y * z * goal_y_minus_start_y
+        else:
+            smoothing = 0.0
+
         current_ydd[:] = (
             alpha_y * (
                 beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
                 + execution_time * goal_yd
                 - execution_time * current_yd
-                - beta_y * z * goal_y_minus_start_y
+                - smoothing
             )
             + goal_ydd * execution_time ** 2
             + f
@@ -171,6 +182,11 @@ class CartesianDMP(DMPBase):
     int_dt : float, optional (default: 0.001)
         Time difference for Euler integration.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -182,12 +198,13 @@ class CartesianDMP(DMPBase):
     """
     def __init__(
             self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-            int_dt=0.001):
+            int_dt=0.001, smooth_scaling=False):
         super(CartesianDMP, self).__init__(7, 6)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -266,7 +283,8 @@ class CartesianDMP(DMPBase):
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
             coupling_term=coupling_term,
-            int_dt=self.int_dt)
+            int_dt=self.int_dt,
+            smooth_scaling=self.smooth_scaling)
         quaternion_step_function(
             self.last_t, self.t,
             self.current_y[3:], self.current_yd[3:],
@@ -276,7 +294,8 @@ class CartesianDMP(DMPBase):
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,
             coupling_term=coupling_term,
-            int_dt=self.int_dt)
+            int_dt=self.int_dt,
+            smooth_scaling=self.smooth_scaling)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None,
@@ -320,7 +339,8 @@ class CartesianDMP(DMPBase):
             self.forcing_term_pos,
             coupling_term,
             run_t, self.int_dt,
-            step_function=step_function)
+            step_function=step_function,
+            smooth_scaling=self.smooth_scaling)
         try:
             quaternion_step_function = CARTESIAN_DMP_STEP_FUNCTIONS[
                 quaternion_step_function]
@@ -335,7 +355,8 @@ class CartesianDMP(DMPBase):
             self.forcing_term_rot,
             coupling_term,
             run_t, self.int_dt,
-            quaternion_step_function)
+            quaternion_step_function,
+            self.smooth_scaling)
         return T, np.hstack((Yp, Yr))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -555,7 +576,8 @@ def dmp_open_loop_quaternion(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
         coupling_term=None, run_t=None, int_dt=0.001,
         quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
-            DEFAULT_CARTESIAN_DMP_STEP_FUNCTION]):
+            DEFAULT_CARTESIAN_DMP_STEP_FUNCTION],
+        smooth_scaling=False):
     """Run Cartesian DMP without external feedback.
 
     Parameters
@@ -597,6 +619,11 @@ def dmp_open_loop_quaternion(
     quaternion_step_function : callable, optional (default: cython code if available)
         DMP integration function.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Returns
     -------
     T : array, shape (n_steps,)
@@ -628,7 +655,7 @@ def dmp_open_loop_quaternion(
             goal_t=goal_t, start_t=start_t,
             alpha_y=alpha_y, beta_y=beta_y,
             forcing_term=forcing_term, coupling_term=coupling_term,
-            int_dt=int_dt)
+            int_dt=int_dt, smooth_scaling=smooth_scaling)
         Y[i] = current_y
 
     return T, Y

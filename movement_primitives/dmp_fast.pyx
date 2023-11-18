@@ -389,7 +389,7 @@ cpdef dmp_step_quaternion(
         np.ndarray[double, ndim=1] start_ydd,
         double goal_t, double start_t, double alpha_y, double beta_y,
         forcing_term, coupling_term=None, coupling_term_precomputed=None,
-        double int_dt=0.001):
+        double int_dt=0.001, bint smooth_scaling=False):
     """Integrate quaternion DMP for one step with Euler integration.
 
     Parameters
@@ -449,6 +449,11 @@ cpdef dmp_step_quaternion(
 
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -469,6 +474,9 @@ cpdef dmp_step_quaternion(
     cdef double current_t
     cdef double dt
     cdef double z
+    cdef np.ndarray[double, ndim=1] smoothing = np.empty(3, dtype=np.float64)
+    if not smooth_scaling:
+        smoothing[:] = 0
 
     current_t = last_t
     while current_t < t:
@@ -488,12 +496,15 @@ cpdef dmp_step_quaternion(
 
         goal_y_minus_start_y = compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(start_y)))
 
+        if smooth_scaling:
+            smoothing[:] = beta_y * z * goal_y_minus_start_y
+
         current_ydd[:] = (
             alpha_y * (
                 beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(current_y)))
                 + execution_time * goal_yd
                 - execution_time * current_yd
-                - beta_y * z * goal_y_minus_start_y
+                - smoothing
             )
             + goal_ydd * execution_time ** 2
             + f
