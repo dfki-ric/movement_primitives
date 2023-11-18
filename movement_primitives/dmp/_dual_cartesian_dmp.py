@@ -124,14 +124,12 @@ def dmp_step_dual_cartesian_python(
         current_ydd[pvs] = (
             alpha_y * (
                 beta_y * (goal_y[pps] - current_y[pps])
-                + execution_time * goal_yd[pvs]
-                - execution_time * current_yd[pvs]
+                + execution_time * (goal_yd[pvs] - current_yd[pvs])
                 - smoothing
             )
-            + goal_ydd[pvs] * execution_time ** 2
             + f[pvs]
             + cdd[pvs]
-        ) / execution_time ** 2
+        ) / execution_time ** 2 + goal_ydd[pvs]
         current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
         current_y[pps] += dt * current_yd[pvs]
 
@@ -148,14 +146,12 @@ def dmp_step_dual_cartesian_python(
                 alpha_y * (
                     beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
                         goal_y[ops], pr.q_conj(current_y[ops])))
-                    + execution_time * goal_yd[ovs]
-                    - execution_time * current_yd[ovs]
+                    + execution_time * (goal_yd[ovs] - current_yd[ovs])
                     - smoothing
                 )
-                + goal_ydd[ovs] * execution_time ** 2
                 + f[ovs]
                 + cdd[ovs]
-            ) / execution_time ** 2
+            ) / execution_time ** 2 + goal_ydd[ovs]
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = pr.concatenate_quaternions(
                 pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])

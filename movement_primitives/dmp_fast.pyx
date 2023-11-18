@@ -672,8 +672,7 @@ cpdef dmp_step_dual_cartesian(
             current_ydd[ovs] = (
                 alpha_y * (
                     beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
-                    + execution_time * goal_yd[ovs]
-                    - execution_time * current_yd[ovs]
+                    + execution_time * (goal_yd[ovs] - current_yd[ovs])
                     - smoothing_orn
                 )
                 + f[ovs]
