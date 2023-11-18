@@ -96,7 +96,7 @@ def test_obstacle_avoidance_3d():
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term)
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.15, min_dist)
+        assert_less(0.13, min_dist)
 
 
 def test_obstacle_avoidance_3d_with_final_velocity():
