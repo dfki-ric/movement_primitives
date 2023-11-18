@@ -380,7 +380,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[3:6, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -388,7 +389,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[6:9, :] = dmp_imitate(
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -396,7 +398,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[9:12, :] = dmp_quaternion_imitation(
             T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -404,6 +407,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])

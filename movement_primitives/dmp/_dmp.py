@@ -563,7 +563,8 @@ class DMP(WeightParametersMixin, DMPBase):
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)
         self.configure(start_y=start_y, goal_y=goal_y)
 
 
@@ -580,7 +581,8 @@ def dmp_transformation_system(
     ) / execution_time ** 2 + goal_ydd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
+def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+                     smooth_scaling=False):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -602,6 +604,11 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
 
     allow_final_velocity : bool
         Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
 
     Returns
     -------
@@ -646,11 +653,15 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
     Z = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y - start_y) * Z[t]
+        else:
+            smoothing = 0.0
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * (goal_y - Y[t])
             + goal_yd * execution_time
             - Yd[t] * execution_time
-            - beta_y * (goal_y - start_y) * Z[t]
+            - smoothing
         ) - execution_time ** 2 * goal_ydd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
@@ -658,7 +669,7 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
 def dmp_imitate(
         T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
         overlap, alpha_z, allow_final_velocity,
-        determine_forces=determine_forces):
+        determine_forces=determine_forces, smooth_scaling=False):
     """Compute weights and metaparameters of DMP.
 
     Parameters
@@ -695,6 +706,11 @@ def dmp_imitate(
         Function to compute forces of the forcing term and metaparameters given
         the demonstration.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Returns
     -------
     weights : array, shape (n_dims, n_weights_per_dim)
@@ -724,9 +740,10 @@ def dmp_imitate(
     forcing_term = ForcingTerm(
         Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces(
-        T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity)  # n_steps x n_dims
+        T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity, smooth_scaling)
+    # F shape (n_steps, n_dims)
 
-    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
+    X = forcing_term.design_matrix(T)  # shape (n_weights_per_dim, n_steps)
 
     return (ridge_regression(X, F, regularization_coefficient),
             start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)

@@ -235,7 +235,8 @@ def apply_constraints(t, goal_y, goal_t, coefficients):
         return g, gd, gdd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
+def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+                     smooth_scaling=False):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -258,6 +259,10 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
     allow_final_velocity : bool
         Whether a final velocity is allowed. This should always be True for
         this function.
+
+    smooth_scaling : bool, optional (default: False)
+        Not used. This DMP type adapts smoothly to goal changes as constraint
+        coefficients will be recomputed in each step.
 
     Returns
     -------
@@ -301,15 +306,12 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
         T[0], T[-1], Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1])
 
     execution_time = T[-1] - T[0]
-    Z = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
         g, gd, gdd = apply_constraints(T[t], Y[-1], T[-1], coefficients)
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * (g - Y[t])
-            + gd * execution_time
-            - Yd[t] * execution_time
-            - beta_y * (g - Y[0]) * Z[t]
+            + execution_time * (gd - Yd[t])
         ) - execution_time ** 2 * gdd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
@@ -386,9 +388,8 @@ def dmp_step_euler_with_constraints(
         Tracking error from last step.
 
     smooth_scaling : bool, optional (default: False)
-        Avoids jumps during the beginning of DMP execution when the goal
-        is changed and the trajectory is scaled by interpolating between
-        the old and new scaling of the trajectory.
+        Not used. This DMP type adapts smoothly to goal changes as constraint
+        coefficients will be recomputed in each step.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -422,21 +423,14 @@ def dmp_step_euler_with_constraints(
 
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)
 
-        if smooth_scaling:
-            smoothing = beta_y * (g - start_y) * z
-        else:
-            smoothing = 0.0
-
         coupling_sum = cdd + p_gain * tracking_error / dt
         ydd = (
             alpha_y * (
                 beta_y * (g - current_y)
-                + execution_time * gd
-                - execution_time * current_yd
-                - smoothing
+                + execution_time * (gd - current_yd)
             )
-            + gdd * execution_time ** 2
-            + f + coupling_sum
-        ) / execution_time ** 2
+            + f
+            + coupling_sum
+        ) / execution_time ** 2 + gdd
         current_yd += dt * ydd + cd / execution_time
         current_y += dt * current_yd

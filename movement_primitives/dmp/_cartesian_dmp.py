@@ -384,7 +384,8 @@ class CartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term_rot.weights_[:, :] = dmp_quaternion_imitation(
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -392,7 +393,8 @@ class CartesianDMP(DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term_rot.overlap,
             alpha_z=self.forcing_term_rot.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
 
@@ -424,7 +426,7 @@ class CartesianDMP(DMPBase):
 
 def dmp_quaternion_imitation(
         T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
-        overlap, alpha_z, allow_final_velocity):
+        overlap, alpha_z, allow_final_velocity, smooth_scaling=False):
     """Compute weights and metaparameters of quaternion DMP.
 
     Parameters
@@ -457,6 +459,11 @@ def dmp_quaternion_imitation(
     allow_final_velocity : bool
         Whether a final velocity is allowed. Will be set to 0 otherwise.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Returns
     -------
     weights : array, shape (3, n_weights_per_dim)
@@ -487,7 +494,8 @@ def dmp_quaternion_imitation(
         3, n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = \
         determine_forces_quaternion(
-            T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity)  # n_steps x n_dims
+            T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+            smooth_scaling)  # n_steps x n_dims
 
     X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
 
@@ -495,7 +503,9 @@ def dmp_quaternion_imitation(
             start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)
 
 
-def determine_forces_quaternion(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity):
+def determine_forces_quaternion(
+        T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+        smooth_scaling=False):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -517,6 +527,11 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, alpha_z, allow_final_velo
 
     allow_final_velocity : bool
         Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
 
     Returns
     -------
@@ -559,15 +574,20 @@ def determine_forces_quaternion(T, Y, alpha_y, beta_y, alpha_z, allow_final_velo
     goal_yd = Yd[-1]
     goal_ydd = Ydd[-1]
     start_y = Y[0]
-    goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
+    goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
+        pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
     S = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
+        if smooth_scaling:
+            smoothing = beta_y * S[t] * goal_y_minus_start_y
+        else:
+            smoothing = 0.0
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
-            beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t])))
-            + goal_yd * execution_time
-            - Yd[t] * execution_time
-            - beta_y * S[t] * goal_y_minus_start_y
+            beta_y * pr.compact_axis_angle_from_quaternion(
+                pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t])))
+            + execution_time * (goal_yd - Yd[t])
+            - smoothing
         ) - execution_time ** 2 * goal_ydd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
