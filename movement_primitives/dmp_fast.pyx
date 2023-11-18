@@ -64,7 +64,8 @@ cpdef dmp_step(
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
-        np.ndarray tracking_error=None):
+        np.ndarray tracking_error=None,
+        bool smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -130,6 +131,11 @@ cpdef dmp_step(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -153,6 +159,7 @@ cpdef dmp_step(
     cdef double current_t
     cdef double dt
     cdef double z
+    cdef double smoothing
 
     current_t = last_t
     while current_t < t:
@@ -178,17 +185,20 @@ cpdef dmp_step(
         s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
 
         for d in range(n_dims):
+            if smooth_scaling:
+                smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+            else:
+                smoothing = 0.0
+
             current_ydd[d] = (
                 alpha_y * (
                     beta_y * (goal_y[d] - current_y[d])
-                    + execution_time * goal_yd[d]
-                    - execution_time * current_yd[d]
-                    - beta_y * (goal_y[d] - start_y[d]) * z
+                    + execution_time * (goal_yd[d] - current_yd[d])
+                    - smoothing
                 )
-                + goal_ydd[d] * execution_time ** 2
                 + f[d]
                 + cdd[d]
-            ) / execution_time ** 2
+            ) / execution_time ** 2 + goal_ydd[d]
             current_yd[d] += dt * current_ydd[d] + cd[d] / execution_time
             current_y[d] += dt * current_yd[d]
 
@@ -206,7 +216,8 @@ cpdef dmp_step_rk4(
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
-        np.ndarray tracking_error=None):
+        np.ndarray tracking_error=None,
+        bool smooth_scaling=False):
     """Integrate regular DMP for one step with RK4 integration.
 
     Parameters
@@ -272,6 +283,11 @@ cpdef dmp_step_rk4(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     cdef int n_dims = current_y.shape[0]
 
@@ -297,22 +313,22 @@ cpdef dmp_step_rk4(
     cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(
         current_y, current_yd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, start_y, Z[0], execution_time, F[:, 0], coupling_term,
-        p_gain, tdd)
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C1 = current_yd + dt_2 * K0
     cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(
         current_y + dt_2 * current_yd, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
-        p_gain, tdd)
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C2 = current_yd + dt_2 * K1
     cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
-        p_gain, tdd)
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C3 = current_yd + dt * K2
     cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
         goal_ydd, start_y, Z[2], execution_time, F[:, 2], coupling_term,
-        p_gain, tdd)
+        p_gain, tdd, smooth_scaling)
 
     cdef int i
     for i in range(n_dims):
@@ -330,21 +346,26 @@ cdef _dmp_acc(
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
         double z, double execution_time, np.ndarray[double, ndim=1] f,
-        object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd):
+        object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd,
+        bool smooth_scaling):
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
 
     cdef int n_dims = Y.shape[0]
     cdef np.ndarray[double, ndim=1] Ydd = np.empty(n_dims, dtype=np.float64)
     cdef int d
+    cdef double smoothing
     for d in range(n_dims):
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+        else:
+            smoothing = 0.0
         Ydd[d] = (
             (
                 alpha_y * (
                     beta_y * (goal_y[d] - Y[d])
-                    + execution_time * goal_yd[d]
-                    - execution_time * V[d]
-                    - beta_y * (goal_y[d] - start_y[d]) * z
+                    + execution_time * (goal_yd[d] - V[d])
+                    - smoothing
                 )
                 + f[d]
                 + cdd[d]
