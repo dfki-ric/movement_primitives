@@ -1,6 +1,8 @@
 import numpy as np
 from movement_primitives.dmp import CartesianDMP
 from movement_primitives.dmp._cartesian_dmp import dmp_quaternion_imitation
+from movement_primitives.dmp._forcing_term import ForcingTerm
+from movement_primitives.dmp._canonical_system import canonical_system_alpha
 from pytransform3d import rotations as pr
 from numpy.testing import assert_array_almost_equal, assert_raises_regex
 from nose.tools import assert_equal, assert_less
@@ -67,13 +69,15 @@ def test_compare_python_cython():
     from copy import deepcopy
     from movement_primitives.dmp._cartesian_dmp import dmp_step_quaternion_python
     from movement_primitives.dmp_fast import dmp_step_quaternion as dmp_step_quaternion_cython
+    alpha_z = canonical_system_alpha(0.01, 2.0, 0.0, 0.001)
+    forcing_term = ForcingTerm(3, 10, 2.0, 0.0, 0.8, alpha_z)
     kwargs = dict(
         last_t=1.999, t=2.0,
         current_y=np.array([1.0, 0.0, 0.0, 0.0]), current_yd=np.zeros([3]),
         goal_y=np.array([1.0, 0.0, 0.0, 0.0]), goal_yd=np.zeros([3]), goal_ydd=np.zeros([3]),
         start_y=np.array([1.0, 0.0, 0.0, 0.0]), start_yd=np.zeros([3]), start_ydd=np.zeros([3]),
         goal_t=2.0, start_t=0.0, alpha_y=25.0, beta_y=6.25,
-        forcing_term=lambda x: 10000 * np.ones((3, 1)), coupling_term=None, int_dt=0.0001
+        forcing_term=forcing_term, coupling_term=None, int_dt=0.0001
     )
     kwargs_python = deepcopy(kwargs)
     dmp_step_quaternion_python(**kwargs_python)
