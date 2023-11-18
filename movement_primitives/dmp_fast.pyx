@@ -173,12 +173,18 @@ cpdef dmp_step(
 
         f[:] = forcing_term(current_t).squeeze()
 
+        s = phase(current_t, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+
         for d in range(n_dims):
             current_ydd[d] = (
-                alpha_y * (beta_y * (goal_y[d] - current_y[d])
-                           + execution_time * goal_yd[d]
-                           - execution_time * current_yd[d])
-                + goal_ydd[d] * execution_time ** 2 + f[d]
+                alpha_y * (
+                    beta_y * (goal_y[d] - current_y[d])
+                    + execution_time * goal_yd[d]
+                    - execution_time * current_yd[d]
+                    - beta_y * (goal_y[d] - start_y[d]) * s
+                )
+                + goal_ydd[d] * execution_time ** 2
+                + f[d]
                 + cdd[d]
             ) / execution_time ** 2
             current_yd[d] += dt * current_ydd[d] + cd[d] / execution_time
