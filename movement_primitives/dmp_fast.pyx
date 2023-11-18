@@ -283,7 +283,9 @@ cpdef dmp_step_rk4(
     cdef double execution_time = goal_t - start_t
     cdef double dt = t - last_t
     cdef double dt_2 = 0.5 * dt
-    cdef np.ndarray[double, ndim=2] F = forcing_term(np.array([t, t + dt_2, t + dt]))
+    cdef np.ndarray[double, ndim=1] T = np.array([t, t + dt_2, t + dt])
+    cdef np.ndarray[double, ndim=1] S = phase(T, forcing_term.alpha_z, goal_t, start_t, int_dt=int_dt)
+    cdef np.ndarray[double, ndim=2] F = forcing_term(T)
     cdef np.ndarray[double, ndim=1] tdd
     if tracking_error is not None:
         tdd = p_gain / dt * tracking_error
@@ -292,19 +294,23 @@ cpdef dmp_step_rk4(
 
     cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(
         current_y, current_yd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 0], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, S[0], execution_time, F[:, 0], coupling_term,
+        p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C1 = current_yd + dt_2 * K0
     cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(
         current_y + dt_2 * current_yd, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term,
+        p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C2 = current_yd + dt_2 * K1
     cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, S[1], execution_time, F[:, 1], coupling_term,
+        p_gain, tdd)
     cdef np.ndarray[double, ndim=1] C3 = current_yd + dt * K2
     cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 2], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, S[2], execution_time, F[:, 2], coupling_term,
+        p_gain, tdd)
 
     cdef int i
     for i in range(n_dims):
@@ -320,21 +326,29 @@ cdef _dmp_acc(
         np.ndarray[double, ndim=1] Y, np.ndarray[double, ndim=1] V,
         np.ndarray[double, ndim=1] cdd, double dt, double alpha_y, double beta_y,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
-        np.ndarray[double, ndim=1] goal_ydd, double execution_time,
-        np.ndarray[double, ndim=1] f, object coupling_term, double p_gain,
-        np.ndarray[double, ndim=1] tdd):
+        np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
+        double s, double execution_time, np.ndarray[double, ndim=1] f,
+        object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd):
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
 
     cdef int n_dims = Y.shape[0]
     cdef np.ndarray[double, ndim=1] Ydd = np.empty(n_dims, dtype=np.float64)
-    cdef int i
-    for i in range(n_dims):
-        Ydd[i] = ((
-            alpha_y * (beta_y * (goal_y[i] - Y[i])
-                       + execution_time * goal_yd[i] - execution_time * V[i])
-            + f[i] + cdd[i] + tdd[i]
-        ) / execution_time ** 2) + goal_ydd[i]
+    cdef int d
+    for d in range(n_dims):
+        Ydd[d] = (
+            (
+                alpha_y * (
+                    beta_y * (goal_y[d] - Y[d])
+                    + execution_time * goal_yd[d]
+                    - execution_time * V[d]
+                    - beta_y * (goal_y[d] - start_y[d]) * s
+                )
+                + f[d]
+                + cdd[d]
+                + tdd[d]
+            ) / execution_time ** 2
+        ) + goal_ydd[d]
     return Ydd
 
 
