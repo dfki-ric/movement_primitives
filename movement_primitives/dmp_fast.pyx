@@ -65,7 +65,7 @@ cpdef dmp_step(
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
         np.ndarray tracking_error=None,
-        bool smooth_scaling=False):
+        bint smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -217,7 +217,7 @@ cpdef dmp_step_rk4(
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
         np.ndarray tracking_error=None,
-        bool smooth_scaling=False):
+        bint smooth_scaling=False):
     """Integrate regular DMP for one step with RK4 integration.
 
     Parameters
@@ -347,7 +347,7 @@ cdef _dmp_acc(
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
         double z, double execution_time, np.ndarray[double, ndim=1] f,
         object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd,
-        bool smooth_scaling):
+        bint smooth_scaling):
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
 
