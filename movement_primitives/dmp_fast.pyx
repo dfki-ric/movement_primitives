@@ -191,12 +191,12 @@ cpdef dmp_step(
             current_ydd[d] = (
                 alpha_y * (
                     beta_y * (goal_y[d] - current_y[d])
-                    + execution_time * (goal_yd[d] - current_yd[d])
+                    - execution_time * current_yd[d]
                     - smoothing
                 )
                 + f[d]
                 + cdd[d]
-            ) / execution_time ** 2 + goal_ydd[d]
+            ) / execution_time ** 2
             current_yd[d] += dt * current_ydd[d] + cd[d] / execution_time
             current_y[d] += dt * current_yd[d]
 
@@ -359,17 +359,15 @@ cdef _dmp_acc(
         else:
             smoothing = 0.0
         Ydd[d] = (
-            (
-                alpha_y * (
-                    beta_y * (goal_y[d] - Y[d])
-                    + execution_time * (goal_yd[d] - V[d])
-                    - smoothing
-                )
-                + f[d]
-                + cdd[d]
-                + tdd[d]
-            ) / execution_time ** 2
-        ) + goal_ydd[d]
+            alpha_y * (
+                beta_y * (goal_y[d] - Y[d])
+                - execution_time * V[d]
+                - smoothing
+            )
+            + f[d]
+            + cdd[d]
+            + tdd[d]
+        ) / execution_time ** 2
     return Ydd
 
 

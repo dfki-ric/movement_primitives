@@ -37,7 +37,7 @@ dmp = DMP(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20, 
 #dmp = DualCartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
 dmp.imitate(T, Y)
 dmp.configure(start_y=new_start, goal_y=new_goal)
-_, Y_dmp = dmp.open_loop(step_function="euler")
+_, Y_dmp = dmp.open_loop(step_function="rk4")
 
 plt.plot(Y[:, 0], Y[:, 1], label=r"Demonstration, $g \approx y_0$", ls="--")
 plt.plot(Y_shifted[:, 0], Y_shifted[:, 1], label="Original shape with new goal", ls="--")

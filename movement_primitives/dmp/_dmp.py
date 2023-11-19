@@ -199,18 +199,15 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     else:
         smoothing = 0.0
     return (
-        (
-            alpha_y * (
-                beta_y * (goal_y - Y)
-                + execution_time * (goal_yd - V)
-                - smoothing
-            )
-            + f
-            + cdd
-            + tdd
-        ) / execution_time ** 2
-        + goal_ydd
-    )
+        alpha_y * (
+            beta_y * (goal_y - Y)
+            - execution_time * V
+            - smoothing
+        )
+        + f
+        + cdd
+        + tdd
+    ) / execution_time ** 2
 
 
 def dmp_step_euler(
@@ -643,8 +640,6 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
 
     execution_time = T[-1] - T[0]
     goal_y = Y[-1]
-    goal_yd = Yd[-1]
-    goal_ydd = Ydd[-1]
     start_y = Y[0]
     Z = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
@@ -655,10 +650,9 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
             smoothing = 0.0
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * (goal_y - Y[t])
-            + goal_yd * execution_time
             - Yd[t] * execution_time
             - smoothing
-        ) - execution_time ** 2 * goal_ydd
+        )
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
