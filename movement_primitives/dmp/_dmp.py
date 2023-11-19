@@ -304,31 +304,20 @@ def dmp_step_euler(
             dt = t - current_t
         current_t += dt
 
-        if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(current_y, current_yd)
-        else:
+        if coupling_term is None:
             cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
-        if coupling_term_precomputed is not None:
-            cd += coupling_term_precomputed[0]
-            cdd += coupling_term_precomputed[1]
-
+            if coupling_term_precomputed is not None:
+                cd += coupling_term_precomputed[0]
+                cdd += coupling_term_precomputed[1]
+        else:
+            cd, cdd = None, None
         z = forcing_term.phase(current_t, int_dt)
         f = forcing_term.forcing_term(z).squeeze()
-        if smooth_scaling:
-            smoothing = beta_y * (goal_y - start_y) * z
-        else:
-            smoothing = 0.0
-
-        coupling_sum = cdd + p_gain * tracking_error / dt
-        ydd = (
-            alpha_y * (
-                beta_y * (goal_y - current_y)
-                + execution_time * (goal_yd - current_yd)
-                - smoothing
-            )
-            + f
-            + coupling_sum
-        ) / execution_time ** 2 + goal_ydd
+        tdd = p_gain * tracking_error / dt
+        ydd = _dmp_acc(
+            current_y, current_yd, cdd, alpha_y, beta_y, goal_y, goal_yd,
+            goal_ydd, start_y, z, execution_time, f, coupling_term, tdd,
+            smooth_scaling)
         current_yd += dt * ydd + cd / execution_time
         current_y += dt * current_yd
 
