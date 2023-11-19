@@ -314,12 +314,17 @@ def dmp_step_euler(
         z = forcing_term.phase(current_t, int_dt)
         f = forcing_term.forcing_term(z).squeeze()
         tdd = p_gain * tracking_error / dt
+
         ydd = _dmp_acc(
             current_y, current_yd, cdd, alpha_y, beta_y, goal_y, goal_yd,
             goal_ydd, start_y, z, execution_time, f, coupling_term, tdd,
             smooth_scaling)
-        current_yd += dt * ydd + cd / execution_time
+        current_yd += dt * ydd
         current_y += dt * current_yd
+
+        if coupling_term is not None:
+            cd, _ = coupling_term.coupling(current_y, current_yd)
+            current_yd += cd / execution_time
 
 
 DMP_STEP_FUNCTIONS = {
