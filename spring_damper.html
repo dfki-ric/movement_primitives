@@ -66,6 +66,11 @@ class SpringDamper(PointToPointMovement):
         self.initialized = False
         self.configure()
 
+    def reset(self):
+        &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+        self.t = 0.0
+        self.last_t = None
+
     def step(self, last_y, last_yd, coupling_term=None):
         &#34;&#34;&#34;Perform step.
 
@@ -163,6 +168,11 @@ class SpringDamperOrientation(PointToPointMovement):
         self.initialized = False
         self.configure()
 
+    def reset(self):
+        &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+        self.t = 0.0
+        self.last_t = None
+
     def step(self, last_y, last_yd, coupling_term=None):
         &#34;&#34;&#34;Perform step.
 
@@ -233,8 +243,7 @@ class SpringDamperOrientation(PointToPointMovement):
 def spring_damper_step(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
@@ -258,11 +267,16 @@ def spring_damper_step(
         current_y += dt * current_yd
 
 
+def _default_critically_damped_c(c, k):
+    if c is None:
+        c = 2.0 * np.sqrt(k)
+    return c
+
+
 def spring_damper_step_quaternion(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
@@ -293,40 +307,35 @@ def spring_damper_step_quaternion(
 def spring_damper_open_loop(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
-    yd = np.zeros_like(y)
-    T = [t]
-    Y = [np.copy(y)]
-    while t &lt; run_t:
-        last_t = t
-        t += dt
+    yd = np.zeros_like(start_y)
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step(
-            last_t, t, y, yd,
-            goal_y=goal_y,
-            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
+            coupling_term=coupling_term, int_dt=int_dt)
+        Y[i] = y
+    return T, Y
 
 
 def spring_damper_open_loop_quaternion(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
     yd = np.zeros(3)
-    T = [t]
-    Y = [np.copy(y)]
-    while t &lt; run_t:
-        last_t = t
-        t += dt
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step_quaternion(
-            last_t, t, y, yd, goal_y=goal_y, k=k, c=c,
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
             coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)</code></pre>
+        Y[i] = y
+    return T, Y</code></pre>
 </details>
 </section>
 <section>
@@ -348,21 +357,18 @@ def spring_damper_open_loop_quaternion(
 <pre><code class="python">def spring_damper_open_loop(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
-    yd = np.zeros_like(y)
-    T = [t]
-    Y = [np.copy(y)]
-    while t &lt; run_t:
-        last_t = t
-        t += dt
+    yd = np.zeros_like(start_y)
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step(
-            last_t, t, y, yd,
-            goal_y=goal_y,
-            k=k, c=c, coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)</code></pre>
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
+            coupling_term=coupling_term, int_dt=int_dt)
+        Y[i] = y
+    return T, Y</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.spring_damper.spring_damper_open_loop_quaternion"><code class="name flex">
@@ -377,20 +383,18 @@ def spring_damper_open_loop_quaternion(
 <pre><code class="python">def spring_damper_open_loop_quaternion(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
-    t = 0.0
     y = np.copy(start_y)
     yd = np.zeros(3)
-    T = [t]
-    Y = [np.copy(y)]
-    while t &lt; run_t:
-        last_t = t
-        t += dt
+
+    T = np.arange(0.0, run_t + dt, dt)
+    Y = np.empty((len(T), len(y)))
+    Y[0] = y
+    for i in range(1, len(T)):
         spring_damper_step_quaternion(
-            last_t, t, y, yd, goal_y=goal_y, k=k, c=c,
+            T[i - 1], T[i], y, yd, goal_y=goal_y, k=k, c=c,
             coupling_term=coupling_term, int_dt=int_dt)
-        T.append(t)
-        Y.append(np.copy(y))
-    return np.asarray(T), np.asarray(Y)</code></pre>
+        Y[i] = y
+    return T, Y</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.spring_damper.spring_damper_step"><code class="name flex">
@@ -405,8 +409,7 @@ def spring_damper_open_loop_quaternion(
 <pre><code class="python">def spring_damper_step(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
@@ -442,8 +445,7 @@ def spring_damper_open_loop_quaternion(
 <pre><code class="python">def spring_damper_step_quaternion(
         last_t, t, current_y, current_yd, goal_y, k=1.0, c=None,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001):
-    if c is None:  # set for critical damping
-        c = 2.0 * np.sqrt(k)
+    c = _default_critically_damped_c(c, k)
 
     current_ydd = np.empty_like(current_yd)
 
@@ -532,6 +534,11 @@ def spring_damper_open_loop_quaternion(
 
         self.initialized = False
         self.configure()
+
+    def reset(self):
+        &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+        self.t = 0.0
+        self.last_t = None
 
     def step(self, last_y, last_yd, coupling_term=None):
         &#34;&#34;&#34;Perform step.
@@ -654,6 +661,21 @@ def spring_damper_open_loop_quaternion(
         self.k, self.c,
         coupling_term,
         run_t, self.int_dt)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.spring_damper.SpringDamper.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+    self.t = 0.0
+    self.last_t = None</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.spring_damper.SpringDamper.step"><code class="name flex">
@@ -785,6 +807,11 @@ def spring_damper_open_loop_quaternion(
         self.initialized = False
         self.configure()
 
+    def reset(self):
+        &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+        self.t = 0.0
+        self.last_t = None
+
     def step(self, last_y, last_yd, coupling_term=None):
         &#34;&#34;&#34;Perform step.
 
@@ -908,6 +935,21 @@ def spring_damper_open_loop_quaternion(
         run_t, self.int_dt)</code></pre>
 </details>
 </dd>
+<dt id="movement_primitives.spring_damper.SpringDamperOrientation.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reset time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    &#34;&#34;&#34;Reset time.&#34;&#34;&#34;
+    self.t = 0.0
+    self.last_t = None</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.spring_damper.SpringDamperOrientation.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
 </code></dt>
@@ -1013,6 +1055,7 @@ def spring_damper_open_loop_quaternion(
 <h4><code><a title="movement_primitives.spring_damper.SpringDamper" href="#movement_primitives.spring_damper.SpringDamper">SpringDamper</a></code></h4>
 <ul class="">
 <li><code><a title="movement_primitives.spring_damper.SpringDamper.open_loop" href="#movement_primitives.spring_damper.SpringDamper.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamper.reset" href="#movement_primitives.spring_damper.SpringDamper.reset">reset</a></code></li>
 <li><code><a title="movement_primitives.spring_damper.SpringDamper.step" href="#movement_primitives.spring_damper.SpringDamper.step">step</a></code></li>
 </ul>
 </li>
@@ -1020,6 +1063,7 @@ def spring_damper_open_loop_quaternion(
 <h4><code><a title="movement_primitives.spring_damper.SpringDamperOrientation" href="#movement_primitives.spring_damper.SpringDamperOrientation">SpringDamperOrientation</a></code></h4>
 <ul class="">
 <li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.open_loop" href="#movement_primitives.spring_damper.SpringDamperOrientation.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.reset" href="#movement_primitives.spring_damper.SpringDamperOrientation.reset">reset</a></code></li>
 <li><code><a title="movement_primitives.spring_damper.SpringDamperOrientation.step" href="#movement_primitives.spring_damper.SpringDamperOrientation.step">step</a></code></li>
 </ul>
 </li>

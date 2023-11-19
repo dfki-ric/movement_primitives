@@ -81,9 +81,9 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
 
     ts = dmp_transformation_system(
         Y, Yd, dmp.alpha_y, dmp.beta_y, dmp.goal_y, dmp.goal_yd, dmp.goal_ydd,
-        dmp.execution_time)
+        dmp.execution_time_)
     ft = np.empty_like(ts)
-    ft[:, :] = (dmp.forcing_term(dmp.t) / dmp.execution_time ** 2).ravel()
+    ft[:, :] = (dmp.forcing_term(dmp.t) / dmp.execution_time_ ** 2).ravel()
 
     if obstacle is None:
         ct = np.zeros_like(ts)
@@ -314,9 +314,9 @@ position.</dd>
 
     ts = dmp_transformation_system(
         Y, Yd, dmp.alpha_y, dmp.beta_y, dmp.goal_y, dmp.goal_yd, dmp.goal_ydd,
-        dmp.execution_time)
+        dmp.execution_time_)
     ft = np.empty_like(ts)
-    ft[:, :] = (dmp.forcing_term(dmp.t) / dmp.execution_time ** 2).ravel()
+    ft[:, :] = (dmp.forcing_term(dmp.t) / dmp.execution_time_ ** 2).ravel()
 
     if obstacle is None:
         ct = np.zeros_like(ts)

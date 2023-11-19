@@ -1165,7 +1165,7 @@ minimizing the position error.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.kinematics.Chain.inverse_trajectory"><code class="name flex">
-<span>def <span class="ident">inverse_trajectory</span></span>(<span>self, H, initial_joint_angles=None, interval=0.3141592653589793, random_restarts=True, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.8/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
+<span>def <span class="ident">inverse_trajectory</span></span>(<span>self, H, initial_joint_angles=None, interval=0.3141592653589793, random_restarts=True, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute inverse kinematics for a trajectory.</p>
@@ -1275,7 +1275,7 @@ minimizing the position error.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.kinematics.Chain.inverse_with_random_restarts"><code class="name flex">
-<span>def <span class="ident">inverse_with_random_restarts</span></span>(<span>self, desired_pose, n_restarts=10, tolerance=0.001, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.8/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
+<span>def <span class="ident">inverse_with_random_restarts</span></span>(<span>self, desired_pose, n_restarts=10, tolerance=0.001, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute inverse kinematics with multiple random restarts.</p>
@@ -1364,7 +1364,7 @@ minimizing the position error.</dd>
 </details>
 </dd>
 <dt id="movement_primitives.kinematics.Chain.local_inverse_with_random_restarts"><code class="name flex">
-<span>def <span class="ident">local_inverse_with_random_restarts</span></span>(<span>self, desired_pose, joint_angles, interval, n_restarts=10, tolerance=0.001, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.8/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
+<span>def <span class="ident">local_inverse_with_random_restarts</span></span>(<span>self, desired_pose, joint_angles, interval, n_restarts=10, tolerance=0.001, random_state=&lt;module &#x27;numpy.random&#x27; from &#x27;/home/afabisch/Data/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py&#x27;&gt;, solver='SLSQP', orientation_weight=1.0, position_weight=1.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute inverse kinematics with multiple random restarts.</p>
@@ -1531,7 +1531,9 @@ minimizing the position error.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>pytransform3d.urdf.UrdfTransformManager</li>
-<li>pytransform3d.transform_manager.TransformManager</li>
+<li>pytransform3d.transform_manager._transform_manager.TransformManager</li>
+<li>pytransform3d.transform_manager._transform_graph_base.TransformGraphBase</li>
+<li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>

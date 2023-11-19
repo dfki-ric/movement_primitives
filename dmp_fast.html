@@ -32,7 +32,7 @@
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="movement_primitives.dmp_fast.compact_axis_angle_from_quaternion"><code class="name flex">
-<span>def <span class="ident">compact_axis_angle_from_quaternion</span></span>(<span>...)</span>
+<span>def <span class="ident">compact_axis_angle_from_quaternion</span></span>(<span>q)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute compact axis-angle from quaternion (logarithmic map).</p>
@@ -50,7 +50,7 @@ constrained to [0, pi).</dd>
 </dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.concatenate_quaternions"><code class="name flex">
-<span>def <span class="ident">concatenate_quaternions</span></span>(<span>...)</span>
+<span>def <span class="ident">concatenate_quaternions</span></span>(<span>q1, q2)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Concatenate two quaternions.</p>
@@ -69,7 +69,7 @@ constrained to [0, pi).</dd>
 </dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step"><code class="name flex">
-<span>def <span class="ident">dmp_step</span></span>(<span>...)</span>
+<span>def <span class="ident">dmp_step</span></span>(<span>last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, p_gain=0.0, tracking_error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Integrate regular DMP for one step with Euler integration.</p>
@@ -120,7 +120,7 @@ acceleration.</dd>
 </dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_dual_cartesian"><code class="name flex">
-<span>def <span class="ident">dmp_step_dual_cartesian</span></span>(<span>...)</span>
+<span>def <span class="ident">dmp_step_dual_cartesian</span></span>(<span>last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, int_dt=0.001, p_gain=0.0, tracking_error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Integrate bimanual Cartesian DMP for one step with Euler integration.</p>
@@ -168,7 +168,7 @@ additional velocity and acceleration.</dd>
 </dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_quaternion"><code class="name flex">
-<span>def <span class="ident">dmp_step_quaternion</span></span>(<span>...)</span>
+<span>def <span class="ident">dmp_step_quaternion</span></span>(<span>last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Integrate quaternion DMP for one step with Euler integration.</p>
@@ -215,7 +215,7 @@ acceleration.</dd>
 </dl></div>
 </dd>
 <dt id="movement_primitives.dmp_fast.dmp_step_rk4"><code class="name flex">
-<span>def <span class="ident">dmp_step_rk4</span></span>(<span>...)</span>
+<span>def <span class="ident">dmp_step_rk4</span></span>(<span>last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term, coupling_term=None, coupling_term_precomputed=None, int_dt=0.001, p_gain=0.0, tracking_error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Integrate regular DMP for one step with RK4 integration.</p>
@@ -265,8 +265,38 @@ acceleration.</dd>
 <dd>Tracking error from last step.</dd>
 </dl></div>
 </dd>
+<dt id="movement_primitives.dmp_fast.matrix_from_compact_axis_angle"><code class="name flex">
+<span>def <span class="ident">matrix_from_compact_axis_angle</span></span>(<span>r)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="movement_primitives.dmp_fast.obstacle_avoidance_acceleration_2d"><code class="name flex">
+<span>def <span class="ident">obstacle_avoidance_acceleration_2d</span></span>(<span>y, yd, obstacle_position, gamma, beta)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute acceleration for obstacle avoidance in 2D.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>array, shape (2,)</code></dt>
+<dd>Current position.</dd>
+<dt><strong><code>yd</code></strong> :&ensp;<code>array, shape (2,)</code></dt>
+<dd>Current velocity.</dd>
+<dt><strong><code>obstacle_position</code></strong> :&ensp;<code>array, shape (2,)</code></dt>
+<dd>Position of the point obstacle.</dd>
+<dt><strong><code>gamma</code></strong> :&ensp;<code>float</code></dt>
+<dd>Obstacle avoidance parameter.</dd>
+<dt><strong><code>beta</code></strong> :&ensp;<code>float</code></dt>
+<dd>Obstacle avoidance parameter.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>cdd</code></strong> :&ensp;<code>array, shape (2,)</code></dt>
+<dd>Acceleration.</dd>
+</dl></div>
+</dd>
 <dt id="movement_primitives.dmp_fast.phase"><code class="name flex">
-<span>def <span class="ident">phase</span></span>(<span>...)</span>
+<span>def <span class="ident">phase</span></span>(<span>t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Map time to phase.</p>
@@ -315,6 +345,8 @@ acceleration.</dd>
 <li><code><a title="movement_primitives.dmp_fast.dmp_step_dual_cartesian" href="#movement_primitives.dmp_fast.dmp_step_dual_cartesian">dmp_step_dual_cartesian</a></code></li>
 <li><code><a title="movement_primitives.dmp_fast.dmp_step_quaternion" href="#movement_primitives.dmp_fast.dmp_step_quaternion">dmp_step_quaternion</a></code></li>
 <li><code><a title="movement_primitives.dmp_fast.dmp_step_rk4" href="#movement_primitives.dmp_fast.dmp_step_rk4">dmp_step_rk4</a></code></li>
+<li><code><a title="movement_primitives.dmp_fast.matrix_from_compact_axis_angle" href="#movement_primitives.dmp_fast.matrix_from_compact_axis_angle">matrix_from_compact_axis_angle</a></code></li>
+<li><code><a title="movement_primitives.dmp_fast.obstacle_avoidance_acceleration_2d" href="#movement_primitives.dmp_fast.obstacle_avoidance_acceleration_2d">obstacle_avoidance_acceleration_2d</a></code></li>
 <li><code><a title="movement_primitives.dmp_fast.phase" href="#movement_primitives.dmp_fast.phase">phase</a></code></li>
 </ul>
 </li>

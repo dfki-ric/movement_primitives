@@ -355,7 +355,7 @@ goal_t &gt; start_t.</dd>
 <dl>
 <dt id="movement_primitives.dmp.CartesianDMP"><code class="flex name class">
 <span>class <span class="ident">CartesianDMP</span></span>
-<span>(</span><span>execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001)</span>
+<span>(</span><span>execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cartesian dynamical movement primitive.</p>
@@ -371,7 +371,7 @@ pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
 velocity, acceleration, and forcing term is 6.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code></dt>
+<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
 <dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
 <dd>Time difference between DMP steps.</dd>
@@ -382,6 +382,8 @@ velocity, acceleration, and forcing term is 6.</p>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
+<dt><strong><code>execution_time_</code></strong> :&ensp;<code>float</code></dt>
+<dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt_</code></strong> :&ensp;<code>float</code></dt>
 <dd>Time difference between DMP steps. This value can be changed to adapt
 the frequency.</dd>
@@ -408,7 +410,7 @@ the frequency.</dd>
 
     Parameters
     ----------
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -422,28 +424,49 @@ the frequency.</dd>
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     &#34;&#34;&#34;
     def __init__(
-            self, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001):
+            self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
+            int_dt=0.001):
         super(CartesianDMP, self).__init__(7, 6)
-        self.execution_time = execution_time
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term_pos = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
-        self.forcing_term_rot = ForcingTerm(
-            3, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
+
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time_, 0.0, self.int_dt)
+        self.forcing_term_pos = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
+            alpha_z)
+        self.forcing_term_rot = ForcingTerm(
+            3, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
+            alpha_z)
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        weights_pos = self.forcing_term_pos.weights_
+        weights_rot = self.forcing_term_rot.weights_
+        self._init_forcing_term()
+        self.forcing_term_pos.weights_ = weights_pos
+        self.forcing_term_rot.weights_ = weights_rot
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
 
     def step(self, last_y, last_yd, coupling_term=None,
              step_function=DMP_STEP_FUNCTIONS[DEFAULT_DMP_STEP_FUNCTION],
@@ -490,7 +513,7 @@ the frequency.</dd>
             self.current_y[:3], self.current_yd[:3],
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
             self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
             coupling_term=coupling_term,
@@ -500,7 +523,7 @@ the frequency.</dd>
             self.current_y[3:], self.current_yd[3:],
             self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
             self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,
             coupling_term=coupling_term,
@@ -542,7 +565,7 @@ the frequency.</dd>
                 f&#34;Step function must be in &#34;
                 f&#34;{DMP_STEP_FUNCTIONS.keys()}.&#34;)
         T, Yp = dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y[:3], self.goal_y[:3],
             self.alpha_y, self.beta_y,
             self.forcing_term_pos,
@@ -557,7 +580,7 @@ the frequency.</dd>
                 f&#34;Step function must be in &#34;
                 f&#34;{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
         _, Yr = dmp_open_loop_quaternion(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y[3:], self.goal_y[3:],
             self.alpha_y, self.beta_y,
             self.forcing_term_rot,
@@ -584,7 +607,7 @@ the frequency.</dd>
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         &#34;&#34;&#34;
-        self.forcing_term_pos.weights[:, :] = dmp_imitate(
+        self.forcing_term_pos.weights_[:, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -592,7 +615,7 @@ the frequency.</dd>
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
+        self.forcing_term_rot.weights_[:, :] = dmp_quaternion_imitation(
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -611,8 +634,8 @@ the frequency.</dd>
         weights : array, shape (6 * n_weights_per_dim,)
             Current weights of the DMP.
         &#34;&#34;&#34;
-        return np.concatenate((self.forcing_term_pos.weights.ravel(),
-                               self.forcing_term_rot.weights.ravel()))
+        return np.concatenate((self.forcing_term_pos.weights_.ravel(),
+                               self.forcing_term_rot.weights_.ravel()))
 
     def set_weights(self, weights):
         &#34;&#34;&#34;Set weight vector of DMP.
@@ -622,10 +645,10 @@ the frequency.</dd>
         weights : array, shape (6 * n_weights_per_dim,)
             New weights of the DMP.
         &#34;&#34;&#34;
-        n_pos_weights = self.forcing_term_pos.weights.size
-        self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
+        n_pos_weights = self.forcing_term_pos.weights_.size
+        self.forcing_term_pos.weights_[:, :] = weights[:n_pos_weights].reshape(
             -1, self.n_weights_per_dim)
-        self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
+        self.forcing_term_rot.weights_[:, :] = weights[n_pos_weights:].reshape(
             -1, self.n_weights_per_dim)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -634,8 +657,35 @@ the frequency.</dd>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="movement_primitives.dmp.CartesianDMP.execution_time_"><code class="name">var <span class="ident">execution_time_</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="movement_primitives.dmp.CartesianDMP.get_execution_time_"><code class="name flex">
+<span>def <span class="ident">get_execution_time_</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.CartesianDMP.get_weights"><code class="name flex">
 <span>def <span class="ident">get_weights</span></span>(<span>self)</span>
 </code></dt>
@@ -658,8 +708,8 @@ the frequency.</dd>
     weights : array, shape (6 * n_weights_per_dim,)
         Current weights of the DMP.
     &#34;&#34;&#34;
-    return np.concatenate((self.forcing_term_pos.weights.ravel(),
-                           self.forcing_term_rot.weights.ravel()))</code></pre>
+    return np.concatenate((self.forcing_term_pos.weights_.ravel(),
+                           self.forcing_term_rot.weights_.ravel()))</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.CartesianDMP.imitate"><code class="name flex">
@@ -700,7 +750,7 @@ the frequency.</dd>
     allow_final_velocity : bool, optional (default: False)
         Allow a final velocity.
     &#34;&#34;&#34;
-    self.forcing_term_pos.weights[:, :] = dmp_imitate(
+    self.forcing_term_pos.weights_[:, :] = dmp_imitate(
         T, Y[:, :3],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -708,7 +758,7 @@ the frequency.</dd>
         overlap=self.forcing_term_pos.overlap,
         alpha_z=self.forcing_term_pos.alpha_z,
         allow_final_velocity=allow_final_velocity)[0]
-    self.forcing_term_rot.weights[:, :] = dmp_quaternion_imitation(
+    self.forcing_term_rot.weights_[:, :] = dmp_quaternion_imitation(
         T, Y[:, 3:],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -783,7 +833,7 @@ the frequency.</dd>
             f&#34;Step function must be in &#34;
             f&#34;{DMP_STEP_FUNCTIONS.keys()}.&#34;)
     T, Yp = dmp_open_loop(
-        self.execution_time, 0.0, self.dt_,
+        self.execution_time_, 0.0, self.dt_,
         self.start_y[:3], self.goal_y[:3],
         self.alpha_y, self.beta_y,
         self.forcing_term_pos,
@@ -798,7 +848,7 @@ the frequency.</dd>
             f&#34;Step function must be in &#34;
             f&#34;{CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
     _, Yr = dmp_open_loop_quaternion(
-        self.execution_time, 0.0, self.dt_,
+        self.execution_time_, 0.0, self.dt_,
         self.start_y[3:], self.goal_y[3:],
         self.alpha_y, self.beta_y,
         self.forcing_term_rot,
@@ -806,6 +856,24 @@ the frequency.</dd>
         run_t, self.int_dt,
         quaternion_step_function)
     return T, np.hstack((Yp, Yr))</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.dmp.CartesianDMP.set_execution_time_"><code class="name flex">
+<span>def <span class="ident">set_execution_time_</span></span>(<span>self, execution_time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_execution_time_(self, execution_time):
+    self._execution_time = execution_time
+    weights_pos = self.forcing_term_pos.weights_
+    weights_rot = self.forcing_term_rot.weights_
+    self._init_forcing_term()
+    self.forcing_term_pos.weights_ = weights_pos
+    self.forcing_term_rot.weights_ = weights_rot</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.CartesianDMP.set_weights"><code class="name flex">
@@ -830,15 +898,15 @@ the frequency.</dd>
     weights : array, shape (6 * n_weights_per_dim,)
         New weights of the DMP.
     &#34;&#34;&#34;
-    n_pos_weights = self.forcing_term_pos.weights.size
-    self.forcing_term_pos.weights[:, :] = weights[:n_pos_weights].reshape(
+    n_pos_weights = self.forcing_term_pos.weights_.size
+    self.forcing_term_pos.weights_[:, :] = weights[:n_pos_weights].reshape(
         -1, self.n_weights_per_dim)
-    self.forcing_term_rot.weights[:, :] = weights[n_pos_weights:].reshape(
+    self.forcing_term_rot.weights_[:, :] = weights[n_pos_weights:].reshape(
         -1, self.n_weights_per_dim)</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.CartesianDMP.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;built-in function dmp_step_rk4&gt;, quaternion_step_function=&lt;built-in function dmp_step_quaternion&gt;)</span>
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;cyfunction dmp_step_rk4&gt;, quaternion_step_function=&lt;cyfunction dmp_step_quaternion&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DMP step.</p>
@@ -911,7 +979,7 @@ the frequency.</dd>
         self.current_y[:3], self.current_yd[:3],
         self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
         self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
-        self.execution_time, 0.0,
+        self.execution_time_, 0.0,
         self.alpha_y, self.beta_y,
         self.forcing_term_pos,
         coupling_term=coupling_term,
@@ -921,7 +989,7 @@ the frequency.</dd>
         self.current_y[3:], self.current_yd[3:],
         self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
         self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
-        self.execution_time, 0.0,
+        self.execution_time_, 0.0,
         self.alpha_y, self.beta_y,
         self.forcing_term_rot,
         coupling_term=coupling_term,
@@ -1371,7 +1439,7 @@ the frequency.</dd>
 </dd>
 <dt id="movement_primitives.dmp.CouplingTermObstacleAvoidance2D"><code class="flex name class">
 <span>class <span class="ident">CouplingTermObstacleAvoidance2D</span></span>
-<span>(</span><span>obstacle_position, gamma=1000.0, beta=6.366197723675814)</span>
+<span>(</span><span>obstacle_position, gamma=1000.0, beta=6.366197723675814, fast=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Coupling term for obstacle avoidance in 2D.</p></div>
@@ -1381,13 +1449,18 @@ the frequency.</dd>
 </summary>
 <pre><code class="python">class CouplingTermObstacleAvoidance2D:  # for DMP
     &#34;&#34;&#34;Coupling term for obstacle avoidance in 2D.&#34;&#34;&#34;
-    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
+    def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi,
+                 fast=False):
         self.obstacle_position = obstacle_position
         self.gamma = gamma
         self.beta = beta
+        if fast and obstacle_avoidance_acceleration_2d_fast_available:
+            self.step_function = obstacle_avoidance_acceleration_2d_fast
+        else:
+            self.step_function = obstacle_avoidance_acceleration_2d
 
     def coupling(self, y, yd):
-        cdd = obstacle_avoidance_acceleration_2d(
+        cdd = self.step_function(
             y, yd, self.obstacle_position, self.gamma, self.beta)
         return np.zeros_like(cdd), cdd</code></pre>
 </details>
@@ -1403,7 +1476,7 @@ the frequency.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def coupling(self, y, yd):
-    cdd = obstacle_avoidance_acceleration_2d(
+    cdd = self.step_function(
         y, yd, self.obstacle_position, self.gamma, self.beta)
     return np.zeros_like(cdd), cdd</code></pre>
 </details>
@@ -1677,7 +1750,7 @@ acceleration component.</dd>
 </dd>
 <dt id="movement_primitives.dmp.DMP"><code class="flex name class">
 <span>class <span class="ident">DMP</span></span>
-<span>(</span><span>n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
+<span>(</span><span>n_dims, execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dynamical movement primitive (DMP).</p>
@@ -1690,7 +1763,7 @@ Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
 <dl>
 <dt><strong><code>n_dims</code></strong> :&ensp;<code>int</code></dt>
 <dd>State space dimensions.</dd>
-<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code></dt>
+<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
 <dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
 <dd>Time difference between DMP steps.</dd>
@@ -1704,6 +1777,8 @@ The domain is [0, execution_time**2/dt].</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
+<dt><strong><code>execution_time_</code></strong> :&ensp;<code>float</code></dt>
+<dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt_</code></strong> :&ensp;<code>float</code></dt>
 <dd>Time difference between DMP steps. This value can be changed to adapt
 the frequency.</dd>
@@ -1727,7 +1802,7 @@ the frequency.</dd>
     n_dims : int
         State space dimensions.
 
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -1745,28 +1820,47 @@ the frequency.</dd>
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     &#34;&#34;&#34;
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
+    def __init__(self, n_dims, execution_time=1.0, dt=0.01,
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DMP, self).__init__(n_dims, n_dims)
-        self.execution_time = execution_time
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
-                                        self.execution_time, 0.0, 0.8, alpha_z)
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
 
-    def step(self, last_y, last_yd, coupling_term=None):
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time_, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(
+            self.n_dims, self.n_weights_per_dim, self.execution_time_,
+            0.0, 0.8, alpha_z)
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        weights = self.forcing_term.weights_
+        self._init_forcing_term()
+        self.forcing_term.weights_ = weights
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
+
+    def step(self, last_y, last_yd, coupling_term=None,
+             step_function=DEFAULT_DMP_STEP_FUNCTION):
         &#34;&#34;&#34;DMP step.
 
         Parameters
@@ -1780,6 +1874,10 @@ the frequency.</dd>
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
+        step_function : str, optional (default: &#39;rk4-cython&#39;)
+            DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+            &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
+
         Returns
         -------
         y : array, shape (n_dims,)
@@ -1788,6 +1886,14 @@ the frequency.</dd>
         yd : array, shape (n_dims,)
             Next time derivative of state (e.g., velocity).
         &#34;&#34;&#34;
+        try:
+            step_function = DMP_STEP_FUNCTIONS[step_function]
+        except KeyError:
+            raise ValueError(
+                f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
+
+        assert len(last_y) == self.n_dims
+        assert len(last_yd) == self.n_dims
         self.last_t = self.t
         self.t += self.dt_
 
@@ -1799,12 +1905,12 @@ the frequency.</dd>
         # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
         tracking_error = self.current_y - last_y
 
-        dmp_step_rk4(
+        step_function(
             self.last_t, self.t,
             self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term,
             coupling_term=coupling_term,
@@ -1825,7 +1931,7 @@ the frequency.</dd>
         coupling_term : object, optional (default: None)
             Coupling term that will be added to velocity.
 
-        step_function : str, optional (default: &#39;rk4&#39;)
+        step_function : str, optional (default: &#39;rk4-cython&#39;)
             DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
             &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
 
@@ -1849,7 +1955,7 @@ the frequency.</dd>
                 f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
         return dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,
@@ -1875,7 +1981,7 @@ the frequency.</dd>
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         &#34;&#34;&#34;
-        self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -1890,8 +1996,35 @@ the frequency.</dd>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="movement_primitives.dmp.DMP.execution_time_"><code class="name">var <span class="ident">execution_time_</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="movement_primitives.dmp.DMP.get_execution_time_"><code class="name flex">
+<span>def <span class="ident">get_execution_time_</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.DMP.imitate"><code class="name flex">
 <span>def <span class="ident">imitate</span></span>(<span>self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False)</span>
 </code></dt>
@@ -1930,7 +2063,7 @@ the frequency.</dd>
     allow_final_velocity : bool, optional (default: False)
         Allow a final velocity.
     &#34;&#34;&#34;
-    self.forcing_term.weights[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
+    self.forcing_term.weights_[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
         T, Y,
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -1950,7 +2083,7 @@ the frequency.</dd>
 <dd>Run time of DMP. Can be shorter or longer than execution_time.</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
-<dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'rk4')</code></dt>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'rk4-cython')</code></dt>
 <dd>DMP integration function. Possible options: 'rk4', 'euler',
 'euler-cython', 'rk4-cython'.</dd>
 </dl>
@@ -1982,7 +2115,7 @@ the frequency.</dd>
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
 
-    step_function : str, optional (default: &#39;rk4&#39;)
+    step_function : str, optional (default: &#39;rk4-cython&#39;)
         DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
         &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
 
@@ -2006,7 +2139,7 @@ the frequency.</dd>
             f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
     return dmp_open_loop(
-        self.execution_time, 0.0, self.dt_,
+        self.execution_time_, 0.0, self.dt_,
         self.start_y, self.goal_y,
         self.alpha_y, self.beta_y,
         self.forcing_term,
@@ -2015,8 +2148,24 @@ the frequency.</dd>
         step_function)</code></pre>
 </details>
 </dd>
+<dt id="movement_primitives.dmp.DMP.set_execution_time_"><code class="name flex">
+<span>def <span class="ident">set_execution_time_</span></span>(<span>self, execution_time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_execution_time_(self, execution_time):
+    self._execution_time = execution_time
+    weights = self.forcing_term.weights_
+    self._init_forcing_term()
+    self.forcing_term.weights_ = weights</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.DMP.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None)</span>
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function='rk4-cython')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DMP step.</p>
@@ -2028,6 +2177,9 @@ the frequency.</dd>
 <dd>Last time derivative of state (e.g., velocity).</dd>
 <dt><strong><code>coupling_term</code></strong> :&ensp;<code>object</code>, optional <code>(default: None)</code></dt>
 <dd>Coupling term that will be added to velocity.</dd>
+<dt><strong><code>step_function</code></strong> :&ensp;<code>str</code>, optional <code>(default: 'rk4-cython')</code></dt>
+<dd>DMP integration function. Possible options: 'rk4', 'euler',
+'euler-cython', 'rk4-cython'.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2040,7 +2192,8 @@ the frequency.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None):
+<pre><code class="python">def step(self, last_y, last_yd, coupling_term=None,
+         step_function=DEFAULT_DMP_STEP_FUNCTION):
     &#34;&#34;&#34;DMP step.
 
     Parameters
@@ -2054,6 +2207,10 @@ the frequency.</dd>
     coupling_term : object, optional (default: None)
         Coupling term that will be added to velocity.
 
+    step_function : str, optional (default: &#39;rk4-cython&#39;)
+        DMP integration function. Possible options: &#39;rk4&#39;, &#39;euler&#39;,
+        &#39;euler-cython&#39;, &#39;rk4-cython&#39;.
+
     Returns
     -------
     y : array, shape (n_dims,)
@@ -2062,6 +2219,14 @@ the frequency.</dd>
     yd : array, shape (n_dims,)
         Next time derivative of state (e.g., velocity).
     &#34;&#34;&#34;
+    try:
+        step_function = DMP_STEP_FUNCTIONS[step_function]
+    except KeyError:
+        raise ValueError(
+            f&#34;Step function must be in {DMP_STEP_FUNCTIONS.keys()}.&#34;)
+
+    assert len(last_y) == self.n_dims
+    assert len(last_yd) == self.n_dims
     self.last_t = self.t
     self.t += self.dt_
 
@@ -2073,12 +2238,12 @@ the frequency.</dd>
     # https://github.com/studywolf/pydmps/blob/master/pydmps/cs.py
     tracking_error = self.current_y - last_y
 
-    dmp_step_rk4(
+    step_function(
         self.last_t, self.t,
         self.current_y, self.current_yd,
         self.goal_y, self.goal_yd, self.goal_ydd,
         self.start_y, self.start_yd, self.start_ydd,
-        self.execution_time, 0.0,
+        self.execution_time_, 0.0,
         self.alpha_y, self.beta_y,
         self.forcing_term,
         coupling_term=coupling_term,
@@ -2101,7 +2266,7 @@ the frequency.</dd>
 </dd>
 <dt id="movement_primitives.dmp.DMPWithFinalVelocity"><code class="flex name class">
 <span>class <span class="ident">DMPWithFinalVelocity</span></span>
-<span>(</span><span>n_dims, execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
+<span>(</span><span>n_dims, execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dynamical movement primitive (DMP) with final velocity.</p>
@@ -2114,7 +2279,7 @@ Learning to Select and Generalize Striking Movements in Robot Table Tennis
 <dl>
 <dt><strong><code>n_dims</code></strong> :&ensp;<code>int</code></dt>
 <dd>State space dimensions.</dd>
-<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code></dt>
+<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
 <dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
 <dd>Time difference between DMP steps.</dd>
@@ -2128,6 +2293,8 @@ The domain is [0, execution_time**2/dt].</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
+<dt><strong><code>execution_time_</code></strong> :&ensp;<code>float</code></dt>
+<dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt_</code></strong> :&ensp;<code>float</code></dt>
 <dd>Time difference between DMP steps. This value can be changed to adapt
 the frequency.</dd>
@@ -2151,7 +2318,7 @@ the frequency.</dd>
     n_dims : int
         State space dimensions.
 
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -2169,26 +2336,44 @@ the frequency.</dd>
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     &#34;&#34;&#34;
-    def __init__(self, n_dims, execution_time, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
+    def __init__(self, n_dims, execution_time=1.0, dt=0.01,
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
-        self.execution_time = execution_time
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
 
-        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0,
-                                         self.int_dt)
-        self.forcing_term = ForcingTerm(self.n_dims, self.n_weights_per_dim,
-                                        self.execution_time, 0.0, 0.8, alpha_z)
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0,
+                                         self.int_dt)
+        self.forcing_term = ForcingTerm(
+            self.n_dims, self.n_weights_per_dim, self.execution_time_,
+            0.0, 0.8, alpha_z)
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        weights = self.forcing_term.weights_
+        self._init_forcing_term()
+        self.forcing_term.weights_ = weights
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
 
     def step(self, last_y, last_yd, coupling_term=None):
         &#34;&#34;&#34;DMP step.
@@ -2228,7 +2413,7 @@ the frequency.</dd>
             self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term,
             coupling_term=coupling_term,
@@ -2257,7 +2442,7 @@ the frequency.</dd>
             State at each step.
         &#34;&#34;&#34;
         return dmp_open_loop(
-            self.execution_time, 0.0, self.dt_,
+            self.execution_time_, 0.0, self.dt_,
             self.start_y, self.goal_y,
             self.alpha_y, self.beta_y,
             self.forcing_term,
@@ -2281,7 +2466,7 @@ the frequency.</dd>
         regularization_coefficient : float, optional (default: 0)
             Regularization coefficient for regression.
         &#34;&#34;&#34;
-        self.forcing_term.weights[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -2300,8 +2485,35 @@ the frequency.</dd>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="movement_primitives.dmp.DMPWithFinalVelocity.execution_time_"><code class="name">var <span class="ident">execution_time_</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="movement_primitives.dmp.DMPWithFinalVelocity.get_execution_time_"><code class="name flex">
+<span>def <span class="ident">get_execution_time_</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.DMPWithFinalVelocity.imitate"><code class="name flex">
 <span>def <span class="ident">imitate</span></span>(<span>self, T, Y, regularization_coefficient=0.0)</span>
 </code></dt>
@@ -2334,7 +2546,7 @@ the frequency.</dd>
     regularization_coefficient : float, optional (default: 0)
         Regularization coefficient for regression.
     &#34;&#34;&#34;
-    self.forcing_term.weights[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
+    self.forcing_term.weights_[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
         T, Y,
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -2390,7 +2602,7 @@ the frequency.</dd>
         State at each step.
     &#34;&#34;&#34;
     return dmp_open_loop(
-        self.execution_time, 0.0, self.dt_,
+        self.execution_time_, 0.0, self.dt_,
         self.start_y, self.goal_y,
         self.alpha_y, self.beta_y,
         self.forcing_term,
@@ -2399,6 +2611,22 @@ the frequency.</dd>
         dmp_step_euler_with_constraints,
         start_yd=self.start_yd, start_ydd=self.start_ydd,
         goal_yd=self.goal_yd, goal_ydd=self.goal_ydd)</code></pre>
+</details>
+</dd>
+<dt id="movement_primitives.dmp.DMPWithFinalVelocity.set_execution_time_"><code class="name flex">
+<span>def <span class="ident">set_execution_time_</span></span>(<span>self, execution_time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_execution_time_(self, execution_time):
+    self._execution_time = execution_time
+    weights = self.forcing_term.weights_
+    self._init_forcing_term()
+    self.forcing_term.weights_ = weights</code></pre>
 </details>
 </dd>
 <dt id="movement_primitives.dmp.DMPWithFinalVelocity.step"><code class="name flex">
@@ -2464,7 +2692,7 @@ the frequency.</dd>
         self.current_y, self.current_yd,
         self.goal_y, self.goal_yd, self.goal_ydd,
         self.start_y, self.start_yd, self.start_ydd,
-        self.execution_time, 0.0,
+        self.execution_time_, 0.0,
         self.alpha_y, self.beta_y,
         self.forcing_term,
         coupling_term=coupling_term,
@@ -2487,7 +2715,7 @@ the frequency.</dd>
 </dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP"><code class="flex name class">
 <span>class <span class="ident">DualCartesianDMP</span></span>
-<span>(</span><span>execution_time, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
+<span>(</span><span>execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001, p_gain=0.0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dual cartesian dynamical movement primitive.</p>
@@ -2503,7 +2731,7 @@ pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
 velocity, acceleration, and forcing term is 12.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code></dt>
+<dt><strong><code>execution_time</code></strong> :&ensp;<code>float</code>, optional <code>(default: 1)</code></dt>
 <dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt</code></strong> :&ensp;<code>float</code>, optional <code>(default: 0.01)</code></dt>
 <dd>Time difference between DMP steps.</dd>
@@ -2517,6 +2745,8 @@ The domain is [0, execution_time**2/dt].</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
+<dt><strong><code>execution_time_</code></strong> :&ensp;<code>float</code></dt>
+<dd>Execution time of the DMP.</dd>
 <dt><strong><code>dt_</code></strong> :&ensp;<code>float</code></dt>
 <dd>Time difference between DMP steps. This value can be changed to adapt
 the frequency.</dd>
@@ -2543,7 +2773,7 @@ the frequency.</dd>
 
     Parameters
     ----------
-    execution_time : float
+    execution_time : float, optional (default: 1)
         Execution time of the DMP.
 
     dt : float, optional (default: 0.01)
@@ -2561,26 +2791,44 @@ the frequency.</dd>
 
     Attributes
     ----------
+    execution_time_ : float
+        Execution time of the DMP.
+
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
     &#34;&#34;&#34;
-    def __init__(self, execution_time, dt=0.01, n_weights_per_dim=10,
+    def __init__(self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
                  int_dt=0.001, p_gain=0.0):
         super(DualCartesianDMP, self).__init__(14, 12)
-        self.execution_time = execution_time
+        self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
-        self.forcing_term = ForcingTerm(
-            12, self.n_weights_per_dim, self.execution_time, 0.0, 0.8,
-            alpha_z)
+
+        self._init_forcing_term()
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
+
+    def _init_forcing_term(self):
+        alpha_z = canonical_system_alpha(
+            0.01, self.execution_time_, 0.0, self.int_dt)
+        self.forcing_term = ForcingTerm(
+            12, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
+            alpha_z)
+
+    def get_execution_time_(self):
+        return self._execution_time
+
+    def set_execution_time_(self, execution_time):
+        self._execution_time = execution_time
+        weights = self.forcing_term.weights_
+        self._init_forcing_term()
+        self.forcing_term.weights_ = weights
+
+    execution_time_ = property(get_execution_time_, set_execution_time_)
 
     def step(self, last_y, last_yd, coupling_term=None,
              step_function=DUAL_CARTESIAN_DMP_STEP_FUNCTIONS[
@@ -2629,7 +2877,7 @@ the frequency.</dd>
             self.last_t, self.t, self.current_y, self.current_yd,
             self.goal_y, self.goal_yd, self.goal_ydd,
             self.start_y, self.start_yd, self.start_ydd,
-            self.execution_time, 0.0,
+            self.execution_time_, 0.0,
             self.alpha_y, self.beta_y,
             self.forcing_term, coupling_term,
             self.int_dt,
@@ -2668,7 +2916,7 @@ the frequency.</dd>
                 f&#34;{DUAL_CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
         if run_t is None:
-            run_t = self.execution_time
+            run_t = self.execution_time_
         self.t = 0.0
         T = [self.t]
         Y = [np.copy(self.start_y)]
@@ -2699,7 +2947,7 @@ the frequency.</dd>
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         &#34;&#34;&#34;
-        self.forcing_term.weights[:3, :] = dmp_imitate(
+        self.forcing_term.weights_[:3, :] = dmp_imitate(
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -2707,7 +2955,7 @@ the frequency.</dd>
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term.weights[3:6, :] = dmp_quaternion_imitation(
+        self.forcing_term.weights_[3:6, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -2715,7 +2963,7 @@ the frequency.</dd>
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term.weights[6:9, :] = dmp_imitate(
+        self.forcing_term.weights_[6:9, :] = dmp_imitate(
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -2723,7 +2971,7 @@ the frequency.</dd>
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity)[0]
-        self.forcing_term.weights[9:12, :] = dmp_quaternion_imitation(
+        self.forcing_term.weights_[9:12, :] = dmp_quaternion_imitation(
             T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
@@ -2741,8 +2989,35 @@ the frequency.</dd>
 <li><a title="movement_primitives.base.PointToPointMovement" href="../base.html#movement_primitives.base.PointToPointMovement">PointToPointMovement</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="movement_primitives.dmp.DualCartesianDMP.execution_time_"><code class="name">var <span class="ident">execution_time_</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="movement_primitives.dmp.DualCartesianDMP.get_execution_time_"><code class="name flex">
+<span>def <span class="ident">get_execution_time_</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_execution_time_(self):
+    return self._execution_time</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.imitate"><code class="name flex">
 <span>def <span class="ident">imitate</span></span>(<span>self, T, Y, regularization_coefficient=0.0, allow_final_velocity=False)</span>
 </code></dt>
@@ -2781,7 +3056,7 @@ the frequency.</dd>
     allow_final_velocity : bool, optional (default: False)
         Allow a final velocity.
     &#34;&#34;&#34;
-    self.forcing_term.weights[:3, :] = dmp_imitate(
+    self.forcing_term.weights_[:3, :] = dmp_imitate(
         T, Y[:, :3],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -2789,7 +3064,7 @@ the frequency.</dd>
         overlap=self.forcing_term.overlap,
         alpha_z=self.forcing_term.alpha_z,
         allow_final_velocity=allow_final_velocity)[0]
-    self.forcing_term.weights[3:6, :] = dmp_quaternion_imitation(
+    self.forcing_term.weights_[3:6, :] = dmp_quaternion_imitation(
         T, Y[:, 3:7],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -2797,7 +3072,7 @@ the frequency.</dd>
         overlap=self.forcing_term.overlap,
         alpha_z=self.forcing_term.alpha_z,
         allow_final_velocity=allow_final_velocity)[0]
-    self.forcing_term.weights[6:9, :] = dmp_imitate(
+    self.forcing_term.weights_[6:9, :] = dmp_imitate(
         T, Y[:, 7:10],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -2805,7 +3080,7 @@ the frequency.</dd>
         overlap=self.forcing_term.overlap,
         alpha_z=self.forcing_term.alpha_z,
         allow_final_velocity=allow_final_velocity)[0]
-    self.forcing_term.weights[9:12, :] = dmp_quaternion_imitation(
+    self.forcing_term.weights_[9:12, :] = dmp_quaternion_imitation(
         T, Y[:, 10:14],
         n_weights_per_dim=self.n_weights_per_dim,
         regularization_coefficient=regularization_coefficient,
@@ -2873,7 +3148,7 @@ the frequency.</dd>
             f&#34;{DUAL_CARTESIAN_DMP_STEP_FUNCTIONS.keys()}.&#34;)
 
     if run_t is None:
-        run_t = self.execution_time
+        run_t = self.execution_time_
     self.t = 0.0
     T = [self.t]
     Y = [np.copy(self.start_y)]
@@ -2887,8 +3162,24 @@ the frequency.</dd>
     return np.array(T), np.vstack(Y)</code></pre>
 </details>
 </dd>
+<dt id="movement_primitives.dmp.DualCartesianDMP.set_execution_time_"><code class="name flex">
+<span>def <span class="ident">set_execution_time_</span></span>(<span>self, execution_time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_execution_time_(self, execution_time):
+    self._execution_time = execution_time
+    weights = self.forcing_term.weights_
+    self._init_forcing_term()
+    self.forcing_term.weights_ = weights</code></pre>
+</details>
+</dd>
 <dt id="movement_primitives.dmp.DualCartesianDMP.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;built-in function dmp_step_dual_cartesian&gt;)</span>
+<span>def <span class="ident">step</span></span>(<span>self, last_y, last_yd, coupling_term=None, step_function=&lt;cyfunction dmp_step_dual_cartesian&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DMP step.</p>
@@ -2961,7 +3252,7 @@ the frequency.</dd>
         self.last_t, self.t, self.current_y, self.current_yd,
         self.goal_y, self.goal_yd, self.goal_ydd,
         self.start_y, self.start_yd, self.start_ydd,
-        self.execution_time, 0.0,
+        self.execution_time_, 0.0,
         self.alpha_y, self.beta_y,
         self.forcing_term, coupling_term,
         self.int_dt,
@@ -3008,10 +3299,13 @@ the frequency.</dd>
 <ul>
 <li>
 <h4><code><a title="movement_primitives.dmp.CartesianDMP" href="#movement_primitives.dmp.CartesianDMP">CartesianDMP</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="movement_primitives.dmp.CartesianDMP.execution_time_" href="#movement_primitives.dmp.CartesianDMP.execution_time_">execution_time_</a></code></li>
+<li><code><a title="movement_primitives.dmp.CartesianDMP.get_execution_time_" href="#movement_primitives.dmp.CartesianDMP.get_execution_time_">get_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.CartesianDMP.get_weights" href="#movement_primitives.dmp.CartesianDMP.get_weights">get_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.CartesianDMP.imitate" href="#movement_primitives.dmp.CartesianDMP.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.CartesianDMP.open_loop" href="#movement_primitives.dmp.CartesianDMP.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.dmp.CartesianDMP.set_execution_time_" href="#movement_primitives.dmp.CartesianDMP.set_execution_time_">set_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.CartesianDMP.set_weights" href="#movement_primitives.dmp.CartesianDMP.set_weights">set_weights</a></code></li>
 <li><code><a title="movement_primitives.dmp.CartesianDMP.step" href="#movement_primitives.dmp.CartesianDMP.step">step</a></code></li>
 </ul>
@@ -3068,25 +3362,34 @@ the frequency.</dd>
 </li>
 <li>
 <h4><code><a title="movement_primitives.dmp.DMP" href="#movement_primitives.dmp.DMP">DMP</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="movement_primitives.dmp.DMP.execution_time_" href="#movement_primitives.dmp.DMP.execution_time_">execution_time_</a></code></li>
+<li><code><a title="movement_primitives.dmp.DMP.get_execution_time_" href="#movement_primitives.dmp.DMP.get_execution_time_">get_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.imitate" href="#movement_primitives.dmp.DMP.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.open_loop" href="#movement_primitives.dmp.DMP.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.dmp.DMP.set_execution_time_" href="#movement_primitives.dmp.DMP.set_execution_time_">set_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMP.step" href="#movement_primitives.dmp.DMP.step">step</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="movement_primitives.dmp.DMPWithFinalVelocity" href="#movement_primitives.dmp.DMPWithFinalVelocity">DMPWithFinalVelocity</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.execution_time_" href="#movement_primitives.dmp.DMPWithFinalVelocity.execution_time_">execution_time_</a></code></li>
+<li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.get_execution_time_" href="#movement_primitives.dmp.DMPWithFinalVelocity.get_execution_time_">get_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.imitate" href="#movement_primitives.dmp.DMPWithFinalVelocity.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.open_loop" href="#movement_primitives.dmp.DMPWithFinalVelocity.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.set_execution_time_" href="#movement_primitives.dmp.DMPWithFinalVelocity.set_execution_time_">set_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DMPWithFinalVelocity.step" href="#movement_primitives.dmp.DMPWithFinalVelocity.step">step</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="movement_primitives.dmp.DualCartesianDMP" href="#movement_primitives.dmp.DualCartesianDMP">DualCartesianDMP</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="movement_primitives.dmp.DualCartesianDMP.execution_time_" href="#movement_primitives.dmp.DualCartesianDMP.execution_time_">execution_time_</a></code></li>
+<li><code><a title="movement_primitives.dmp.DualCartesianDMP.get_execution_time_" href="#movement_primitives.dmp.DualCartesianDMP.get_execution_time_">get_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.imitate" href="#movement_primitives.dmp.DualCartesianDMP.imitate">imitate</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.open_loop" href="#movement_primitives.dmp.DualCartesianDMP.open_loop">open_loop</a></code></li>
+<li><code><a title="movement_primitives.dmp.DualCartesianDMP.set_execution_time_" href="#movement_primitives.dmp.DualCartesianDMP.set_execution_time_">set_execution_time_</a></code></li>
 <li><code><a title="movement_primitives.dmp.DualCartesianDMP.step" href="#movement_primitives.dmp.DualCartesianDMP.step">step</a></code></li>
 </ul>
 </li>

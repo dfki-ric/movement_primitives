@@ -92,16 +92,22 @@ class PointToPointMovement(abc.ABC):
         if t is not None:
             self.t = t
         if start_y is not None:
+            assert len(start_y) == self.n_dims, f&#34;{len(start_y)}&#34;
             self.start_y = start_y
         if start_yd is not None:
+            assert len(start_yd) == self.n_vel_dims, f&#34;{len(start_yd)}&#34;
             self.start_yd = start_yd
         if start_ydd is not None:
+            assert len(start_ydd) == self.n_vel_dims, f&#34;{len(start_ydd)}&#34;
             self.start_ydd = start_ydd
         if goal_y is not None:
+            assert len(goal_y) == self.n_dims, f&#34;{len(goal_y)}&#34;
             self.goal_y = goal_y
         if goal_yd is not None:
+            assert len(goal_yd) == self.n_vel_dims, f&#34;{len(goal_yd)}&#34;
             self.goal_yd = goal_yd
         if goal_ydd is not None:
+            assert len(goal_ydd) == self.n_vel_dims, f&#34;{len(goal_ydd)}&#34;
             self.goal_ydd = goal_ydd
 
     @abc.abstractmethod
@@ -238,16 +244,22 @@ class PointToPointMovement(abc.ABC):
         if t is not None:
             self.t = t
         if start_y is not None:
+            assert len(start_y) == self.n_dims, f&#34;{len(start_y)}&#34;
             self.start_y = start_y
         if start_yd is not None:
+            assert len(start_yd) == self.n_vel_dims, f&#34;{len(start_yd)}&#34;
             self.start_yd = start_yd
         if start_ydd is not None:
+            assert len(start_ydd) == self.n_vel_dims, f&#34;{len(start_ydd)}&#34;
             self.start_ydd = start_ydd
         if goal_y is not None:
+            assert len(goal_y) == self.n_dims, f&#34;{len(goal_y)}&#34;
             self.goal_y = goal_y
         if goal_yd is not None:
+            assert len(goal_yd) == self.n_vel_dims, f&#34;{len(goal_yd)}&#34;
             self.goal_yd = goal_yd
         if goal_ydd is not None:
+            assert len(goal_ydd) == self.n_vel_dims, f&#34;{len(goal_ydd)}&#34;
             self.goal_ydd = goal_ydd
 
     @abc.abstractmethod
@@ -367,16 +379,22 @@ class PointToPointMovement(abc.ABC):
     if t is not None:
         self.t = t
     if start_y is not None:
+        assert len(start_y) == self.n_dims, f&#34;{len(start_y)}&#34;
         self.start_y = start_y
     if start_yd is not None:
+        assert len(start_yd) == self.n_vel_dims, f&#34;{len(start_yd)}&#34;
         self.start_yd = start_yd
     if start_ydd is not None:
+        assert len(start_ydd) == self.n_vel_dims, f&#34;{len(start_ydd)}&#34;
         self.start_ydd = start_ydd
     if goal_y is not None:
+        assert len(goal_y) == self.n_dims, f&#34;{len(goal_y)}&#34;
         self.goal_y = goal_y
     if goal_yd is not None:
+        assert len(goal_yd) == self.n_vel_dims, f&#34;{len(goal_yd)}&#34;
         self.goal_yd = goal_yd
     if goal_ydd is not None:
+        assert len(goal_ydd) == self.n_vel_dims, f&#34;{len(goal_ydd)}&#34;
         self.goal_ydd = goal_ydd</code></pre>
 </details>
 </dd>
