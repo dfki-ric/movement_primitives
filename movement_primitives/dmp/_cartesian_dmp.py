@@ -126,12 +126,12 @@ def dmp_step_quaternion_python(
         current_ydd[:] = (
             alpha_y * (
                 beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
-                + execution_time * (goal_yd - current_yd)
+                - execution_time * current_yd
                 - smoothing
             )
             + f
             + cdd
-        ) / execution_time ** 2 + goal_ydd
+        ) / execution_time ** 2
         current_yd += dt * current_ydd + cd / execution_time
         current_y[:] = pr.concatenate_quaternions(
             pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
@@ -570,8 +570,6 @@ def determine_forces_quaternion(
 
     execution_time = T[-1] - T[0]
     goal_y = Y[-1]
-    goal_yd = Yd[-1]
-    goal_ydd = Ydd[-1]
     start_y = Y[0]
     goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
         pr.concatenate_quaternions(goal_y, pr.q_conj(start_y)))
@@ -585,9 +583,9 @@ def determine_forces_quaternion(
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
             beta_y * pr.compact_axis_angle_from_quaternion(
                 pr.concatenate_quaternions(goal_y, pr.q_conj(Y[t])))
-            + execution_time * (goal_yd - Yd[t])
+            - execution_time * Yd[t]
             - smoothing
-        ) - execution_time ** 2 * goal_ydd
+        )
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 

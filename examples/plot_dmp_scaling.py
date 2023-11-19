@@ -31,13 +31,13 @@ new_start = np.array([0.5, 0.5, 0, 1, 0, 0, 0, 0.5, 0.5, 0, 1, 0, 0, 0])
 new_goal = np.array([-0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, 0, 1, 0, 0, 0])
 Y_shifted = Y - goal[np.newaxis] + new_goal[np.newaxis]
 
-dmp = DMP(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
+#dmp = DMP(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
 #dmp = DMPWithFinalVelocity(n_dims=len(start), execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=True)
 #dmp = CartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
-#dmp = DualCartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
+dmp = DualCartesianDMP(execution_time=1.0, dt=0.01, n_weights_per_dim=20, smooth_scaling=False)
 dmp.imitate(T, Y)
 dmp.configure(start_y=new_start, goal_y=new_goal)
-_, Y_dmp = dmp.open_loop(step_function="rk4")
+_, Y_dmp = dmp.open_loop(step_function="cython")
 
 plt.plot(Y[:, 0], Y[:, 1], label=r"Demonstration, $g \approx y_0$", ls="--")
 plt.plot(Y_shifted[:, 0], Y_shifted[:, 1], label="Original shape with new goal", ls="--")

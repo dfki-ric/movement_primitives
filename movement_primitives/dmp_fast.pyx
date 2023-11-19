@@ -501,13 +501,12 @@ cpdef dmp_step_quaternion(
             alpha_y * (
                 beta_y * compact_axis_angle_from_quaternion(
                     concatenate_quaternions(goal_y, q_conj(current_y)))
-                + execution_time * goal_yd
                 - execution_time * current_yd
                 - smoothing
             )
             + f
             + cdd
-        ) / execution_time ** 2 + goal_ydd
+        ) / execution_time ** 2
         current_yd += dt * current_ydd + cd / execution_time
         current_y[:] = concatenate_quaternions(
             quaternion_from_compact_axis_angle(dt * current_yd), current_y)
@@ -652,12 +651,12 @@ cpdef dmp_step_dual_cartesian(
             current_ydd[pvs] = (
                 alpha_y * (
                     beta_y * (goal_y[pps] - current_y[pps])
-                    + execution_time * (goal_yd[pvs] - current_yd[pvs])
+                    - execution_time * current_yd[pvs]
                     - smoothing_pos
                 )
                 + f[pvs]
                 + cdd[pvs]
-            ) / execution_time ** 2 + goal_ydd[pvs]
+            ) / execution_time ** 2
             current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
             current_y[pps] += dt * current_yd[pvs]
 
@@ -669,13 +668,14 @@ cpdef dmp_step_dual_cartesian(
                 smoothing_orn[:] = beta_y * z * goal_y_minus_start_y
             current_ydd[ovs] = (
                 alpha_y * (
-                    beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
-                    + execution_time * (goal_yd[ovs] - current_yd[ovs])
+                    beta_y * compact_axis_angle_from_quaternion(
+                        concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
+                    - execution_time * current_yd[ovs]
                     - smoothing_orn
                 )
                 + f[ovs]
                 + cdd[ovs]
-            ) / execution_time ** 2 + goal_ydd[ovs]
+            ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = concatenate_quaternions(
                 quaternion_from_compact_axis_angle(dt * current_yd[ovs]),
