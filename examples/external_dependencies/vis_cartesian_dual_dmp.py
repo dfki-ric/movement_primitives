@@ -84,9 +84,9 @@ for coupling_term in [couple_both, couple_orientation, couple_position, None]:
 
 tm = UrdfTransformManager(check=False)
 with open("abstract-urdf-gripper/urdf/GripperLeft.urdf", "r") as f:
-    tm.load_urdf(f, mesh_path="abstract-urdf-gripper/urdf/")
+    tm.load_urdf(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
 with open("abstract-urdf-gripper/urdf/GripperRight.urdf", "r") as f:
-    tm.load_urdf(f, mesh_path="abstract-urdf-gripper/urdf/")
+    tm.load_urdf(f.read(), mesh_path="abstract-urdf-gripper/urdf/")
 tm.add_transform("ALWristPitch_Link", "base", np.eye(4))
 tm.add_transform("ARWristPitch_Link", "base", np.eye(4))
 # assert tm.check_consistency()
