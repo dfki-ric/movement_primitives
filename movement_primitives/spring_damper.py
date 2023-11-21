@@ -226,14 +226,14 @@ def spring_damper_step(
         current_t += dt
 
         if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(current_y)
+            cd, cdd = coupling_term.coupling(current_y, current_yd)
         else:
             cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
         if coupling_term_precomputed is not None:
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        current_ydd[:] = k * (goal_y - current_y) - c * current_yd
+        current_ydd[:] = k * (goal_y - current_y) - c * current_yd + cdd
         current_yd += dt * current_ydd + cd
         current_y += dt * current_yd
 
@@ -259,7 +259,7 @@ def spring_damper_step_quaternion(
         current_t += dt
 
         if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(current_y)
+            cd, cdd = coupling_term.coupling(current_y, current_yd)
         else:
             cd, cdd = np.zeros(3), np.zeros(3)
         if coupling_term_precomputed is not None:
@@ -269,7 +269,8 @@ def spring_damper_step_quaternion(
         current_ydd[:] = (
             k * pr.compact_axis_angle_from_quaternion(
                 pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
-            - c * current_yd)
+            - c * current_yd
+            + cdd)
         current_yd += dt * current_ydd + cd
         current_y[:] = pr.concatenate_quaternions(
             pr.quaternion_from_compact_axis_angle(dt * current_yd), current_y)
