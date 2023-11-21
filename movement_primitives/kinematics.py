@@ -58,7 +58,7 @@ class FastUrdfTransformManager(UrdfTransformManager):
 
 
 @numba.jit(nopython=True, cache=True)
-def _fast_matrix_from_axis_angle(axis, angle):
+def _fast_matrix_from_axis_angle(axis, angle):  # pragma: no cover
     """Compute transformation matrix from axis-angle.
 
     Parameters
@@ -486,7 +486,7 @@ class Chain:
 
 @numba.jit(nopython=True, cache=True)
 def pose_dist(
-        ee2base_desired, ee2base_actual, orientation_weight, position_weight):
+        ee2base_desired, ee2base_actual, orientation_weight, position_weight):  # pragma: no cover
     ee_actual2ee_desired = np.linalg.inv(ee2base_actual).dot(ee2base_desired)
     trace = (ee_actual2ee_desired[0, 0] + ee_actual2ee_desired[1, 1]
              + ee_actual2ee_desired[2, 2])
