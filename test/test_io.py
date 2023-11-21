@@ -5,8 +5,10 @@ from pytransform3d import batch_rotations as pbr
 from movement_primitives.dmp import DMP, DualCartesianDMP
 from movement_primitives.promp import ProMP
 from movement_primitives.io import (
-    write_pickle, read_pickle, write_yaml, read_yaml, write_json, read_json)
+    write_pickle, read_pickle, write_yaml, read_yaml, write_json, read_json,
+    _dict_to_object)
 from numpy.testing import assert_array_almost_equal
+from nose.tools import assert_raises_regexp
 
 
 def test_pickle_io():
@@ -119,3 +121,9 @@ def test_json_io():
     Y2 = promp2.mean_trajectory(T)
 
     assert_array_almost_equal(Y1, Y2)
+
+
+def test_invalid_class():
+    assert_raises_regexp(
+        ImportError, "cannot import name", _dict_to_object,
+        {"module": "movement_primitives", "class": "DMPNotExisting"})
