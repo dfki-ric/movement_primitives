@@ -10,6 +10,8 @@ def test_dmp_step_function_unknown():
     dmp = DMP(n_dims=1, execution_time=1.0, dt=0.01, n_weights_per_dim=6)
     assert_raises_regexp(ValueError, "Step function must be",
                          dmp.open_loop, step_function="unknown")
+    assert_raises_regexp(ValueError, "Step function must be",
+                         dmp.step, np.zeros(1), np.zeros(1), step_function="unknown")
 
 
 def test_dmp1d():
@@ -249,6 +251,11 @@ def test_temporal_scaling():
 
     assert_less(np.linalg.norm(Y1 - Y2[::2]) / len(Y1), 1e-3)
     assert_less(np.linalg.norm(Y2 - Y4[::2]) / len(Y2), 1e-3)
+
+
+def test_n_weights():
+    dmp = DMP(n_dims=5, n_weights_per_dim=9)
+    assert_equal(dmp.n_weights, 45)
 
 
 if __name__ == "__main__":

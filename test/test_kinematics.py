@@ -88,6 +88,29 @@ def test_forward_inverse():
         assert_array_almost_equal(ee2base, ee2base2, decimal=3)
 
 
+def test_forward_inverse_precise():
+    with open("examples/data/urdf/ur5.urdf", "r") as f:
+        kin = Kinematics(f.read())
+    joint_names = ["ur5_shoulder_pan_joint",
+                   "ur5_shoulder_lift_joint",
+                   "ur5_elbow_joint",
+                   "ur5_wrist_1_joint",
+                   "ur5_wrist_2_joint",
+                   "ur5_wrist_3_joint"]
+    chain = kin.create_chain(joint_names, "ur5_base_link", "ur5_tool0")
+    random_state = np.random.RandomState(1232)
+    for _ in range(5):
+        q = (random_state.rand(len(chain.joint_limits))
+             * (chain.joint_limits[:, 1] - chain.joint_limits[:, 0])
+             + chain.joint_limits[:, 0])
+        ee2base = chain.forward(q)
+        q2 = chain.local_inverse_with_random_restarts(
+            ee2base, joint_angles=q + 0.1, interval=0.2,
+            random_state=random_state, n_restarts=3, tolerance=0.0)
+        ee2base2 = chain.forward(q2)
+        assert_array_almost_equal(ee2base, ee2base2, decimal=3)
+
+
 def test_forward_inverse_trajectory():
     kin = Kinematics(COMPI_URDF)
     chain = kin.create_chain(

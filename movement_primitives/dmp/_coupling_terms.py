@@ -260,37 +260,6 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
                 np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)]))
 
 
-class CouplingTermDualCartesianOrientation:  # for DualCartesianDMP
-    """Couples orientations of dual Cartesian DMP."""
-    def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
-        self.desired_distance = desired_distance
-        self.lf = lf
-        self.k = k
-        self.c1 = c1
-        self.c2 = c2
-
-    def coupling(self, y, yd=None):
-        q1 = y[3:7]
-        q2 = y[10:]
-        actual_distance = pr.compact_axis_angle_from_quaternion(
-            pr.concatenate_quaternions(q1, pr.q_conj(q2)))
-        actual_distance_norm = np.linalg.norm(actual_distance)
-        if actual_distance_norm < np.finfo("float").eps:
-            desired_distance = (np.abs(self.desired_distance)
-                                * np.array([0.0, 0.0, 1.0]))
-        else:
-            desired_distance = (np.abs(self.desired_distance) * actual_distance
-                                / actual_distance_norm)
-        F12 = self.k * (desired_distance - actual_distance)
-        F21 = -F12
-        C12 = self.c1 * F12 * self.lf[0]
-        C21 = self.c1 * F21 * self.lf[1]
-        C12dot = F12 * self.c2 * self.lf[0]
-        C21dot = F21 * self.c2 * self.lf[1]
-        return (np.hstack([np.zeros(3), C12, np.zeros(3), C21]),
-                np.hstack([np.zeros(3), C12dot, np.zeros(3), C21dot]))
-
-
 class CouplingTermDualCartesianPose:  # for DualCartesianDMP
     """Couples relative poses of dual Cartesian DMP."""
     def __init__(self, desired_distance, lf, couple_position=True,

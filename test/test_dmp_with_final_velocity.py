@@ -1,6 +1,7 @@
 import numpy as np
 from movement_primitives.dmp import DMPWithFinalVelocity
 from numpy.testing import assert_array_almost_equal
+from nose.tools import assert_almost_equal
 
 
 def test_final_velocity():
@@ -37,3 +38,39 @@ def test_step_through_dmp_with_final_velocity():
         current_y, current_yd = dmp.step(current_y, current_yd)
         path.append(np.copy(current_y))
     assert_array_almost_equal(np.vstack(path), dmp.open_loop()[1], decimal=5)
+
+
+def test_temporal_scaling():
+    execution_time = 2.0
+    dt = 0.001
+
+    dmp = DMPWithFinalVelocity(n_dims=2, execution_time=execution_time, dt=dt,
+                               n_weights_per_dim=100)
+
+    T = np.arange(0.0, execution_time + dt, dt)
+    Y_demo = np.empty((len(T), 2))
+    Y_demo[:, 0] = np.cos(np.pi * T)
+    Y_demo[:, 1] = 0.5 + np.cos(0.5 * np.pi * T)
+    dmp.imitate(T, Y_demo)
+    goal_yd = np.array([0.5, -1.0])
+
+    dmp.configure(goal_yd=goal_yd)
+    T2, Y2 = dmp.open_loop()
+    assert_almost_equal(T2[-1], 2.0)
+    Yd2 = np.column_stack((np.gradient(Y2[:, 0]),
+                           np.gradient(Y2[:, 1]))) / dmp.dt_
+    assert_array_almost_equal(Yd2[-1], dmp.goal_yd, decimal=1)
+
+    dmp.execution_time_ = 1.0
+    T1, Y1 = dmp.open_loop()
+    assert_almost_equal(T1[-1], 1.0)
+    Yd1 = np.column_stack((np.gradient(Y1[:, 0]),
+                           np.gradient(Y1[:, 1]))) / dmp.dt_
+    assert_array_almost_equal(Yd1[-1], dmp.goal_yd, decimal=1)
+
+    dmp.execution_time_ = 4.0
+    T4, Y4 = dmp.open_loop()
+    assert_almost_equal(T4[-1], 4.0, places=2)
+    Yd4 = np.column_stack((np.gradient(Y4[:, 0]),
+                           np.gradient(Y4[:, 1]))) / dmp.dt_
+    assert_array_almost_equal(Yd4[-1], dmp.goal_yd, decimal=1)
