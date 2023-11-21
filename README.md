@@ -197,7 +197,7 @@ to a joint trajectory by inverse kinematics, and executed with a UR5.
 
 ### Contextual ProMPs
 
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="40%" />
 
 We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
 with 10 demonstrations per 3 different panel widths that were obtained through

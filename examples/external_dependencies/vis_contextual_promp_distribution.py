@@ -1,11 +1,13 @@
 import numpy as np
 import pytransform3d.visualizer as pv
 from pytransform3d.urdf import UrdfTransformManager
+import pytransform3d.transformations as pt
 from gmr import GMM
 from mocap.dataset_loader import load_kuka_dataset, transpose_dataset, smooth_dual_arm_trajectories_pq
 
 from movement_primitives.promp import ProMP
 from movement_primitives.visualization import to_ellipsoid
+from movement_primitives.kinematics import Kinematics
 
 
 def generate_training_data(
@@ -46,6 +48,21 @@ random_state = np.random.RandomState(0)
 gmm = GMM(n_components=5, random_state=random_state)
 gmm.from_samples(X)
 
+with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
+    kin = Kinematics(f.read(), mesh_path="kuka_lbr/urdf/")
+right_chain = kin.create_chain(
+    ["kuka_lbr_r_joint_%d" % i for i in range(1, 8)],
+    "kuka_lbr", "kuka_lbr_r_tcp", verbose=0)
+left_chain = kin.create_chain(
+    ["kuka_lbr_l_joint_%d" % i for i in range(1, 8)],
+    "kuka_lbr", "kuka_lbr_l_tcp", verbose=0)
+mean_start = np.mean([
+    Ps[i][0] for i in range(len(Ps)) if contexts[i][0] == 0.5], axis=0)
+mean_start_left = pt.transform_from_pq(mean_start[:7])
+mean_start_right = pt.transform_from_pq(mean_start[7:])
+left_chain.inverse(mean_start_left, initial_joint_angles=np.zeros(7))
+right_chain.inverse(mean_start_right, initial_joint_angles=np.zeros(7))
+
 n_validation_samples = 100
 n_steps = 100
 T_query = np.linspace(0, 1, n_steps)
@@ -53,10 +70,8 @@ T_query = np.linspace(0, 1, n_steps)
 fig = pv.figure(with_key_callbacks=True)
 fig.plot_transform(s=0.1)
 tm = UrdfTransformManager()
-with open("kuka_lbr/urdf/kuka_lbr.urdf", "r") as f:
-    tm.load_urdf(f.read(), mesh_path="kuka_lbr/urdf/")
 fig.plot_graph(
-    tm, "kuka_lbr", show_frames=True, show_visuals=True,
+    kin.tm, "kuka_lbr", show_frames=False, show_visuals=True,
     whitelist=["kuka_lbr_l_tcp", "kuka_lbr_r_tcp"], s=0.2)
 
 for panel_width, color, idx in zip([0.3, 0.4, 0.5], ([1.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0]), range(3)):
