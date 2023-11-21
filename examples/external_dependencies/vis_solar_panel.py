@@ -189,9 +189,9 @@ plt.show()
 fig = pv.figure()
 fig.plot_transform(s=0.3)
 
-# "solar_panels/solar_panel_02/meshes/stl/base link.stl"
+# "solar_panels/solar_panel_02/meshes/stl/base_link.stl"
 # "solar_panels/solar_panel_03/meshes/stl/base link.stl"
-panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base link.stl", A2B=panel2base_start)
+panel_mesh = fig.plot_mesh("solar_panels/solar_panel_02/meshes/stl/base_link.stl", A2B=panel2base_start)
 
 graph = fig.plot_graph(
     kin.tm, "RH5_Root_Link", show_visuals=True, show_collision_objects=False, show_frames=True, s=0.1,
