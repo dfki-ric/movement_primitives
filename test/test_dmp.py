@@ -10,6 +10,8 @@ def test_dmp_step_function_unknown():
     dmp = DMP(n_dims=1, execution_time=1.0, dt=0.01, n_weights_per_dim=6)
     assert_raises_regexp(ValueError, "Step function must be",
                          dmp.open_loop, step_function="unknown")
+    assert_raises_regexp(ValueError, "Step function must be",
+                         dmp.step, np.zeros(1), np.zeros(1), step_function="unknown")
 
 
 def test_dmp1d():
