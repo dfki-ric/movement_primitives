@@ -251,6 +251,11 @@ def test_temporal_scaling():
     assert_less(np.linalg.norm(Y2 - Y4[::2]) / len(Y2), 1e-3)
 
 
+def test_n_weights():
+    dmp = DMP(n_dims=5, n_weights_per_dim=9)
+    assert_equal(dmp.n_weights, 45)
+
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     start_y = np.array([0.0])
