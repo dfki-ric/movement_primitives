@@ -73,9 +73,13 @@ python setup.py install
 
 ## Non-public Extensions
 
-Note that scripts from the subfolder `examples/external_dependencies/` require
-access to git repositories (URDF files or optional dependencies) that are not
-publicly available.
+Scripts from the subfolder `examples/external_dependencies/` require access to
+git repositories (URDF files or optional dependencies) and datasets that are
+not publicly available. They are available on request (email
+alexander.fabisch@dfki.de).
+
+Note that the library does not have any non-public dependencies! They are only
+required to run all examples.
 
 ### MoCap Library
 
