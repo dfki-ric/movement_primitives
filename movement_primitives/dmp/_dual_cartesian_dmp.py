@@ -183,6 +183,14 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
     pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
     https://ieeexplore.ieee.org/document/6907291
 
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
     While the dimension of the state space is 14, the dimension of the
     velocity, acceleration, and forcing term is 12.
 

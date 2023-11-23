@@ -15,6 +15,14 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     (2013), International Journal of Robotics Research 32(3), pp. 263-279,
     https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
 
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
     Parameters
     ----------
     n_dims : int

@@ -164,6 +164,14 @@ class CartesianDMP(DMPBase):
     https://ieeexplore.ieee.org/document/6907291,
     https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
 
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
     While the dimension of the state space is 7, the dimension of the
     velocity, acceleration, and forcing term is 6.
 
