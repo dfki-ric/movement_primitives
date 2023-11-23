@@ -1,7 +1,7 @@
 import math
 import numpy as np
 try:
-    from movement_primitives.dmp_fast import phase
+    from ..dmp_fast import phase
 except ImportError:
     from ._canonical_system import phase
 
