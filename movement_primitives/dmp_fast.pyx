@@ -64,7 +64,8 @@ cpdef dmp_step(
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
-        np.ndarray tracking_error=None):
+        np.ndarray tracking_error=None,
+        bint smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -130,6 +131,11 @@ cpdef dmp_step(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -152,6 +158,8 @@ cpdef dmp_step(
     cdef int d
     cdef double current_t
     cdef double dt
+    cdef double z
+    cdef double smoothing
 
     current_t = last_t
     while current_t < t:
@@ -171,14 +179,22 @@ cpdef dmp_step(
         if tracking_error is not None:
             cdd += p_gain * tracking_error / dt
 
-        f[:] = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
 
         for d in range(n_dims):
+            if smooth_scaling:
+                smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+            else:
+                smoothing = 0.0
+
             current_ydd[d] = (
-                alpha_y * (beta_y * (goal_y[d] - current_y[d])
-                           + execution_time * goal_yd[d]
-                           - execution_time * current_yd[d])
-                + goal_ydd[d] * execution_time ** 2 + f[d]
+                alpha_y * (
+                    beta_y * (goal_y[d] - current_y[d])
+                    - execution_time * current_yd[d]
+                    - smoothing
+                )
+                + f[d]
                 + cdd[d]
             ) / execution_time ** 2
             current_yd[d] += dt * current_ydd[d] + cd[d] / execution_time
@@ -198,7 +214,8 @@ cpdef dmp_step_rk4(
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
-        np.ndarray tracking_error=None):
+        np.ndarray tracking_error=None,
+        bint smooth_scaling=False):
     """Integrate regular DMP for one step with RK4 integration.
 
     Parameters
@@ -264,6 +281,11 @@ cpdef dmp_step_rk4(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     cdef int n_dims = current_y.shape[0]
 
@@ -277,7 +299,9 @@ cpdef dmp_step_rk4(
     cdef double execution_time = goal_t - start_t
     cdef double dt = t - last_t
     cdef double dt_2 = 0.5 * dt
-    cdef np.ndarray[double, ndim=2] F = forcing_term(np.array([t, t + dt_2, t + dt]))
+    cdef np.ndarray[double, ndim=1] T = np.array([t, t + dt_2, t + dt])
+    cdef np.ndarray[double, ndim=1] Z = forcing_term.phase(T, int_dt=int_dt)
+    cdef np.ndarray[double, ndim=2] F = forcing_term.forcing_term(Z)
     cdef np.ndarray[double, ndim=1] tdd
     if tracking_error is not None:
         tdd = p_gain / dt * tracking_error
@@ -286,19 +310,23 @@ cpdef dmp_step_rk4(
 
     cdef np.ndarray[double, ndim=1] K0 = _dmp_acc(
         current_y, current_yd, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 0], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, Z[0], execution_time, F[:, 0], coupling_term,
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C1 = current_yd + dt_2 * K0
     cdef np.ndarray[double, ndim=1] K1 = _dmp_acc(
         current_y + dt_2 * current_yd, C1, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C2 = current_yd + dt_2 * K1
     cdef np.ndarray[double, ndim=1] K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term,
+        p_gain, tdd, smooth_scaling)
     cdef np.ndarray[double, ndim=1] C3 = current_yd + dt * K2
     cdef np.ndarray[double, ndim=1] K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, dt, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 2], coupling_term, p_gain, tdd)
+        goal_ydd, start_y, Z[2], execution_time, F[:, 2], coupling_term,
+        p_gain, tdd, smooth_scaling)
 
     cdef int i
     for i in range(n_dims):
@@ -314,21 +342,32 @@ cdef _dmp_acc(
         np.ndarray[double, ndim=1] Y, np.ndarray[double, ndim=1] V,
         np.ndarray[double, ndim=1] cdd, double dt, double alpha_y, double beta_y,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
-        np.ndarray[double, ndim=1] goal_ydd, double execution_time,
-        np.ndarray[double, ndim=1] f, object coupling_term, double p_gain,
-        np.ndarray[double, ndim=1] tdd):
+        np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
+        double z, double execution_time, np.ndarray[double, ndim=1] f,
+        object coupling_term, double p_gain, np.ndarray[double, ndim=1] tdd,
+        bint smooth_scaling):
     if coupling_term is not None:
         _, cdd[:] = coupling_term.coupling(Y, V)
 
     cdef int n_dims = Y.shape[0]
     cdef np.ndarray[double, ndim=1] Ydd = np.empty(n_dims, dtype=np.float64)
-    cdef int i
-    for i in range(n_dims):
-        Ydd[i] = ((
-            alpha_y * (beta_y * (goal_y[i] - Y[i])
-                       + execution_time * goal_yd[i] - execution_time * V[i])
-            + f[i] + cdd[i] + tdd[i]
-        ) / execution_time ** 2) + goal_ydd[i]
+    cdef int d
+    cdef double smoothing
+    for d in range(n_dims):
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+        else:
+            smoothing = 0.0
+        Ydd[d] = (
+            alpha_y * (
+                beta_y * (goal_y[d] - Y[d])
+                - execution_time * V[d]
+                - smoothing
+            )
+            + f[d]
+            + cdd[d]
+            + tdd[d]
+        ) / execution_time ** 2
     return Ydd
 
 
@@ -348,7 +387,7 @@ cpdef dmp_step_quaternion(
         np.ndarray[double, ndim=1] start_ydd,
         double goal_t, double start_t, double alpha_y, double beta_y,
         forcing_term, coupling_term=None, coupling_term_precomputed=None,
-        double int_dt=0.001):
+        double int_dt=0.001, bint smooth_scaling=False):
     """Integrate quaternion DMP for one step with Euler integration.
 
     Parameters
@@ -408,6 +447,11 @@ cpdef dmp_step_quaternion(
 
     int_dt : float, optional (default: 0.001)
         Time delta used internally for integration.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -422,9 +466,15 @@ cpdef dmp_step_quaternion(
 
     cdef np.ndarray[double, ndim=1] f = np.empty(3, dtype=np.float64)
 
+    cdef np.ndarray[double, ndim=1] goal_y_minus_start_y
+
     cdef int d
     cdef double current_t
     cdef double dt
+    cdef double z
+    cdef np.ndarray[double, ndim=1] smoothing = np.empty(3, dtype=np.float64)
+    if not smooth_scaling:
+        smoothing[:] = 0
 
     current_t = last_t
     while current_t < t:
@@ -439,11 +489,27 @@ cpdef dmp_step_quaternion(
             cd[:] = coupling_term_precomputed[0]
             cdd[:] = coupling_term_precomputed[1]
 
-        f[:] = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
 
-        current_ydd[:] = (alpha_y * (beta_y * compact_axis_angle_from_quaternion(concatenate_quaternions(goal_y, q_conj(current_y))) - execution_time * current_yd) + f + cdd) / execution_time ** 2
+        if smooth_scaling:
+            goal_y_minus_start_y = compact_axis_angle_from_quaternion(
+                concatenate_quaternions(goal_y, q_conj(start_y)))
+            smoothing[:] = beta_y * z * goal_y_minus_start_y
+
+        current_ydd[:] = (
+            alpha_y * (
+                beta_y * compact_axis_angle_from_quaternion(
+                    concatenate_quaternions(goal_y, q_conj(current_y)))
+                - execution_time * current_yd
+                - smoothing
+            )
+            + f
+            + cdd
+        ) / execution_time ** 2
         current_yd += dt * current_ydd + cd / execution_time
-        current_y[:] = concatenate_quaternions(quaternion_from_compact_axis_angle(dt * current_yd), current_y)
+        current_y[:] = concatenate_quaternions(
+            quaternion_from_compact_axis_angle(dt * current_yd), current_y)
 
 
 @cython.boundscheck(False)
@@ -458,7 +524,8 @@ cpdef dmp_step_dual_cartesian(
         double goal_t, double start_t, double alpha_y, double beta_y,
         forcing_term, coupling_term=None,
         double int_dt=0.001,
-        double p_gain=0.0, np.ndarray tracking_error=None):
+        double p_gain=0.0, np.ndarray tracking_error=None,
+        bint smooth_scaling=False):
     """Integrate bimanual Cartesian DMP for one step with Euler integration.
 
     Parameters
@@ -520,6 +587,11 @@ cpdef dmp_step_dual_cartesian(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -531,10 +603,17 @@ cpdef dmp_step_dual_cartesian(
 
     cdef int n_vel_dims = current_yd.shape[0]
 
-    cdef np.ndarray[double, ndim=1] cd = np.empty(n_vel_dims, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] cd = np.empty(n_vel_dims, dtype=float)
+    cdef np.ndarray[double, ndim=1] cdd = np.empty(n_vel_dims, dtype=float)
 
-    cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] f = np.empty(n_vel_dims, dtype=float)
+    cdef np.ndarray[double, ndim=1] goal_y_minus_start_y
+    cdef double smoothing_pos
+    cdef np.ndarray[double, ndim=1] smoothing_orn = np.empty(3, dtype=float)
+    if not smooth_scaling:
+        smoothing_orn[:] = 0.0
+
+    cdef double z
 
     cdef int pps
     cdef int pvs
@@ -555,7 +634,8 @@ cpdef dmp_step_dual_cartesian(
         else:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        f[:] = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f[:] = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             for pps, pvs in POS_INDICES:
                 cdd[pvs] += p_gain * tracking_error[pps] / dt
@@ -564,24 +644,37 @@ cpdef dmp_step_dual_cartesian(
 
         # position components
         for pps, pvs in POS_INDICES:
+            if smooth_scaling:
+                smoothing_pos = beta_y * (goal_y[pps] - start_y[pps]) * z
+            else:
+                smoothing_pos = 0.0
             current_ydd[pvs] = (
-                alpha_y * (beta_y * (goal_y[pps] - current_y[pps])
-                           + execution_time * (goal_yd[pvs] - current_yd[pvs]))
-                + f[pvs] + cdd[pvs]
-                ) / execution_time ** 2 + goal_ydd[pvs]
+                alpha_y * (
+                    beta_y * (goal_y[pps] - current_y[pps])
+                    - execution_time * current_yd[pvs]
+                    - smoothing_pos
+                )
+                + f[pvs]
+                + cdd[pvs]
+            ) / execution_time ** 2
             current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
             current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)), (slice(10, 14), slice(9, 12))):
+            if smooth_scaling:
+                goal_y_minus_start_y = compact_axis_angle_from_quaternion(
+                    concatenate_quaternions(goal_y[ops], q_conj(start_y[ops])))
+                smoothing_orn[:] = beta_y * z * goal_y_minus_start_y
             current_ydd[ovs] = (
                 alpha_y * (
                     beta_y * compact_axis_angle_from_quaternion(
-                        concatenate_quaternions(
-                            goal_y[ops], q_conj(current_y[ops]))
-                    )
+                        concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
                     - execution_time * current_yd[ovs]
-                ) + f[ovs] + cdd[ovs]
+                    - smoothing_orn
+                )
+                + f[ovs]
+                + cdd[ovs]
             ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = concatenate_quaternions(

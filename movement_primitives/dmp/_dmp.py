@@ -2,13 +2,14 @@ import numpy as np
 from ._base import DMPBase, WeightParametersMixin
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
+from ._forcing_term import phase
 
 
 def dmp_step_rk4(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y,
         start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-        p_gain=0.0, tracking_error=0.0):
+        p_gain=0.0, tracking_error=0.0, smooth_scaling=False):
     """Integrate regular DMP for one step with RK4 integration.
 
     Parameters
@@ -74,6 +75,11 @@ def dmp_step_rk4(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if coupling_term is None:
         cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
@@ -91,25 +97,31 @@ def dmp_step_rk4(
     execution_time = goal_t - start_t
     dt = t - last_t
     dt_2 = 0.5 * dt
-    F = forcing_term(np.array([t, t + dt_2, t + dt]))
+    T = np.array([t, t + dt_2, t + dt])
+    Z = forcing_term.phase(T, int_dt=int_dt)
+    F = forcing_term.forcing_term(Z)
     tdd = p_gain * tracking_error / dt
 
     C0 = current_yd
     K0 = _dmp_acc(
         current_y, C0, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-        execution_time, F[:, 0], coupling_term, tdd)
+        start_y, Z[0], execution_time, F[:, 0], coupling_term, tdd,
+        smooth_scaling)
     C1 = current_yd + dt_2 * K0
     K1 = _dmp_acc(
         current_y + dt_2 * C0, C1, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, tdd)
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term, tdd,
+        smooth_scaling)
     C2 = current_yd + dt_2 * K1
     K2 = _dmp_acc(
         current_y + dt_2 * C1, C2, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 1], coupling_term, tdd)
+        goal_ydd, start_y, Z[1], execution_time, F[:, 1], coupling_term, tdd,
+        smooth_scaling)
     C3 = current_yd + dt * K2
     K3 = _dmp_acc(
         current_y + dt * C2, C3, cdd, alpha_y, beta_y, goal_y, goal_yd,
-        goal_ydd, execution_time, F[:, 2], coupling_term, tdd)
+        goal_ydd, start_y, Z[2], execution_time, F[:, 2], coupling_term, tdd,
+        smooth_scaling)
 
     current_y += dt * (current_yd + dt / 6.0 * (K0 + K1 + K2))
     current_yd += dt / 6.0 * (K0 + 2 * K1 + 2 * K2 + K3)
@@ -120,7 +132,8 @@ def dmp_step_rk4(
 
 
 def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-             execution_time, f, coupling_term, tdd):
+             start_y, z, execution_time, f, coupling_term, tdd,
+             smooth_scaling):
     """DMP acceleration.
 
     Parameters
@@ -149,6 +162,12 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     goal_ydd : shape (n_dims,)
         Second goal state derivative (acceleration).
 
+    start_y : array, shape (n_dims,)
+        Start position.
+
+    z : float
+        Current phase.
+
     execution_time : float
         Time to execute the DMP.
 
@@ -163,6 +182,11 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     tdd : array, shape (n_dims,)
         Acceleration correction from tracking error controller.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Returns
     -------
     ydd : array, shape (n_dims,)
@@ -170,16 +194,27 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     """
     if coupling_term is not None:
         _, cdd = coupling_term.coupling(Y, V)
-    return ((alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
-             + f + cdd + tdd) / execution_time ** 2
-            + goal_ydd)
+    if smooth_scaling:
+        smoothing = beta_y * (goal_y - start_y) * z
+    else:
+        smoothing = 0.0
+    return (
+        alpha_y * (
+            beta_y * (goal_y - Y)
+            - execution_time * V
+            - smoothing
+        )
+        + f
+        + cdd
+        + tdd
+    ) / execution_time ** 2
 
 
 def dmp_step_euler(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd, start_y,
         start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y, forcing_term,
         coupling_term=None, coupling_term_precomputed=None, int_dt=0.001,
-        p_gain=0.0, tracking_error=0.0):
+        p_gain=0.0, tracking_error=0.0, smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -245,6 +280,11 @@ def dmp_step_euler(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -261,24 +301,27 @@ def dmp_step_euler(
             dt = t - current_t
         current_t += dt
 
-        if coupling_term is not None:
-            cd, cdd = coupling_term.coupling(current_y, current_yd)
-        else:
+        if coupling_term is None:
             cd, cdd = np.zeros_like(current_y), np.zeros_like(current_y)
-        if coupling_term_precomputed is not None:
-            cd += coupling_term_precomputed[0]
-            cdd += coupling_term_precomputed[1]
+            if coupling_term_precomputed is not None:
+                cd += coupling_term_precomputed[0]
+                cdd += coupling_term_precomputed[1]
+        else:
+            cd, cdd = None, None
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
+        tdd = p_gain * tracking_error / dt
 
-        f = forcing_term(current_t).squeeze()
-
-        coupling_sum = cdd + p_gain * tracking_error / dt
-        ydd = (alpha_y * (beta_y * (goal_y - current_y)
-                          + execution_time * goal_yd
-                          - execution_time * current_yd)
-               + goal_ydd * execution_time ** 2
-               + f + coupling_sum) / execution_time ** 2
-        current_yd += dt * ydd + cd / execution_time
+        ydd = _dmp_acc(
+            current_y, current_yd, cdd, alpha_y, beta_y, goal_y, goal_yd,
+            goal_ydd, start_y, z, execution_time, f, coupling_term, tdd,
+            smooth_scaling)
+        current_yd += dt * ydd
         current_y += dt * current_yd
+
+        if coupling_term is not None:
+            cd, _ = coupling_term.coupling(current_y, current_yd)
+            current_yd += cd / execution_time
 
 
 DMP_STEP_FUNCTIONS = {
@@ -304,7 +347,16 @@ class DMP(WeightParametersMixin, DMPBase):
     A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
     Dynamical Movement Primitives: Learning Attractor Models for Motor
     Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
-    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340
+    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340,
+    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
+
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
 
     Parameters
     ----------
@@ -327,6 +379,11 @@ class DMP(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -337,13 +394,15 @@ class DMP(WeightParametersMixin, DMPBase):
         the frequency.
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
+                 smooth_scaling=False):
         super(DMP, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -425,7 +484,8 @@ class DMP(WeightParametersMixin, DMPBase):
             coupling_term=coupling_term,
             int_dt=self.int_dt,
             p_gain=self.p_gain,
-            tracking_error=tracking_error)
+            tracking_error=tracking_error,
+            smooth_scaling=self.smooth_scaling)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None,
@@ -470,7 +530,8 @@ class DMP(WeightParametersMixin, DMPBase):
             self.forcing_term,
             coupling_term,
             run_t, self.int_dt,
-            step_function)
+            step_function,
+            smooth_scaling=self.smooth_scaling)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
@@ -495,18 +556,26 @@ class DMP(WeightParametersMixin, DMPBase):
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
             alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity)
+            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)
         self.configure(start_y=start_y, goal_y=goal_y)
 
 
-def dmp_transformation_system(Y, V, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
-                              execution_time):
+def dmp_transformation_system(
+        Y, V, alpha_y, beta_y, goal_y, goal_yd, goal_ydd, start_y, z,
+        execution_time):
     """Compute acceleration generated by transformation system of DMP."""
-    return (alpha_y * (beta_y * (goal_y - Y) + execution_time * (goal_yd - V))
-            ) / execution_time ** 2 + goal_ydd
+    return (
+        alpha_y * (
+            beta_y * (goal_y - Y)
+            + execution_time * (goal_yd - V)
+            - beta_y * (goal_y - start_y) * z
+        )
+    ) / execution_time ** 2 + goal_ydd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
+def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+                     smooth_scaling=False):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -523,8 +592,16 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
     beta_y : float
         Parameter of the transformation system.
 
+    alpha_z : float
+        Parameter of the canonical system.
+
     allow_final_velocity : bool
         Whether a final velocity is allowed. Will be set to 0 otherwise.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
 
     Returns
     -------
@@ -563,20 +640,26 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
 
     execution_time = T[-1] - T[0]
     goal_y = Y[-1]
-    goal_yd = Yd[-1]
-    goal_ydd = Ydd[-1]
+    start_y = Y[0]
+    Z = phase(T, alpha_z, T[-1], T[0])
     F = np.empty((len(T), n_dims))
     for t in range(len(T)):
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y - start_y) * Z[t]
+        else:
+            smoothing = 0.0
         F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
-            beta_y * (goal_y - Y[t]) + goal_yd * execution_time
-            - Yd[t] * execution_time) - execution_time ** 2 * goal_ydd
+            beta_y * (goal_y - Y[t])
+            - Yd[t] * execution_time
+            - smoothing
+        )
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
 def dmp_imitate(
         T, Y, n_weights_per_dim, regularization_coefficient, alpha_y, beta_y,
         overlap, alpha_z, allow_final_velocity,
-        determine_forces=determine_forces):
+        determine_forces=determine_forces, smooth_scaling=False):
     """Compute weights and metaparameters of DMP.
 
     Parameters
@@ -613,6 +696,11 @@ def dmp_imitate(
         Function to compute forces of the forcing term and metaparameters given
         the demonstration.
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Returns
     -------
     weights : array, shape (n_dims, n_weights_per_dim)
@@ -642,9 +730,10 @@ def dmp_imitate(
     forcing_term = ForcingTerm(
         Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces(
-        T, Y, alpha_y, beta_y, allow_final_velocity)  # n_steps x n_dims
+        T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity, smooth_scaling)
+    # F shape (n_steps, n_dims)
 
-    X = forcing_term.design_matrix(T)  # n_weights_per_dim x n_steps
+    X = forcing_term.design_matrix(T)  # shape (n_weights_per_dim, n_steps)
 
     return (ridge_regression(X, F, regularization_coefficient),
             start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd)
@@ -681,8 +770,8 @@ def ridge_regression(X, Y, regularization_coefficient):
 def dmp_open_loop(
         goal_t, start_t, dt, start_y, goal_y, alpha_y, beta_y, forcing_term,
         coupling_term=None, run_t=None, int_dt=0.001,
-        step_function=dmp_step_rk4, start_yd=None, start_ydd=None,
-        goal_yd=None, goal_ydd=None):
+        step_function=dmp_step_rk4, smooth_scaling=False,
+        start_yd=None, start_ydd=None, goal_yd=None, goal_ydd=None):
     """Run DMP without external feedback.
 
     Parameters
@@ -723,6 +812,11 @@ def dmp_open_loop(
 
     step_function : callable, optional (default: dmp_step_rk4)
         DMP integration function.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
 
     start_yd : shape (n_dims,)
         Start state derivative (velocity).
@@ -771,7 +865,7 @@ def dmp_open_loop(
             goal_t=goal_t, start_t=start_t,
             alpha_y=alpha_y, beta_y=beta_y,
             forcing_term=forcing_term, coupling_term=coupling_term,
-            int_dt=int_dt)
+            int_dt=int_dt, smooth_scaling=smooth_scaling)
         Y[i] = current_y
 
     return T, Y

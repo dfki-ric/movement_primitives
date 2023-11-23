@@ -1,6 +1,6 @@
 import numpy as np
 from ._base import DMPBase, WeightParametersMixin
-from ._forcing_term import ForcingTerm
+from ._forcing_term import ForcingTerm, phase
 from ._canonical_system import canonical_system_alpha
 from ._dmp import dmp_imitate, dmp_open_loop
 
@@ -14,6 +14,14 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     Learning to Select and Generalize Striking Movements in Robot Table Tennis
     (2013), International Journal of Robotics Research 32(3), pp. 263-279,
     https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
+
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
 
     Parameters
     ----------
@@ -36,6 +44,11 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -46,13 +59,15 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         the frequency.
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
+                 smooth_scaling=False):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -121,7 +136,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             coupling_term=coupling_term,
             int_dt=self.int_dt,
             p_gain=self.p_gain,
-            tracking_error=tracking_error)
+            tracking_error=tracking_error,
+            smooth_scaling=self.smooth_scaling)
         return np.copy(self.current_y), np.copy(self.current_yd)
 
     def open_loop(self, run_t=None, coupling_term=None):
@@ -152,7 +168,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             run_t, self.int_dt,
             dmp_step_euler_with_constraints,
             start_yd=self.start_yd, start_ydd=self.start_ydd,
-            goal_yd=self.goal_yd, goal_ydd=self.goal_ydd)
+            goal_yd=self.goal_yd, goal_ydd=self.goal_ydd,
+            smooth_scaling=self.smooth_scaling)
 
     def imitate(self, T, Y, regularization_coefficient=0.0):
         """Imitate demonstration.
@@ -226,7 +243,8 @@ def apply_constraints(t, goal_y, goal_t, coefficients):
         return g, gd, gdd
 
 
-def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
+def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
+                     smooth_scaling=False):
     """Determine forces that the forcing term should generate.
 
     Parameters
@@ -243,9 +261,16 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
     beta_y : float
         Parameter of the transformation system.
 
+    alpha_z : float
+        Parameter of the canonical system.
+
     allow_final_velocity : bool
         Whether a final velocity is allowed. This should always be True for
         this function.
+
+    smooth_scaling : bool, optional (default: False)
+        Not used. This DMP type adapts smoothly to goal changes as constraint
+        coefficients will be recomputed in each step.
 
     Returns
     -------
@@ -290,11 +315,12 @@ def determine_forces(T, Y, alpha_y, beta_y, allow_final_velocity):
 
     execution_time = T[-1] - T[0]
     F = np.empty((len(T), n_dims))
-    for i in range(len(T)):
-        g, gd, gdd = apply_constraints(T[i], Y[-1], T[-1], coefficients)
-        F[i, :] = execution_time ** 2 * Ydd[i] - alpha_y * (
-            beta_y * (g - Y[i]) + gd * execution_time
-            - Yd[i] * execution_time) - execution_time ** 2 * gdd
+    for t in range(len(T)):
+        g, gd, gdd = apply_constraints(T[t], Y[-1], T[-1], coefficients)
+        F[t, :] = execution_time ** 2 * Ydd[t] - alpha_y * (
+            beta_y * (g - Y[t])
+            + execution_time * (gd - Yd[t])
+        ) - execution_time ** 2 * gdd
     return F, Y[0], Yd[0], Ydd[0], Y[-1], Yd[-1], Ydd[-1]
 
 
@@ -302,7 +328,7 @@ def dmp_step_euler_with_constraints(
         last_t, t, current_y, current_yd, goal_y, goal_yd, goal_ydd,
         start_y, start_yd, start_ydd, goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, coupling_term_precomputed=None,
-        int_dt=0.001, p_gain=0.0, tracking_error=0.0):
+        int_dt=0.001, p_gain=0.0, tracking_error=0.0, smooth_scaling=False):
     """Integrate regular DMP for one step with Euler integration.
 
     Parameters
@@ -368,6 +394,10 @@ def dmp_step_euler_with_constraints(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Not used. This DMP type adapts smoothly to goal changes as constraint
+        coefficients will be recomputed in each step.
     """
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
@@ -396,15 +426,19 @@ def dmp_step_euler_with_constraints(
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        f = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
 
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)
 
         coupling_sum = cdd + p_gain * tracking_error / dt
-        ydd = (alpha_y * (beta_y * (g - current_y)
-                          + execution_time * gd
-                          - execution_time * current_yd)
-               + gdd * execution_time ** 2
-               + f + coupling_sum) / execution_time ** 2
+        ydd = (
+            alpha_y * (
+                beta_y * (g - current_y)
+                + execution_time * (gd - current_yd)
+            )
+            + f
+            + coupling_sum
+        ) / execution_time ** 2 + gdd
         current_yd += dt * ydd + cd / execution_time
         current_y += dt * current_yd

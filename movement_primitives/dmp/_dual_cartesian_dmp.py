@@ -2,7 +2,7 @@ import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase, WeightParametersMixin
 from ._canonical_system import canonical_system_alpha
-from ._forcing_term import ForcingTerm
+from ._forcing_term import ForcingTerm, phase
 from ._dmp import dmp_imitate
 from ._cartesian_dmp import dmp_quaternion_imitation
 
@@ -18,7 +18,7 @@ def dmp_step_dual_cartesian_python(
         start_y, start_yd, start_ydd,
         goal_t, start_t, alpha_y, beta_y,
         forcing_term, coupling_term=None, int_dt=0.001,
-        p_gain=0.0, tracking_error=None):
+        p_gain=0.0, tracking_error=None, smooth_scaling=False):
     """Integrate bimanual Cartesian DMP for one step with Euler integration.
 
     Parameters
@@ -80,6 +80,11 @@ def dmp_step_dual_cartesian_python(
 
     tracking_error : float, optional (default: 0)
         Tracking error from last step.
+
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
     """
     if t <= start_t:
         current_y[:] = start_y
@@ -101,7 +106,8 @@ def dmp_step_dual_cartesian_python(
         if coupling_term is not None:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        f = forcing_term(current_t).squeeze()
+        z = forcing_term.phase(current_t, int_dt)
+        f = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             cdd[pvs] += p_gain * tracking_error[pps] / dt
             for ops, ovs in ((slice(3, 7), slice(3, 6)),
@@ -109,22 +115,43 @@ def dmp_step_dual_cartesian_python(
                 cdd[ovs] += p_gain * pr.compact_axis_angle_from_quaternion(
                     tracking_error[ops]) / dt
 
+        if smooth_scaling:
+            smoothing = beta_y * (goal_y[pps] - start_y[pps]) * z
+        else:
+            smoothing = 0.0
+
         # position components
         current_ydd[pvs] = (
-            alpha_y * (beta_y * (goal_y[pps] - current_y[pps])
-                       + execution_time * goal_yd[pvs]
-                       - execution_time * current_yd[pvs])
-            + goal_ydd[pvs] * execution_time ** 2 + f[pvs] + cdd[pvs]) / execution_time ** 2
+            alpha_y * (
+                beta_y * (goal_y[pps] - current_y[pps])
+                - execution_time * current_yd[pvs]
+                - smoothing
+            )
+            + f[pvs]
+            + cdd[pvs]
+        ) / execution_time ** 2
         current_yd[pvs] += dt * current_ydd[pvs] + cd[pvs] / execution_time
         current_y[pps] += dt * current_yd[pvs]
 
         # orientation components
         for ops, ovs in ((slice(3, 7), slice(3, 6)),
                          (slice(10, 14), slice(9, 12))):
+            if smooth_scaling:
+                goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
+                    pr.concatenate_quaternions(goal_y[ops], pr.q_conj(start_y[ops])))
+                smoothing = beta_y * z * goal_y_minus_start_y
+            else:
+                smoothing = 0.0
             current_ydd[ovs] = (
-                alpha_y * (beta_y * pr.compact_axis_angle_from_quaternion(
-                                   pr.concatenate_quaternions(goal_y[ops], pr.q_conj(current_y[ops])))
-                           - execution_time * current_yd[ovs]) + f[ovs] + cdd[ovs]) / execution_time ** 2
+                alpha_y * (
+                    beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
+                        goal_y[ops], pr.q_conj(current_y[ops])))
+                    - execution_time * current_yd[ovs]
+                    - smoothing
+                )
+                + f[ovs]
+                + cdd[ovs]
+            ) / execution_time ** 2
             current_yd[ovs] += dt * current_ydd[ovs] + cd[ovs] / execution_time
             current_y[ops] = pr.concatenate_quaternions(
                 pr.quaternion_from_compact_axis_angle(dt * current_yd[ovs]), current_y[ops])
@@ -156,6 +183,14 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
     pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
     https://ieeexplore.ieee.org/document/6907291
 
+    (if smooth scaling is activated) with modification of scaling proposed by
+
+    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
+    Learning and Generalization of Motor Skills by Learning from Demonstration,
+    2009 IEEE International Conference on Robotics and Automation,
+    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
     While the dimension of the state space is 14, the dimension of the
     velocity, acceleration, and forcing term is 12.
 
@@ -177,6 +212,11 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
+    smooth_scaling : bool, optional (default: False)
+        Avoids jumps during the beginning of DMP execution when the goal
+        is changed and the trajectory is scaled by interpolating between
+        the old and new scaling of the trajectory.
+
     Attributes
     ----------
     execution_time_ : float
@@ -187,13 +227,14 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         the frequency.
     """
     def __init__(self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0):
+                 int_dt=0.001, p_gain=0.0, smooth_scaling=False):
         super(DualCartesianDMP, self).__init__(14, 12)
         self._execution_time = execution_time
         self.dt_ = dt
         self.n_weights_per_dim = n_weights_per_dim
         self.int_dt = int_dt
         self.p_gain = p_gain
+        self.smooth_scaling = smooth_scaling
 
         self._init_forcing_term()
 
@@ -269,7 +310,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             self.alpha_y, self.beta_y,
             self.forcing_term, coupling_term,
             self.int_dt,
-            self.p_gain, tracking_error)
+            self.p_gain, tracking_error,
+            self.smooth_scaling)
 
         return np.copy(self.current_y), np.copy(self.current_yd)
 
@@ -342,7 +384,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[3:6, :] = dmp_quaternion_imitation(
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -350,7 +393,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[6:9, :] = dmp_imitate(
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -358,7 +402,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
         self.forcing_term.weights_[9:12, :] = dmp_quaternion_imitation(
             T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
@@ -366,6 +411,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             alpha_y=self.alpha_y, beta_y=self.beta_y,
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
-            allow_final_velocity=allow_final_velocity)[0]
+            allow_final_velocity=allow_final_velocity,
+            smooth_scaling=self.smooth_scaling)[0]
 
         self.configure(start_y=Y[0], goal_y=Y[-1])
