@@ -58,6 +58,22 @@ You can also search for specific modules, classes, or functions in the
    ~movement_primitives.promp.ProMP
 
 
+:mod:`movement_primitives.io`
+=============================
+
+.. automodule:: movement_primitives.io
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.io.write_pickle
+   ~movement_primitives.io.read_pickle
+   ~movement_primitives.io.write_yaml
+   ~movement_primitives.io.read_yaml
+   ~movement_primitives.io.write_json
+   ~movement_primitives.io.read_json
+
+
 :mod:`movement_primitives.base`
 ===============================
 
@@ -68,3 +84,77 @@ You can also search for specific modules, classes, or functions in the
    :template: class.rst
 
    ~movement_primitives.base.PointToPointMovement
+
+
+:mod:`movement_primitives.data`
+===============================
+
+.. automodule:: movement_primitives.data
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.data.load_lasa
+   ~movement_primitives.data.generate_minimum_jerk
+   ~movement_primitives.data.generate_1d_trajectory_distribution
+
+
+:mod:`movement_primitives.kinematics`
+=====================================
+
+.. automodule:: movement_primitives.kinematics
+
+.. autosummary::
+   :toctree: _apidoc/
+   :template: class.rst
+
+   ~movement_primitives.kinematics.Kinematics
+   ~movement_primitives.kinematics.Chain
+
+
+:mod:`movement_primitives.plot`
+===============================
+
+.. automodule:: movement_primitives.plot
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.plot.plot_trajectory_in_rows
+   ~movement_primitives.plot.plot_distribution_in_rows
+
+
+:mod:`movement_primitives.visualization`
+========================================
+
+.. automodule:: movement_primitives.visualization
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.visualization.plot_pointcloud
+   ~movement_primitives.visualization.to_ellipsoid
+
+
+:mod:`movement_primitives.dmp_potential_field`
+==============================================
+
+.. automodule:: movement_primitives.dmp_potential_field
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.dmp_potential_field.plot_potential_field_2d
+
+
+:mod:`movement_primitives.spring_damper`
+========================================
+
+.. automodule:: movement_primitives.spring_damper
+
+.. autosummary::
+   :toctree: _apidoc/
+   :template: class.rst
+
+   ~movement_primitives.spring_damper.SpringDamper
+   ~movement_primitives.spring_damper.SpringDamperOrientation

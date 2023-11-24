@@ -1,4 +1,7 @@
-"""Forward kinematics and a simple implementation of inverse kinematics."""
+"""Kinematics
+==========
+
+Forward kinematics and a simple implementation of inverse kinematics."""
 import math
 import numpy as np
 import numba
@@ -132,6 +135,9 @@ class Kinematics:
 
 class Chain:
     """Kinematic chain.
+
+    You should not call this constructor manually. Use :class:`Kinematics` to
+    create a kinematic chain.
 
     Parameters
     ----------
