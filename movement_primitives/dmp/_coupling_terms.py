@@ -65,8 +65,10 @@ def obstacle_avoidance_acceleration_2d(
     return np.squeeze(cdd)
 
 
-class CouplingTermObstacleAvoidance2D:  # for DMP
+class CouplingTermObstacleAvoidance2D:
     """Coupling term for obstacle avoidance in 2D.
+
+    For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
     This is the simplified 2D implementation of
     :class:`CouplingTermObstacleAvoidance3D`.
@@ -118,6 +120,8 @@ class CouplingTermObstacleAvoidance2D:  # for DMP
 
 class CouplingTermObstacleAvoidance3D:  # for DMP
     r"""Coupling term for obstacle avoidance in 3D.
+
+    For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
     Implementation according to
 
@@ -230,6 +234,8 @@ def obstacle_avoidance_acceleration_3d(
 class CouplingTermPos1DToPos1D:
     """Couples position components of a 2D DMP with a virtual spring.
 
+    For :class:`DMP` and :class:`DMPWithFinalVelocity`.
+
     A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
     Modulation of Motor Primitives using Force Feedback: Interaction with
     the Environment and Bimanual Tasks (2013), IROS,
@@ -278,8 +284,10 @@ class CouplingTermPos1DToPos1D:
         return np.array([C12, C21]), np.array([C12dot, C21dot])
 
 
-class CouplingTermPos3DToPos3D:  # for DMP
+class CouplingTermPos3DToPos3D:
     """Couples position components of a 6D DMP with a virtual spring in 3D.
+
+    For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
     A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
     Modulation of Motor Primitives using Force Feedback: Interaction with
@@ -332,8 +340,36 @@ class CouplingTermPos3DToPos3D:  # for DMP
         return np.hstack([C12, C21]), np.hstack([C12dot, C21dot])
 
 
-class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
-    """Couples distance between 3D positions of a dual Cartesian DMP."""
+class CouplingTermDualCartesianDistance:
+    """Couples distance between 3D positions of a dual Cartesian DMP.
+
+    For :class:`DualCartesianDMP`.
+
+    Parameters
+    ----------
+    desired_distance : float
+        Desired distance between components.
+
+    lf : array-like, shape (2,)
+        Binary values that indicate which DMP(s) will be adapted.
+        The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+        then both robots will adapt their trajectories to follow average
+        trajectories at the defined distance dd between them [..]. On the other
+        hand, if lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory
+        to match the trajectory of DMP0, again at the distance dd and again
+        only after learning. Vice versa applies as well. Leader-follower
+        relation can be determined by a higher-level planner [..].
+
+    k : float, optional (default: 1)
+        Virtual spring constant that couples the positions.
+
+    c1 : float, optional (default: 100)
+        Scaling factor for spring forces in the velocity component and
+        acceleration component.
+
+    c2 : float, optional (default: 30)
+        Scaling factor for spring forces in the acceleration component.
+    """
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance
         self.lf = lf
@@ -355,8 +391,42 @@ class CouplingTermDualCartesianDistance:  # for DualCartesianDMP
                 np.hstack([C12dot, np.zeros(3), C21dot, np.zeros(3)]))
 
 
-class CouplingTermDualCartesianPose:  # for DualCartesianDMP
-    """Couples relative poses of dual Cartesian DMP."""
+class CouplingTermDualCartesianPose:
+    """Couples relative poses of dual Cartesian DMP.
+
+    For :class:`DualCartesianDMP`.
+
+    Parameters
+    ----------
+    desired_distance : array, shape (4, 4)
+        Desired distance between components.
+
+    lf : array-like, shape (2,)
+        Binary values that indicate which DMP(s) will be adapted.
+        The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+        then both robots will adapt their trajectories to follow average
+        trajectories at the defined distance dd between them [..]. On the other
+        hand, if lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory
+        to match the trajectory of DMP0, again at the distance dd and again
+        only after learning. Vice versa applies as well. Leader-follower
+        relation can be determined by a higher-level planner [..].
+
+    couple_position : bool, optional (default: True)
+        Couple position between components.
+
+    couple_orientation : bool, optional (default: True)
+        Couple orientation between components.
+
+    k : float, optional (default: 1)
+        Virtual spring constant that couples the positions.
+
+    c1 : float, optional (default: 100)
+        Scaling factor for spring forces in the velocity component and
+        acceleration component.
+
+    c2 : float, optional (default: 30)
+        Scaling factor for spring forces in the acceleration component.
+    """
     def __init__(self, desired_distance, lf, couple_position=True,
                  couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=0):
         self.desired_distance = desired_distance
@@ -447,8 +517,43 @@ class CouplingTermDualCartesianPose:  # for DualCartesianDMP
         return right2left_pq
 
 
-class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):  # for DualCartesianDMP
-    """Couples relative pose in dual Cartesian DMP with a given trajectory."""
+class CouplingTermDualCartesianTrajectory(CouplingTermDualCartesianPose):
+    """Couples relative pose in dual Cartesian DMP with a given trajectory.
+
+    For :class:`DualCartesianDMP`.
+
+    Parameters
+    ----------
+    offset : array, shape (7,)
+        Offset for desired distance between components as position and
+        quaternion.
+
+    lf : array-like, shape (2,)
+        Binary values that indicate which DMP(s) will be adapted.
+        The variable lf defines the relation leader-follower. If lf[0] = lf[1],
+        then both robots will adapt their trajectories to follow average
+        trajectories at the defined distance dd between them [..]. On the other
+        hand, if lf[0] = 0 and lf[1] = 1, only DMP1 will change the trajectory
+        to match the trajectory of DMP0, again at the distance dd and again
+        only after learning. Vice versa applies as well. Leader-follower
+        relation can be determined by a higher-level planner [..].
+
+    couple_position : bool, optional (default: True)
+        Couple position between components.
+
+    couple_orientation : bool, optional (default: True)
+        Couple orientation between components.
+
+    k : float, optional (default: 1)
+        Virtual spring constant that couples the positions.
+
+    c1 : float, optional (default: 100)
+        Scaling factor for spring forces in the velocity component and
+        acceleration component.
+
+    c2 : float, optional (default: 30)
+        Scaling factor for spring forces in the acceleration component.
+    """
     def __init__(self, offset, lf, dt, couple_position=True,
                  couple_orientation=True, k=1.0, c1=1.0, c2=30.0, verbose=1):
         self.offset = offset
