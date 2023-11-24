@@ -19,6 +19,7 @@ You can also search for specific modules, classes, or functions in the
 
 .. autosummary::
    :toctree: _apidoc/
+   :template: class.rst
 
    ~movement_primitives.dmp.DMPBase
    ~movement_primitives.dmp.WeightParametersMixin
@@ -34,6 +35,10 @@ You can also search for specific modules, classes, or functions in the
    ~movement_primitives.dmp.CouplingTermObstacleAvoidance3D
    ~movement_primitives.dmp.CouplingTermDualCartesianDistance
    ~movement_primitives.dmp.CouplingTermDualCartesianTrajectory
+
+.. autosummary::
+   :toctree: _apidoc/
+
    ~movement_primitives.dmp.dmp_transformation_system
    ~movement_primitives.dmp.canonical_system_alpha
    ~movement_primitives.dmp.phase
@@ -48,5 +53,18 @@ You can also search for specific modules, classes, or functions in the
 
 .. autosummary::
    :toctree: _apidoc/
+   :template: class.rst
 
    ~movement_primitives.promp.ProMP
+
+
+:mod:`movement_primitives.base`
+===============================
+
+.. automodule:: movement_primitives.base
+
+.. autosummary::
+   :toctree: _apidoc/
+   :template: class.rst
+
+   ~movement_primitives.base.PointToPointMovement
