@@ -63,7 +63,7 @@ html_theme_options = {
     "nosidebar": True,
     "body_max_width": "90%",
     "navbar_links": [
-        ("Contents", "index"),
+        ("Readme", "README"),
         #("Examples", "_auto_examples/index"),
         #("API", "api"),
     ],
