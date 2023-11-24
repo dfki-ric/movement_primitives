@@ -37,7 +37,9 @@ release = __import__(project).__version__
 # ones.
 extensions = [
     "numpydoc",
-    "myst_parser"
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -47,6 +49,8 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
+autosummary_generate = True
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -65,7 +69,7 @@ html_theme_options = {
     "navbar_links": [
         ("Readme", "README"),
         #("Examples", "_auto_examples/index"),
-        #("API", "api"),
+        ("API", "api"),
     ],
 }
 
@@ -78,4 +82,13 @@ source_suffix = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
+html_show_sourcelink = False
+html_show_sphinx = False
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/{.major}'.format(sys.version_info), None),
+    'numpy': ('https://numpy.org/doc/stable', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'matplotlib': ('https://matplotlib.org/', None)
+}
