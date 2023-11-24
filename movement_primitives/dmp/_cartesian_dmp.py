@@ -151,7 +151,7 @@ except ImportError:
 
 
 class CartesianDMP(DMPBase):
-    """Cartesian dynamical movement primitive.
+    r"""Cartesian dynamical movement primitive.
 
     The Cartesian DMP handles orientation and position separately. The
     orientation is represented by a quaternion. The quaternion DMP is
@@ -174,6 +174,27 @@ class CartesianDMP(DMPBase):
 
     While the dimension of the state space is 7, the dimension of the
     velocity, acceleration, and forcing term is 6.
+
+    Equation of transformation system for the orientation
+    (Ude et al. 2014, Eq. 16):
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y}) + f(z) + C_t) / \tau^2
+
+    Note that in this case :math:`y` is a quaternion in this case,
+    :math:`g - y` the quaternion difference (expressed as rotation vector),
+    :math:`\dot{y}` is the angular velocity, and :math:`\ddot{y}` the
+    angular acceleration.
+
+    With smooth scaling:
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y} - \beta_y (g - y_0) z) + f(z) + C_t) / \tau^2
+
+    The position is handled in the same way, just like in the original
+    :class:`DMP`.
 
     Parameters
     ----------

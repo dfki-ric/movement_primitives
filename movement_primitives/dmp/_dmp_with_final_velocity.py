@@ -6,7 +6,7 @@ from ._dmp import dmp_imitate, dmp_open_loop
 
 
 class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
-    """Dynamical movement primitive (DMP) with final velocity.
+    r"""Dynamical movement primitive (DMP) with final velocity.
 
     Implementation according to
 
@@ -14,6 +14,12 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     Learning to Select and Generalize Striking Movements in Robot Table Tennis
     (2013), International Journal of Robotics Research 32(3), pp. 263-279,
     https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
+
+    Equation of transformation system (Muelling et al. 2013, Eq. 6):
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) + \tau\dot{g} - \tau \dot{y}) + f(z))/\tau^2
 
     Parameters
     ----------

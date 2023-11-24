@@ -340,7 +340,7 @@ except ImportError:
 
 
 class DMP(WeightParametersMixin, DMPBase):
-    """Dynamical movement primitive (DMP).
+    r"""Dynamical movement primitive (DMP).
 
     Implementation according to
 
@@ -357,6 +357,18 @@ class DMP(WeightParametersMixin, DMPBase):
     2009 IEEE International Conference on Robotics and Automation,
     Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
     https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
+    Equation of transformation system (Ijspeert et al. 2013, Eq. 2.1):
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y}) + f(z) + C_t) / \tau^2
+
+    With smooth scaling:
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y} - \beta_y (g - y_0) z) + f(z) + C_t) / \tau^2
 
     Parameters
     ----------

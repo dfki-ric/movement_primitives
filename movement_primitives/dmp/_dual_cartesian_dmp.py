@@ -194,6 +194,9 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
     While the dimension of the state space is 14, the dimension of the
     velocity, acceleration, and forcing term is 12.
 
+    See :class:`CartesianDMP` for details about the equation of the
+    transformation system.
+
     Parameters
     ----------
     execution_time : float, optional (default: 1)
