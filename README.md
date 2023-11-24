@@ -19,8 +19,7 @@ It provides implementations in Python and Cython.
 * Propagation of DMP weight distribution to state space distribution
 * Probabilistic Movement Primitives (ProMPs)
 
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" height="200px" />
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" height="200px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" height="200px" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" height="200px" />
 
 Left: Example of dual Cartesian DMP with [RH5 Manus](https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/).
 Right: Example of joint space DMP with UR5.
