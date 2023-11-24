@@ -1,6 +1,7 @@
 import numpy as np
 from movement_primitives.dmp import StateFollowingDMP
-from nose.tools import assert_almost_equal, assert_less
+from movement_primitives.dmp._state_following_dmp import StateFollowingForcingTerm
+from nose.tools import assert_almost_equal, assert_less, assert_raises_regexp
 
 
 def test_state_following_dmp2d():
@@ -48,3 +49,14 @@ def test_state_following_dmp2d_stepwise():
         viapoint = dmp.forcing_term.viapoints[i]
         min_dist = np.min(np.linalg.norm(Y - viapoint[np.newaxis], axis=1))
         assert_less(min_dist, 0.02)
+
+
+def test_invalid_viapoints():
+    assert_raises_regexp(
+        ValueError, "The number of viapoints",
+        StateFollowingForcingTerm,2, -1, 1.0, 0.0, 0.7, 6)
+
+def test_invalid_times():
+    assert_raises_regexp(
+        ValueError, "Goal must be chronologically after start",
+        StateFollowingForcingTerm,2, 5, 0.0, 1.0, 0.7, 6)
