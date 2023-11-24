@@ -19,14 +19,11 @@ It provides implementations in Python and Cython.
 * Propagation of DMP weight distribution to state space distribution
 * Probabilistic Movement Primitives (ProMPs)
 
-Example of dual Cartesian DMP with
-[RH5 Manus](https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/):
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" height="256px" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" height="256px" />
 
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" />
-
-Example of joint space DMP with UR5:
-
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" width="256px" />
+Left: Example of dual Cartesian DMP with [RH5 Manus](https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/).
+Right: Example of joint space DMP with UR5.
 
 ## API Documentation
 
@@ -71,62 +68,23 @@ or install the library with
 python setup.py install
 ```
 
-## Non-public Extensions
-
-Scripts from the subfolder `examples/external_dependencies/` require access to
-git repositories (URDF files or optional dependencies) and datasets that are
-not publicly available. They are available on request (email
-alexander.fabisch@dfki.de).
-
-Note that the library does not have any non-public dependencies! They are only
-required to run all examples.
-
-### MoCap Library
-
-```bash
-# untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
-git clone git@git.hb.dfki.de:dfki-interaction/mocap.git
-cd mocap
-python -m pip install -e .
-cd ..
-```
-
-### Get URDFs
-
-```bash
-# RH5
-git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
-# RH5v2
-git clone git@git.hb.dfki.de:models-robots/rh5v2_models/pybullet-urdf.git --recursive
-# Kuka
-git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
-# Solar panel
-git clone git@git.hb.dfki.de:models-objects/solar_panels.git
-# RH5 Gripper
-git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
-```
-
-### Data
-
-I assume that your data is located in the folder `data/` in most scripts.
-You should put a symlink there to point to your actual data folder.
-
 ## Build API Documentation
 
 You can build an API documentation with [pdoc3](https://pdoc3.github.io/pdoc/).
 You can install pdoc3 with
 
 ```bash
-pip install pdoc3
+python -m pip install movement_primitives[doc]
 ```
 
 ... and build the documentation from the main folder with
 
 ```bash
-pdoc movement_primitives --html
+cd doc
+make html
 ```
 
-It will be located at `html/movement_primitives/index.html`.
+It will be located at `doc/build/html/index.html`.
 
 ## Test
 
@@ -285,6 +243,46 @@ space through an unscented transform.
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
+
+## Non-public Extensions
+
+Scripts from the subfolder `examples/external_dependencies/` require access to
+git repositories (URDF files or optional dependencies) and datasets that are
+not publicly available. They are available on request (email
+alexander.fabisch@dfki.de).
+
+Note that the library does not have any non-public dependencies! They are only
+required to run all examples.
+
+### MoCap Library
+
+```bash
+# untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
+git clone git@git.hb.dfki.de:dfki-interaction/mocap.git
+cd mocap
+python -m pip install -e .
+cd ..
+```
+
+### Get URDFs
+
+```bash
+# RH5
+git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
+# RH5v2
+git clone git@git.hb.dfki.de:models-robots/rh5v2_models/pybullet-urdf.git --recursive
+# Kuka
+git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
+# Solar panel
+git clone git@git.hb.dfki.de:models-objects/solar_panels.git
+# RH5 Gripper
+git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
+```
+
+### Data
+
+I assume that your data is located in the folder `data/` in most scripts.
+You should put a symlink there to point to your actual data folder.
 
 ## Funding
 

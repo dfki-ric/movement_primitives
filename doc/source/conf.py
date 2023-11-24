@@ -36,7 +36,8 @@ release = __import__(project).__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "numpydoc"
+    "numpydoc",
+    "myst_parser"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -66,6 +67,12 @@ html_theme_options = {
         #("Examples", "_auto_examples/index"),
         #("API", "api"),
     ],
+}
+
+root_doc = "README"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
