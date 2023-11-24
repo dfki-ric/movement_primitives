@@ -10,19 +10,24 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+import time
+import sphinx_bootstrap_theme
+
+
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'movement_primitives'
-copyright = '2023, Alexander Fabisch'
-author = 'Alexander Fabisch'
+project = "movement_primitives"
+copyright = "2020-{}, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center".format(time.strftime("%Y"))
+author = "Alexander Fabisch"
 
 # The full version, including alpha/beta/rc tags
-release = '0.6.0'
+release = __import__(project).__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,6 +36,7 @@ release = '0.6.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "numpydoc"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -47,7 +53,20 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "bootstrap"
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+html_theme_options = {
+    "bootswatch_theme": "readable",
+    "navbar_sidebarrel": False,
+    "bootstrap_version": "3",
+    "nosidebar": True,
+    "body_max_width": "90%",
+    "navbar_links": [
+        ("Contents", "index"),
+        #("Examples", "_auto_examples/index"),
+        #("API", "api"),
+    ],
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

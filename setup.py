@@ -25,7 +25,7 @@ if __name__ == "__main__":
         extras_require={
             "all": ["pytransform3d", "cython", "numpy", "scipy", "matplotlib",
                     "open3d", "tqdm", "gmr", "PyYAML", "numba", "pybullet"],
-            "doc": ["pdoc3"],
+            "doc": ["sphinx", "sphinx-bootstrap-theme", "numpydoc"],
             "test": ["nose", "coverage"]
         }
     )
