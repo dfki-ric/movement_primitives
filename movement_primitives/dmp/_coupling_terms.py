@@ -66,7 +66,22 @@ def obstacle_avoidance_acceleration_2d(
 
 
 class CouplingTermObstacleAvoidance2D:  # for DMP
-    """Coupling term for obstacle avoidance in 2D."""
+    """Coupling term for obstacle avoidance in 2D.
+
+    This is the simplified 2D implementation of
+    :class:`CouplingTermObstacleAvoidance3D`.
+
+    Parameters
+    ----------
+    obstacle_position : array, shape (2,)
+        Position of the point obstacle.
+
+    gamma : float, optional (default: 1000)
+        Parameter of obstacle avoidance.
+
+    beta : float, optional (default: 20 / pi)
+        Parameter of obstacle avoidance.
+    """
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi,
                  fast=False):
         self.obstacle_position = obstacle_position
@@ -78,19 +93,99 @@ class CouplingTermObstacleAvoidance2D:  # for DMP
             self.step_function = obstacle_avoidance_acceleration_2d
 
     def coupling(self, y, yd):
+        """Computes coupling term based on current state.
+
+        Parameters
+        ----------
+        y : array, shape (n_dims,)
+            Current position.
+
+        yd : array, shape (n_dims,)
+            Current velocity.
+
+        Returns
+        -------
+        cd : array, shape (n_dims,)
+            Velocity. 0 for this coupling term.
+
+        cdd : array, shape (n_dims,)
+            Acceleration.
+        """
         cdd = self.step_function(
             y, yd, self.obstacle_position, self.gamma, self.beta)
         return np.zeros_like(cdd), cdd
 
 
 class CouplingTermObstacleAvoidance3D:  # for DMP
-    """Coupling term for obstacle avoidance in 3D."""
+    r"""Coupling term for obstacle avoidance in 3D.
+
+    Implementation according to
+
+    A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
+    Dynamical Movement Primitives: Learning Attractor Models for Motor
+    Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
+    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340,
+    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
+
+    This coupling term adds an acceleration
+
+    .. math::
+
+        \boldsymbol{C}_t = \gamma \boldsymbol{R} \dot{\boldsymbol{y}}
+        \theta \exp(-\beta \theta),
+
+    where
+
+    .. math::
+
+        \theta = \arccos\left( \frac{(\boldsymbol{o} - \boldsymbol{y})^T
+        \dot{\boldsymbol{y}}}{|\boldsymbol{o} - \boldsymbol{y}|
+        |\dot{\boldsymbol{y}}|} \right)
+
+    and a rotation axis :math:`\boldsymbol{r} =
+    (\boldsymbol{o} - \boldsymbol{y}) \times \dot{\boldsymbol{y}}` used to
+    compute the rotation matrix :math:`\boldsymbol{R}` that rotates about it
+    by 90 degrees for an obstacle at position :math:`\boldsymbol{o}`.
+
+    Intuitively, this coupling term adds a movement perpendicular to the
+    current velocity in the plane defined by the direction to the obstacle and
+    the current movement direction.
+
+    Parameters
+    ----------
+    obstacle_position : array, shape (3,)
+        Position of the point obstacle.
+
+    gamma : float, optional (default: 1000)
+        Parameter of obstacle avoidance.
+
+    beta : float, optional (default: 20 / pi)
+        Parameter of obstacle avoidance.
+    """
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
         self.obstacle_position = obstacle_position
         self.gamma = gamma
         self.beta = beta
 
     def coupling(self, y, yd):
+        """Computes coupling term based on current state.
+
+        Parameters
+        ----------
+        y : array, shape (n_dims,)
+            Current position.
+
+        yd : array, shape (n_dims,)
+            Current velocity.
+
+        Returns
+        -------
+        cd : array, shape (n_dims,)
+            Velocity. 0 for this coupling term.
+
+        cdd : array, shape (n_dims,)
+            Acceleration.
+        """
         cdd = obstacle_avoidance_acceleration_3d(
             y, yd, self.obstacle_position, self.gamma, self.beta)
         return np.zeros_like(cdd), cdd
