@@ -39,3 +39,14 @@ You can also search for specific modules, classes, or functions in the
    ~movement_primitives.dmp.phase
    ~movement_primitives.dmp.obstacle_avoidance_acceleration_2d
    ~movement_primitives.dmp.obstacle_avoidance_acceleration_3d
+
+
+:mod:`movement_primitives.promp`
+================================
+
+.. automodule:: movement_primitives.promp
+
+.. autosummary::
+   :toctree: _apidoc/
+
+   ~movement_primitives.promp.ProMP

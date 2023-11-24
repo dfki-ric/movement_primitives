@@ -1,4 +1,8 @@
-"""Probabilistic movement primitive."""
+"""Probabilistic Movement Primitive (ProMP)
+========================================
+
+ProMPs represent distributions of trajectories.
+"""
 import numpy as np
 
 
