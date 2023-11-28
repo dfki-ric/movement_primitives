@@ -69,17 +69,16 @@ python setup.py install
 
 ## Build API Documentation
 
-You can build an API documentation with [pdoc3](https://pdoc3.github.io/pdoc/).
-You can install pdoc3 with
+You can build an API documentation with sphinx.
+You can install all dependencies with
 
 ```bash
 python -m pip install movement_primitives[doc]
 ```
 
-... and build the documentation from the main folder with
+... and build the documentation from the folder `doc/` with
 
 ```bash
-cd doc
 make html
 ```
 
