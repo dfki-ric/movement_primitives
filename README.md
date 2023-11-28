@@ -282,6 +282,66 @@ git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
 I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
 
+## Related Publications
+
+[1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
+    Dynamical Movement Primitives: Learning Attractor Models for Motor
+    Behaviors, Neural Computation 25 (2), 328-373. DOI: 10.1162/NECO_a_00393,
+    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
+
+[2] Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009).
+    Learning and Generalization of Motor Skills by Learning from Demonstration.
+    In 2009 IEEE International Conference on Robotics and Automation,
+    (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
+    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+
+[3] Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013).
+    Learning to Select and Generalize Striking Movements in Robot Table Tennis.
+    International Journal of Robotics Research 32 (3), 263-279.
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
+
+[4] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+    Orientation in Cartesian space dynamic movement primitives.
+    In IEEE International Conference on Robotics and Automation (ICRA)
+    (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
+    https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
+
+[5] Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
+    Modulation of Motor Primitives using Force Feedback: Interaction with
+    the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
+    Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
+    10.1109/IROS.2013.6697172,
+    https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
+
+[6] Vidakovic, J., Jerbic, B., Sekoranja, B., Svaco, M., Suligoj, F. (2019).
+    Task Dependent Trajectory Learning from Multiple Demonstrations Using
+    Movement Primitives (2019),
+    In International Conference on Robotics in Alpe-Adria Danube Region (RAAD)
+    (pp. 275-282). DOI: 10.1007/978-3-030-19648-6_32,
+    https://link.springer.com/chapter/10.1007/978-3-030-19648-6_32
+
+[7] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+    Probabilistic movement primitives, In C.J. Burges and L. Bottou and M.
+    Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in Neural
+    Information Processing Systems, 26,
+    https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+
+[8] Maeda, G. J., Neumann, G., Ewerton, M., Lioutikov, R., Kroemer, O.,
+    Peters, J. (2017). Probabilistic movement primitives for coordination of
+    multiple human–robot collaborative tasks. Autonomous Robots, 41, 593-612.
+    DOI: 10.1007/s10514-016-9556-2,
+    https://link.springer.com/article/10.1007/s10514-016-9556-2
+
+[9] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2018).
+    Using probabilistic movement primitives in robotics. Autonomous Robots, 42,
+    529-551. DOI: 10.1007/s10514-017-9648-7,
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf
+
+[10] Lazaric, A., Ghavamzadeh, M. (2010).
+     Bayesian Multi-Task Reinforcement Learning. In Proceedings of the 27th
+     International Conference on International Conference on Machine Learning
+     (ICML'10) (pp. 599-606). https://hal.inria.fr/inria-00475214/document
+
 ## Funding
 
 This library has been developed initially at the

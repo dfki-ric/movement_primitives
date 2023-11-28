@@ -9,11 +9,11 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
 
     The DMP variant that is implemented here is described in
 
-    J. Vidakovic, B. Jerbic, B. Sekoranja, M. Svaco, F. Suligoj:
+    Vidakovic, J., Jerbic, B., Sekoranja, B., Svaco, M., Suligoj, F. (2019).
     Task Dependent Trajectory Learning from Multiple Demonstrations Using
     Movement Primitives (2019),
-    International Conference on Robotics in Alpe-Adria Danube Region (RAAD),
-    pp. 275-282, doi: 10.1007/978-3-030-19648-6_32,
+    In International Conference on Robotics in Alpe-Adria Danube Region (RAAD)
+    (pp. 275-282). DOI: 10.1007/978-3-030-19648-6_32,
     https://link.springer.com/chapter/10.1007/978-3-030-19648-6_32
 
     Attributes

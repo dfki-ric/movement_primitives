@@ -125,10 +125,9 @@ class CouplingTermObstacleAvoidance3D:  # for DMP
 
     Implementation according to
 
-    A.J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, S. Schaal:
+    Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
     Dynamical Movement Primitives: Learning Attractor Models for Motor
-    Behaviors (2013), Neural Computation 25(2), pp. 328-373, doi:
-    10.1162/NECO_a_00393, https://ieeexplore.ieee.org/document/6797340,
+    Behaviors. Neural Computation 25 (2), 328-373. DOI: 10.1162/NECO_a_00393,
     https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
 
     This coupling term adds an acceleration
@@ -236,9 +235,11 @@ class CouplingTermPos1DToPos1D:
 
     For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
-    A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
+    Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
     Modulation of Motor Primitives using Force Feedback: Interaction with
-    the Environment and Bimanual Tasks (2013), IROS,
+    the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
+    Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
+    10.1109/IROS.2013.6697172,
     https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
 
     Parameters
@@ -289,9 +290,11 @@ class CouplingTermPos3DToPos3D:
 
     For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
-    A. Gams, B. Nemec, L. Zlajpah, M. Wächter, T. Asfour, A. Ude:
+    Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
     Modulation of Motor Primitives using Force Feedback: Interaction with
-    the Environment and Bimanual Tasks (2013), IROS,
+    the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
+    Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
+    10.1109/IROS.2013.6697172,
     https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
 
     Parameters

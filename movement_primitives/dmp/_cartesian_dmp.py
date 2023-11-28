@@ -157,19 +157,18 @@ class CartesianDMP(DMPBase):
     orientation is represented by a quaternion. The quaternion DMP is
     implemented according to
 
-    A. Ude, B. Nemec, T. Petric, J. Murimoto:
-    Orientation in Cartesian space dynamic movement primitives (2014),
-    IEEE International Conference on Robotics and Automation (ICRA),
-    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
-    https://ieeexplore.ieee.org/document/6907291,
+    Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+    Orientation in Cartesian space dynamic movement primitives.
+    In IEEE International Conference on Robotics and Automation (ICRA)
+    (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
     https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
 
     (if smooth scaling is activated) with modification of scaling proposed by
 
-    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
-    Learning and Generalization of Motor Skills by Learning from Demonstration,
-    2009 IEEE International Conference on Robotics and Automation,
-    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
+    Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009).
+    Learning and Generalization of Motor Skills by Learning from Demonstration.
+    In 2009 IEEE International Conference on Robotics and Automation,
+    (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
     https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
 
     While the dimension of the state space is 7, the dimension of the

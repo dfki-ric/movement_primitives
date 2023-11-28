@@ -10,9 +10,9 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
 
     Implementation according to
 
-    K. Muelling, J. Kober, O. Kroemer, J. Peters:
-    Learning to Select and Generalize Striking Movements in Robot Table Tennis
-    (2013), International Journal of Robotics Research 32(3), pp. 263-279,
+    Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013).
+    Learning to Select and Generalize Striking Movements in Robot Table Tennis.
+    International Journal of Robotics Research 32 (3), 263-279.
     https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
 
     Equation of transformation system (Muelling et al. 2013, Eq. 6):

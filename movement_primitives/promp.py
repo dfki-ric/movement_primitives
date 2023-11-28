@@ -28,19 +28,27 @@ class ProMP:
 
     References
     ----------
-    [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+    [1] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+    Probabilistic movement primitives, In C.J. Burges and L. Bottou and M.
+    Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in Neural
+    Information Processing Systems, 26,
     https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
 
-    [3] Maeda et al.: Probabilistic movement primitives for coordination of
-    multiple human–robot collaborative tasks, AuRo 2017,
+    [3] Maeda, G. J., Neumann, G., Ewerton, M., Lioutikov, R., Kroemer, O.,
+    Peters, J. (2017). Probabilistic movement primitives for coordination of
+    multiple human–robot collaborative tasks. Autonomous Robots, 41, 593-612.
+    DOI: 10.1007/s10514-016-9556-2,
     https://link.springer.com/article/10.1007/s10514-016-9556-2
 
-    [2] Paraschos et al.: Using probabilistic movement primitives in robotics, AuRo (2018),
-    https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf,
-    https://link.springer.com/article/10.1007/s10514-017-9648-7
+    [2] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2018).
+    Using probabilistic movement primitives in robotics. Autonomous Robots, 42,
+    529-551. DOI: 10.1007/s10514-017-9648-7,
+    https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf
 
-    [4] Lazaric et al.: Bayesian Multi-Task Reinforcement Learning, ICML (2010),
-    https://hal.inria.fr/inria-00475214/document
+    [4] Lazaric, A., Ghavamzadeh, M. (2010).
+    Bayesian Multi-Task Reinforcement Learning. In Proceedings of the 27th
+    International Conference on International Conference on Machine Learning
+    (ICML'10) (pp. 599-606). https://hal.inria.fr/inria-00475214/document
     """
     def __init__(self, n_dims, n_weights_per_dim=10):
         self.n_dims = n_dims
