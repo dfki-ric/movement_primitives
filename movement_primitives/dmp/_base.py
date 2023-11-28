@@ -3,7 +3,16 @@ from ..base import PointToPointMovement
 
 
 class DMPBase(PointToPointMovement):
-    """Base class of Dynamical Movement Primitives (DMPs)."""
+    """Base class of Dynamical Movement Primitives (DMPs).
+
+    Parameters
+    ----------
+    n_pos_dims : int
+        Number of dimensions of the position that will be controlled.
+
+    n_vel_dims : int
+        Number of dimensions of the velocity that will be controlled.
+    """
     def __init__(self, n_pos_dims, n_vel_dims):
         super(DMPBase, self).__init__(n_pos_dims, n_vel_dims)
 
@@ -18,7 +27,12 @@ class DMPBase(PointToPointMovement):
 
 
 class WeightParametersMixin:
-    """Mixin class providing common access methods to forcing term weights."""
+    """Mixin class providing common access methods to forcing term weights.
+
+    This can be used, for instance, for black-box optimization of the weights
+    with respect to some cost / objective function in a reinforcement learning
+    setting.
+    """
     def get_weights(self):
         """Get weight vector of DMP.
 

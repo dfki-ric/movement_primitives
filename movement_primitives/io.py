@@ -1,4 +1,8 @@
-"""Input and output from and to files of movement primitives."""
+"""Input / Output
+==============
+
+Input and output from and to files of movement primitives.
+"""
 import inspect
 import json
 import pickle

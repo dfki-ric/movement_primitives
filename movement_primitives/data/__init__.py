@@ -1,4 +1,8 @@
-"""Tools for loading datasets."""
+"""Data
+====
+
+Tools for loading datasets.
+"""
 from ._lasa import load_lasa
 from ._minimum_jerk import generate_minimum_jerk
 from ._toy_1d import generate_1d_trajectory_distribution

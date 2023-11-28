@@ -1,4 +1,7 @@
-"""Base classes of movement primitives."""
+"""Base Classes
+============
+
+Base classes of movement primitives."""
 import abc
 import numpy as np
 
@@ -13,6 +16,44 @@ class PointToPointMovement(abc.ABC):
 
     n_vel_dims : int
         Number of dimensions of the velocity that will be controlled.
+
+    Attributes
+    ----------
+    n_dims : int
+        Number of state space dimensions.
+
+    n_vel_dims : int
+        Number of velocity dimensions.
+
+    t : float
+        Current time.
+
+    last_t : float
+        Time during last step.
+
+    start_y : array, shape (n_dims,)
+        Initial state.
+
+    start_yd : array, shape (n_vel_dims,)
+        Initial velocity.
+
+    start_ydd : array, shape (n_vel_dims,)
+        Initial acceleration.
+
+    goal_y : array, shape (n_dims,)
+        Goal state.
+
+    goal_yd : array, shape (n_vel_dims,)
+        Goal velocity.
+
+    goal_ydd : array, shape (n_vel_dims,)
+        Goal acceleration.
+
+    current_y : array, shape (n_dims,)
+        Current state.
+
+    current_yd : array, shape (n_vel_dims,)
+        Current velocity.
     """
     def __init__(self, n_pos_dims, n_vel_dims):
         self.n_dims = n_pos_dims
@@ -40,25 +81,25 @@ class PointToPointMovement(abc.ABC):
         Parameters
         ----------
         t : float, optional
-            Time at current step
+            Time at current step.
 
         start_y : array, shape (n_dims,)
-            Initial state
+            Initial state.
 
         start_yd : array, shape (n_vel_dims,)
-            Initial velocity
+            Initial velocity.
 
         start_ydd : array, shape (n_vel_dims,)
-            Initial acceleration
+            Initial acceleration.
 
         goal_y : array, shape (n_dims,)
-            Goal state
+            Goal state.
 
         goal_yd : array, shape (n_vel_dims,)
-            Goal velocity
+            Goal velocity.
 
         goal_ydd : array, shape (n_vel_dims,)
-            Goal acceleration
+            Goal acceleration.
         """
         if t is not None:
             self.t = t

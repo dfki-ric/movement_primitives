@@ -1,4 +1,8 @@
-"""Spring-damper based attractors."""
+"""Spring-Damper Based Attractors
+==============================
+
+Spring-damper based attractors are the basis of a DMP's transformation system.
+"""
 import numpy as np
 import pytransform3d.rotations as pr
 from .base import PointToPointMovement

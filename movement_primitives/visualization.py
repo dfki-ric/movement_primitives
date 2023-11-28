@@ -1,4 +1,8 @@
-"""3D visualization tools for movement primitives."""
+"""Visualization Tools
+===================
+
+3D visualization tools for movement primitives.
+"""
 import numpy as np
 import open3d as o3d
 import scipy as sp

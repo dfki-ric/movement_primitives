@@ -151,29 +151,35 @@ except ImportError:
 
 
 class CartesianDMP(DMPBase):
-    """Cartesian dynamical movement primitive.
+    r"""Cartesian dynamical movement primitive.
 
     The Cartesian DMP handles orientation and position separately. The
-    orientation is represented by a quaternion. The quaternion DMP is
-    implemented according to
-
-    A. Ude, B. Nemec, T. Petric, J. Murimoto:
-    Orientation in Cartesian space dynamic movement primitives (2014),
-    IEEE International Conference on Robotics and Automation (ICRA),
-    pp. 2997-3004, doi: 10.1109/ICRA.2014.6907291,
-    https://ieeexplore.ieee.org/document/6907291,
-    https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
-
-    (if smooth scaling is activated) with modification of scaling proposed by
-
-    P. Pastor, H. Hoffmann, T. Asfour, S. Schaal:
-    Learning and Generalization of Motor Skills by Learning from Demonstration,
-    2009 IEEE International Conference on Robotics and Automation,
-    Kobe, Japan, 2009, pp. 763-768, doi: 10.1109/ROBOT.2009.5152385,
-    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+    orientation is represented by a quaternion.
 
     While the dimension of the state space is 7, the dimension of the
     velocity, acceleration, and forcing term is 6.
+
+    Equation of transformation system for the orientation (according to [1]_,
+    Eq. 16):
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y}) + f(z) + C_t) / \tau^2
+
+    Note that in this case :math:`y` is a quaternion in this case,
+    :math:`g - y` the quaternion difference (expressed as rotation vector),
+    :math:`\dot{y}` is the angular velocity, and :math:`\ddot{y}` the
+    angular acceleration.
+
+    With smooth scaling (according to [2]_):
+
+    .. math::
+
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y}
+        - \underline{\beta_y (g - y_0) z}) + f(z) + C_t) / \tau^2
+
+    The position is handled in the same way, just like in the original
+    :class:`DMP`.
 
     Parameters
     ----------
@@ -202,6 +208,20 @@ class CartesianDMP(DMPBase):
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
+
+    References
+    ----------
+    .. [1] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+       Orientation in Cartesian space dynamic movement primitives.
+       In IEEE International Conference on Robotics and Automation (ICRA)
+       (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
+       https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
+
+    .. [2] Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009). Learning
+       and Generalization of Motor Skills by Learning from Demonstration.
+       In 2009 IEEE International Conference on Robotics and Automation,
+       (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
+       https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
     """
     def __init__(
             self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
