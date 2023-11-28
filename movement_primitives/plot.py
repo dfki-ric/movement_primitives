@@ -1,4 +1,8 @@
-"""Tools for plotting multi-dimensional trajectories."""
+"""Plotting Tools
+==============
+
+Tools for plotting multi-dimensional trajectories.
+"""
 import matplotlib.pyplot as plt
 
 
