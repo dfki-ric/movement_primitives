@@ -8,14 +8,7 @@ from ._dmp import dmp_imitate, dmp_open_loop
 class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     r"""Dynamical movement primitive (DMP) with final velocity.
 
-    Implementation according to
-
-    Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013).
-    Learning to Select and Generalize Striking Movements in Robot Table Tennis.
-    International Journal of Robotics Research 32 (3), 263-279.
-    https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
-
-    Equation of transformation system (Muelling et al. 2013, Eq. 6):
+    Equation of transformation system (according to [1]_, Eq. 6):
 
     .. math::
 
@@ -27,10 +20,10 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         State space dimensions.
 
     execution_time : float, optional (default: 1)
-        Execution time of the DMP.
+        Execution time of the DMP: :math:`\tau`.
 
     dt : float, optional (default: 0.01)
-        Time difference between DMP steps.
+        Time difference between DMP steps: :math:`\Delta t`.
 
     n_weights_per_dim : int, optional (default: 10)
         Number of weights of the function approximator per dimension.
@@ -50,6 +43,13 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
+
+    References
+    ----------
+    .. [1] Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013). Learning to
+       Select and Generalize Striking Movements in Robot Table Tennis.
+       International Journal of Robotics Research 32 (3), 263-279.
+       https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, p_gain=0.0):

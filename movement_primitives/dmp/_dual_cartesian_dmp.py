@@ -174,28 +174,12 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
     """Dual cartesian dynamical movement primitive.
 
     Each of the two Cartesian DMPs handles orientation and position separately.
-    The orientation is represented by a quaternion. The quaternion DMP is
-    implemented according to
-
-    Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
-    Orientation in Cartesian space dynamic movement primitives.
-    In IEEE International Conference on Robotics and Automation (ICRA)
-    (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
-    https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
-
-    (if smooth scaling is activated) with modification of scaling proposed by
-
-    Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009).
-    Learning and Generalization of Motor Skills by Learning from Demonstration.
-    In 2009 IEEE International Conference on Robotics and Automation,
-    (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
-    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
+    The orientation is represented by a quaternion.
+    See :class:`CartesianDMP` for details about the equation of the
+    transformation system.
 
     While the dimension of the state space is 14, the dimension of the
     velocity, acceleration, and forcing term is 12.
-
-    See :class:`CartesianDMP` for details about the equation of the
-    transformation system.
 
     Parameters
     ----------
@@ -228,6 +212,20 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
+
+    References
+    ----------
+    .. [1] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+       Orientation in Cartesian space dynamic movement primitives.
+       In IEEE International Conference on Robotics and Automation (ICRA)
+       (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
+       https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf
+
+    .. [2] Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009). Learning
+       and Generalization of Motor Skills by Learning from Demonstration.
+       In 2009 IEEE International Conference on Robotics and Automation,
+       (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
+       https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
     """
     def __init__(self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
                  int_dt=0.001, p_gain=0.0, smooth_scaling=False):

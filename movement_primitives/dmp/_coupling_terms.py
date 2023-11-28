@@ -123,14 +123,7 @@ class CouplingTermObstacleAvoidance3D:  # for DMP
 
     For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
-    Implementation according to
-
-    Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
-    Dynamical Movement Primitives: Learning Attractor Models for Motor
-    Behaviors. Neural Computation 25 (2), 328-373. DOI: 10.1162/NECO_a_00393,
-    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
-
-    This coupling term adds an acceleration
+    Following [1]_, this coupling term adds an acceleration
 
     .. math::
 
@@ -164,6 +157,14 @@ class CouplingTermObstacleAvoidance3D:  # for DMP
 
     beta : float, optional (default: 20 / pi)
         Parameter of obstacle avoidance.
+
+    References
+    ----------
+    .. [1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+       (2013). Dynamical Movement Primitives: Learning Attractor Models for
+       Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+       10.1162/NECO_a_00393,
+       https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
     """
     def __init__(self, obstacle_position, gamma=1000.0, beta=20.0 / math.pi):
         self.obstacle_position = obstacle_position
@@ -235,13 +236,6 @@ class CouplingTermPos1DToPos1D:
 
     For :class:`DMP` and :class:`DMPWithFinalVelocity`.
 
-    Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
-    Modulation of Motor Primitives using Force Feedback: Interaction with
-    the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
-    Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
-    10.1109/IROS.2013.6697172,
-    https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
-
     Parameters
     ----------
     desired_distance : float
@@ -266,6 +260,15 @@ class CouplingTermPos1DToPos1D:
 
     c2 : float, optional (default: 30)
         Scaling factor for spring forces in the acceleration component.
+
+    References
+    ----------
+    .. [1] Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A.
+       (2013). Modulation of Motor Primitives using Force Feedback: Interaction
+       with the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ
+       International Conference on Intelligent Robots and Systems (pp.
+       5629-5635). DOI: 10.1109/IROS.2013.6697172,
+       https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
     """
     def __init__(self, desired_distance, lf, k=1.0, c1=100.0, c2=30.0):
         self.desired_distance = desired_distance
@@ -289,13 +292,6 @@ class CouplingTermPos3DToPos3D:
     """Couples position components of a 6D DMP with a virtual spring in 3D.
 
     For :class:`DMP` and :class:`DMPWithFinalVelocity`.
-
-    Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
-    Modulation of Motor Primitives using Force Feedback: Interaction with
-    the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
-    Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
-    10.1109/IROS.2013.6697172,
-    https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
 
     Parameters
     ----------
@@ -321,6 +317,15 @@ class CouplingTermPos3DToPos3D:
 
     c2 : float, optional (default: 30)
         Scaling factor for spring forces in the acceleration component.
+
+    References
+    ----------
+    .. [1] Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A.
+       (2013). Modulation of Motor Primitives using Force Feedback: Interaction
+       with the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ
+       International Conference on Intelligent Robots and Systems (pp.
+       5629-5635). DOI: 10.1109/IROS.2013.6697172,
+       https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf
     """
     def __init__(self, desired_distance, lf, k=1.0, c1=1.0, c2=30.0):
         self.desired_distance = desired_distance

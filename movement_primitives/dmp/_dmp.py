@@ -342,32 +342,17 @@ except ImportError:
 class DMP(WeightParametersMixin, DMPBase):
     r"""Dynamical movement primitive (DMP).
 
-    Implementation according to
-
-    Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
-    Dynamical Movement Primitives: Learning Attractor Models for Motor
-    Behaviors. Neural Computation 25 (2), 328-373. DOI: 10.1162/NECO_a_00393,
-    https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
-
-    (if smooth scaling is activated) with modification of scaling proposed by
-
-    Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009).
-    Learning and Generalization of Motor Skills by Learning from Demonstration.
-    In 2009 IEEE International Conference on Robotics and Automation,
-    (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
-    https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
-
-    Equation of transformation system (Ijspeert et al. 2013, Eq. 2.1):
+    Equation of transformation system (according to [1]_, Eq. 2.1):
 
     .. math::
 
         \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y}) + f(z) + C_t) / \tau^2
 
-    With smooth scaling:
+    and if smooth scaling is activated (according to [2]_):
 
     .. math::
 
-        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y} - \beta_y (g - y_0) z) + f(z) + C_t) / \tau^2
+        \ddot{y} = (\alpha_y (\beta_y (g - y) - \tau \dot{y} - \underline{\beta_y (g - y_0) z}) + f(z) + C_t) / \tau^2
 
     Parameters
     ----------
@@ -375,16 +360,16 @@ class DMP(WeightParametersMixin, DMPBase):
         State space dimensions.
 
     execution_time : float, optional (default: 1)
-        Execution time of the DMP.
+        Execution time of the DMP: :math:`\tau`.
 
     dt : float, optional (default: 0.01)
-        Time difference between DMP steps.
+        Time difference between DMP steps: :math:`\Delta t`.
 
     n_weights_per_dim : int, optional (default: 10)
         Number of weights of the function approximator per dimension.
 
     int_dt : float, optional (default: 0.001)
-        Time difference for Euler integration.
+        Time difference for Euler integration of transformation system.
 
     p_gain : float, optional (default: 0)
         Gain for proportional controller of DMP tracking error.
@@ -403,6 +388,20 @@ class DMP(WeightParametersMixin, DMPBase):
     dt_ : float
         Time difference between DMP steps. This value can be changed to adapt
         the frequency.
+
+    References
+    ----------
+    .. [1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+       (2013). Dynamical Movement Primitives: Learning Attractor Models for
+       Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+       10.1162/NECO_a_00393,
+       https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
+
+    .. [2] Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009). Learning
+       and Generalization of Motor Skills by Learning from Demonstration.
+       In 2009 IEEE International Conference on Robotics and Automation,
+       (pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
+       https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
