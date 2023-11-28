@@ -113,7 +113,7 @@ trajectories that can be conditioned on viapoints. In this example, we
 plot the resulting posterior distribution after conditioning on varying
 start positions.
 
-[Script](examples/plot_conditional_promp.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py)
 
 ### Potential Field of 2D DMP
 
@@ -123,7 +123,7 @@ A Dynamical Movement Primitive defines a potential field that superimposes
 several components: transformation system (goal-directed movement), forcing
 term (learned shape), and coupling terms (e.g., obstacle avoidance).
 
-[Script](examples/plot_dmp_potential_field.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_dmp_potential_field.py)
 
 ### DMP with Final Velocity
 
@@ -133,7 +133,7 @@ Not all DMPs allow a final velocity > 0. In this case we analyze the effect
 of changing final velocities in an appropriate variation of the DMP
 formulation that allows to set the final velocity.
 
-[Script](examples/plot_dmp_with_final_velocity.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_dmp_with_final_velocity.py)
 
 ### ProMPs
 
@@ -144,7 +144,7 @@ The LASA Handwriting dataset learned with ProMPs. The dataset consists of
 demonstrations and the second and fourth column show the imitated ProMPs
 with 1-sigma interval.
 
-[Script](examples/plot_promp_lasa.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_promp_lasa.py)
 
 ### Cartesian DMPs
 
@@ -153,7 +153,7 @@ with 1-sigma interval.
 A trajectory is created manually, imitated with a Cartesian DMP, converted
 to a joint trajectory by inverse kinematics, and executed with a UR5.
 
-[Script](examples/vis_cartesian_dmp.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/vis_cartesian_dmp.py)
 
 ### Contextual ProMPs
 
@@ -165,7 +165,7 @@ kinesthetic teaching. The panel width is considered to be the context over
 which we generalize with contextual ProMPs. Each color in the above
 visualizations corresponds to a ProMP for a different context.
 
-[Script](examples/external_dependencies/vis_contextual_promp_distribution.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_contextual_promp_distribution.py)
 
 **Dependencies that are not publicly available:**
 
@@ -185,7 +185,7 @@ visualizations corresponds to a ProMP for a different context.
 We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
 humanoid robots.
 
-Scripts: [Open3D](examples/external_dependencies/vis_solar_panel.py), [PyBullet](examples/external_dependencies/sim_solar_panel.py)
+Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_solar_panel.py), [PyBullet](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_solar_panel.py)
 
 **Dependencies that are not publicly available:**
 
@@ -207,7 +207,7 @@ We can introduce a coupling term in a dual Cartesian DMP to constrain the
 relative position, orientation, or pose of two end-effectors of a dual-arm
 robot.
 
-Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [PyBullet](examples/external_dependencies/sim_cartesian_dual_dmp.py)
+Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_cartesian_dual_dmp.py), [PyBullet](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_cartesian_dual_dmp.py)
 
 **Dependencies that are not publicly available:**
 
@@ -227,7 +227,7 @@ Scripts: [Open3D](examples/external_dependencies/vis_cartesian_dual_dmp.py), [Py
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
 
-[Script](examples/external_dependencies/vis_dmp_to_state_variance.py)
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_dmp_to_state_variance.py)
 
 **Dependencies that are not publicly available:**
 
