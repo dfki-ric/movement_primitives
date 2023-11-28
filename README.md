@@ -9,6 +9,19 @@ There are many types and variations. This repository focuses mainly on
 imitation learning, generalization, and adaptation of movement primitives.
 It provides implementations in Python and Cython.
 
+## Content
+
+* [Features](#features)
+* [API Documentation](#api-documentation)
+* [Install Library](#install-library)
+* [Build API Documentation](#build-api-documentation)
+* [Test](#test)
+* [Contributing](#contributing)
+* [Examples](#examples)
+* [Non-public Extensions](#non-public-extensions)
+* [Related Publications](#related-publications)
+* [Funding](#funding)
+
 ## Features
 
 * Dynamical Movement Primitives (DMPs) for
@@ -99,8 +112,28 @@ This command searches for all files with `test` and executes the functions with 
 
 ## Contributing
 
-To add new features, documentation, or fix bugs you can open a pull request.
-Directly pushing to the main branch is not allowed.
+You can report bugs in the [issue tracker](https://github.com/dfki-ric/movement_primitives/issues).
+If you have questions about the software, please use the [discussions
+section](https://github.com/dfki-ric/movement_primitives/discussions).
+To add new features, documentation, or fix bugs you can open a pull request
+on [GitHub](https://github.com/dfki-ric/movement_primitives). Directly pushing
+to the main branch is not allowed.
+
+The recommended workflow to add a new feature, add documentation, or fix a bug
+is the following:
+
+* Push your changes to a branch (e.g., feature/x, doc/y, or fix/z) of your fork
+  of the repository.
+* Open a pull request to the main branch of the main repository.
+
+This is a checklist for new features:
+
+- are there unit tests?
+- does it have docstrings?
+- is it included in the API documentation?
+- run flake8 and pylint
+- should it be part of the readme?
+- should it be included in any example script?
 
 ## Examples
 
@@ -283,6 +316,10 @@ I assume that your data is located in the folder `data/` in most scripts.
 You should put a symlink there to point to your actual data folder.
 
 ## Related Publications
+
+This library implements several types of dynamical movement primitives and
+probabilistic movement primitives. These are described in detail in the
+following papers.
 
 [1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
     Dynamical Movement Primitives: Learning Attractor Models for Motor
