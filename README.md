@@ -4,20 +4,25 @@
 
 # Movement Primitives
 
+> Dynamical movement primitives (DMPs), probabilistic movement primitives
+> (ProMPs), and spatially coupled bimanual DMPs for imitation learning.
+
 Movement primitives are a common group of policy representations in robotics.
 There are many types and variations. This repository focuses mainly on
-imitation learning, generalization, and adaptation of movement primitives.
-It provides implementations in Python and Cython.
+imitation learning, generalization, and adaptation of movement primitives for
+Cartesian motions of robots. It provides implementations in Python and Cython
+and can be installed directly from
+[PyPI](https://pypi.org/project/movement-primitives/).
 
 ## Content
 
 * [Features](#features)
 * [API Documentation](#api-documentation)
 * [Install Library](#install-library)
+* [Examples](#examples)
 * [Build API Documentation](#build-api-documentation)
 * [Test](#test)
 * [Contributing](#contributing)
-* [Examples](#examples)
 * [Non-public Extensions](#non-public-extensions)
 * [Related Publications](#related-publications)
 * [Funding](#funding)
@@ -80,62 +85,11 @@ or install the library with
 python setup.py install
 ```
 
-## Build API Documentation
-
-You can build an API documentation with sphinx.
-You can install all dependencies with
-
-```bash
-python -m pip install movement_primitives[doc]
-```
-
-... and build the documentation from the folder `doc/` with
-
-```bash
-make html
-```
-
-It will be located at `doc/build/html/index.html`.
-
-## Test
-
-To run the tests some python libraries are required:
-
-```bash
-python -m pip install -e .[test]
-```
-
-The tests are located in the folder `test/` and can be executed with:
-`python -m nose test`
-
-This command searches for all files with `test` and executes the functions with `test_*`.
-
-## Contributing
-
-You can report bugs in the [issue tracker](https://github.com/dfki-ric/movement_primitives/issues).
-If you have questions about the software, please use the [discussions
-section](https://github.com/dfki-ric/movement_primitives/discussions).
-To add new features, documentation, or fix bugs you can open a pull request
-on [GitHub](https://github.com/dfki-ric/movement_primitives). Directly pushing
-to the main branch is not allowed.
-
-The recommended workflow to add a new feature, add documentation, or fix a bug
-is the following:
-
-* Push your changes to a branch (e.g., feature/x, doc/y, or fix/z) of your fork
-  of the repository.
-* Open a pull request to the main branch of the main repository.
-
-This is a checklist for new features:
-
-- are there unit tests?
-- does it have docstrings?
-- is it included in the API documentation?
-- run flake8 and pylint
-- should it be part of the readme?
-- should it be included in any example script?
-
 ## Examples
+
+You will find a lot of examples in the subfolder
+[`examples/`](https://github.com/dfki-ric/movement_primitives/tree/main/examples).
+Here are just some highlights to showcase the library.
 
 ### Conditional ProMPs
 
@@ -274,6 +228,61 @@ space through an unscented transform.
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
+
+## Build API Documentation
+
+You can build an API documentation with sphinx.
+You can install all dependencies with
+
+```bash
+python -m pip install movement_primitives[doc]
+```
+
+... and build the documentation from the folder `doc/` with
+
+```bash
+make html
+```
+
+It will be located at `doc/build/html/index.html`.
+
+## Test
+
+To run the tests some python libraries are required:
+
+```bash
+python -m pip install -e .[test]
+```
+
+The tests are located in the folder `test/` and can be executed with:
+`python -m nose test`
+
+This command searches for all files with `test` and executes the functions with `test_*`.
+
+## Contributing
+
+You can report bugs in the [issue tracker](https://github.com/dfki-ric/movement_primitives/issues).
+If you have questions about the software, please use the [discussions
+section](https://github.com/dfki-ric/movement_primitives/discussions).
+To add new features, documentation, or fix bugs you can open a pull request
+on [GitHub](https://github.com/dfki-ric/movement_primitives). Directly pushing
+to the main branch is not allowed.
+
+The recommended workflow to add a new feature, add documentation, or fix a bug
+is the following:
+
+* Push your changes to a branch (e.g., feature/x, doc/y, or fix/z) of your fork
+  of the repository.
+* Open a pull request to the main branch of the main repository.
+
+This is a checklist for new features:
+
+- are there unit tests?
+- does it have docstrings?
+- is it included in the API documentation?
+- run flake8 and pylint
+- should it be part of the readme?
+- should it be included in any example script?
 
 ## Non-public Extensions
 
