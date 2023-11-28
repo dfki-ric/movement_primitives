@@ -27,7 +27,12 @@ class DMPBase(PointToPointMovement):
 
 
 class WeightParametersMixin:
-    """Mixin class providing common access methods to forcing term weights."""
+    """Mixin class providing common access methods to forcing term weights.
+
+    This can be used, for instance, for black-box optimization of the weights
+    with respect to some cost / objective function in a reinforcement learning
+    setting.
+    """
     def get_weights(self):
         """Get weight vector of DMP.
 

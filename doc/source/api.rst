@@ -21,12 +21,12 @@ You can also search for specific modules, classes, or functions in the
    :toctree: _apidoc/
    :template: class.rst
 
-   ~movement_primitives.dmp.DMPBase
-   ~movement_primitives.dmp.WeightParametersMixin
    ~movement_primitives.dmp.DMP
    ~movement_primitives.dmp.DMPWithFinalVelocity
    ~movement_primitives.dmp.CartesianDMP
    ~movement_primitives.dmp.DualCartesianDMP
+   ~movement_primitives.dmp.DMPBase
+   ~movement_primitives.dmp.WeightParametersMixin
    ~movement_primitives.dmp.CouplingTermPos1DToPos1D
    ~movement_primitives.dmp.CouplingTermObstacleAvoidance2D
    ~movement_primitives.dmp.CouplingTermObstacleAvoidance3D
