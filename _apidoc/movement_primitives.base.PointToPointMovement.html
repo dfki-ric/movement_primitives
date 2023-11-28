@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>movement_primitives.base.PointToPointMovement &#8212; movement_primitives 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          movement_primitives</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../api.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">movement_primitives.base.PointToPointMovement</a><ul>
+<li><a class="reference internal" href="#movement_primitives.base.PointToPointMovement"><code class="docutils literal notranslate"><span class="pre">PointToPointMovement</span></code></a><ul>
+<li><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.__init__"><code class="docutils literal notranslate"><span class="pre">PointToPointMovement.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.configure"><code class="docutils literal notranslate"><span class="pre">PointToPointMovement.configure()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.n_steps_open_loop"><code class="docutils literal notranslate"><span class="pre">PointToPointMovement.n_steps_open_loop()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.step"><code class="docutils literal notranslate"><span class="pre">PointToPointMovement.step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="movement-primitives-base-pointtopointmovement">
+<h1>movement_primitives.base.PointToPointMovement<a class="headerlink" href="#movement-primitives-base-pointtopointmovement" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement_primitives.base.PointToPointMovement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_primitives.base.</span></span><span class="sig-name descname"><span class="pre">PointToPointMovement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_pos_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vel_dims</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.base.PointToPointMovement" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for point to point movements (discrete motions).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_pos_dims</strong><span class="classifier">int</span></dt><dd><p>Number of dimensions of the position that will be controlled.</p>
+</dd>
+<dt><strong>n_vel_dims</strong><span class="classifier">int</span></dt><dd><p>Number of dimensions of the velocity that will be controlled.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>n_dims</strong><span class="classifier">int</span></dt><dd><p>Number of state space dimensions.</p>
+</dd>
+<dt><strong>n_vel_dims</strong><span class="classifier">int</span></dt><dd><p>Number of velocity dimensions.</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">float</span></dt><dd><p>Current time.</p>
+</dd>
+<dt><strong>last_t</strong><span class="classifier">float</span></dt><dd><p>Time during last step.</p>
+</dd>
+<dt><strong>start_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Initial state.</p>
+</dd>
+<dt><strong>start_yd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Initial velocity.</p>
+</dd>
+<dt><strong>start_ydd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Initial acceleration.</p>
+</dd>
+<dt><strong>goal_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Goal state.</p>
+</dd>
+<dt><strong>goal_yd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Goal velocity.</p>
+</dd>
+<dt><strong>goal_ydd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Goal acceleration.</p>
+</dd>
+<dt><strong>current_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Current state.</p>
+</dd>
+<dt><strong>current_yd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Current velocity.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.configure" title="movement_primitives.base.PointToPointMovement.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([t, start_y, start_yd, start_ydd, ...])</p></td>
+<td><p>Set meta parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.n_steps_open_loop" title="movement_primitives.base.PointToPointMovement.n_steps_open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_steps_open_loop</span></code></a>(last_y, last_yd, n_steps)</p></td>
+<td><p>Perform 'n_steps' steps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.step" title="movement_primitives.base.PointToPointMovement.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(last_y, last_yd)</p></td>
+<td><p>Perform step.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.base.PointToPointMovement.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_pos_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vel_dims</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.base.PointToPointMovement.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.__init__" title="movement_primitives.base.PointToPointMovement.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(n_pos_dims, n_vel_dims)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.configure" title="movement_primitives.base.PointToPointMovement.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([t, start_y, start_yd, start_ydd, ...])</p></td>
+<td><p>Set meta parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.n_steps_open_loop" title="movement_primitives.base.PointToPointMovement.n_steps_open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_steps_open_loop</span></code></a>(last_y, last_yd, n_steps)</p></td>
+<td><p>Perform 'n_steps' steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.base.PointToPointMovement.step" title="movement_primitives.base.PointToPointMovement.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(last_y, last_yd)</p></td>
+<td><p>Perform step.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.base.PointToPointMovement.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.base.PointToPointMovement.configure" title="Link to this definition">¶</a></dt>
+<dd><p>Set meta parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">float, optional</span></dt><dd><p>Time at current step.</p>
+</dd>
+<dt><strong>start_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Initial state.</p>
+</dd>
+<dt><strong>start_yd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Initial velocity.</p>
+</dd>
+<dt><strong>start_ydd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Initial acceleration.</p>
+</dd>
+<dt><strong>goal_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Goal state.</p>
+</dd>
+<dt><strong>goal_yd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Goal velocity.</p>
+</dd>
+<dt><strong>goal_ydd</strong><span class="classifier">array, shape (n_vel_dims,)</span></dt><dd><p>Goal acceleration.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.base.PointToPointMovement.n_steps_open_loop">
+<span class="sig-name descname"><span class="pre">n_steps_open_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_yd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.base.PointToPointMovement.n_steps_open_loop" title="Link to this definition">¶</a></dt>
+<dd><p>Perform ‘n_steps’ steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>last_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Last state.</p>
+</dd>
+<dt><strong>last_yd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Last time derivative of state (e.g., velocity).</p>
+</dd>
+<dt><strong>n_steps</strong><span class="classifier">int</span></dt><dd><p>Number of steps.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Next state.</p>
+</dd>
+<dt><strong>yd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Next time derivative of state (e.g., velocity).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.base.PointToPointMovement.step">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_yd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.base.PointToPointMovement.step" title="Link to this definition">¶</a></dt>
+<dd><p>Perform step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>last_y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Last state.</p>
+</dd>
+<dt><strong>last_yd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Last time derivative of state (e.g., velocity).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Next state.</p>
+</dd>
+<dt><strong>yd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Next time derivative of state (e.g., velocity).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

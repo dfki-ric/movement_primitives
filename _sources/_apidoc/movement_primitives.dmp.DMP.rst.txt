@@ -1,0 +1,42 @@
+﻿movement\_primitives.dmp.DMP
+============================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: DMP
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DMP.__init__
+      ~DMP.configure
+      ~DMP.get_execution_time_
+      ~DMP.get_weights
+      ~DMP.imitate
+      ~DMP.n_steps_open_loop
+      ~DMP.open_loop
+      ~DMP.reset
+      ~DMP.set_execution_time_
+      ~DMP.set_weights
+      ~DMP.step
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DMP.execution_time_
+      ~DMP.n_weights
+   
+   

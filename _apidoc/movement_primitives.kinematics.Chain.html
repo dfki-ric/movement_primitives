@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>movement_primitives.kinematics.Chain &#8212; movement_primitives 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          movement_primitives</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../api.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">movement_primitives.kinematics.Chain</a><ul>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain"><code class="docutils literal notranslate"><span class="pre">Chain</span></code></a><ul>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.__init__"><code class="docutils literal notranslate"><span class="pre">Chain.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.ee_pose_error"><code class="docutils literal notranslate"><span class="pre">Chain.ee_pose_error()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward"><code class="docutils literal notranslate"><span class="pre">Chain.forward()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward_trajectory"><code class="docutils literal notranslate"><span class="pre">Chain.forward_trajectory()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse"><code class="docutils literal notranslate"><span class="pre">Chain.inverse()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_trajectory"><code class="docutils literal notranslate"><span class="pre">Chain.inverse_trajectory()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_with_random_restarts"><code class="docutils literal notranslate"><span class="pre">Chain.inverse_with_random_restarts()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.kinematics.Chain.local_inverse_with_random_restarts"><code class="docutils literal notranslate"><span class="pre">Chain.local_inverse_with_random_restarts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="movement-primitives-kinematics-chain">
+<h1>movement_primitives.kinematics.Chain<a class="headerlink" href="#movement-primitives-kinematics-chain" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_primitives.kinematics.</span></span><span class="sig-name descname"><span class="pre">Chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ee_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Kinematic chain.</p>
+<p>You should not call this constructor manually. Use <a class="reference internal" href="movement_primitives.kinematics.Kinematics.html#movement_primitives.kinematics.Kinematics" title="movement_primitives.kinematics.Kinematics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kinematics</span></code></a> to
+create a kinematic chain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tm</strong><span class="classifier">FastUrdfTransformManager</span></dt><dd><p>Transformation manager</p>
+</dd>
+<dt><strong>joint_names</strong><span class="classifier">list</span></dt><dd><p>Names of joints that should be used</p>
+</dd>
+<dt><strong>base_frame</strong><span class="classifier">str</span></dt><dd><p>Name of the base link</p>
+</dd>
+<dt><strong>ee_frame</strong><span class="classifier">str</span></dt><dd><p>Name of the end-effector link</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">int, optional (default: 0)</span></dt><dd><p>Verbosity level</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.ee_pose_error" title="movement_primitives.kinematics.Chain.ee_pose_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ee_pose_error</span></code></a>(joint_angles, desired_pose[, ...])</p></td>
+<td><p>Compute pose error.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward" title="movement_primitives.kinematics.Chain.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(joint_angles)</p></td>
+<td><p>Forward kinematics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward_trajectory" title="movement_primitives.kinematics.Chain.forward_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward_trajectory</span></code></a>(Q)</p></td>
+<td><p>Compute forward kinematics for a trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse" title="movement_primitives.kinematics.Chain.inverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse</span></code></a>(desired_pose, initial_joint_angles)</p></td>
+<td><p>Inverse kinematics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_trajectory" title="movement_primitives.kinematics.Chain.inverse_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_trajectory</span></code></a>(H[, ...])</p></td>
+<td><p>Compute inverse kinematics for a trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_with_random_restarts" title="movement_primitives.kinematics.Chain.inverse_with_random_restarts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_with_random_restarts</span></code></a>(desired_pose[, ...])</p></td>
+<td><p>Compute inverse kinematics with multiple random restarts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.local_inverse_with_random_restarts" title="movement_primitives.kinematics.Chain.local_inverse_with_random_restarts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_inverse_with_random_restarts</span></code></a>(...[, ...])</p></td>
+<td><p>Compute inverse kinematics with multiple random restarts.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ee_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.__init__" title="movement_primitives.kinematics.Chain.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(tm, joint_names, base_frame, ee_frame)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.ee_pose_error" title="movement_primitives.kinematics.Chain.ee_pose_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ee_pose_error</span></code></a>(joint_angles, desired_pose[, ...])</p></td>
+<td><p>Compute pose error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward" title="movement_primitives.kinematics.Chain.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(joint_angles)</p></td>
+<td><p>Forward kinematics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.forward_trajectory" title="movement_primitives.kinematics.Chain.forward_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward_trajectory</span></code></a>(Q)</p></td>
+<td><p>Compute forward kinematics for a trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse" title="movement_primitives.kinematics.Chain.inverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse</span></code></a>(desired_pose, initial_joint_angles)</p></td>
+<td><p>Inverse kinematics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_trajectory" title="movement_primitives.kinematics.Chain.inverse_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_trajectory</span></code></a>(H[, ...])</p></td>
+<td><p>Compute inverse kinematics for a trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.inverse_with_random_restarts" title="movement_primitives.kinematics.Chain.inverse_with_random_restarts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_with_random_restarts</span></code></a>(desired_pose[, ...])</p></td>
+<td><p>Compute inverse kinematics with multiple random restarts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.kinematics.Chain.local_inverse_with_random_restarts" title="movement_primitives.kinematics.Chain.local_inverse_with_random_restarts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_inverse_with_random_restarts</span></code></a>(...[, ...])</p></td>
+<td><p>Compute inverse kinematics with multiple random restarts.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.ee_pose_error">
+<span class="sig-name descname"><span class="pre">ee_pose_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.ee_pose_error" title="Link to this definition">¶</a></dt>
+<dd><p>Compute pose error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>joint_angles</strong><span class="classifier">array-like, shape (n_joints,)</span></dt><dd><p>Actual joint angles for which we compute forward kinematics.</p>
+</dd>
+<dt><strong>desired_pose</strong><span class="classifier">array-like, shape (4, 4)</span></dt><dd><p>Desired pose.</p>
+</dd>
+<dt><strong>orientation_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the orientation error.</p>
+</dd>
+<dt><strong>position_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the position error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>pose_error</strong><span class="classifier">float</span></dt><dd><p>Weighted error between actual pose and desired pose.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.forward" title="Link to this definition">¶</a></dt>
+<dd><p>Forward kinematics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>joint_angles</strong><span class="classifier">array, shape (n_joints,)</span></dt><dd><p>Joint angles</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ee2base</strong><span class="classifier">array, shape (4, 4)</span></dt><dd><p>Transformation from end-effector to base frame</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.forward_trajectory">
+<span class="sig-name descname"><span class="pre">forward_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.forward_trajectory" title="Link to this definition">¶</a></dt>
+<dd><p>Compute forward kinematics for a trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Q</strong><span class="classifier">array-like, shape (n_steps, n_joints)</span></dt><dd><p>Joint angles.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>H</strong><span class="classifier">array, shape (n_steps, 4, 4)</span></dt><dd><p>End-effector poses.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">desired_pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_joint_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.inverse" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse kinematics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>desired_pose</strong><span class="classifier">array, shape (4, 4)</span></dt><dd><p>Desired transformation from end-effector to base frame</p>
+</dd>
+<dt><strong>initial_joint_angles</strong><span class="classifier">array, shape (n_joints,)</span></dt><dd><p>Initial guess for joint angles</p>
+</dd>
+<dt><strong>return_error</strong><span class="classifier">bool, optional (default: False)</span></dt><dd><p>Return error in addition to joint angles</p>
+</dd>
+<dt><strong>bounds</strong><span class="classifier">array, shape (n_joints, 2), optional (default: joint limits)</span></dt><dd><p>Bounds for joint angle optimization</p>
+</dd>
+<dt><strong>solver</strong><span class="classifier">str, optional (default: ‘SLSQP’)</span></dt><dd><p>Optimizer to solve inverse kinematics problem. Possible options:
+‘SLSQP’, ‘L-BFGS-B’, and ‘COBYLA’.</p>
+</dd>
+<dt><strong>orientation_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the orientation error.</p>
+</dd>
+<dt><strong>position_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the position error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>joint_angles</strong><span class="classifier">array, shape (n_joints,)</span></dt><dd><p>Solution</p>
+</dd>
+<dt><strong>error</strong><span class="classifier">float, optional</span></dt><dd><p>Pose error</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.inverse_trajectory">
+<span class="sig-name descname"><span class="pre">inverse_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_joint_angles=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval=0.3141592653589793</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_restarts=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state=&lt;module</span> <span class="pre">'numpy.random'</span> <span class="pre">from</span> <span class="pre">'/home/dfki.uni-bremen.de/afabisch/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver='SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_weight=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_weight=1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.inverse_trajectory" title="Link to this definition">¶</a></dt>
+<dd><p>Compute inverse kinematics for a trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>H</strong><span class="classifier">array-like, shape (n_steps, 4, 4)</span></dt><dd><p>Desired end-effector poses.</p>
+</dd>
+<dt><strong>initial_joint_angles</strong><span class="classifier">array-like, shape (n_joints,), optional (default: None)</span></dt><dd><p>Initial guess for joint angles.</p>
+</dd>
+<dt><strong>interval</strong><span class="classifier">float</span></dt><dd><p>We will search for a solution within the range
+[joint_angles - interval, joint_angles + interval] in each step.</p>
+</dd>
+<dt><strong>random_restarts</strong><span class="classifier">bool, optional (default: True)</span></dt><dd><p>Allow random restarts if no solution is found.</p>
+</dd>
+<dt><strong>random_state</strong><span class="classifier">np.random.RandomState, optional (default: np.random)</span></dt><dd><p>Random state.</p>
+</dd>
+<dt><strong>solver</strong><span class="classifier">str, optional (default: ‘SLSQP’)</span></dt><dd><p>Optimizer to solve inverse kinematics problem. Possible options:
+‘SLSQP’, ‘L-BFGS-B’, and ‘COBYLA’.</p>
+</dd>
+<dt><strong>orientation_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the orientation error.</p>
+</dd>
+<dt><strong>position_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the position error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Q</strong><span class="classifier">array, shape (n_steps, n_joints)</span></dt><dd><p>Solution</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.inverse_with_random_restarts">
+<span class="sig-name descname"><span class="pre">inverse_with_random_restarts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">desired_pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_restarts=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance=0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state=&lt;module</span> <span class="pre">'numpy.random'</span> <span class="pre">from</span> <span class="pre">'/home/dfki.uni-bremen.de/afabisch/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver='SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_weight=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_weight=1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.inverse_with_random_restarts" title="Link to this definition">¶</a></dt>
+<dd><p>Compute inverse kinematics with multiple random restarts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>desired_pose</strong><span class="classifier">array-like, shape (4, 4)</span></dt><dd><p>Desired pose.</p>
+</dd>
+<dt><strong>n_restarts</strong><span class="classifier">int, optional (default: 10)</span></dt><dd><p>Maximum number of allowed restarts.</p>
+</dd>
+<dt><strong>tolerance</strong><span class="classifier">float, optional (default: 1e-3)</span></dt><dd><p>Required tolerance to abort.</p>
+</dd>
+<dt><strong>random_state</strong><span class="classifier">np.random.RandomState, optional (default: np.random)</span></dt><dd><p>Random state.</p>
+</dd>
+<dt><strong>solver</strong><span class="classifier">str, optional (default: ‘SLSQP’)</span></dt><dd><p>Optimizer to solve inverse kinematics problem. Possible options:
+‘SLSQP’, ‘L-BFGS-B’, and ‘COBYLA’.</p>
+</dd>
+<dt><strong>orientation_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the orientation error.</p>
+</dd>
+<dt><strong>position_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the position error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>joint_angles</strong><span class="classifier">array, shape (n_joints,)</span></dt><dd><p>Solution</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.kinematics.Chain.local_inverse_with_random_restarts">
+<span class="sig-name descname"><span class="pre">local_inverse_with_random_restarts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">desired_pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_restarts=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance=0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state=&lt;module</span> <span class="pre">'numpy.random'</span> <span class="pre">from</span> <span class="pre">'/home/dfki.uni-bremen.de/afabisch/anaconda3/lib/python3.9/site-packages/numpy/random/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver='SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_weight=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_weight=1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.kinematics.Chain.local_inverse_with_random_restarts" title="Link to this definition">¶</a></dt>
+<dd><p>Compute inverse kinematics with multiple random restarts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>desired_pose</strong><span class="classifier">array-like, shape (4, 4)</span></dt><dd><p>Desired pose.</p>
+</dd>
+<dt><strong>joint_angles</strong><span class="classifier">array-like, shape (n_joints,)</span></dt><dd><p>Initial guess for joint angles.</p>
+</dd>
+<dt><strong>interval</strong><span class="classifier">float</span></dt><dd><p>We will search for a solution within the range
+[joint_angles - interval, joint_angles + interval].</p>
+</dd>
+<dt><strong>n_restarts</strong><span class="classifier">int, optional (default: 10)</span></dt><dd><p>Maximum number of allowed restarts.</p>
+</dd>
+<dt><strong>tolerance</strong><span class="classifier">float, optional (default: 1e-3)</span></dt><dd><p>Required tolerance to abort.</p>
+</dd>
+<dt><strong>random_state</strong><span class="classifier">np.random.RandomState, optional (default: np.random)</span></dt><dd><p>Random state.</p>
+</dd>
+<dt><strong>solver</strong><span class="classifier">str, optional (default: ‘SLSQP’)</span></dt><dd><p>Optimizer to solve inverse kinematics problem. Possible options:
+‘SLSQP’, ‘L-BFGS-B’, and ‘COBYLA’.</p>
+</dd>
+<dt><strong>orientation_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the orientation error.</p>
+</dd>
+<dt><strong>position_weight</strong><span class="classifier">float, optional (default: 1.0)</span></dt><dd><p>Should be between 0.0 and 1.0 and represent the weighting for
+minimizing the position error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>joint_angles</strong><span class="classifier">array, shape (n_joints,)</span></dt><dd><p>Solution</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+﻿movement\_primitives.data.generate\_minimum\_jerk
+=================================================
+
+.. currentmodule:: movement_primitives.data
+
+.. autofunction:: generate_minimum_jerk

@@ -1,0 +1,42 @@
+﻿movement\_primitives.dmp.DualCartesianDMP
+=========================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: DualCartesianDMP
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DualCartesianDMP.__init__
+      ~DualCartesianDMP.configure
+      ~DualCartesianDMP.get_execution_time_
+      ~DualCartesianDMP.get_weights
+      ~DualCartesianDMP.imitate
+      ~DualCartesianDMP.n_steps_open_loop
+      ~DualCartesianDMP.open_loop
+      ~DualCartesianDMP.reset
+      ~DualCartesianDMP.set_execution_time_
+      ~DualCartesianDMP.set_weights
+      ~DualCartesianDMP.step
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DualCartesianDMP.execution_time_
+      ~DualCartesianDMP.n_weights
+   
+   

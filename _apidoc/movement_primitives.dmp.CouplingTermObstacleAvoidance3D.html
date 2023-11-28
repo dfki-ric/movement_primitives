@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>movement_primitives.dmp.CouplingTermObstacleAvoidance3D &#8212; movement_primitives 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          movement_primitives</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../api.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">movement_primitives.dmp.CouplingTermObstacleAvoidance3D</a><ul>
+<li><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D"><code class="docutils literal notranslate"><span class="pre">CouplingTermObstacleAvoidance3D</span></code></a><ul>
+<li><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.__init__"><code class="docutils literal notranslate"><span class="pre">CouplingTermObstacleAvoidance3D.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling"><code class="docutils literal notranslate"><span class="pre">CouplingTermObstacleAvoidance3D.coupling()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="movement-primitives-dmp-couplingtermobstacleavoidance3d">
+<h1>movement_primitives.dmp.CouplingTermObstacleAvoidance3D<a class="headerlink" href="#movement-primitives-dmp-couplingtermobstacleavoidance3d" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement_primitives.dmp.CouplingTermObstacleAvoidance3D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">CouplingTermObstacleAvoidance3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obstacle_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.366197723675814</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Coupling term for obstacle avoidance in 3D.</p>
+<p>For <a class="reference internal" href="movement_primitives.dmp.DMP.html#movement_primitives.dmp.DMP" title="movement_primitives.dmp.DMP"><code class="xref py py-class docutils literal notranslate"><span class="pre">DMP</span></code></a> and <a class="reference internal" href="movement_primitives.dmp.DMPWithFinalVelocity.html#movement_primitives.dmp.DMPWithFinalVelocity" title="movement_primitives.dmp.DMPWithFinalVelocity"><code class="xref py py-class docutils literal notranslate"><span class="pre">DMPWithFinalVelocity</span></code></a>.</p>
+<p>Following <a class="reference internal" href="#r9ff665972d3f-1" id="id1">[1]</a>, this coupling term adds an acceleration</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{C}_t = \gamma \boldsymbol{R} \dot{\boldsymbol{y}}
+\theta \exp(-\beta \theta),\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\theta = \arccos\left( \frac{(\boldsymbol{o} - \boldsymbol{y})^T
+\dot{\boldsymbol{y}}}{|\boldsymbol{o} - \boldsymbol{y}|
+|\dot{\boldsymbol{y}}|} \right)\]</div>
+<p>and a rotation axis <span class="math notranslate nohighlight">\(\boldsymbol{r} =
+(\boldsymbol{o} - \boldsymbol{y}) \times \dot{\boldsymbol{y}}\)</span> used to
+compute the rotation matrix <span class="math notranslate nohighlight">\(\boldsymbol{R}\)</span> that rotates about it
+by 90 degrees for an obstacle at position <span class="math notranslate nohighlight">\(\boldsymbol{o}\)</span>.</p>
+<p>Intuitively, this coupling term adds a movement perpendicular to the
+current velocity in the plane defined by the direction to the obstacle and
+the current movement direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>obstacle_position</strong><span class="classifier">array, shape (3,)</span></dt><dd><p>Position of the point obstacle.</p>
+</dd>
+<dt><strong>gamma</strong><span class="classifier">float, optional (default: 1000)</span></dt><dd><p>Parameter of obstacle avoidance.</p>
+</dd>
+<dt><strong>beta</strong><span class="classifier">float, optional (default: 20 / pi)</span></dt><dd><p>Parameter of obstacle avoidance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r9ff665972d3f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+(2013). Dynamical Movement Primitives: Learning Attractor Models for
+Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+10.1162/NECO_a_00393,
+<a class="reference external" href="https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf">https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf</a></p>
+</div>
+</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling" title="movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coupling</span></code></a>(y, yd)</p></td>
+<td><p>Computes coupling term based on current state.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.dmp.CouplingTermObstacleAvoidance3D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obstacle_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.366197723675814</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.__init__" title="movement_primitives.dmp.CouplingTermObstacleAvoidance3D.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(obstacle_position[, gamma, beta])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling" title="movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coupling</span></code></a>(y, yd)</p></td>
+<td><p>Computes coupling term based on current state.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling">
+<span class="sig-name descname"><span class="pre">coupling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.CouplingTermObstacleAvoidance3D.coupling" title="Link to this definition">¶</a></dt>
+<dd><p>Computes coupling term based on current state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>y</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Current position.</p>
+</dd>
+<dt><strong>yd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Current velocity.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>cd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Velocity. 0 for this coupling term.</p>
+</dd>
+<dt><strong>cdd</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Acceleration.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

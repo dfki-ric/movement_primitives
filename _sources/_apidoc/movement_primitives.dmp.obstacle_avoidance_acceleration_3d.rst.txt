@@ -1,0 +1,6 @@
+﻿movement\_primitives.dmp.obstacle\_avoidance\_acceleration\_3d
+==============================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autofunction:: obstacle_avoidance_acceleration_3d

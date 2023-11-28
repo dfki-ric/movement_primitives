@@ -1,0 +1,37 @@
+﻿movement\_primitives.promp.ProMP
+================================
+
+.. currentmodule:: movement_primitives.promp
+
+.. autoclass:: ProMP
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ProMP.__init__
+      ~ProMP.condition_position
+      ~ProMP.cov_trajectory
+      ~ProMP.cov_velocities
+      ~ProMP.from_weight_distribution
+      ~ProMP.imitate
+      ~ProMP.mean_trajectory
+      ~ProMP.mean_velocities
+      ~ProMP.sample_trajectories
+      ~ProMP.trajectory_from_weights
+      ~ProMP.var_trajectory
+      ~ProMP.var_velocities
+      ~ProMP.weights
+   
+   
+
+   
+   
+   

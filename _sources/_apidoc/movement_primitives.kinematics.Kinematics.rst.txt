@@ -1,0 +1,26 @@
+﻿movement\_primitives.kinematics.Kinematics
+==========================================
+
+.. currentmodule:: movement_primitives.kinematics
+
+.. autoclass:: Kinematics
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Kinematics.__init__
+      ~Kinematics.create_chain
+   
+   
+
+   
+   
+   

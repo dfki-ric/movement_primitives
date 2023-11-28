@@ -1,0 +1,26 @@
+﻿movement\_primitives.dmp.CouplingTermObstacleAvoidance2D
+========================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: CouplingTermObstacleAvoidance2D
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CouplingTermObstacleAvoidance2D.__init__
+      ~CouplingTermObstacleAvoidance2D.coupling
+   
+   
+
+   
+   
+   

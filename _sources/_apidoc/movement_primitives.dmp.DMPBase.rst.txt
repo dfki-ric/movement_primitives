@@ -1,0 +1,29 @@
+﻿movement\_primitives.dmp.DMPBase
+================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: DMPBase
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DMPBase.__init__
+      ~DMPBase.configure
+      ~DMPBase.n_steps_open_loop
+      ~DMPBase.reset
+      ~DMPBase.step
+   
+   
+
+   
+   
+   

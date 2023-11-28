@@ -1,0 +1,6 @@
+﻿movement\_primitives.dmp.canonical\_system\_alpha
+=================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autofunction:: canonical_system_alpha

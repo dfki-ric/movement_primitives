@@ -1,0 +1,6 @@
+﻿movement\_primitives.data.generate\_1d\_trajectory\_distribution
+================================================================
+
+.. currentmodule:: movement_primitives.data
+
+.. autofunction:: generate_1d_trajectory_distribution

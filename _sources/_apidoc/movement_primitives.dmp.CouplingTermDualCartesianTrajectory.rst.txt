@@ -1,0 +1,28 @@
+﻿movement\_primitives.dmp.CouplingTermDualCartesianTrajectory
+============================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: CouplingTermDualCartesianTrajectory
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CouplingTermDualCartesianTrajectory.__init__
+      ~CouplingTermDualCartesianTrajectory.couple_distance
+      ~CouplingTermDualCartesianTrajectory.coupling
+      ~CouplingTermDualCartesianTrajectory.imitate
+   
+   
+
+   
+   
+   

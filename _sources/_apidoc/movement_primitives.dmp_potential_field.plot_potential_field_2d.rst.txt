@@ -1,0 +1,6 @@
+﻿movement\_primitives.dmp\_potential\_field.plot\_potential\_field\_2d
+=====================================================================
+
+.. currentmodule:: movement_primitives.dmp_potential_field
+
+.. autofunction:: plot_potential_field_2d

@@ -1,0 +1,42 @@
+﻿movement\_primitives.dmp.DMPWithFinalVelocity
+=============================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: DMPWithFinalVelocity
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DMPWithFinalVelocity.__init__
+      ~DMPWithFinalVelocity.configure
+      ~DMPWithFinalVelocity.get_execution_time_
+      ~DMPWithFinalVelocity.get_weights
+      ~DMPWithFinalVelocity.imitate
+      ~DMPWithFinalVelocity.n_steps_open_loop
+      ~DMPWithFinalVelocity.open_loop
+      ~DMPWithFinalVelocity.reset
+      ~DMPWithFinalVelocity.set_execution_time_
+      ~DMPWithFinalVelocity.set_weights
+      ~DMPWithFinalVelocity.step
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DMPWithFinalVelocity.execution_time_
+      ~DMPWithFinalVelocity.n_weights
+   
+   

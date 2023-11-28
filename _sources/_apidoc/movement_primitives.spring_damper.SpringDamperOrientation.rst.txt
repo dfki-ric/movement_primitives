@@ -1,0 +1,30 @@
+﻿movement\_primitives.spring\_damper.SpringDamperOrientation
+===========================================================
+
+.. currentmodule:: movement_primitives.spring_damper
+
+.. autoclass:: SpringDamperOrientation
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SpringDamperOrientation.__init__
+      ~SpringDamperOrientation.configure
+      ~SpringDamperOrientation.n_steps_open_loop
+      ~SpringDamperOrientation.open_loop
+      ~SpringDamperOrientation.reset
+      ~SpringDamperOrientation.step
+   
+   
+
+   
+   
+   

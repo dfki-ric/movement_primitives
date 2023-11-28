@@ -1,367 +1,511 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
-<title>movement_primitives API documentation</title>
-<meta name="description" content="Movement primitives …" />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Package <code>movement_primitives</code></h1>
-</header>
-<section id="section-intro">
-<p>Movement primitives.</p>
-<p><img alt="CI" src="https://github.com/dfki-ric/movement_primitives/actions/workflows/python-package.yml/badge.svg">
-<a href="https://codecov.io/gh/dfki-ric/movement_primitives"><img alt="codecov" src="https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL"></a>
-<a href="https://doi.org/10.5281/zenodo.6491361"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.6491361.svg"></a></p>
-<h1 id="movement-primitives">Movement Primitives</h1>
-<p>Movement primitives are a common group of policy representations in robotics.
-There are many types and variations. This repository focuses mainly on
-imitation learning, generalization, and adaptation of movement primitives.
-It provides implementations in Python and Cython.</p>
-<h2 id="features">Features</h2>
-<ul>
-<li>Dynamical Movement Primitives (DMPs) for<ul>
-<li>positions (with fast Runge-Kutta integration)</li>
-<li>Cartesian position and orientation (with fast Cython implementation)</li>
-<li>Dual Cartesian position and orientation (with fast Cython implementation)</li>
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Movement Primitives &#8212; movement_primitives 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=3b405b93" />
+    <script src="_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          movement_primitives</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="#">Home</a></li>
+                <li><a href="api.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Movement Primitives</a><ul>
+<li><a class="reference internal" href="#content">Content</a></li>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#api-documentation">API Documentation</a></li>
+<li><a class="reference internal" href="#install-library">Install Library</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#conditional-promps">Conditional ProMPs</a></li>
+<li><a class="reference internal" href="#potential-field-of-2d-dmp">Potential Field of 2D DMP</a></li>
+<li><a class="reference internal" href="#dmp-with-final-velocity">DMP with Final Velocity</a></li>
+<li><a class="reference internal" href="#promps">ProMPs</a></li>
+<li><a class="reference internal" href="#cartesian-dmps">Cartesian DMPs</a></li>
+<li><a class="reference internal" href="#contextual-promps">Contextual ProMPs</a></li>
+<li><a class="reference internal" href="#dual-cartesian-dmp">Dual Cartesian DMP</a></li>
+<li><a class="reference internal" href="#coupled-dual-cartesian-dmp">Coupled Dual Cartesian DMP</a></li>
+<li><a class="reference internal" href="#propagation-of-dmp-distribution-to-state-space">Propagation of DMP Distribution to State Space</a></li>
 </ul>
 </li>
-<li>Coupling terms for synchronization of position and/or orientation of dual Cartesian DMPs</li>
-<li>Propagation of DMP weight distribution to state space distribution</li>
-<li>Probabilistic Movement Primitives (ProMPs)</li>
+<li><a class="reference internal" href="#build-api-documentation">Build API Documentation</a></li>
+<li><a class="reference internal" href="#test">Test</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#non-public-extensions">Non-public Extensions</a><ul>
+<li><a class="reference internal" href="#mocap-library">MoCap Library</a></li>
+<li><a class="reference internal" href="#get-urdfs">Get URDFs</a></li>
+<li><a class="reference internal" href="#data">Data</a></li>
 </ul>
-<p>Example of dual Cartesian DMP with
-<a href="https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/">RH5 Manus</a>:</p>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" width="256px" /></p>
-<p>Example of joint space DMP with UR5:</p>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" width="256px" /></p>
-<h2 id="api-documentation">API Documentation</h2>
+</li>
+<li><a class="reference internal" href="#related-publications">Related Publications</a></li>
+<li><a class="reference internal" href="#funding">Funding</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <p><img alt="CI" src="https://github.com/dfki-ric/movement_primitives/actions/workflows/python-package.yml/badge.svg" />
+<a class="reference external" href="https://codecov.io/gh/dfki-ric/movement_primitives"><img alt="codecov" src="https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL" /></a>
+<a class="reference external" href="https://doi.org/10.5281/zenodo.6491361"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.6491361.svg" /></a></p>
+<section id="movement-primitives">
+<h1>Movement Primitives<a class="headerlink" href="#movement-primitives" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><p>Dynamical movement primitives (DMPs), probabilistic movement primitives
+(ProMPs), and spatially coupled bimanual DMPs for imitation learning.</p>
+</div></blockquote>
+<p>Movement primitives are a common group of policy representations in robotics.
+There are many types and variations. This repository focuses mainly on
+imitation learning, generalization, and adaptation of movement primitives for
+Cartesian motions of robots. It provides implementations in Python and Cython
+and can be installed directly from
+<a class="reference external" href="https://pypi.org/project/movement-primitives/">PyPI</a>.</p>
+<section id="content">
+<h2>Content<a class="headerlink" href="#content" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#features"><span class="xref myst">Features</span></a></p></li>
+<li><p><a class="reference internal" href="#api-documentation"><span class="xref myst">API Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="#install-library"><span class="xref myst">Install Library</span></a></p></li>
+<li><p><a class="reference internal" href="#examples"><span class="xref myst">Examples</span></a></p></li>
+<li><p><a class="reference internal" href="#build-api-documentation"><span class="xref myst">Build API Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="#test"><span class="xref myst">Test</span></a></p></li>
+<li><p><a class="reference internal" href="#contributing"><span class="xref myst">Contributing</span></a></p></li>
+<li><p><a class="reference internal" href="#non-public-extensions"><span class="xref myst">Non-public Extensions</span></a></p></li>
+<li><p><a class="reference internal" href="#related-publications"><span class="xref myst">Related Publications</span></a></p></li>
+<li><p><a class="reference internal" href="#funding"><span class="xref myst">Funding</span></a></p></li>
+</ul>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Dynamical Movement Primitives (DMPs) for</p>
+<ul>
+<li><p>positions (with fast Runge-Kutta integration)</p></li>
+<li><p>Cartesian position and orientation (with fast Cython implementation)</p></li>
+<li><p>Dual Cartesian position and orientation (with fast Cython implementation)</p></li>
+</ul>
+</li>
+<li><p>Coupling terms for synchronization of position and/or orientation of dual Cartesian DMPs</p></li>
+<li><p>Propagation of DMP weight distribution to state space distribution</p></li>
+<li><p>Probabilistic Movement Primitives (ProMPs)</p></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmp_rh5_with_panel.gif" height="200px" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_ur5_minimum_jerk.gif" height="200px" /></p>
+<p>Left: Example of dual Cartesian DMP with <a class="reference external" href="https://robotik.dfki-bremen.de/en/research/robot-systems/rh5-manus/">RH5 Manus</a>.
+Right: Example of joint space DMP with UR5.</p>
+</section>
+<section id="api-documentation">
+<h2>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading">¶</a></h2>
 <p>The API documentation is available
-<a href="https://dfki-ric.github.io/movement_primitives/">here</a>.</p>
-<h2 id="install-library">Install Library</h2>
+<a class="reference external" href="https://dfki-ric.github.io/movement_primitives/">here</a>.</p>
+</section>
+<section id="install-library">
+<h2>Install Library<a class="headerlink" href="#install-library" title="Link to this heading">¶</a></h2>
 <p>This library requires Python 3.6 or later and pip is recommended for the
 installation. In the following instructions, we assume that the command
-<code>python</code> refers to Python 3. If you use the system's Python version, you
-might have to add the flag <code>--user</code> to any installation command.</p>
+<code class="docutils literal notranslate"><span class="pre">python</span></code> refers to Python 3. If you use the system’s Python version, you
+might have to add the flag <code class="docutils literal notranslate"><span class="pre">--user</span></code> to any installation command.</p>
 <p>I recommend to install the library via pip:</p>
-<pre><code class="language-bash">python -m pip install movement_primitives[all]
-</code></pre>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>movement_primitives<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
 <p>or clone the git repository and install it in editable mode:</p>
-<pre><code class="language-bash">python -m pip install -e .[all]
-</code></pre>
-<p>If you don't want to have all dependencies installed, just omit <code>[all]</code>.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+<p>If you don’t want to have all dependencies installed, just omit <code class="docutils literal notranslate"><span class="pre">[all]</span></code>.
 Alternatively, you can install dependencies with</p>
-<pre><code class="language-bash">python -m pip install -r requirements.txt
-</code></pre>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
 <p>You could also just build the Cython extension with</p>
-<pre><code class="language-bash">python setup.py build_ext --inplace
-</code></pre>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>setup.py<span class="w"> </span>build_ext<span class="w"> </span>--inplace
+</pre></div>
+</div>
 <p>or install the library with</p>
-<pre><code class="language-bash">python setup.py install
-</code></pre>
-<h2 id="non-public-extensions">Non-public Extensions</h2>
-<p>Note that scripts from the subfolder <code>examples/external_dependencies/</code> require
-access to git repositories (URDF files or optional dependencies) that are not
-publicly available.</p>
-<h3 id="mocap-library">MoCap Library</h3>
-<pre><code class="language-bash"># untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git
-git clone git@git.hb.dfki.de:dfki-interaction/mocap.git
-cd mocap
-python -m pip install -e .
-cd ..
-</code></pre>
-<h3 id="get-urdfs">Get URDFs</h3>
-<pre><code class="language-bash"># RH5
-git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive
-# RH5v2
-git clone git@git.hb.dfki.de:models-robots/rh5v2_models/pybullet-urdf.git --recursive
-# Kuka
-git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
-# Solar panel
-git clone git@git.hb.dfki.de:models-objects/solar_panels.git
-# RH5 Gripper
-git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive
-</code></pre>
-<h3 id="data">Data</h3>
-<p>I assume that your data is located in the folder <code>data/</code> in most scripts.
-You should put a symlink there to point to your actual data folder.</p>
-<h2 id="build-api-documentation">Build API Documentation</h2>
-<p>You can build an API documentation with <a href="https://pdoc3.github.io/pdoc/">pdoc3</a>.
-You can install pdoc3 with</p>
-<pre><code class="language-bash">pip install pdoc3
-</code></pre>
-<p>&hellip; and build the documentation from the main folder with</p>
-<pre><code class="language-bash">pdoc movement_primitives --html
-</code></pre>
-<p>It will be located at <code>html/movement_primitives/index.html</code>.</p>
-<h2 id="test">Test</h2>
-<p>To run the tests some python libraries are required:</p>
-<pre><code class="language-bash">python -m pip install -e .[test]
-</code></pre>
-<p>The tests are located in the folder <code>test/</code> and can be executed with:
-<code>python -m nose test</code></p>
-<p>This command searches for all files with <code>test</code> and executes the functions with <code>test_*</code>.</p>
-<h2 id="contributing">Contributing</h2>
-<p>To add new features, documentation, or fix bugs you can open a pull request.
-Directly pushing to the main branch is not allowed.</p>
-<h2 id="examples">Examples</h2>
-<h3 id="conditional-promps">Conditional ProMPs</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" /></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>setup.py<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>You will find a lot of examples in the subfolder
+<a class="reference external" href="https://github.com/dfki-ric/movement_primitives/tree/main/examples"><code class="docutils literal notranslate"><span class="pre">examples/</span></code></a>.
+Here are just some highlights to showcase the library.</p>
+<section id="conditional-promps">
+<h3>Conditional ProMPs<a class="headerlink" href="#conditional-promps" title="Link to this heading">¶</a></h3>
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
 <p>Probabilistic Movement Primitives (ProMPs) define distributions over
 trajectories that can be conditioned on viapoints. In this example, we
 plot the resulting posterior distribution after conditioning on varying
 start positions.</p>
-<p><a href="examples/plot_conditional_promp.py">Script</a></p>
-<h3 id="potential-field-of-2d-dmp">Potential Field of 2D DMP</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_potential_field.png" width="800px" /></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py">Script</a></p>
+</section>
+<section id="potential-field-of-2d-dmp">
+<h3>Potential Field of 2D DMP<a class="headerlink" href="#potential-field-of-2d-dmp" title="Link to this heading">¶</a></h3>
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_potential_field.png" width="800px" />
 <p>A Dynamical Movement Primitive defines a potential field that superimposes
 several components: transformation system (goal-directed movement), forcing
 term (learned shape), and coupling terms (e.g., obstacle avoidance).</p>
-<p><a href="examples/plot_dmp_potential_field.py">Script</a></p>
-<h3 id="dmp-with-final-velocity">DMP with Final Velocity</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_with_final_velocity.png" width="800px" /></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_dmp_potential_field.py">Script</a></p>
+</section>
+<section id="dmp-with-final-velocity">
+<h3>DMP with Final Velocity<a class="headerlink" href="#dmp-with-final-velocity" title="Link to this heading">¶</a></h3>
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_with_final_velocity.png" width="800px" />
 <p>Not all DMPs allow a final velocity &gt; 0. In this case we analyze the effect
 of changing final velocities in an appropriate variation of the DMP
 formulation that allows to set the final velocity.</p>
-<p><a href="examples/plot_dmp_with_final_velocity.py">Script</a></p>
-<h3 id="promps">ProMPs</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/promp_lasa.png" width="800px" /></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_dmp_with_final_velocity.py">Script</a></p>
+</section>
+<section id="promps">
+<h3>ProMPs<a class="headerlink" href="#promps" title="Link to this heading">¶</a></h3>
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/promp_lasa.png" width="800px" />
 <p>The LASA Handwriting dataset learned with ProMPs. The dataset consists of
 2D handwriting motions. The first and third column of the plot represent
 demonstrations and the second and fourth column show the imitated ProMPs
 with 1-sigma interval.</p>
-<p><a href="examples/plot_promp_lasa.py">Script</a></p>
-<h3 id="cartesian-dmps">Cartesian DMPs</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/cart_dmp_ur5.png" width="100%" /></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_promp_lasa.py">Script</a></p>
+</section>
+<section id="cartesian-dmps">
+<h3>Cartesian DMPs<a class="headerlink" href="#cartesian-dmps" title="Link to this heading">¶</a></h3>
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/cart_dmp_ur5.png" width="100%" />
 <p>A trajectory is created manually, imitated with a Cartesian DMP, converted
 to a joint trajectory by inverse kinematics, and executed with a UR5.</p>
-<p><a href="examples/vis_cartesian_dmp.py">Script</a></p>
-<h3 id="contextual-promps">Contextual ProMPs</h3>
-<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="50%" /></p>
-<p>We use a dataset of <a href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/vis_cartesian_dmp.py">Script</a></p>
+</section>
+<section id="contextual-promps">
+<h3>Contextual ProMPs<a class="headerlink" href="#contextual-promps" title="Link to this heading">¶</a></h3>
+<p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="40%" /></p>
+<p>We use a dataset of <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a>
 with 10 demonstrations per 3 different panel widths that were obtained through
 kinesthetic teaching. The panel width is considered to be the context over
 which we generalize with contextual ProMPs. Each color in the above
 visualizations corresponds to a ProMP for a different context.</p>
-<p><a href="examples/external_dependencies/vis_contextual_promp_distribution.py">Script</a></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_contextual_promp_distribution.py">Script</a></p>
 <p><strong>Dependencies that are not publicly available:</strong></p>
 <ul>
-<li>Dataset: panel rotation dataset of
-<a href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a></li>
-<li>MoCap library</li>
-<li>URDF of dual arm Kuka system from
-<a href="https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/">DFKI RIC's MRK lab</a>:
-<code>bash
-git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git</code></li>
+<li><p>Dataset: panel rotation dataset of
+<a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a></p></li>
+<li><p>MoCap library</p></li>
+<li><p>URDF of dual arm Kuka system from
+<a class="reference external" href="https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/">DFKI RIC’s MRK lab</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/kuka_lbr.git
+</pre></div>
+</div>
+</li>
 </ul>
-<h3 id="dual-cartesian-dmp">Dual Cartesian DMP</h3>
+</section>
+<section id="dual-cartesian-dmp">
+<h3>Dual Cartesian DMP<a class="headerlink" href="#dual-cartesian-dmp" title="Link to this heading">¶</a></h3>
 <p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" /></p>
 <p>We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
 humanoid robots.</p>
-<p>Scripts: <a href="examples/external_dependencies/vis_solar_panel.py">Open3D</a>, <a href="examples/external_dependencies/sim_solar_panel.py">PyBullet</a></p>
+<p>Scripts: <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_solar_panel.py">Open3D</a>, <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_solar_panel.py">PyBullet</a></p>
 <p><strong>Dependencies that are not publicly available:</strong></p>
 <ul>
-<li>MoCap library</li>
-<li>URDF of <a href="https://www.youtube.com/watch?v=jjGQNstmLvY">DFKI RIC's RH5 robot</a>:
-<code>bash
-git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive</code></li>
-<li>URDF of solar panel:
-<code>bash
-git clone git@git.hb.dfki.de:models-objects/solar_panels.git</code></li>
+<li><p>MoCap library</p></li>
+<li><p>URDF of <a class="reference external" href="https://www.youtube.com/watch?v=jjGQNstmLvY">DFKI RIC’s RH5 robot</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git<span class="w"> </span>--recursive
+</pre></div>
+</div>
+</li>
+<li><p>URDF of solar panel:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-objects/solar_panels.git
+</pre></div>
+</div>
+</li>
 </ul>
-<h3 id="coupled-dual-cartesian-dmp">Coupled Dual Cartesian DMP</h3>
+</section>
+<section id="coupled-dual-cartesian-dmp">
+<h3>Coupled Dual Cartesian DMP<a class="headerlink" href="#coupled-dual-cartesian-dmp" title="Link to this heading">¶</a></h3>
 <p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/coupled_dual_cart_dmps_gripper_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/coupled_dual_cart_dmps_rh5_pybullet.png" width="40%" /></p>
 <p>We can introduce a coupling term in a dual Cartesian DMP to constrain the
 relative position, orientation, or pose of two end-effectors of a dual-arm
 robot.</p>
-<p>Scripts: <a href="examples/external_dependencies/vis_cartesian_dual_dmp.py">Open3D</a>, <a href="examples/external_dependencies/sim_cartesian_dual_dmp.py">PyBullet</a></p>
+<p>Scripts: <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_cartesian_dual_dmp.py">Open3D</a>, <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_cartesian_dual_dmp.py">PyBullet</a></p>
 <p><strong>Dependencies that are not publicly available:</strong></p>
 <ul>
-<li>URDF of DFKI RIC's gripper:
-<code>bash
-git clone git@git.hb.dfki.de:motto/abstract-urdf-gripper.git --recursive</code></li>
-<li>URDF of <a href="https://www.youtube.com/watch?v=jjGQNstmLvY">DFKI RIC's RH5 robot</a>:
-<code>bash
-git clone git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git --recursive</code></li>
+<li><p>URDF of DFKI RIC’s gripper:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:motto/abstract-urdf-gripper.git<span class="w"> </span>--recursive
+</pre></div>
+</div>
+</li>
+<li><p>URDF of <a class="reference external" href="https://www.youtube.com/watch?v=jjGQNstmLvY">DFKI RIC’s RH5 robot</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git<span class="w"> </span>--recursive
+</pre></div>
+</div>
+</li>
 </ul>
-<h3 id="propagation-of-dmp-distribution-to-state-space">Propagation of DMP Distribution to State Space</h3>
+</section>
+<section id="propagation-of-dmp-distribution-to-state-space">
+<h3>Propagation of DMP Distribution to State Space<a class="headerlink" href="#propagation-of-dmp-distribution-to-state-space" title="Link to this heading">¶</a></h3>
 <p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_state_space_distribution_kuka_peginhole_matplotlib.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_state_space_distribution_kuka_peginhole_open3d.png" width="40%" /></p>
 <p>If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.</p>
-<p><a href="examples/external_dependencies/vis_dmp_to_state_variance.py">Script</a></p>
+<p><a class="reference external" href="https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_dmp_to_state_variance.py">Script</a></p>
 <p><strong>Dependencies that are not publicly available:</strong></p>
 <ul>
-<li>Dataset: panel rotation dataset of
-<a href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a></li>
-<li>MoCap library</li>
-<li>URDF of dual arm
-<a href="https://robotik.dfki-bremen.de/en/research/robot-systems/imrk/">Kuka system</a>
+<li><p>Dataset: panel rotation dataset of
+<a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646">Mronga and Kirchner (2021)</a></p></li>
+<li><p>MoCap library</p></li>
+<li><p>URDF of dual arm
+<a class="reference external" href="https://robotik.dfki-bremen.de/en/research/robot-systems/imrk/">Kuka system</a>
 from
-<a href="https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/">DFKI RIC's MRK lab</a>:
-<code>bash
-git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git</code></li>
+<a class="reference external" href="https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/">DFKI RIC’s MRK lab</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/kuka_lbr.git
+</pre></div>
+</div>
+</li>
 </ul>
-<h2 id="funding">Funding</h2>
+</section>
+</section>
+<section id="build-api-documentation">
+<h2>Build API Documentation<a class="headerlink" href="#build-api-documentation" title="Link to this heading">¶</a></h2>
+<p>You can build an API documentation with sphinx.
+You can install all dependencies with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>movement_primitives<span class="o">[</span>doc<span class="o">]</span>
+</pre></div>
+</div>
+<p>… and build the documentation from the folder <code class="docutils literal notranslate"><span class="pre">doc/</span></code> with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>It will be located at <code class="docutils literal notranslate"><span class="pre">doc/build/html/index.html</span></code>.</p>
+</section>
+<section id="test">
+<h2>Test<a class="headerlink" href="#test" title="Link to this heading">¶</a></h2>
+<p>To run the tests some python libraries are required:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>test<span class="o">]</span>
+</pre></div>
+</div>
+<p>The tests are located in the folder <code class="docutils literal notranslate"><span class="pre">test/</span></code> and can be executed with:
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">nose</span> <span class="pre">test</span></code></p>
+<p>This command searches for all files with <code class="docutils literal notranslate"><span class="pre">test</span></code> and executes the functions with <code class="docutils literal notranslate"><span class="pre">test_*</span></code>.</p>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h2>
+<p>You can report bugs in the <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/issues">issue tracker</a>.
+If you have questions about the software, please use the <a class="reference external" href="https://github.com/dfki-ric/movement_primitives/discussions">discussions
+section</a>.
+To add new features, documentation, or fix bugs you can open a pull request
+on <a class="reference external" href="https://github.com/dfki-ric/movement_primitives">GitHub</a>. Directly pushing
+to the main branch is not allowed.</p>
+<p>The recommended workflow to add a new feature, add documentation, or fix a bug
+is the following:</p>
+<ul class="simple">
+<li><p>Push your changes to a branch (e.g., feature/x, doc/y, or fix/z) of your fork
+of the repository.</p></li>
+<li><p>Open a pull request to the main branch of the main repository.</p></li>
+</ul>
+<p>This is a checklist for new features:</p>
+<ul class="simple">
+<li><p>are there unit tests?</p></li>
+<li><p>does it have docstrings?</p></li>
+<li><p>is it included in the API documentation?</p></li>
+<li><p>run flake8 and pylint</p></li>
+<li><p>should it be part of the readme?</p></li>
+<li><p>should it be included in any example script?</p></li>
+</ul>
+</section>
+<section id="non-public-extensions">
+<h2>Non-public Extensions<a class="headerlink" href="#non-public-extensions" title="Link to this heading">¶</a></h2>
+<p>Scripts from the subfolder <code class="docutils literal notranslate"><span class="pre">examples/external_dependencies/</span></code> require access to
+git repositories (URDF files or optional dependencies) and datasets that are
+not publicly available. They are available on request (email
+alexander.fabisch&#64;dfki.de).</p>
+<p>Note that the library does not have any non-public dependencies! They are only
+required to run all examples.</p>
+<section id="mocap-library">
+<h3>MoCap Library<a class="headerlink" href="#mocap-library" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># untested: pip install git+https://git.hb.dfki.de/dfki-interaction/mocap.git</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:dfki-interaction/mocap.git
+<span class="nb">cd</span><span class="w"> </span>mocap
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+</pre></div>
+</div>
+</section>
+<section id="get-urdfs">
+<h3>Get URDFs<a class="headerlink" href="#get-urdfs" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># RH5</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/rh5_models/pybullet-only-arms-urdf.git<span class="w"> </span>--recursive
+<span class="c1"># RH5v2</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/rh5v2_models/pybullet-urdf.git<span class="w"> </span>--recursive
+<span class="c1"># Kuka</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-robots/kuka_lbr.git
+<span class="c1"># Solar panel</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:models-objects/solar_panels.git
+<span class="c1"># RH5 Gripper</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@git.hb.dfki.de:motto/abstract-urdf-gripper.git<span class="w"> </span>--recursive
+</pre></div>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">¶</a></h3>
+<p>I assume that your data is located in the folder <code class="docutils literal notranslate"><span class="pre">data/</span></code> in most scripts.
+You should put a symlink there to point to your actual data folder.</p>
+</section>
+</section>
+<section id="related-publications">
+<h2>Related Publications<a class="headerlink" href="#related-publications" title="Link to this heading">¶</a></h2>
+<p>This library implements several types of dynamical movement primitives and
+probabilistic movement primitives. These are described in detail in the
+following papers.</p>
+<p>[1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S. (2013).
+Dynamical Movement Primitives: Learning Attractor Models for Motor
+Behaviors, Neural Computation 25 (2), 328-373. DOI: 10.1162/NECO_a_00393,
+https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf</p>
+<p>[2] Pastor, P., Hoffmann, H., Asfour, T., Schaal, S. (2009).
+Learning and Generalization of Motor Skills by Learning from Demonstration.
+In 2009 IEEE International Conference on Robotics and Automation,
+(pp. 763-768). DOI: 10.1109/ROBOT.2009.5152385,
+https://h2t.iar.kit.edu/pdf/Pastor2009.pdf</p>
+<p>[3] Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013).
+Learning to Select and Generalize Striking Movements in Robot Table Tennis.
+International Journal of Robotics Research 32 (3), 263-279.
+https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf</p>
+<p>[4] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+Orientation in Cartesian space dynamic movement primitives.
+In IEEE International Conference on Robotics and Automation (ICRA)
+(pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
+https://acat-project.eu/modules/BibtexModule/uploads/PDF/udenemecpetric2014.pdf</p>
+<p>[5] Gams, A., Nemec, B., Zlajpah, L., Wächter, M., Asfour, T., Ude, A. (2013).
+Modulation of Motor Primitives using Force Feedback: Interaction with
+the Environment and Bimanual Tasks (2013), In 2013 IEEE/RSJ International
+Conference on Intelligent Robots and Systems (pp. 5629-5635). DOI:
+10.1109/IROS.2013.6697172,
+https://h2t.anthropomatik.kit.edu/pdf/Gams2013.pdf</p>
+<p>[6] Vidakovic, J., Jerbic, B., Sekoranja, B., Svaco, M., Suligoj, F. (2019).
+Task Dependent Trajectory Learning from Multiple Demonstrations Using
+Movement Primitives (2019),
+In International Conference on Robotics in Alpe-Adria Danube Region (RAAD)
+(pp. 275-282). DOI: 10.1007/978-3-030-19648-6_32,
+https://link.springer.com/chapter/10.1007/978-3-030-19648-6_32</p>
+<p>[7] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+Probabilistic movement primitives, In C.J. Burges and L. Bottou and M.
+Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in Neural
+Information Processing Systems, 26,
+https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf</p>
+<p>[8] Maeda, G. J., Neumann, G., Ewerton, M., Lioutikov, R., Kroemer, O.,
+Peters, J. (2017). Probabilistic movement primitives for coordination of
+multiple human–robot collaborative tasks. Autonomous Robots, 41, 593-612.
+DOI: 10.1007/s10514-016-9556-2,
+https://link.springer.com/article/10.1007/s10514-016-9556-2</p>
+<p>[9] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2018).
+Using probabilistic movement primitives in robotics. Autonomous Robots, 42,
+529-551. DOI: 10.1007/s10514-017-9648-7,
+https://www.ias.informatik.tu-darmstadt.de/uploads/Team/AlexandrosParaschos/promps_auro.pdf</p>
+<p>[10] Lazaric, A., Ghavamzadeh, M. (2010).
+Bayesian Multi-Task Reinforcement Learning. In Proceedings of the 27th
+International Conference on International Conference on Machine Learning
+(ICML’10) (pp. 599-606). https://hal.inria.fr/inria-00475214/document</p>
+</section>
+<section id="funding">
+<h2>Funding<a class="headerlink" href="#funding" title="Link to this heading">¶</a></h2>
 <p>This library has been developed initially at the
-<a href="https://robotik.dfki-bremen.de/en/startpage.html">Robotics Innovation Center</a>
+<a class="reference external" href="https://robotik.dfki-bremen.de/en/startpage.html">Robotics Innovation Center</a>
 of the German Research Center for Artificial Intelligence (DFKI GmbH) in
 Bremen. At this phase the work was supported through a grant of the German
 Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).</p>
 <p><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/DFKI_Logo.jpg" height="150px" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" /></p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;Movement primitives.
-
-.. include:: ../README.md
-&#34;&#34;&#34;
-
-from ._version import __version__
+</section>
+</section>
 
 
-__all__ = [&#34;__version__&#34;]</code></pre>
-</details>
-</section>
-<section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="movement_primitives.base" href="base.html">movement_primitives.base</a></code></dt>
-<dd>
-<div class="desc"><p>Base classes of movement primitives.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.data" href="data/index.html">movement_primitives.data</a></code></dt>
-<dd>
-<div class="desc"><p>Tools for loading datasets.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.dmp" href="dmp/index.html">movement_primitives.dmp</a></code></dt>
-<dd>
-<div class="desc"><p>Dynamical movement primitive variants.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.dmp_fast" href="dmp_fast.html">movement_primitives.dmp_fast</a></code></dt>
-<dd>
-<div class="desc"><p>Cython implementations of basic DMP functions.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.dmp_potential_field" href="dmp_potential_field.html">movement_primitives.dmp_potential_field</a></code></dt>
-<dd>
-<div class="desc"><p>Visualization of DMP as potential field.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.dmp_to_state_space_distribution" href="dmp_to_state_space_distribution.html">movement_primitives.dmp_to_state_space_distribution</a></code></dt>
-<dd>
-<div class="desc"><p>Tools to propagate DMP distributions to state space.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.io" href="io.html">movement_primitives.io</a></code></dt>
-<dd>
-<div class="desc"><p>Input and output from and to files of movement primitives.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.kinematics" href="kinematics.html">movement_primitives.kinematics</a></code></dt>
-<dd>
-<div class="desc"><p>Forward kinematics and a simple implementation of inverse kinematics.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.minimum_jerk_trajectory" href="minimum_jerk_trajectory.html">movement_primitives.minimum_jerk_trajectory</a></code></dt>
-<dd>
-<div class="desc"><p>Minimum jerk trajectory.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.plot" href="plot.html">movement_primitives.plot</a></code></dt>
-<dd>
-<div class="desc"><p>Tools for plotting multi-dimensional trajectories.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.promp" href="promp.html">movement_primitives.promp</a></code></dt>
-<dd>
-<div class="desc"><p>Probabilistic movement primitive.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.spring_damper" href="spring_damper.html">movement_primitives.spring_damper</a></code></dt>
-<dd>
-<div class="desc"><p>Spring-damper based attractors.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.testing" href="testing/index.html">movement_primitives.testing</a></code></dt>
-<dd>
-<div class="desc"><p>Modules that are only required for test purposes.</p></div>
-</dd>
-<dt><code class="name"><a title="movement_primitives.visualization" href="visualization.html">movement_primitives.visualization</a></code></dt>
-<dd>
-<div class="desc"><p>3D visualization tools for movement primitives.</p></div>
-</dd>
-</dl>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul>
-<li><a href="#movement-primitives">Movement Primitives</a><ul>
-<li><a href="#features">Features</a></li>
-<li><a href="#api-documentation">API Documentation</a></li>
-<li><a href="#install-library">Install Library</a></li>
-<li><a href="#non-public-extensions">Non-public Extensions</a><ul>
-<li><a href="#mocap-library">MoCap Library</a></li>
-<li><a href="#get-urdfs">Get URDFs</a></li>
-<li><a href="#data">Data</a></li>
-</ul>
-</li>
-<li><a href="#build-api-documentation">Build API Documentation</a></li>
-<li><a href="#test">Test</a></li>
-<li><a href="#contributing">Contributing</a></li>
-<li><a href="#examples">Examples</a><ul>
-<li><a href="#conditional-promps">Conditional ProMPs</a></li>
-<li><a href="#potential-field-of-2d-dmp">Potential Field of 2D DMP</a></li>
-<li><a href="#dmp-with-final-velocity">DMP with Final Velocity</a></li>
-<li><a href="#promps">ProMPs</a></li>
-<li><a href="#cartesian-dmps">Cartesian DMPs</a></li>
-<li><a href="#contextual-promps">Contextual ProMPs</a></li>
-<li><a href="#dual-cartesian-dmp">Dual Cartesian DMP</a></li>
-<li><a href="#coupled-dual-cartesian-dmp">Coupled Dual Cartesian DMP</a></li>
-<li><a href="#propagation-of-dmp-distribution-to-state-space">Propagation of DMP Distribution to State Space</a></li>
-</ul>
-</li>
-<li><a href="#funding">Funding</a></li>
-</ul>
-</li>
-</ul>
+    </div>
+      
+  </div>
 </div>
-<ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="movement_primitives.base" href="base.html">movement_primitives.base</a></code></li>
-<li><code><a title="movement_primitives.data" href="data/index.html">movement_primitives.data</a></code></li>
-<li><code><a title="movement_primitives.dmp" href="dmp/index.html">movement_primitives.dmp</a></code></li>
-<li><code><a title="movement_primitives.dmp_fast" href="dmp_fast.html">movement_primitives.dmp_fast</a></code></li>
-<li><code><a title="movement_primitives.dmp_potential_field" href="dmp_potential_field.html">movement_primitives.dmp_potential_field</a></code></li>
-<li><code><a title="movement_primitives.dmp_to_state_space_distribution" href="dmp_to_state_space_distribution.html">movement_primitives.dmp_to_state_space_distribution</a></code></li>
-<li><code><a title="movement_primitives.io" href="io.html">movement_primitives.io</a></code></li>
-<li><code><a title="movement_primitives.kinematics" href="kinematics.html">movement_primitives.kinematics</a></code></li>
-<li><code><a title="movement_primitives.minimum_jerk_trajectory" href="minimum_jerk_trajectory.html">movement_primitives.minimum_jerk_trajectory</a></code></li>
-<li><code><a title="movement_primitives.plot" href="plot.html">movement_primitives.plot</a></code></li>
-<li><code><a title="movement_primitives.promp" href="promp.html">movement_primitives.promp</a></code></li>
-<li><code><a title="movement_primitives.spring_damper" href="spring_damper.html">movement_primitives.spring_damper</a></code></li>
-<li><code><a title="movement_primitives.testing" href="testing/index.html">movement_primitives.testing</a></code></li>
-<li><code><a title="movement_primitives.visualization" href="visualization.html">movement_primitives.visualization</a></code></li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+    </p>
+  </div>
 </footer>
-</body>
+  </body>
 </html>

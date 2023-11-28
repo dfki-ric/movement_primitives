@@ -1,0 +1,6 @@
+﻿movement\_primitives.dmp.phase
+==============================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autofunction:: phase

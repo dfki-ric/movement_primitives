@@ -1,0 +1,6 @@
+﻿movement\_primitives.io.write\_yaml
+===================================
+
+.. currentmodule:: movement_primitives.io
+
+.. autofunction:: write_yaml

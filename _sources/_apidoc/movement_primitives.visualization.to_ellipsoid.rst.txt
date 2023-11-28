@@ -1,0 +1,6 @@
+﻿movement\_primitives.visualization.to\_ellipsoid
+================================================
+
+.. currentmodule:: movement_primitives.visualization
+
+.. autofunction:: to_ellipsoid

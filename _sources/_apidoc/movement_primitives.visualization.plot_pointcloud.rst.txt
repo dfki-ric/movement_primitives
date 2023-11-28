@@ -1,0 +1,6 @@
+﻿movement\_primitives.visualization.plot\_pointcloud
+===================================================
+
+.. currentmodule:: movement_primitives.visualization
+
+.. autofunction:: plot_pointcloud

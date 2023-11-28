@@ -1,0 +1,27 @@
+﻿movement\_primitives.dmp.CouplingTermDualCartesianPose
+======================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: CouplingTermDualCartesianPose
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CouplingTermDualCartesianPose.__init__
+      ~CouplingTermDualCartesianPose.couple_distance
+      ~CouplingTermDualCartesianPose.coupling
+   
+   
+
+   
+   
+   

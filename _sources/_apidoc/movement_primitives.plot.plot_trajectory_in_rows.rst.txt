@@ -1,0 +1,6 @@
+﻿movement\_primitives.plot.plot\_trajectory\_in\_rows
+====================================================
+
+.. currentmodule:: movement_primitives.plot
+
+.. autofunction:: plot_trajectory_in_rows

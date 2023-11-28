@@ -1,0 +1,6 @@
+﻿movement\_primitives.io.read\_yaml
+==================================
+
+.. currentmodule:: movement_primitives.io
+
+.. autofunction:: read_yaml

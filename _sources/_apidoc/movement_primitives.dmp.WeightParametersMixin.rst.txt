@@ -1,0 +1,33 @@
+﻿movement\_primitives.dmp.WeightParametersMixin
+==============================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: WeightParametersMixin
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WeightParametersMixin.__init__
+      ~WeightParametersMixin.get_weights
+      ~WeightParametersMixin.set_weights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WeightParametersMixin.n_weights
+   
+   

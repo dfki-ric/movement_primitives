@@ -1,0 +1,26 @@
+﻿movement\_primitives.dmp.CouplingTermPos1DToPos1D
+=================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autoclass:: CouplingTermPos1DToPos1D
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CouplingTermPos1DToPos1D.__init__
+      ~CouplingTermPos1DToPos1D.coupling
+   
+   
+
+   
+   
+   

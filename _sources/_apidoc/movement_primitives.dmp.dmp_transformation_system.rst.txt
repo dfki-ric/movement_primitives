@@ -1,0 +1,6 @@
+﻿movement\_primitives.dmp.dmp\_transformation\_system
+====================================================
+
+.. currentmodule:: movement_primitives.dmp
+
+.. autofunction:: dmp_transformation_system

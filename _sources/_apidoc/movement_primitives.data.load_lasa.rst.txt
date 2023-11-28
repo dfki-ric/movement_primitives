@@ -1,0 +1,6 @@
+﻿movement\_primitives.data.load\_lasa
+====================================
+
+.. currentmodule:: movement_primitives.data
+
+.. autofunction:: load_lasa
