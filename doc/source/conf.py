@@ -67,12 +67,12 @@ html_theme_options = {
     "nosidebar": True,
     "body_max_width": "90%",
     "navbar_links": [
-        ("Readme", "README"),
+        ("Home", "index"),
         ("API", "api"),
     ],
 }
 
-root_doc = "README"
+root_doc = "index"
 source_suffix = {
     ".rst": "restructuredtext",
     ".md": "markdown",
