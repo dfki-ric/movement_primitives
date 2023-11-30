@@ -146,21 +146,24 @@ to a joint trajectory by inverse kinematics, and executed with a UR5.
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="40%" />
 
-We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
-with 10 demonstrations per 3 different panel widths that were obtained through
-kinesthetic teaching. The panel width is considered to be the context over
-which we generalize with contextual ProMPs. Each color in the above
-visualizations corresponds to a ProMP for a different context.
+We use a dataset of [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779),
+in which a dual-arm robot rotates panels of varying widths. 10 demonstrations
+were recorded for 3 different panel widths through kinesthetic teaching.
+The panel width is the context over which we generalize with contextual ProMPs.
+We learn a joint distribution of contexts and ProMP weights, and then condition
+the distribution on the contexts to obtain a ProMP adapted to the context. Each
+color in the above visualizations corresponds to a ProMP for a different
+context.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_contextual_promp_distribution.py)
 
 **Dependencies that are not publicly available:**
 
 * Dataset: panel rotation dataset of
-  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+  [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779)
 * MoCap library
 * URDF of dual arm Kuka system from
-  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  [DFKI RIC's HRC lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/hrc-lab):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
@@ -169,8 +172,8 @@ visualizations corresponds to a ProMP for a different context.
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" />
 
-We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
-humanoid robots.
+This library implements specific dual Cartesian DMPs to control dual-arm
+robotic systems like humanoid robots.
 
 Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_solar_panel.py), [PyBullet](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_solar_panel.py)
 
@@ -213,18 +216,23 @@ Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/exam
 
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
+On the left we see the original demonstration of a dual-arm movement in state
+space (two 3D positions and two quaternions) and the distribution of several
+DMP weight vectors projected to the state space.
+On the right side we see several dual-arm trajectories sampled from the
+distribution in state space.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_dmp_to_state_variance.py)
 
 **Dependencies that are not publicly available:**
 
 * Dataset: panel rotation dataset of
-  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+  [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779)
 * MoCap library
 * URDF of dual arm
   [Kuka system](https://robotik.dfki-bremen.de/en/research/robot-systems/imrk/)
   from
-  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  [DFKI RIC's HRC lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/hrc-lab):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
