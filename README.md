@@ -91,17 +91,6 @@ You will find a lot of examples in the subfolder
 [`examples/`](https://github.com/dfki-ric/movement_primitives/tree/main/examples).
 Here are just some highlights to showcase the library.
 
-### Conditional ProMPs
-
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
-
-Probabilistic Movement Primitives (ProMPs) define distributions over
-trajectories that can be conditioned on viapoints. In this example, we
-plot the resulting posterior distribution after conditioning on varying
-start positions.
-
-[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py)
-
 ### Potential Field of 2D DMP
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dmp_potential_field.png" width="800px" />
@@ -132,6 +121,17 @@ demonstrations and the second and fourth column show the imitated ProMPs
 with 1-sigma interval.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_promp_lasa.py)
+
+### Conditional ProMPs
+
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
+
+Probabilistic Movement Primitives (ProMPs) define distributions over
+trajectories that can be conditioned on viapoints. In this example, we
+plot the resulting posterior distribution after conditioning on varying
+start positions.
+
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py)
 
 ### Cartesian DMPs
 
