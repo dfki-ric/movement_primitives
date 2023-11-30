@@ -545,7 +545,21 @@ class DMP(WeightParametersMixin, DMPBase):
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
-        """Imitate demonstration.
+        r"""Imitate demonstration.
+
+        Target forces of the forcing term are computed according to
+
+        .. math::
+
+            f_{target} =
+            \tau^2 \ddot{y}_{demo}
+            - \alpha_y(
+                \beta_y (g-y_{demo})
+                - \tau \dot{y}_{demo}
+                - \underline{\beta_y (g-y_0) z}
+            ),
+
+        where the underlined part is only used when smooth scaling is used.
 
         Parameters
         ----------
