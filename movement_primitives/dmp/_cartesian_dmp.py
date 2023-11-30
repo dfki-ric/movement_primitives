@@ -390,6 +390,10 @@ class CartesianDMP(DMPBase):
                 allow_final_velocity=False):
         """Imitate demonstration.
 
+        Target forces for the forcing term are computed for the positions
+        in a similar way as in :func:`DMP.imitate`. For the orientations
+        we adapt this to handle quaternions adequately.
+
         Parameters
         ----------
         T : array, shape (n_steps,)
