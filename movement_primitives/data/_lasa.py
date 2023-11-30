@@ -18,22 +18,11 @@ def load_lasa(shape_idx):
 
     The LASA dataset contains 2D handwriting motions recorded from a
     Tablet-PC. It can be found `here
-    <https://bitbucket.org/khansari/lasahandwritingdataset>`_
+    <https://bitbucket.org/khansari/lasahandwritingdataset>`_.
     Take a look at the `detailed explanation
-    <http://cs.stanford.edu/people/khansari/DSMotions#SEDS_Benchmark_Dataset>`_
-    for more information.
-
-    The following plot shows multiple demonstrations for the same shape.
-
-    .. plot::
-
-        import matplotlib.pyplot as plt
-        from movement_primitives.data import load_lasa
-        X, Xd, Xdd, dt, shape_name = load_lasa(0)
-        plt.figure()
-        plt.title(shape_name)
-        plt.plot(X[:, :, 0].T, X[:, :, 1].T)
-        plt.show()
+    <https://cs.stanford.edu/people/khansari/download.html>`_
+    for more information. It was initially used to evaluate stable estimators
+    of dynamical systems [1]_.
 
     Parameters
     ----------
@@ -60,6 +49,13 @@ def load_lasa(shape_idx):
     shape_name : string
         Name of the Matlab file from which we load the demonstrations
         (without suffix).
+
+    References
+    ----------
+    .. [1] Khansari-Zadeh, S. M., Billard, A. (2011).
+       Learning Stable Nonlinear Dynamical Systems With Gaussian Mixture Models.
+       IEEE Transactions on Robotics, 27 (5), 943-957. DOI:
+       10.1109/TRO.2011.2159412
     """
     dataset_path = get_common_dataset_path()
     if not os.path.isdir(dataset_path + "lasa_data"):  # pragma: no cover
