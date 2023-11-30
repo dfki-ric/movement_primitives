@@ -108,15 +108,17 @@ class ProMP:
             self.n_dims, len(T)).T
 
     def condition_position(self, y_mean, y_cov=None, t=0, t_max=1.0):
-        """Condition ProMP on a specific position (see page 4 of [1]).
+        """Condition ProMP on a specific position.
+
+        For details, see page 4 of [1]_
 
         Parameters
         ----------
         y_mean : array, shape (n_dims,)
-            Position mean
+            Position mean.
 
         y_cov : array, shape (n_dims, n_dims), optional (default: 0)
-            Covariance of position
+            Covariance of position.
 
         t : float, optional (default: 0)
             Time at which the activations of RBFs will be queried. Note that
@@ -132,8 +134,11 @@ class ProMP:
 
         References
         ----------
-        [1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
-        https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+        .. [1] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+           Probabilistic movement primitives, In C.J. Burges and L. Bottou and
+           M. Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in
+           Neural Information Processing Systems, 26,
+           https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
         """
         Psi_t = _nd_block_diagonal(
             self._rbfs_1d_point(t, t_max)[:, np.newaxis], self.n_dims)
@@ -297,7 +302,11 @@ class ProMP:
         return self
 
     def imitate(self, Ts, Ys, n_iter=1000, min_delta=1e-5, verbose=0):
-        """Learn ProMP from multiple demonstrations.
+        r"""Learn ProMP from multiple demonstrations.
+
+        For details, see Section 3.2 of [1]_. We use the parameters
+        :math:`P = I` (identity matrix), :math:`\mu_0 = 0, k_0 = 0, \nu_0 = 0,
+        \Sigma_0 = 0,\alpha_0 = 0,\beta_0 = 0`.
 
         Parameters
         ----------
@@ -315,15 +324,15 @@ class ProMP:
 
         verbose : int, optional (default: 0)
             Verbosity level
+
+        References
+        ----------
+        .. [1] Lazaric, A., Ghavamzadeh, M. (2010).
+           Bayesian Multi-Task Reinforcement Learning. In Proceedings of the
+           27th International Conference on International Conference on Machine
+           Learning (ICML'10) (pp. 599-606).
+           https://hal.inria.fr/inria-00475214/document
         """
-        # Section 3.2 of https://hal.inria.fr/inria-00475214/document
-        # P = I
-        # mu_0 = 0
-        # k_0 = 0
-        # nu_0 = 0
-        # Sigma_0 = 0
-        # alpha_0 = 0
-        # beta_0 = 0
         gamma = 0.7
 
         n_demos = len(Ts)
@@ -578,7 +587,7 @@ class ProMP:
 
         self.variance = 0.0
         for i in range(len(means)):
-            # a trace is the same irrelevant of the order of matrix
+            # trace is the same, independent of the order of matrix
             # multiplications, see:
             # https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf,
             # Equation 16
