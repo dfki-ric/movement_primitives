@@ -164,7 +164,22 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             smooth_scaling=self.smooth_scaling)
 
     def imitate(self, T, Y, regularization_coefficient=0.0):
-        """Imitate demonstration.
+        r"""Imitate demonstration.
+
+        Target forces of the forcing term are computed according to
+
+        .. math::
+
+            f_{target} =
+            \tau^2 \ddot{y}_{demo}
+            - \alpha_y(
+                \beta_y (g-y_{demo})
+                + \tau (\dot{g} - \dot{y}_{demo})
+            )
+            - \tau^2 \ddot{g},
+
+        where :math:`g, \dot{g}, \ddot{g}` are constraints that will be
+        recomputed in each step.
 
         Parameters
         ----------
