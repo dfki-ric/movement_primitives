@@ -107,13 +107,13 @@ bimanual movements through dual Cartesian DMPs.
 # Design and Features
 The main contributions of *movement_primitives* are (1) a fast Python-only
 library for movement primitives, and (2) robust implementations of several
-types of movement primitives (see table below).
+types of movement primitives (see \autoref{tab:features}).
 Our focus is on Cartesian movement primitives that are used to control one or
 two robotic arms and offer exemplary implementations of coupling terms for
 Cartesian (bimanual) DMPs. These can be used for obstacle avoidance and to
 constrain dual arm motions to relative positions and/or orientations.
 
-Overview of implemented movement primitives.
+:Overview of implemented movement primitives.\label{tab:features}
 
 | Class                | Description                | Publication    |
 |----------------------|----------------------------|----------------|
@@ -174,9 +174,9 @@ the Python version and the C++ version of dmpbbo as well as
 *movement_primitives* with various implementations of the integration (Euler
 integration with $h=0.1 \cdot \Delta t$ and RK4 integration, both in Python
 and Cython). The default integration method of dmpbbo is RK4. Results for
-varying configurations of $N$ and $M$ are summarized in Figures
-\autoref{fig:timing_execution_weights} and \autoref{fig:timing_execution_dims}
-and the following table. While the number of weights per dimension and the
+varying configurations of $N$ and $M$ are summarized in
+\autoref{fig:timing_execution_weights}, \autoref{fig:timing_execution_dims}
+and \autoref{tab:benchmark_results}. While the number of weights per dimension and the
 number of dimensions have a considerable influence on the runtime of dmpbbo,
 the influence on the runtime of *movement_primitives* is negligible because
 NumPy [@Harris2020] vectorization is used.  More specifically, computing all
@@ -203,7 +203,7 @@ configurations. Each bar shows an average over 100 stepwise executions of a
 DMP. Varying number of dimensions $N$, number of weights per dimension
 $M=30$.\label{fig:timing_execution_dims}](timing_execution_dimensions.pdf)
 
-Benchmark results for DMP execution. Best performance per setup in **bold**.
+:Benchmark results for DMP execution. Best performance per setup in **bold**.\label{tab:benchmark_results}
 
 | Library             | Implementation | $N$ | $M$ | Time $\mu \pm \sigma$ [s] |
 |---------------------|----------------|-----|-----|---------------------------|
