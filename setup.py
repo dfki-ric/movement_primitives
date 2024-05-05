@@ -27,7 +27,7 @@ if __name__ == "__main__":
                     "open3d", "tqdm", "gmr", "PyYAML", "numba", "pybullet"],
             "doc": ["sphinx", "sphinx-bootstrap-theme", "numpydoc",
                     "myst-parser"],
-            "test": ["nose", "coverage"]
+            "test": ["pytest", "pytest-cov", "nose"]
         }
     )
     try:
