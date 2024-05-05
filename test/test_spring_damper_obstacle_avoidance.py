@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.spring_damper import SpringDamper
 from movement_primitives.dmp import CouplingTermObstacleAvoidance2D
-from nose.tools import assert_greater
 
 
 def test_spring_damper_obstacle_avoidance(returns=False):
@@ -15,7 +14,7 @@ def test_spring_damper_obstacle_avoidance(returns=False):
     ct = CouplingTermObstacleAvoidance2D(obstacle_position=obstacle_position)
     T, Y = sd.open_loop(run_t=10.0, coupling_term=ct)
     min_dist = min(np.linalg.norm(Y - obstacle_position, axis=1))
-    assert_greater(min_dist, 0.3)
+    assert min_dist > 0.3
     if returns:
         return T, Y, sd, obstacle_position
 

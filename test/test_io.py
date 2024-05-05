@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pytest
 from pytransform3d import rotations as pr
 from pytransform3d import batch_rotations as pbr
 from movement_primitives.dmp import DMP, DualCartesianDMP
@@ -8,7 +9,6 @@ from movement_primitives.io import (
     write_pickle, read_pickle, write_yaml, read_yaml, write_json, read_json,
     _dict_to_object)
 from numpy.testing import assert_array_almost_equal
-from nose.tools import assert_raises_regexp
 
 
 def test_pickle_io():
@@ -124,6 +124,6 @@ def test_json_io():
 
 
 def test_invalid_class():
-    assert_raises_regexp(
-        ImportError, "cannot import name", _dict_to_object,
-        {"module": "movement_primitives", "class": "DMPNotExisting"})
+    with pytest.raises(ImportError, match="cannot import name"):
+        _dict_to_object({"module": "movement_primitives",
+                         "class": "DMPNotExisting"})

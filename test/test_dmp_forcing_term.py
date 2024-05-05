@@ -1,19 +1,18 @@
 import numpy as np
+import pytest
+
 from movement_primitives.dmp._canonical_system import canonical_system_alpha, phase
 from movement_primitives.dmp._forcing_term import ForcingTerm
-from nose.tools import assert_equal, assert_raises_regexp
 
 
 def test_invalid_arguments():
     alpha_z = canonical_system_alpha(goal_z=0.01, goal_t=1.0, start_t=0.0)
-    assert_raises_regexp(
-        ValueError, "The number of weights per dimension must be > 1!",
-        ForcingTerm, n_dims=2, n_weights_per_dim=-1, goal_t=1.0, start_t=0.0,
-        overlap=0.7, alpha_z=alpha_z)
-    assert_raises_regexp(
-        ValueError, "Goal must be chronologically after start!",
-        ForcingTerm, n_dims=2, n_weights_per_dim=2, goal_t=0.0, start_t=1.0,
-        overlap=0.7, alpha_z=alpha_z)
+    with pytest.raises(ValueError, match="The number of weights per dimension must be > 1!"):
+        ForcingTerm(n_dims=2, n_weights_per_dim=-1, goal_t=1.0, start_t=0.0,
+                    overlap=0.7, alpha_z=alpha_z)
+    with pytest.raises(ValueError, match="Goal must be chronologically after start!"):
+        ForcingTerm(n_dims=2, n_weights_per_dim=2, goal_t=0.0, start_t=1.0,
+                    overlap=0.7, alpha_z=alpha_z)
 
 
 def test_forcing_term():
@@ -27,9 +26,9 @@ def test_forcing_term():
     forcing_term.weights_ = random_state.randn(*forcing_term.weights_.shape)
     f = forcing_term(T)
 
-    assert_equal(f.ndim, 2)
-    assert_equal(f.shape[0], n_dims)
-    assert_equal(f.shape[1], len(T))
+    assert f.ndim == 2
+    assert f.shape[0] == n_dims
+    assert f.shape[1] == len(T)
 
 
 def test_activations():
@@ -44,8 +43,8 @@ def test_activations():
     z = phase(T, alpha_z, goal_t=1.0, start_t=0.0)
     activations = forcing_term._activations(z)
 
-    assert_equal(activations.shape[0], n_weights_per_dim)
-    assert_equal(activations.shape[1], len(T))
+    assert activations.shape[0] == n_weights_per_dim
+    assert activations.shape[1] == len(T)
 
 
 if __name__ == "__main__":

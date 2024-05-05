@@ -2,8 +2,7 @@ import numpy as np
 from movement_primitives.data import (
     generate_minimum_jerk, load_lasa, generate_1d_trajectory_distribution)
 from numpy.testing import assert_array_almost_equal
-from nose.tools import (assert_raises_regexp, assert_greater_equal,
-                        assert_less_equal, assert_equal)
+import pytest
 
 
 def test_minimum_jerk_boundaries():
@@ -21,25 +20,25 @@ def test_minimum_jerk_boundaries():
 
     for t in range(X.shape[0]):
         for d in range(X.shape[1]):
-            assert_greater_equal(X[t, d], x0[d])
-            assert_less_equal(X[t, d], g[d])
+            assert X[t, d] >= x0[d]
+            assert X[t, d] <= g[d]
 
-    assert_raises_regexp(ValueError, "Shape .* must be equal",
-                         generate_minimum_jerk, x0, np.zeros(1))
+    with pytest.raises(ValueError, match="Shape .* must be equal"):
+        generate_minimum_jerk(x0, np.zeros(1))
 
 
 def test_lasa():
     T, X, Xd, Xdd, dt, shape_name = load_lasa(0)
-    assert_equal(T.shape[0], X.shape[0])
-    assert_equal(T.shape[1], X.shape[1])
-    assert_equal(X.shape[2], 2)
-    assert_equal(Xd.shape[0], X.shape[0])
-    assert_equal(Xd.shape[1], X.shape[1])
-    assert_equal(Xd.shape[2], X.shape[2])
-    assert_equal(Xdd.shape[0], X.shape[0])
-    assert_equal(Xdd.shape[1], X.shape[1])
-    assert_equal(Xdd.shape[2], X.shape[2])
-    assert_equal(shape_name, "Angle")
+    assert T.shape[0] == X.shape[0]
+    assert T.shape[1] == X.shape[1]
+    assert X.shape[2] == 2
+    assert Xd.shape[0] == X.shape[0]
+    assert Xd.shape[1] == X.shape[1]
+    assert Xd.shape[2] == X.shape[2]
+    assert Xdd.shape[0] == X.shape[0]
+    assert Xdd.shape[1] == X.shape[1]
+    assert Xdd.shape[2] == X.shape[2]
+    assert shape_name == "Angle"
 
 
 def test_toy1d():

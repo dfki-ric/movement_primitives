@@ -1,13 +1,14 @@
 import numpy as np
+import pytest
+
 from movement_primitives.dmp import DualCartesianDMP
-from nose.tools import assert_raises_regexp, assert_less
 
 
 def test_invalid_step_function():
     dmp = DualCartesianDMP(
         execution_time=1.0, dt=0.01, n_weights_per_dim=10, int_dt=0.001)
-    assert_raises_regexp(ValueError, "Step function", dmp.open_loop,
-                         step_function="invalid")
+    with pytest.raises(ValueError, match="Step function"):
+        dmp.open_loop(step_function="invalid")
 
 
 def test_temporal_scaling():
@@ -34,5 +35,5 @@ def test_temporal_scaling():
     dmp.execution_time_ = 4.0
     _, Y4 = dmp.open_loop()
 
-    assert_less(np.linalg.norm(Y1 - Y2[::2]) / len(Y1), 1e-3)
-    assert_less(np.linalg.norm(Y2 - Y4[::2]) / len(Y2), 1e-3)
+    assert np.linalg.norm(Y1 - Y2[::2]) / len(Y1) < 1e-3
+    assert np.linalg.norm(Y2 - Y4[::2]) / len(Y2) < 1e-3
