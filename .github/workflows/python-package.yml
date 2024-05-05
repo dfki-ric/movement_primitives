@@ -29,6 +29,6 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-          NUMBA_DISABLE_JIT=1 MPLBACKEND=Agg pytest test/
+          NUMBA_DISABLE_JIT=1 MPLBACKEND=Agg pytest
       - name: Codecov
         uses: codecov/codecov-action@v1.3.2
