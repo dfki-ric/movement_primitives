@@ -7,15 +7,22 @@
 > Dynamical movement primitives (DMPs), probabilistic movement primitives
 > (ProMPs), and spatially coupled bimanual DMPs for imitation learning.
 
-Movement primitives are a common group of policy representations in robotics.
-There are many types and variations. This repository focuses mainly on
-imitation learning, generalization, and adaptation of movement primitives for
-Cartesian motions of robots. It provides implementations in Python and Cython
-and can be installed directly from
+Movement primitives are a common representation of movements in robotics for
+imitation learning, reinforcement learning, and black-box optimization of
+behaviors. There are many types and variations. The Python library
+movement_primitives focuses on imitation learning, generalization, and
+adaptation of movement primitives in Cartesian space. It implements dynamical
+movement primitives, probabilistic movement primitives, as well as Cartesian
+and dual Cartesian movement primitives with coupling terms to constrain
+relative movements in bimanual manipulation. They are implemented in Cython to
+speed up online execution and batch processing in an offline setting. In
+addition, the library provides tools for data analysis and movement evaluation.
+It can be installed directly from
 [PyPI](https://pypi.org/project/movement-primitives/).
 
 ## Content
 
+* [Statement of Need](#statement-of-need)
 * [Features](#features)
 * [API Documentation](#api-documentation)
 * [Install Library](#install-library)
@@ -26,6 +33,18 @@ and can be installed directly from
 * [Non-public Extensions](#non-public-extensions)
 * [Related Publications](#related-publications)
 * [Funding](#funding)
+
+## Statement of Need
+
+Movement primitives are a common group of policy representations in robotics.
+Although movement primitives are limited in their capacity to represent
+behavior that takes into account complex sensor data during execution in
+comparison to general function approximators such as neural networks, several
+instances (e.g., dynamical movement primitives) have proven to be a reliable
+and effective tool in robot learning. A reliable tool deserves a similarly
+reliable implementation. However, there are only a few actively maintained,
+documented, and easy to use implementations. One of these is
+movement_primitives.
 
 ## Features
 
