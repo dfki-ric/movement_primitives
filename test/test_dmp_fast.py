@@ -3,14 +3,14 @@ from numpy.testing import assert_array_almost_equal
 from pytransform3d.rotations import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_python
 from pytransform3d.rotations import concatenate_quaternions as concatenate_quaternions_python
 from pytransform3d.rotations import random_quaternion, assert_compact_axis_angle_equal, assert_quaternion_equal
-from nose import SkipTest
+import pytest
 
 
 def test_compact_axis_angle_from_quaternion():
     try:
         from movement_primitives.dmp_fast import compact_axis_angle_from_quaternion as compact_axis_angle_from_quaternion_cython
     except ImportError:
-        raise SkipTest("Cython extension is not available")
+        pytest.skip("Cython extension is not available")
 
     q = np.array([-9.99988684e-01, -4.73967909e-03,  3.10305586e-04,  2.67831240e-04])
     axis_angle_python = compact_axis_angle_from_quaternion_python(q.copy())
@@ -71,7 +71,7 @@ def test_concatenate_quaternions():
     try:
         from movement_primitives.dmp_fast import concatenate_quaternions as concatenate_quaternions_cython
     except ImportError:
-        raise SkipTest("Cython extension is not available")
+        pytest.skip("Cython extension is not available")
 
     random_state = np.random.RandomState(1)
     for _ in range(1000):

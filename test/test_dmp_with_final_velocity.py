@@ -1,7 +1,7 @@
 import numpy as np
 from movement_primitives.dmp import DMPWithFinalVelocity
 from numpy.testing import assert_array_almost_equal
-from nose.tools import assert_almost_equal
+import pytest
 
 
 def test_final_velocity():
@@ -56,21 +56,21 @@ def test_temporal_scaling():
 
     dmp.configure(goal_yd=goal_yd)
     T2, Y2 = dmp.open_loop()
-    assert_almost_equal(T2[-1], 2.0)
+    assert T2[-1] == pytest.approx(2.0)
     Yd2 = np.column_stack((np.gradient(Y2[:, 0]),
                            np.gradient(Y2[:, 1]))) / dmp.dt_
     assert_array_almost_equal(Yd2[-1], dmp.goal_yd, decimal=1)
 
     dmp.execution_time_ = 1.0
     T1, Y1 = dmp.open_loop()
-    assert_almost_equal(T1[-1], 1.0)
+    assert T1[-1] == pytest.approx(1.0)
     Yd1 = np.column_stack((np.gradient(Y1[:, 0]),
                            np.gradient(Y1[:, 1]))) / dmp.dt_
     assert_array_almost_equal(Yd1[-1], dmp.goal_yd, decimal=1)
 
     dmp.execution_time_ = 4.0
     T4, Y4 = dmp.open_loop()
-    assert_almost_equal(T4[-1], 4.0, places=2)
+    assert T4[-1] == pytest.approx(4.0, rel=1e-2)
     Yd4 = np.column_stack((np.gradient(Y4[:, 0]),
                            np.gradient(Y4[:, 1]))) / dmp.dt_
     assert_array_almost_equal(Yd4[-1], dmp.goal_yd, decimal=1)

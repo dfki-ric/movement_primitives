@@ -4,7 +4,7 @@ from movement_primitives.dmp import (
     CouplingTermDualCartesianPose)
 import pytransform3d.rotations as pr
 import pytransform3d.transformations as pt
-from nose.tools import assert_almost_equal, assert_less
+import pytest
 
 
 def test_coupling_1d_to_1d_pos():
@@ -26,7 +26,7 @@ def test_coupling_1d_to_1d_pos():
     T, Y = dmp.open_loop(coupling_term=ct)
 
     distances = Y[:, 1] - Y[:, 0]
-    assert_almost_equal(np.mean(distances), ct.desired_distance, places=3)
+    assert np.mean(distances) == pytest.approx(ct.desired_distance, rel=1e-3)
 
 
 def test_coupling_3d_to_3d_pos():
@@ -49,12 +49,12 @@ def test_coupling_3d_to_3d_pos():
 
     T, Y = dmp.open_loop(coupling_term=ct)
 
-    assert_almost_equal(
-        np.median(Y[:, 3] - Y[:, 0]), ct.desired_distance[0], places=1)
-    assert_almost_equal(
-        np.median(Y[:, 4] - Y[:, 1]), ct.desired_distance[1], places=1)
-    assert_almost_equal(
-        np.median(Y[:, 5] - Y[:, 2]), ct.desired_distance[2], places=1)
+    assert (np.median(Y[:, 3] - Y[:, 0])
+            == pytest.approx(ct.desired_distance[0], rel=1e-1))
+    assert (np.median(Y[:, 4] - Y[:, 1])
+            == pytest.approx(ct.desired_distance[1], rel=1e-1))
+    assert (np.median(Y[:, 5] - Y[:, 2])
+            == pytest.approx(ct.desired_distance[2], rel=1e-1))
 
 
 def test_coupling_term_dual_cartesian_pose():
@@ -116,4 +116,4 @@ def test_coupling_term_dual_cartesian_pose():
         right2origin = pt.transform_from_pq(y[7:])
         right2left = pt.concat(right2origin, pt.invert_transform(left2origin))
         error = np.linalg.norm(right2left - desired_distance)
-        assert_less(error, 0.25)
+        assert error < 0.25

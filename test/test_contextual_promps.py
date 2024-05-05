@@ -1,7 +1,6 @@
 import numpy as np
 from movement_primitives.promp import ProMP
 from gmr import GMM
-from nose.tools import assert_less
 
 
 def test_contextual_promps():
@@ -32,7 +31,7 @@ def test_contextual_promps():
 
     samples = promp.sample_trajectories(T, 10, random_state)
     sample_mean = np.mean(samples, axis=0)
-    assert_less(np.linalg.norm(sample_mean - Ys[-1]) / n_steps, 0.01)
+    assert np.linalg.norm(sample_mean - Ys[-1]) / n_steps < 0.01
 
 
 if __name__ == "__main__":

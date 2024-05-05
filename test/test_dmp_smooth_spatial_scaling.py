@@ -2,7 +2,6 @@ import numpy as np
 from pytransform3d.rotations import quaternion_gradient, assert_quaternion_equal
 from movement_primitives.dmp import (
     DMP, DMPWithFinalVelocity, CartesianDMP, DualCartesianDMP)
-from nose.tools import assert_less
 from numpy.testing import assert_array_almost_equal
 
 
@@ -32,7 +31,7 @@ def test_smooth_scaling_dmp():
         Yd_dmp_smooth = np.gradient(Y_dmp_smooth, axis=0)
         Ydd_dmp_smooth = np.gradient(Yd_dmp_smooth, axis=0)
         # with smooth scaling we avoid large accelerations in the beginning
-        assert_less(np.max(np.abs(Ydd_dmp_smooth)), 0.2 * np.max(np.abs(Ydd_dmp)))
+        assert np.max(np.abs(Ydd_dmp_smooth)) < 0.2 * np.max(np.abs(Ydd_dmp))
         assert_array_almost_equal(Y_dmp[-1], new_goal, decimal=1)
 
 
@@ -61,10 +60,8 @@ def test_smooth_scaling_cartesian_dmp():
         Yd_orn_dmp_smooth = quaternion_gradient(Y_dmp_smooth[:, 3:])
         Ydd_orn_dmp_smooth = np.gradient(Yd_orn_dmp_smooth, axis=0)
         # with smooth scaling we avoid large accelerations in the beginning
-        assert_less(np.max(np.abs(Ydd_pos_dmp_smooth)),
-                    0.2 * np.max(np.abs(Ydd_pos_dmp)))
-        assert_less(np.max(np.abs(Ydd_orn_dmp_smooth)),
-                    0.2 * np.max(np.abs(Ydd_orn_dmp)))
+        assert np.max(np.abs(Ydd_pos_dmp_smooth)) < 0.2 * np.max(np.abs(Ydd_pos_dmp))
+        assert np.max(np.abs(Ydd_orn_dmp_smooth)) < 0.2 * np.max(np.abs(Ydd_orn_dmp))
         assert_array_almost_equal(Y_dmp[-1, :3], new_goal[:3], decimal=1)
         assert_quaternion_equal(Y_dmp[-1, 3:], new_goal[3:], decimal=4)
 
@@ -96,9 +93,7 @@ def test_smooth_scaling_dual_cartesian_dmp():
         Yd_orn_dmp_smooth = quaternion_gradient(Y_dmp_smooth[:, 3:7])
         Ydd_orn_dmp_smooth = np.gradient(Yd_orn_dmp_smooth, axis=0)
         # with smooth scaling we avoid large accelerations in the beginning
-        assert_less(np.max(np.abs(Ydd_pos_dmp_smooth)),
-                    0.2 * np.max(np.abs(Ydd_pos_dmp)))
-        assert_less(np.max(np.abs(Ydd_orn_dmp_smooth)),
-                    0.2 * np.max(np.abs(Ydd_orn_dmp)))
+        assert np.max(np.abs(Ydd_pos_dmp_smooth)) < 0.2 * np.max(np.abs(Ydd_pos_dmp))
+        assert np.max(np.abs(Ydd_orn_dmp_smooth)) < 0.2 * np.max(np.abs(Ydd_orn_dmp))
         assert_array_almost_equal(Y_dmp[-1, :3], new_goal[:3], decimal=1)
         assert_quaternion_equal(Y_dmp[-1, 3:7], new_goal[3:7], decimal=4)

@@ -1,17 +1,16 @@
 import numpy as np
 from pytransform3d import rotations as pr
 from movement_primitives.dmp import DMP
-from nose.tools import (assert_almost_equal, assert_equal, assert_less,
-                        assert_raises_regexp)
 from numpy.testing import assert_array_almost_equal, assert_raises_regex
+import pytest
 
 
 def test_dmp_step_function_unknown():
     dmp = DMP(n_dims=1, execution_time=1.0, dt=0.01, n_weights_per_dim=6)
-    assert_raises_regexp(ValueError, "Step function must be",
-                         dmp.open_loop, step_function="unknown")
-    assert_raises_regexp(ValueError, "Step function must be",
-                         dmp.step, np.zeros(1), np.zeros(1), step_function="unknown")
+    with pytest.raises(ValueError, match="Step function must be"):
+        dmp.open_loop(step_function="unknown")
+    with pytest.raises(ValueError, match="Step function must be"):
+        dmp.step(np.zeros(1), np.zeros(1), step_function="unknown")
 
 
 def test_dmp1d():
@@ -26,12 +25,12 @@ def test_dmp1d():
     dmp.forcing_term.weights_ = 200 * random_state.randn(*dmp.forcing_term.weights_.shape)
 
     T, Y = dmp.open_loop(run_t=2 * execution_time)
-    assert_almost_equal(T[0], 0.0)
-    assert_almost_equal(T[-1], 2 * execution_time)
+    assert T[0] == pytest.approx(0.0)
+    assert T[-1] == pytest.approx(2 * execution_time)
 
-    assert_equal(Y.ndim, 2)
-    assert_equal(Y.shape[0], 41)
-    assert_equal(Y.shape[1], 1)
+    assert Y.ndim == 2
+    assert Y.shape[0] == 41
+    assert Y.shape[1] == 1
     assert_array_almost_equal(Y[0], start_y)
     assert_array_almost_equal(Y[-1], goal_y, decimal=3)
 
@@ -48,7 +47,7 @@ def test_dmp_steps():
     for i in range(101):
         y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal_y - y)
-    assert_less(error, 1e-4)
+    assert error < 1e-4
 
 
 def test_dmp_reset():
@@ -63,18 +62,18 @@ def test_dmp_reset():
     for i in range(101):
         y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal_y - y)
-    assert_less(error, 1e-4)
+    assert error < 1e-4
 
     sd.reset()
     y = np.copy(start_y)
     yd = np.copy(start_yd)
     y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal_y - y)
-    assert_less(1e-4, error)
+    assert 1e-4 < error
     for i in range(100):
         y, yd = sd.step(y, yd)
     error = np.linalg.norm(goal_y - y)
-    assert_less(error, 1e-4)
+    assert error < 1e-4
 
 
 def test_dmp1d_imitation():
@@ -142,7 +141,7 @@ def test_compare_integrators():
     T_rk4, Y_rk4 = dmp.open_loop(step_function="rk4")
     error_euler = np.linalg.norm(Y_demo - Y_euler)
     error_rk4 = np.linalg.norm(Y_demo - Y_rk4)
-    assert_less(error_rk4, error_euler)
+    assert error_rk4 < error_euler
 
 
 def test_compare_rk4_python_cython():
@@ -181,7 +180,7 @@ def test_set_current_time():
     for i in range(13):
         y, yd = dmp.step(y, yd)
     error = np.linalg.norm(goal_y - y)
-    assert_less(error, 1e-2)
+    assert error < 1e-2
 
 
 def test_get_set_weights():
@@ -249,13 +248,13 @@ def test_temporal_scaling():
     dmp.execution_time_ = 4.0
     _, Y4 = dmp.open_loop()
 
-    assert_less(np.linalg.norm(Y1 - Y2[::2]) / len(Y1), 1e-3)
-    assert_less(np.linalg.norm(Y2 - Y4[::2]) / len(Y2), 1e-3)
+    assert np.linalg.norm(Y1 - Y2[::2]) / len(Y1) < 1e-3
+    assert np.linalg.norm(Y2 - Y4[::2]) / len(Y2) < 1e-3
 
 
 def test_n_weights():
     dmp = DMP(n_dims=5, n_weights_per_dim=9)
-    assert_equal(dmp.n_weights, 45)
+    assert dmp.n_weights == 45
 
 
 if __name__ == "__main__":

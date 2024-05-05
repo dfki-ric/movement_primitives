@@ -5,7 +5,6 @@ from movement_primitives.dmp._forcing_term import ForcingTerm
 from movement_primitives.dmp._canonical_system import canonical_system_alpha
 from pytransform3d import rotations as pr
 from numpy.testing import assert_array_almost_equal, assert_raises_regex
-from nose.tools import assert_equal, assert_less
 
 
 def test_imitate_cartesian_dmp():
@@ -43,8 +42,8 @@ def test_imitate_cartesian_dmp_rounding_error():
         execution_time=execution_time, dt=dt,
         n_weights_per_dim=10)
     T, Y = dmp.open_loop()
-    assert_equal(len(T), 601)
-    assert_equal(len(Y), 601)
+    assert len(T) == 601
+    assert len(Y) == 601
 
 
 def test_step_through_cartesian_dmp():
@@ -164,8 +163,8 @@ def test_temporal_scaling():
     dmp.execution_time_ = 4.0
     _, Y4 = dmp.open_loop()
 
-    assert_less(np.linalg.norm(Y1 - Y2[::2]) / len(Y1), 1e-3)
-    assert_less(np.linalg.norm(Y2 - Y4[::2]) / len(Y2), 1e-3)
+    assert np.linalg.norm(Y1 - Y2[::2]) / len(Y1) < 1e-3
+    assert np.linalg.norm(Y2 - Y4[::2]) / len(Y2) < 1e-3
 
 
 def test_invalid_regularization_coefficient():

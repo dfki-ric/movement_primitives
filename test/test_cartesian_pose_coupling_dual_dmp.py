@@ -5,7 +5,7 @@ from movement_primitives.dmp import (
 import pytransform3d.rotations as pr
 import pytransform3d.trajectories as ptr
 from numpy.testing import assert_array_almost_equal
-from nose.tools import assert_almost_equal
+import pytest
 
 
 def test_pose_coupling():
@@ -105,8 +105,8 @@ def test_pose_coupling():
 
     right2left = _relative_poses(Y_dist[80:90])
     right2left_mean = np.mean(right2left, axis=0)
-    assert_almost_equal(
-        np.linalg.norm(right2left_mean[:3, 3]), 0.2, places=1)
+    assert np.linalg.norm(right2left_mean[:3, 3]) == pytest.approx(
+        0.2, abs=0.02)
 
 
 def _relative_poses(Y_pose):

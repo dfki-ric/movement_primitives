@@ -3,7 +3,6 @@ from scipy.spatial.distance import cdist
 from movement_primitives.dmp import (
     DMP, CouplingTermObstacleAvoidance2D, CouplingTermObstacleAvoidance3D,
     DMPWithFinalVelocity)
-from nose.tools import assert_less
 from numpy.testing import assert_array_almost_equal
 
 
@@ -20,14 +19,14 @@ def test_obstacle_avoidance_2d():
 
     T, Y = dmp.open_loop()
     min_dist = min(cdist(Y, obstacle[np.newaxis]))
-    assert_less(min_dist, 0.03)
+    assert min_dist < 0.03
     for _ in range(20):
         start_y_random = 0.2 + 0.2 * random_state.randn(2)
         coupling_term = CouplingTermObstacleAvoidance2D(obstacle)
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term)
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.1, min_dist)
+        assert 0.1 < min_dist
 
 
 def test_obstacle_avoidance_2d_rk4_python():
@@ -43,14 +42,14 @@ def test_obstacle_avoidance_2d_rk4_python():
 
     T, Y = dmp.open_loop(step_function="rk4")
     min_dist = min(cdist(Y, obstacle[np.newaxis]))
-    assert_less(min_dist, 0.03)
+    assert min_dist < 0.03
     for _ in range(20):
         start_y_random = 0.2 + 0.2 * random_state.randn(2)
         coupling_term = CouplingTermObstacleAvoidance2D(obstacle)
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term, step_function="rk4")
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.1, min_dist)
+        assert 0.1 < min_dist
 
 
 def test_obstacle_avoidance_2d_fast():
@@ -66,14 +65,14 @@ def test_obstacle_avoidance_2d_fast():
 
     T, Y = dmp.open_loop()
     min_dist = min(cdist(Y, obstacle[np.newaxis]))
-    assert_less(min_dist, 0.03)
+    assert min_dist < 0.03
     for _ in range(20):
         start_y_random = 0.2 + 0.2 * random_state.randn(2)
         coupling_term = CouplingTermObstacleAvoidance2D(obstacle, fast=True)
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term)
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.1, min_dist)
+        assert 0.1 < min_dist
 
 
 def test_obstacle_avoidance_3d():
@@ -89,14 +88,14 @@ def test_obstacle_avoidance_3d():
 
     T, Y = dmp.open_loop()
     min_dist = min(cdist(Y, obstacle[np.newaxis]))
-    assert_less(min_dist, 0.03)
+    assert min_dist < 0.03
     for _ in range(20):
         start_y_random = 0.2 + 0.2 * random_state.randn(3)
         coupling_term = CouplingTermObstacleAvoidance3D(obstacle)
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term)
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.13, min_dist)
+        assert 0.13 < min_dist
 
 
 def test_obstacle_avoidance_3d_with_final_velocity():
@@ -113,13 +112,13 @@ def test_obstacle_avoidance_3d_with_final_velocity():
 
     T, Y = dmp.open_loop()
     min_dist = min(cdist(Y, obstacle[np.newaxis]))
-    assert_less(min_dist, 0.03)
+    assert min_dist < 0.03
     for _ in range(10):
         start_y_random = 0.2 + 0.2 * random_state.randn(3)
         coupling_term = CouplingTermObstacleAvoidance3D(obstacle)
         dmp.configure(start_y=start_y_random)
         T, Y = dmp.open_loop(coupling_term=coupling_term)
         min_dist = min(cdist(Y, obstacle[np.newaxis]))
-        assert_less(0.1, min_dist)
+        assert 0.1 < min_dist
         goal_yd_actual = (Y[-1] - Y[-2]) / 0.01
         assert_array_almost_equal(np.ones(3), goal_yd_actual, decimal=1)

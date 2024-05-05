@@ -1,6 +1,5 @@
 import numpy as np
 from movement_primitives.promp import ProMP
-from nose.tools import assert_less, assert_greater
 from numpy.testing import assert_array_almost_equal
 
 
@@ -24,9 +23,9 @@ def test_imitate():
     samples = promp.sample_trajectories(T[0], 10, random_state)
 
     mean_trajectory = promp.mean_trajectory(T[0])
-    assert_less(np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps, 0.001)
+    assert np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps < 0.001
     std_trajectory = np.sqrt(promp.var_trajectory(T[0]))
-    assert_less(np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps, 0.001)
+    assert np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps < 0.001
 
 
 def test_imitate_abort_optimization():
@@ -49,9 +48,9 @@ def test_imitate_abort_optimization():
     samples = promp.sample_trajectories(T[0], 10, random_state)
 
     mean_trajectory = promp.mean_trajectory(T[0])
-    assert_greater(np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps, 0.001)
+    assert np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps > 0.001
     std_trajectory = np.sqrt(promp.var_trajectory(T[0]))
-    assert_greater(np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps, 0.001)
+    assert np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps > 0.001
 
 
 def test_promp():
@@ -75,10 +74,10 @@ def test_promp():
     random_state = np.random.RandomState(0)
     samples = promp.sample_trajectories(T[0], 20, random_state)
 
-    assert_less(np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps, 0.01)
+    assert np.linalg.norm(np.mean(samples, axis=0) - mean_trajectory) / n_steps < 0.01
 
     std_trajectory = np.sqrt(promp.var_trajectory(T[0]))
-    assert_less(np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps, 0.012)
+    assert np.linalg.norm(np.std(samples, axis=0) - std_trajectory) / n_steps < 0.012
 
 
 def test_promp_velocities():
