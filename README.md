@@ -265,7 +265,8 @@ python -m pip install -e .[test]
 The tests are located in the folder `test/` and can be executed with:
 `python -m pytest`
 
-This command searches for all files with `test` and executes the functions with `test_*`.
+This command searches for all files with `test` and executes the functions
+with `test_*`. You will find a test coverage report at `htmlcov/index.html`.
 
 ## Contributing
 
