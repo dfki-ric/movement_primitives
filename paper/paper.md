@@ -23,13 +23,15 @@ Movement primitives are a common representation of movements in robotics
 [@Maeda2017] for imitation learning, reinforcement learning, and black-box
 optimization of behaviors.
 There are many types and variations. The Python library *movement_primitives*
-focuses on imitation learning, generalization, and adaptation of movement
+focuses on imitation learning (see \autoref{fig:summary}), generalization, and adaptation of movement
 primitives in Cartesian space. It implements dynamical movement primitives,
 probabilistic movement primitives, as well as Cartesian and dual Cartesian
 movement primitives with coupling terms to constrain relative movements in
 bimanual manipulation. They are implemented in Cython to speed up online
 execution and batch processing in an offline setting. In addition, the
 library provides tools for data analysis and movement evaluation.
+
+![Illustration of imitation learning processes supported by movement_primitives. The photo was extracted from @Mronga2022 under [CC BY 4.0 DEED](https://creativecommons.org/licenses/by/4.0/).\label{fig:summary}](summary.pdf){ width=100% }
 
 # Statement of Need
 
