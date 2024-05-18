@@ -36,11 +36,13 @@ library provides tools for data analysis and movement evaluation.
 # Statement of Need
 
 Movement primitives are a common group of policy representations in robotics.
-Although movement primitives are limited in their capacity to represent
-behavior that takes into account complex sensor data during execution in
-comparison to general function approximators such as neural networks, several
-instances (e.g., dynamical movement primitives) have proven to be a reliable
-and effective tool in robot learning.
+They are able to represent complex movement patterns, allow temporal and
+spatial modification, offer stability guarantees, and are suitable for
+imitation learning without complicated hyperparameter tuning, which are
+advantages over general function approximators like neural networks. Their main
+disadvantage is that they are limited in their capacity to represent behavior
+that takes into account complex sensor data during execution. Nevertheless,
+they have proven to be a reliable and effective tool in robot learning.
 A reliable tool deserves a similarly reliable implementation. However, there
 are only a few actively maintained, documented, and easy to use
 implementations. One of these is *movement_primitives*, which we present in
