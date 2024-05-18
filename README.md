@@ -75,24 +75,46 @@ installation. In the following instructions, we assume that the command
 `python` refers to Python 3. If you use the system's Python version, you
 might have to add the flag `--user` to any installation command.
 
-I recommend to install the library via pip:
+### PyPI (Recommended)
+
+I recommend to install the library via pip from the Python package index
+(PyPI):
 
 ```bash
 python -m pip install movement_primitives[all]
 ```
 
-or clone the git repository and install it in editable mode:
+If you don't want to have all dependencies installed, just omit `[all]`.
+
+This will install the latest release. If you want to install the latest
+development version, you have to install from git.
+
+### Git + Editable Mode
+
+Editable mode means that you don't have to install the library after editing
+the source code. Changes will be directly available in the installed library
+since pip creates a symlink.
+
+You can clone the git repository and install it in editable mode with pip:
 
 ```bash
+git clone https://github.com/dfki-ric/movement_primitives.git
 python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
-Alternatively, you can install dependencies with
+
+### Git
+
+Alternatively, you can install the library and its dependencies without pip
+from the git repository:
 
 ```bash
-python -m pip install -r requirements.txt
+git clone https://github.com/dfki-ric/movement_primitives.git
+python setup.py install
 ```
+
+### Build Cython Extension
 
 You could also just build the Cython extension with
 
@@ -100,10 +122,13 @@ You could also just build the Cython extension with
 python setup.py build_ext --inplace
 ```
 
-or install the library with
+### Dependencies
+
+An alternative way to install dependencies is the requirements.txt file in the
+main folder of the git repository:
 
 ```bash
-python setup.py install
+python -m pip install -r requirements.txt
 ```
 
 ## Examples
