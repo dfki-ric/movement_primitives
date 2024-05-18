@@ -39,16 +39,27 @@ Movement primitives are a common group of policy representations in robotics.
 They are able to represent complex movement patterns, allow temporal and
 spatial modification, offer stability guarantees, and are suitable for
 imitation learning without complicated hyperparameter tuning, which are
-advantages over general function approximators like neural networks. Their main
-disadvantage is that they are limited in their capacity to represent behavior
+advantages over general function approximators like neural networks. Movement
+primitives are white-box models for movement generation and allow to control
+several aspects of the movement. There are types of dynamical movement
+primitives that allow to directly control the goal in state space, the final
+velocity, or the relative pose of two robotic end-effectors. Probabilistic
+movement primitives capture distributions of movements adequately and allow
+conditioning in state space and blending of multiple movements. The main
+disadvantage of movement primitives in comparison to general function
+approximators is that they are limited in their capacity to represent behavior
 that takes into account complex sensor data during execution. Nevertheless,
-they have proven to be a reliable and effective tool in robot learning.
-A reliable tool deserves a similarly reliable implementation. However, there
-are only a few actively maintained, documented, and easy to use
-implementations. One of these is *movement_primitives*, which we present in
-this article.
+various types of movement primitives have proven to be a reliable and effective
+tool in robot learning. A reliable tool deserves a similarly reliable open
+source implementation. However, there are only a few actively maintained,
+documented, and easy to use implementations. One of these is the library
+*movement_primitives*. It combines several types of dynamical movement
+primitives and probabilistic movement primitives in a single library with
+a focus on Cartesian and bimanual movements.
 
 # Movement Primitives
+
+## Dynamical Movement Primitives
 
 Dynamical Movement Primitives (DMPs) are the most prominent example of
 movement primitives [@Ijspeert2002; @Ijspeert2013]. From a high-level
@@ -75,6 +86,8 @@ final velocity as a meta-parameter [@Muelling2013], DMPs for Cartesian poses
 in three dimensions with unit quaternions [@Ude2014], and DMPs that define
 bimanual movements by introducing a coupling term that controls the relative
 motion of two arms [@Gams2013].
+
+## Probabilistic Movement Primitives
 
 Another type of movement primitives implemented in this library are
 Probabilistic Movement Primitives (ProMPs) [@Paraschos2013] that capture
