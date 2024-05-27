@@ -7,24 +7,3 @@
    :members:
    :show-inheritance:
    :inherited-members:
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~SpringDamper.__init__
-      ~SpringDamper.configure
-      ~SpringDamper.n_steps_open_loop
-      ~SpringDamper.open_loop
-      ~SpringDamper.reset
-      ~SpringDamper.step
-   
-   
-
-   
-   
-   

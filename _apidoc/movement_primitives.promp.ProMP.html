@@ -3,14 +3,15 @@
 <html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.promp.ProMP &#8212; movement_primitives 0.7.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <title>movement_primitives.promp.ProMP &#8212; movement_primitives 0.7.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -67,7 +68,6 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">movement_primitives.promp.ProMP</a><ul>
 <li><a class="reference internal" href="#movement_primitives.promp.ProMP"><code class="docutils literal notranslate"><span class="pre">ProMP</span></code></a><ul>
-<li><a class="reference internal" href="#movement_primitives.promp.ProMP.__init__"><code class="docutils literal notranslate"><span class="pre">ProMP.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.promp.ProMP.condition_position"><code class="docutils literal notranslate"><span class="pre">ProMP.condition_position()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.promp.ProMP.cov_trajectory"><code class="docutils literal notranslate"><span class="pre">ProMP.cov_trajectory()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.promp.ProMP.cov_velocities"><code class="docutils literal notranslate"><span class="pre">ProMP.cov_velocities()</span></code></a></li>
@@ -177,7 +177,7 @@ International Conference on International Conference on Machine Learning
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.condition_position" title="movement_primitives.promp.ProMP.condition_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_position</span></code></a>(y_mean[, y_cov, t, t_max])</p></td>
-<td><p>Condition ProMP on a specific position (see page 4 of [1]).</p></td>
+<td><p>Condition ProMP on a specific position.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.cov_trajectory" title="movement_primitives.promp.ProMP.cov_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cov_trajectory</span></code></a>(T)</p></td>
 <td><p>Get trajectory covariance of ProMP.</p></td>
@@ -215,64 +215,16 @@ International Conference on International Conference on Machine Learning
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="movement_primitives.promp.ProMP.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_weights_per_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.promp.ProMP.__init__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.__init__" title="movement_primitives.promp.ProMP.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(n_dims[, n_weights_per_dim])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.condition_position" title="movement_primitives.promp.ProMP.condition_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_position</span></code></a>(y_mean[, y_cov, t, t_max])</p></td>
-<td><p>Condition ProMP on a specific position (see page 4 of [1]).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.cov_trajectory" title="movement_primitives.promp.ProMP.cov_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cov_trajectory</span></code></a>(T)</p></td>
-<td><p>Get trajectory covariance of ProMP.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.cov_velocities" title="movement_primitives.promp.ProMP.cov_velocities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cov_velocities</span></code></a>(T)</p></td>
-<td><p>Get velocity covariance of ProMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.from_weight_distribution" title="movement_primitives.promp.ProMP.from_weight_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_weight_distribution</span></code></a>(mean, cov)</p></td>
-<td><p>Initialize ProMP from mean and covariance in weight space.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.imitate" title="movement_primitives.promp.ProMP.imitate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imitate</span></code></a>(Ts, Ys[, n_iter, min_delta, verbose])</p></td>
-<td><p>Learn ProMP from multiple demonstrations.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.mean_trajectory" title="movement_primitives.promp.ProMP.mean_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_trajectory</span></code></a>(T)</p></td>
-<td><p>Get mean trajectory of ProMP.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.mean_velocities" title="movement_primitives.promp.ProMP.mean_velocities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_velocities</span></code></a>(T)</p></td>
-<td><p>Get mean velocities of ProMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.sample_trajectories" title="movement_primitives.promp.ProMP.sample_trajectories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_trajectories</span></code></a>(T, n_samples, random_state)</p></td>
-<td><p>Sample trajectories from ProMP.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.trajectory_from_weights" title="movement_primitives.promp.ProMP.trajectory_from_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trajectory_from_weights</span></code></a>(T, weights)</p></td>
-<td><p>Generate trajectory from ProMP weights.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.var_trajectory" title="movement_primitives.promp.ProMP.var_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var_trajectory</span></code></a>(T)</p></td>
-<td><p>Get trajectory variance of ProMP.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.var_velocities" title="movement_primitives.promp.ProMP.var_velocities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var_velocities</span></code></a>(T)</p></td>
-<td><p>Get velocity variance of ProMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.promp.ProMP.weights" title="movement_primitives.promp.ProMP.weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weights</span></code></a>(T, Y[, lmbda])</p></td>
-<td><p>Obtain ProMP weights by linear regression.</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py method">
 <dt class="sig sig-object py" id="movement_primitives.promp.ProMP.condition_position">
 <span class="sig-name descname"><span class="pre">condition_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.promp.ProMP.condition_position" title="Link to this definition">¶</a></dt>
-<dd><p>Condition ProMP on a specific position (see page 4 of [1]).</p>
+<dd><p>Condition ProMP on a specific position.</p>
+<p>For details, see page 4 of <a class="reference internal" href="#r3bdc0913ceb2-1" id="id9">[1]</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>y_mean</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Position mean</p>
+<dt><strong>y_mean</strong><span class="classifier">array, shape (n_dims,)</span></dt><dd><p>Position mean.</p>
 </dd>
-<dt><strong>y_cov</strong><span class="classifier">array, shape (n_dims, n_dims), optional (default: 0)</span></dt><dd><p>Covariance of position</p>
+<dt><strong>y_cov</strong><span class="classifier">array, shape (n_dims, n_dims), optional (default: 0)</span></dt><dd><p>Covariance of position.</p>
 </dd>
 <dt><strong>t</strong><span class="classifier">float, optional (default: 0)</span></dt><dd><p>Time at which the activations of RBFs will be queried. Note that
 we internally normalize the time so that t_max == 1.</p>
@@ -289,8 +241,16 @@ we internally normalize the time so that t_max == 1.</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
-<p>[1] Paraschos et al.: Probabilistic movement primitives, NeurIPS (2013),
+<div role="list" class="citation-list">
+<div class="citation" id="r3bdc0913ceb2-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">1</a><span class="fn-bracket">]</span></span>
+<p>Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+Probabilistic movement primitives, In C.J. Burges and L. Bottou and
+M. Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in
+Neural Information Processing Systems, 26,
 <a class="reference external" href="https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf">https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf</a></p>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -359,6 +319,9 @@ we internally normalize the time so that t_max == 1.</p>
 <dt class="sig sig-object py" id="movement_primitives.promp.ProMP.imitate">
 <span class="sig-name descname"><span class="pre">imitate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.promp.ProMP.imitate" title="Link to this definition">¶</a></dt>
 <dd><p>Learn ProMP from multiple demonstrations.</p>
+<p>For details, see Section 3.2 of <a class="reference internal" href="#r26cf288f43d5-1" id="id11">[1]</a>. We use the parameters
+<span class="math notranslate nohighlight">\(P = I\)</span> (identity matrix), <span class="math notranslate nohighlight">\(\mu_0 = 0, k_0 = 0, \nu_0 = 0,
+\Sigma_0 = 0,\alpha_0 = 0,\beta_0 = 0\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -375,6 +338,17 @@ we internally normalize the time so that t_max == 1.</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r26cf288f43d5-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">1</a><span class="fn-bracket">]</span></span>
+<p>Lazaric, A., Ghavamzadeh, M. (2010).
+Bayesian Multi-Task Reinforcement Learning. In Proceedings of the
+27th International Conference on International Conference on Machine
+Learning (ICML’10) (pp. 599-606).
+<a class="reference external" href="https://hal.inria.fr/inria-00475214/document">https://hal.inria.fr/inria-00475214/document</a></p>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -543,7 +517,7 @@ we internally normalize the time so that t_max == 1.</p>
       
     </p>
     <p>
-        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+        &copy; Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
     </p>
   </div>
 </footer>

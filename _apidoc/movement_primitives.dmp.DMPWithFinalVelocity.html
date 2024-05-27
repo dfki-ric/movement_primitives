@@ -3,13 +3,13 @@
 <html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.7.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.7.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -68,7 +68,6 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">movement_primitives.dmp.DMPWithFinalVelocity</a><ul>
 <li><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity"><code class="docutils literal notranslate"><span class="pre">DMPWithFinalVelocity</span></code></a><ul>
-<li><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.__init__"><code class="docutils literal notranslate"><span class="pre">DMPWithFinalVelocity.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.configure"><code class="docutils literal notranslate"><span class="pre">DMPWithFinalVelocity.configure()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.get_weights"><code class="docutils literal notranslate"><span class="pre">DMPWithFinalVelocity.get_weights()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.imitate"><code class="docutils literal notranslate"><span class="pre">DMPWithFinalVelocity.imitate()</span></code></a></li>
@@ -203,60 +202,6 @@ the frequency.</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_weights_per_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DMPWithFinalVelocity.__init__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.__init__" title="movement_primitives.dmp.DMPWithFinalVelocity.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(n_dims[, execution_time, dt, ...])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.configure" title="movement_primitives.dmp.DMPWithFinalVelocity.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([t, start_y, start_yd, start_ydd, ...])</p></td>
-<td><p>Set meta parameters.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_execution_time_</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.get_weights" title="movement_primitives.dmp.DMPWithFinalVelocity.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>()</p></td>
-<td><p>Get weight vector of DMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.imitate" title="movement_primitives.dmp.DMPWithFinalVelocity.imitate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imitate</span></code></a>(T, Y[, regularization_coefficient])</p></td>
-<td><p>Imitate demonstration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.n_steps_open_loop" title="movement_primitives.dmp.DMPWithFinalVelocity.n_steps_open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_steps_open_loop</span></code></a>(last_y, last_yd, n_steps)</p></td>
-<td><p>Perform 'n_steps' steps.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.open_loop" title="movement_primitives.dmp.DMPWithFinalVelocity.open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_loop</span></code></a>([run_t, coupling_term])</p></td>
-<td><p>Run DMP open loop.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.reset" title="movement_primitives.dmp.DMPWithFinalVelocity.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
-<td><p>Reset DMP to initial state and time.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_execution_time_</span></code>(execution_time)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.set_weights" title="movement_primitives.dmp.DMPWithFinalVelocity.set_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_weights</span></code></a>(weights)</p></td>
-<td><p>Set weight vector of DMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.step" title="movement_primitives.dmp.DMPWithFinalVelocity.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(last_y, last_yd[, coupling_term])</p></td>
-<td><p>DMP step.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Attributes</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">execution_time_</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DMPWithFinalVelocity.n_weights" title="movement_primitives.dmp.DMPWithFinalVelocity.n_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_weights</span></code></a></p></td>
-<td><p>Total number of weights configuring the forcing term.</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py method">
 <dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity.configure">
 <span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DMPWithFinalVelocity.configure" title="Link to this definition">¶</a></dt>
 <dd><p>Set meta parameters.</p>
@@ -300,6 +245,17 @@ the frequency.</p>
 <dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity.imitate">
 <span class="sig-name descname"><span class="pre">imitate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DMPWithFinalVelocity.imitate" title="Link to this definition">¶</a></dt>
 <dd><p>Imitate demonstration.</p>
+<p>Target forces of the forcing term are computed according to</p>
+<div class="math notranslate nohighlight">
+\[f_{target} =
+\tau^2 \ddot{y}_{demo}
+- \alpha_y(
+    \beta_y (g-y_{demo})
+    + \tau (\dot{g} - \dot{y}_{demo})
+)
+- \tau^2 \ddot{g},\]</div>
+<p>where <span class="math notranslate nohighlight">\(g, \dot{g}, \ddot{g}\)</span> are constraints that will be
+recomputed in each step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -432,7 +388,7 @@ the frequency.</p>
       
     </p>
     <p>
-        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+        &copy; Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
     </p>
   </div>
 </footer>

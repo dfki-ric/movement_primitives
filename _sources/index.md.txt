@@ -7,15 +7,24 @@
 > Dynamical movement primitives (DMPs), probabilistic movement primitives
 > (ProMPs), and spatially coupled bimanual DMPs for imitation learning.
 
-Movement primitives are a common group of policy representations in robotics.
-There are many types and variations. This repository focuses mainly on
-imitation learning, generalization, and adaptation of movement primitives for
-Cartesian motions of robots. It provides implementations in Python and Cython
-and can be installed directly from
+Movement primitives are a common representation of movements in robotics for
+imitation learning, reinforcement learning, and black-box optimization of
+behaviors. There are many types and variations. The Python library
+movement_primitives focuses on imitation learning, generalization, and
+adaptation of movement primitives in Cartesian space. It implements dynamical
+movement primitives, probabilistic movement primitives, as well as Cartesian
+and dual Cartesian movement primitives with coupling terms to constrain
+relative movements in bimanual manipulation. They are implemented in Cython to
+speed up online execution and batch processing in an offline setting. In
+addition, the library provides tools for data analysis and movement evaluation.
+It can be installed directly from
 [PyPI](https://pypi.org/project/movement-primitives/).
+
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/summary.png" width="100%" />
 
 ## Content
 
+* [Statement of Need](#statement-of-need)
 * [Features](#features)
 * [API Documentation](#api-documentation)
 * [Install Library](#install-library)
@@ -26,6 +35,30 @@ and can be installed directly from
 * [Non-public Extensions](#non-public-extensions)
 * [Related Publications](#related-publications)
 * [Funding](#funding)
+
+## Statement of Need
+
+Movement primitives are a common group of policy representations in robotics.
+They are able to represent complex movement patterns, allow temporal and
+spatial modification, offer stability guarantees, and are suitable for
+imitation learning without complicated hyperparameter tuning, which are
+advantages over general function approximators like neural networks. Movement
+primitives are white-box models for movement generation and allow to control
+several aspects of the movement. There are types of dynamical movement
+primitives that allow to directly control the goal in state space, the final
+velocity, or the relative pose of two robotic end-effectors. Probabilistic
+movement primitives capture distributions of movements adequately and allow
+conditioning in state space and blending of multiple movements. The main
+disadvantage of movement primitives in comparison to general function
+approximators is that they are limited in their capacity to represent behavior
+that takes into account complex sensor data during execution. Nevertheless,
+various types of movement primitives have proven to be a reliable and effective
+tool in robot learning. A reliable tool deserves a similarly reliable open
+source implementation. However, there are only a few actively maintained,
+documented, and easy to use implementations. One of these is the library
+*movement_primitives*. It combines several types of dynamical movement
+primitives and probabilistic movement primitives in a single library with
+a focus on Cartesian and bimanual movements.
 
 ## Features
 
@@ -54,24 +87,46 @@ installation. In the following instructions, we assume that the command
 `python` refers to Python 3. If you use the system's Python version, you
 might have to add the flag `--user` to any installation command.
 
-I recommend to install the library via pip:
+### PyPI (Recommended)
+
+I recommend to install the library via pip from the Python package index
+(PyPI):
 
 ```bash
 python -m pip install movement_primitives[all]
 ```
 
-or clone the git repository and install it in editable mode:
+If you don't want to have all dependencies installed, just omit `[all]`.
+
+This will install the latest release. If you want to install the latest
+development version, you have to install from git.
+
+### Git + Editable Mode
+
+Editable mode means that you don't have to install the library after editing
+the source code. Changes will be directly available in the installed library
+since pip creates a symlink.
+
+You can clone the git repository and install it in editable mode with pip:
 
 ```bash
+git clone https://github.com/dfki-ric/movement_primitives.git
 python -m pip install -e .[all]
 ```
 
 If you don't want to have all dependencies installed, just omit `[all]`.
-Alternatively, you can install dependencies with
+
+### Git
+
+Alternatively, you can install the library and its dependencies without pip
+from the git repository:
 
 ```bash
-python -m pip install -r requirements.txt
+git clone https://github.com/dfki-ric/movement_primitives.git
+python setup.py install
 ```
+
+### Build Cython Extension
 
 You could also just build the Cython extension with
 
@@ -79,10 +134,13 @@ You could also just build the Cython extension with
 python setup.py build_ext --inplace
 ```
 
-or install the library with
+### Dependencies
+
+An alternative way to install dependencies is the requirements.txt file in the
+main folder of the git repository:
 
 ```bash
-python setup.py install
+python -m pip install -r requirements.txt
 ```
 
 ## Examples
@@ -90,17 +148,6 @@ python setup.py install
 You will find a lot of examples in the subfolder
 [`examples/`](https://github.com/dfki-ric/movement_primitives/tree/main/examples).
 Here are just some highlights to showcase the library.
-
-### Conditional ProMPs
-
-<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
-
-Probabilistic Movement Primitives (ProMPs) define distributions over
-trajectories that can be conditioned on viapoints. In this example, we
-plot the resulting posterior distribution after conditioning on varying
-start positions.
-
-[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py)
 
 ### Potential Field of 2D DMP
 
@@ -133,6 +180,17 @@ with 1-sigma interval.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_promp_lasa.py)
 
+### Conditional ProMPs
+
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/conditional_promps.png" width="800px" />
+
+Probabilistic Movement Primitives (ProMPs) define distributions over
+trajectories that can be conditioned on viapoints. In this example, we
+plot the resulting posterior distribution after conditioning on varying
+start positions.
+
+[Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/plot_conditional_promp.py)
+
 ### Cartesian DMPs
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/cart_dmp_ur5.png" width="100%" />
@@ -146,21 +204,24 @@ to a joint trajectory by inverse kinematics, and executed with a UR5.
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d.png" width="60%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/contextual_promps_kuka_panel_width_open3d2.png" width="40%" />
 
-We use a dataset of [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
-with 10 demonstrations per 3 different panel widths that were obtained through
-kinesthetic teaching. The panel width is considered to be the context over
-which we generalize with contextual ProMPs. Each color in the above
-visualizations corresponds to a ProMP for a different context.
+We use a dataset of [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779),
+in which a dual-arm robot rotates panels of varying widths. 10 demonstrations
+were recorded for 3 different panel widths through kinesthetic teaching.
+The panel width is the context over which we generalize with contextual ProMPs.
+We learn a joint distribution of contexts and ProMP weights, and then condition
+the distribution on the contexts to obtain a ProMP adapted to the context. Each
+color in the above visualizations corresponds to a ProMP for a different
+context.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_contextual_promp_distribution.py)
 
 **Dependencies that are not publicly available:**
 
 * Dataset: panel rotation dataset of
-  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+  [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779)
 * MoCap library
 * URDF of dual arm Kuka system from
-  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  [DFKI RIC's HRC lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/hrc-lab):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
@@ -169,8 +230,8 @@ visualizations corresponds to a ProMP for a different context.
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_open3d.png" width="50%" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/dual_cart_dmps_rh5_pybullet.png" width="50%" />
 
-We offer specific dual Cartesian DMPs to control dual-arm robotic systems like
-humanoid robots.
+This library implements specific dual Cartesian DMPs to control dual-arm
+robotic systems like humanoid robots.
 
 Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_solar_panel.py), [PyBullet](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/sim_solar_panel.py)
 
@@ -213,18 +274,23 @@ Scripts: [Open3D](https://github.com/dfki-ric/movement_primitives/blob/main/exam
 
 If we have a distribution over DMP parameters, we can propagate them to state
 space through an unscented transform.
+On the left we see the original demonstration of a dual-arm movement in state
+space (two 3D positions and two quaternions) and the distribution of several
+DMP weight vectors projected to the state space.
+On the right side we see several dual-arm trajectories sampled from the
+distribution in state space.
 
 [Script](https://github.com/dfki-ric/movement_primitives/blob/main/examples/external_dependencies/vis_dmp_to_state_variance.py)
 
 **Dependencies that are not publicly available:**
 
 * Dataset: panel rotation dataset of
-  [Mronga and Kirchner (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0921889021000646)
+  [Mronga and Kirchner (2021)](https://doi.org/10.1016/j.robot.2021.103779)
 * MoCap library
 * URDF of dual arm
   [Kuka system](https://robotik.dfki-bremen.de/en/research/robot-systems/imrk/)
   from
-  [DFKI RIC's MRK lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/mrk-lab/):
+  [DFKI RIC's HRC lab](https://robotik.dfki-bremen.de/en/research/research-facilities-labs/hrc-lab):
   ```bash
   git clone git@git.hb.dfki.de:models-robots/kuka_lbr.git
   ```
@@ -255,9 +321,10 @@ python -m pip install -e .[test]
 ```
 
 The tests are located in the folder `test/` and can be executed with:
-`python -m nose test`
+`python -m pytest`
 
-This command searches for all files with `test` and executes the functions with `test_*`.
+This command searches for all files with `test` and executes the functions
+with `test_*`. You will find a test coverage report at `htmlcov/index.html`.
 
 ## Contributing
 

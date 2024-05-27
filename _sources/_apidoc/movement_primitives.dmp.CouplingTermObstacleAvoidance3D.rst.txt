@@ -7,20 +7,3 @@
    :members:
    :show-inheritance:
    :inherited-members:
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CouplingTermObstacleAvoidance3D.__init__
-      ~CouplingTermObstacleAvoidance3D.coupling
-   
-   
-
-   
-   
-   

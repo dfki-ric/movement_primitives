@@ -7,21 +7,3 @@
    :members:
    :show-inheritance:
    :inherited-members:
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CouplingTermDualCartesianPose.__init__
-      ~CouplingTermDualCartesianPose.couple_distance
-      ~CouplingTermDualCartesianPose.coupling
-   
-   
-
-   
-   
-   

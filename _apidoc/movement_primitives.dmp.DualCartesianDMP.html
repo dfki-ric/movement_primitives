@@ -3,13 +3,13 @@
 <html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.DualCartesianDMP &#8212; movement_primitives 0.7.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <title>movement_primitives.dmp.DualCartesianDMP &#8212; movement_primitives 0.7.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -67,7 +67,6 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">movement_primitives.dmp.DualCartesianDMP</a><ul>
 <li><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP"><code class="docutils literal notranslate"><span class="pre">DualCartesianDMP</span></code></a><ul>
-<li><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.__init__"><code class="docutils literal notranslate"><span class="pre">DualCartesianDMP.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.configure"><code class="docutils literal notranslate"><span class="pre">DualCartesianDMP.configure()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.get_weights"><code class="docutils literal notranslate"><span class="pre">DualCartesianDMP.get_weights()</span></code></a></li>
 <li><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.imitate"><code class="docutils literal notranslate"><span class="pre">DualCartesianDMP.imitate()</span></code></a></li>
@@ -216,60 +215,6 @@ the frequency.</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="movement_primitives.dmp.DualCartesianDMP.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_weights_per_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DualCartesianDMP.__init__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.__init__" title="movement_primitives.dmp.DualCartesianDMP.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([execution_time, dt, ...])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.configure" title="movement_primitives.dmp.DualCartesianDMP.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([t, start_y, start_yd, start_ydd, ...])</p></td>
-<td><p>Set meta parameters.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_execution_time_</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.get_weights" title="movement_primitives.dmp.DualCartesianDMP.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>()</p></td>
-<td><p>Get weight vector of DMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.imitate" title="movement_primitives.dmp.DualCartesianDMP.imitate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imitate</span></code></a>(T, Y[, regularization_coefficient, ...])</p></td>
-<td><p>Imitate demonstration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.n_steps_open_loop" title="movement_primitives.dmp.DualCartesianDMP.n_steps_open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_steps_open_loop</span></code></a>(last_y, last_yd, n_steps)</p></td>
-<td><p>Perform 'n_steps' steps.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.open_loop" title="movement_primitives.dmp.DualCartesianDMP.open_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_loop</span></code></a>([run_t, coupling_term, step_function])</p></td>
-<td><p>Run DMP open loop.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.reset" title="movement_primitives.dmp.DualCartesianDMP.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
-<td><p>Reset DMP to initial state and time.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_execution_time_</span></code>(execution_time)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.set_weights" title="movement_primitives.dmp.DualCartesianDMP.set_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_weights</span></code></a>(weights)</p></td>
-<td><p>Set weight vector of DMP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.step" title="movement_primitives.dmp.DualCartesianDMP.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(last_y, last_yd[, coupling_term, ...])</p></td>
-<td><p>DMP step.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Attributes</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">execution_time_</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement_primitives.dmp.DualCartesianDMP.n_weights" title="movement_primitives.dmp.DualCartesianDMP.n_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_weights</span></code></a></p></td>
-<td><p>Total number of weights configuring the forcing term.</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py method">
 <dt class="sig sig-object py" id="movement_primitives.dmp.DualCartesianDMP.configure">
 <span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DualCartesianDMP.configure" title="Link to this definition">¶</a></dt>
 <dd><p>Set meta parameters.</p>
@@ -313,6 +258,9 @@ the frequency.</p>
 <dt class="sig sig-object py" id="movement_primitives.dmp.DualCartesianDMP.imitate">
 <span class="sig-name descname"><span class="pre">imitate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_coefficient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_final_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DualCartesianDMP.imitate" title="Link to this definition">¶</a></dt>
 <dd><p>Imitate demonstration.</p>
+<p>Target forces for the forcing term are computed for the positions
+in a similar way as in <a class="reference internal" href="movement_primitives.dmp.DMP.html#movement_primitives.dmp.DMP.imitate" title="movement_primitives.dmp.DMP.imitate"><code class="xref py py-func docutils literal notranslate"><span class="pre">DMP.imitate()</span></code></a>. For the orientations
+we adapt this to handle quaternions adequately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -451,7 +399,7 @@ the frequency.</p>
       
     </p>
     <p>
-        &copy; Copyright 2020-2023, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
+        &copy; Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
     </p>
   </div>
 </footer>

@@ -7,35 +7,3 @@
    :members:
    :show-inheritance:
    :inherited-members:
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CartesianDMP.__init__
-      ~CartesianDMP.configure
-      ~CartesianDMP.get_execution_time_
-      ~CartesianDMP.get_weights
-      ~CartesianDMP.imitate
-      ~CartesianDMP.n_steps_open_loop
-      ~CartesianDMP.open_loop
-      ~CartesianDMP.reset
-      ~CartesianDMP.set_execution_time_
-      ~CartesianDMP.set_weights
-      ~CartesianDMP.step
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CartesianDMP.execution_time_
-   
-   
