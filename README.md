@@ -20,7 +20,7 @@ addition, the library provides tools for data analysis and movement evaluation.
 It can be installed directly from
 [PyPI](https://pypi.org/project/movement-primitives/).
 
-<img src="doc/source/_static/summary.png" width="100%" />
+<img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/summary.png" width="100%" />
 
 ## Content
 
