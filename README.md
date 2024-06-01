@@ -1,5 +1,6 @@
 ![CI](https://github.com/dfki-ric/movement_primitives/actions/workflows/python-package.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dfki-ric/movement_primitives/branch/main/graph/badge.svg?token=EFHUC81DBL)](https://codecov.io/gh/dfki-ric/movement_primitives)
+[![Paper DOI](https://joss.theoj.org/papers/10.21105/joss.06695/status.svg)](https://doi.org/10.21105/joss.06695)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6491361.svg)](https://doi.org/10.5281/zenodo.6491361)
 
 # Movement Primitives
@@ -34,6 +35,7 @@ It can be installed directly from
 * [Contributing](#contributing)
 * [Non-public Extensions](#non-public-extensions)
 * [Related Publications](#related-publications)
+* [Citation](#citation)
 * [Funding](#funding)
 
 ## Statement of Need
@@ -454,6 +456,32 @@ following papers.
      Bayesian Multi-Task Reinforcement Learning. In Proceedings of the 27th
      International Conference on International Conference on Machine Learning
      (ICML'10) (pp. 599-606). https://hal.inria.fr/inria-00475214/document
+
+## Citation
+
+If you use `movement_primitives` for a scientific publication, I would
+appreciate citation of the following paper:
+
+Fabisch, A., (2024). movement_primitives: Imitation Learning of Cartesian
+Motion with Movement Primitives. Journal of Open Source Software, 9(97), 6695,
+[![Paper DOI](https://joss.theoj.org/papers/10.21105/joss.06695/status.svg)](https://doi.org/10.21105/joss.06695)
+
+Bibtex entry:
+
+```bibtex
+@article{Fabisch2024,
+  doi = {10.21105/joss.06695},
+  url = {https://doi.org/10.21105/joss.06695},
+  year = {2024},
+  publisher = {The Open Journal},
+  volume = {9},
+  number = {97},
+  pages = {6695},
+  author = {Alexander Fabisch},
+  title = {movement_primitives: Imitation Learning of Cartesian Motion with Movement Primitives},
+  journal = {Journal of Open Source Software}
+}
+```
 
 ## Funding
 
