@@ -161,7 +161,7 @@ def draw_trajectory(A2Bs, client_id, n_key_frames=10, s=1.0, lw=1):
         Line width
     """
     key_frames_indices = np.linspace(
-        0, len(A2Bs) - 1, n_key_frames, dtype=np.int)
+        0, len(A2Bs) - 1, n_key_frames, dtype=np.int64)
     for idx in key_frames_indices:
         draw_transform(A2Bs[idx], s=s, client_id=client_id)
     for idx in range(len(A2Bs) - 1):

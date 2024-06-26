@@ -1,4 +1,7 @@
-def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
+import numpy as np
+
+
+def canonical_system_alpha(goal_z, goal_t, start_t):
     r"""Compute parameter alpha of canonical system.
 
     The parameter alpha is computed such that a specific phase value goal_z
@@ -16,9 +19,6 @@ def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
 
     start_t : float
         Time at which the execution should start.
-
-    int_dt : float, optional (default: 0.001)
-        Time delta that is used internally for integration.
 
     Returns
     -------
@@ -43,14 +43,10 @@ def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
     if start_t >= goal_t:
         raise ValueError("Goal must be chronologically after start!")
 
-    execution_time = goal_t - start_t
-    n_phases = int(execution_time / int_dt) + 1
-    # assert that the execution_time is approximately divisible by int_dt
-    assert abs(((n_phases - 1) * int_dt) - execution_time) < 0.05
-    return (1.0 - goal_z ** (1.0 / (n_phases - 1))) * (n_phases - 1)
+    return float(-np.log(goal_z))
 
 
-def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
+def phase(t, alpha, goal_t, start_t):
     r"""Map time to phase.
 
     According to [1]_, the differential Equation
@@ -62,11 +58,11 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     describes the evolution of the phase variable z. Starting from the initial
     position :math:`z_0 = 1`, the phase value converges monotonically to 0.
     Instead of using an iterative procedure to calculate the current value of
-    z, it is computed directly for a fixed :math:`\Delta t` through
+    z, it is computed directly through
 
     .. math::
 
-        (1 - \alpha_z \frac{\Delta t}{\tau})^{\frac{t}{\Delta t}}
+        z(t) = \exp - \frac{\alpha_z}{\tau} t
 
     Parameters
     ----------
@@ -82,12 +78,6 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     start_t : float
         Time at which the execution should start.
 
-    int_dt : float, optional (default: 0.001)
-        Time delta that is used internally for integration.
-
-    eps : float, optional (default: 1e-10)
-        Small number used to avoid numerical issues.
-
     Returns
     -------
     z : float
@@ -102,5 +92,4 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
        https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
     """
     execution_time = goal_t - start_t
-    b = max(1.0 - alpha * int_dt / execution_time, eps)
-    return b ** ((t - start_t) / int_dt)
+    return np.exp(-alpha * (t - start_t) / execution_time)

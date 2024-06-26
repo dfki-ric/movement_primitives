@@ -79,22 +79,21 @@ class ForcingTerm:
         activations /= activations.sum(axis=0)  # normalize
         return activations
 
-    def design_matrix(self, T, int_dt=0.001):  # returns: n_weights_per_dim x n_steps
-        Z = phase(T, alpha=self.alpha_z, goal_t=T[-1], start_t=T[0],
-                  int_dt=int_dt)
+    def design_matrix(self, T):  # returns: n_weights_per_dim x n_steps
+        Z = phase(T, alpha=self.alpha_z, goal_t=T[-1], start_t=T[0])
         return Z[np.newaxis, :] * self._activations(Z)
 
-    def phase(self, t, int_dt=0.001):
+    def phase(self, t):
         return phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
-                     start_t=self.start_t, int_dt=int_dt)
+                     start_t=self.start_t)
 
     def forcing_term(self, z):
         z = np.atleast_1d(z)
         activations = self._activations(z)
         return z[np.newaxis, :] * self.weights_.dot(activations)
 
-    def __call__(self, t, int_dt=0.001):
-        return self.forcing_term(self.phase(t, int_dt))
+    def __call__(self, t):
+        return self.forcing_term(self.phase(t))
 
     @property
     def shape(self):

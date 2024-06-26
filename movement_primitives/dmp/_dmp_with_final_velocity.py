@@ -67,8 +67,7 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def _init_forcing_term(self):
-        alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0,
-                                         self.int_dt)
+        alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
         self.forcing_term = ForcingTerm(
             self.n_dims, self.n_weights_per_dim, self.execution_time_,
             0.0, 0.8, alpha_z)
@@ -433,7 +432,7 @@ def dmp_step_euler_with_constraints(
             cd += coupling_term_precomputed[0]
             cdd += coupling_term_precomputed[1]
 
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f = forcing_term.forcing_term(z).squeeze()
 
         g, gd, gdd = apply_constraints(current_t, goal_y, goal_t, coefficients)

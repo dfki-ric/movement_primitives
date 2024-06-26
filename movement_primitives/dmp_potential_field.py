@@ -54,7 +54,7 @@ def potential_field_2d(dmp, x_range, y_range, n_ticks, obstacle=None):
     Yd = np.empty_like(Y)
     Yd[:, :] = dmp.current_yd
 
-    z = dmp.forcing_term.phase(dmp.t, dmp.int_dt)
+    z = dmp.forcing_term.phase(dmp.t)
     ts = dmp_transformation_system(
         Y, Yd, dmp.alpha_y, dmp.beta_y, dmp.goal_y, dmp.goal_yd, dmp.goal_ydd,
         dmp.start_y, z, dmp.execution_time_)

@@ -32,8 +32,7 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
         self.n_viapoints = n_viapoints
         self.int_dt = int_dt
 
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time, 0.0, self.int_dt)
+        alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0)
 
         self.alpha_y = 25.0
         self.beta_y = self.alpha_y / 4.0
@@ -122,7 +121,7 @@ class StateFollowingForcingTerm:
 
     def __call__(self, t, int_dt=0.001):
         z = phase(t, alpha=self.alpha_z, goal_t=self.goal_t,
-                  start_t=self.start_t, int_dt=int_dt)
+                  start_t=self.start_t)
         z = np.atleast_1d(z)
         return self._activations(z, normalized=True).T
 
