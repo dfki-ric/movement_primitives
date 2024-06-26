@@ -51,7 +51,7 @@ def test_ur5():
 
     try:
         ur5 = UR5Simulation(dt=0.01, gui=False, real_time=False)
-    except NameError:
+    except AssertionError:
         pytest.skip("pybullet currently not available")
     for _ in range(4):
         ur5.goto_ee_state(pt.pq_from_transform(desired_ee2base), wait_time=1.0)
