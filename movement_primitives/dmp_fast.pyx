@@ -18,7 +18,7 @@ cdef double EPSILON = 1e-10
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef phase(t, double alpha, double goal_t, double start_t, double int_dt=0.001, double eps=1e-10):
+cpdef phase(t, double alpha, double goal_t, double start_t):
     """Map time to phase.
 
     Parameters
@@ -35,20 +35,13 @@ cpdef phase(t, double alpha, double goal_t, double start_t, double int_dt=0.001,
     start_t : float
         Time at which the execution should start.
 
-    int_dt : float, optional (default: 0.001)
-        Time delta that is used internally for integration.
-
-    eps : float, optional (default: 1e-10)
-        Small number used to avoid numerical issues.
-
     Returns
     -------
     z : float
         Value of phase variable.
     """
     cdef double execution_time = goal_t - start_t
-    cdef double b = max(1.0 - alpha * int_dt / execution_time, eps)
-    return b ** ((t - start_t) / int_dt)
+    return np.exp(-alpha * (t - start_t) / execution_time)
 
 
 @cython.boundscheck(False)
@@ -179,7 +172,7 @@ cpdef dmp_step(
         if tracking_error is not None:
             cdd += p_gain * tracking_error / dt
 
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f[:] = forcing_term.forcing_term(z).squeeze()
 
         for d in range(n_dims):
@@ -300,7 +293,7 @@ cpdef dmp_step_rk4(
     cdef double dt = t - last_t
     cdef double dt_2 = 0.5 * dt
     cdef np.ndarray[double, ndim=1] T = np.array([t, t + dt_2, t + dt])
-    cdef np.ndarray[double, ndim=1] Z = forcing_term.phase(T, int_dt=int_dt)
+    cdef np.ndarray[double, ndim=1] Z = forcing_term.phase(T)
     cdef np.ndarray[double, ndim=2] F = forcing_term.forcing_term(Z)
     cdef np.ndarray[double, ndim=1] tdd
     if tracking_error is not None:
@@ -489,7 +482,7 @@ cpdef dmp_step_quaternion(
             cd[:] = coupling_term_precomputed[0]
             cdd[:] = coupling_term_precomputed[1]
 
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f[:] = forcing_term.forcing_term(z).squeeze()
 
         if smooth_scaling:
@@ -634,7 +627,7 @@ cpdef dmp_step_dual_cartesian(
         else:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f[:] = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             for pps, pvs in POS_INDICES:

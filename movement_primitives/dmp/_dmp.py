@@ -98,7 +98,7 @@ def dmp_step_rk4(
     dt = t - last_t
     dt_2 = 0.5 * dt
     T = np.array([t, t + dt_2, t + dt])
-    Z = forcing_term.phase(T, int_dt=int_dt)
+    Z = forcing_term.phase(T)
     F = forcing_term.forcing_term(Z)
     tdd = p_gain * tracking_error / dt
 
@@ -308,7 +308,7 @@ def dmp_step_euler(
                 cdd += coupling_term_precomputed[1]
         else:
             cd, cdd = None, None
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f = forcing_term.forcing_term(z).squeeze()
         tdd = p_gain * tracking_error / dt
 
@@ -420,8 +420,7 @@ class DMP(WeightParametersMixin, DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def _init_forcing_term(self):
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time_, 0.0, self.int_dt)
+        alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
         self.forcing_term = ForcingTerm(
             self.n_dims, self.n_weights_per_dim, self.execution_time_,
             0.0, 0.8, alpha_z)

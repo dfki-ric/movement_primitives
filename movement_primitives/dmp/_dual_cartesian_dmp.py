@@ -106,7 +106,7 @@ def dmp_step_dual_cartesian_python(
         if coupling_term is not None:
             cd[:], cdd[:] = coupling_term.coupling(current_y, current_yd)
 
-        z = forcing_term.phase(current_t, int_dt)
+        z = forcing_term.phase(current_t)
         f = forcing_term.forcing_term(z).squeeze()
         if tracking_error is not None:
             cdd[pvs] += p_gain * tracking_error[pps] / dt
@@ -243,8 +243,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         self.beta_y = self.alpha_y / 4.0
 
     def _init_forcing_term(self):
-        alpha_z = canonical_system_alpha(
-            0.01, self.execution_time_, 0.0, self.int_dt)
+        alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
         self.forcing_term = ForcingTerm(
             12, self.n_weights_per_dim, self.execution_time_, 0.0, 0.8,
             alpha_z)
