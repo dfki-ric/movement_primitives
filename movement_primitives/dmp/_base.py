@@ -56,4 +56,4 @@ class WeightParametersMixin:
     @property
     def n_weights(self):
         """Total number of weights configuring the forcing term."""
-        return np.product(self.forcing_term.shape)
+        return np.prod(self.forcing_term.shape)
