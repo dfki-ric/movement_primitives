@@ -39,7 +39,22 @@ def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
 
 
 def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
-    """Map time to phase.
+    r"""Map time to phase.
+
+    According to [1]_, the differential Equation
+
+    .. math::
+
+        \tau \dot{z} = -\alpha_z z
+
+    describes the evolution of the phase variable z. Starting from the initial
+    position :math:`z_0 = 1`, the phase value converges monotonically to 0.
+    Instead of using an iterative procedure to calculate the current value of
+    z, it is computed directly for a fixed :math:`\Delta t` through
+
+    .. math::
+
+        (1 - \alpha_z \frac{\Delta t}{\tau})^{\frac{t}{\Delta t}}
 
     Parameters
     ----------
@@ -65,6 +80,14 @@ def phase(t, alpha, goal_t, start_t, int_dt=0.001, eps=1e-10):
     -------
     z : float
         Value of phase variable.
+
+    References
+    ----------
+    .. [1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+       (2013). Dynamical Movement Primitives: Learning Attractor Models for
+       Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+       10.1162/NECO_a_00393,
+       https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
     """
     execution_time = goal_t - start_t
     b = max(1.0 - alpha * int_dt / execution_time, eps)
