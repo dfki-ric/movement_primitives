@@ -5,6 +5,7 @@ from movement_primitives.testing.simulation import (
     KinematicsChain, UR5Simulation)
 from movement_primitives.kinematics import Kinematics
 from numpy.testing import assert_array_almost_equal
+import pytest
 
 
 def test_inverse_kinematics():
@@ -19,7 +20,10 @@ def test_inverse_kinematics():
         "ur5_shoulder_pan_joint", "ur5_shoulder_lift_joint", "ur5_elbow_joint",
         "ur5_wrist_1_joint", "ur5_wrist_2_joint", "ur5_wrist_3_joint"]
 
-    chain1 = KinematicsChain(ee_frame, joint_names, urdf_path, debug_gui=False)
+    try:
+        chain1 = KinematicsChain(ee_frame, joint_names, urdf_path, debug_gui=False)
+    except NameError:
+        pytest.skip("pybullet currently not available")
 
     with open(urdf_path, "r") as f:
         kin = Kinematics(f.read())
@@ -45,7 +49,10 @@ def test_ur5():
         R=pr.active_matrix_from_extrinsic_roll_pitch_yaw([0.5, 0, 0]),
         p=np.array([-0.3, 0, 0.5]))
 
-    ur5 = UR5Simulation(dt=0.01, gui=False, real_time=False)
+    try:
+        ur5 = UR5Simulation(dt=0.01, gui=False, real_time=False)
+    except NameError:
+        pytest.skip("pybullet currently not available")
     for _ in range(4):
         ur5.goto_ee_state(pt.pq_from_transform(desired_ee2base), wait_time=1.0)
         ur5.stop()
