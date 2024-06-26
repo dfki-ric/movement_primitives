@@ -1,5 +1,9 @@
 def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
-    """Compute parameter alpha of canonical system.
+    r"""Compute parameter alpha of canonical system.
+
+    The parameter alpha is computed such that a specific phase value goal_z
+    is reached at goal_t. The canonical system is defined according to [1]_,
+    even though we compute a different value for alpha.
 
     Parameters
     ----------
@@ -25,6 +29,14 @@ def canonical_system_alpha(goal_z, goal_t, start_t, int_dt=0.001):
     ------
     ValueError
         If input values are invalid.
+
+    References
+    ----------
+    .. [1] Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+       (2013). Dynamical Movement Primitives: Learning Attractor Models for
+       Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+       10.1162/NECO_a_00393,
+       https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf
     """
     if goal_z <= 0.0:
         raise ValueError("Final phase must be > 0!")
