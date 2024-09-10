@@ -53,7 +53,7 @@ cpdef dmp_step(
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
         np.ndarray[double, ndim=1] start_yd, np.ndarray[double, ndim=1] start_ydd,
-        double goal_t, double start_t, double alpha_y, double beta_y,
+        double goal_t, double start_t, np.ndarray[double, ndim=1] alpha_y, np.ndarray[double, ndim=1] beta_y,
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
@@ -99,10 +99,10 @@ cpdef dmp_step(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -203,7 +203,7 @@ cpdef dmp_step_rk4(
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
         np.ndarray[double, ndim=1] start_yd, np.ndarray[double, ndim=1] start_ydd,
-        double goal_t, double start_t, double alpha_y, double beta_y,
+        double goal_t, double start_t, np.ndarray[double, ndim=1] alpha_y, np.ndarray[double, ndim=1] beta_y,
         object forcing_term, object coupling_term=None,
         tuple coupling_term_precomputed=None,
         double int_dt=0.001, double p_gain=0.0,
@@ -249,10 +249,10 @@ cpdef dmp_step_rk4(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -333,7 +333,7 @@ cpdef dmp_step_rk4(
 
 cdef _dmp_acc(
         np.ndarray[double, ndim=1] Y, np.ndarray[double, ndim=1] V,
-        np.ndarray[double, ndim=1] cdd, double dt, double alpha_y, double beta_y,
+        np.ndarray[double, ndim=1] cdd, double dt, np.ndarray[double, ndim=1] alpha_y, np.ndarray[double, ndim=1] beta_y,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd,
         np.ndarray[double, ndim=1] goal_ydd, np.ndarray[double, ndim=1] start_y,
         double z, double execution_time, np.ndarray[double, ndim=1] f,
@@ -378,7 +378,7 @@ cpdef dmp_step_quaternion(
         np.ndarray[double, ndim=1] start_y,
         np.ndarray[double, ndim=1] start_yd,
         np.ndarray[double, ndim=1] start_ydd,
-        double goal_t, double start_t, double alpha_y, double beta_y,
+        double goal_t, double start_t, np.ndarray[double, ndim=1] alpha_y, np.ndarray[double, ndim=1] beta_y,
         forcing_term, coupling_term=None, coupling_term_precomputed=None,
         double int_dt=0.001, bint smooth_scaling=False):
     """Integrate quaternion DMP for one step with Euler integration.
@@ -421,10 +421,10 @@ cpdef dmp_step_quaternion(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -514,7 +514,7 @@ cpdef dmp_step_dual_cartesian(
         np.ndarray[double, ndim=1] current_y, np.ndarray[double, ndim=1] current_yd,
         np.ndarray[double, ndim=1] goal_y, np.ndarray[double, ndim=1] goal_yd, np.ndarray[double, ndim=1] goal_ydd,
         np.ndarray[double, ndim=1] start_y, np.ndarray[double, ndim=1] start_yd, np.ndarray[double, ndim=1] start_ydd,
-        double goal_t, double start_t, double alpha_y, double beta_y,
+        double goal_t, double start_t, np.ndarray[double, ndim=1] alpha_y, np.ndarray[double, ndim=1] beta_y,
         forcing_term, coupling_term=None,
         double int_dt=0.001,
         double p_gain=0.0, np.ndarray tracking_error=None,
@@ -559,10 +559,10 @@ cpdef dmp_step_dual_cartesian(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (12,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (12,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
