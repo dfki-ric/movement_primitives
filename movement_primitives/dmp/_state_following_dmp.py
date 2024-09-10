@@ -25,7 +25,7 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
        https://link.springer.com/chapter/10.1007/978-3-030-19648-6_32
     """
     def __init__(self, n_dims, execution_time, dt=0.01, n_viapoints=10,
-                 int_dt=0.001):
+                 int_dt=0.001, alpha_y=25.0, beta_y=6.25):
         super(StateFollowingDMP, self).__init__(n_dims, n_dims)
         self.execution_time = execution_time
         self.dt_ = dt
@@ -34,8 +34,21 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
 
         alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0)
 
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
+        if isinstance(alpha_y, float):
+            self.alpha_y = alpha_y * np.ones(n_dims)
+        elif isinstance(alpha_y, (np.ndarray, list)):
+            alpha_y = np.asarray(alpha_y)
+            assert alpha_y.shape == (n_dims,), f"alpha_y must have shape ({n_dims},)"
+            self.alpha_y = alpha_y
+        else:
+            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
+        
+        if isinstance(beta_y, float):
+            self.beta_y = beta_y * np.ones(n_dims)
+        elif isinstance(beta_y, (np.ndarray, list)):
+            beta_y = np.asarray(beta_y)
+            assert beta_y.shape == (n_dims,), f"beta_y must have shape ({n_dims},)"
+            self.beta_y = beta_y                
 
         self.forcing_term = StateFollowingForcingTerm(
             self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1,

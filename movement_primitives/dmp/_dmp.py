@@ -50,10 +50,10 @@ def dmp_step_rk4(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -147,10 +147,10 @@ def _dmp_acc(Y, V, cdd, alpha_y, beta_y, goal_y, goal_yd, goal_ydd,
     cdd : array, shape (n_dims,)
         Coupling term acceleration.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant of transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant of transformation system.
 
     goal_y : shape (n_dims,)
@@ -255,10 +255,10 @@ def dmp_step_euler(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -380,6 +380,12 @@ class DMP(WeightParametersMixin, DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
+    alpha_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 25.0)
+        Parameter of the transformation system.
+    
+    beta_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 6.25)
+        Parameter of the transformation system.            
+
     Attributes
     ----------
     execution_time_ : float
@@ -405,7 +411,7 @@ class DMP(WeightParametersMixin, DMPBase):
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
                  n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
-                 smooth_scaling=False):
+                 smooth_scaling=False, alpha_y=25.0, beta_y=6.25):
         super(DMP, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
@@ -416,9 +422,24 @@ class DMP(WeightParametersMixin, DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
-
+        if isinstance(alpha_y, float):
+            self.alpha_y = alpha_y * np.ones(n_dims)
+        elif isinstance(alpha_y, (np.ndarray, list)):
+            alpha_y = np.asarray(alpha_y)
+            assert alpha_y.shape == (n_dims,), f"alpha_y must have shape ({n_dims},)"
+            self.alpha_y = alpha_y
+        else:
+            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
+        
+        if isinstance(beta_y, float):
+            self.beta_y = beta_y * np.ones(n_dims)
+        elif isinstance(beta_y, (np.ndarray, list)):
+            beta_y = np.asarray(beta_y)
+            assert beta_y.shape == (n_dims,), f"beta_y must have shape ({n_dims},)"
+            self.beta_y = beta_y
+        else:
+            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")               
+        
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
         self.forcing_term = ForcingTerm(
@@ -609,10 +630,10 @@ def determine_forces(T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity,
     Y : array, shape (n_steps, n_dims)
         Position at each step.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Parameter of the transformation system.
 
     alpha_z : float
@@ -699,10 +720,10 @@ def dmp_imitate(
     regularization_coefficient : float, optional (default: 0)
         Regularization coefficient for regression.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Parameter of the transformation system.
 
     overlap : float
@@ -814,10 +835,10 @@ def dmp_open_loop(
     goal_y : array, shape (n_dims,)
         Goal position.
 
-    alpha_y : float
+    alpha_y : array, shape (n_dims,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (n_dims,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm

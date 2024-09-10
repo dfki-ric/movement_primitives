@@ -58,10 +58,10 @@ def dmp_step_quaternion_python(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -200,6 +200,12 @@ class CartesianDMP(DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
+    alpha_y : float, list with length 6, or array with shape (6,), optional (default: 25.0)
+        Parameter of the transformation system.
+    
+    beta_y : float, list with length 6, or array with shape (6,), optional (default: 6.25)
+        Parameter of the transformation system.
+
     Attributes
     ----------
     execution_time_ : float
@@ -225,7 +231,7 @@ class CartesianDMP(DMPBase):
     """
     def __init__(
             self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-            int_dt=0.001, smooth_scaling=False):
+            int_dt=0.001, smooth_scaling=False, alpha_y=25.0, beta_y=6.25):
         super(CartesianDMP, self).__init__(7, 6)
         self._execution_time = execution_time
         self.dt_ = dt
@@ -235,8 +241,23 @@ class CartesianDMP(DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
+        if isinstance(alpha_y, float):
+            self.alpha_y = alpha_y * np.ones(6)
+        elif isinstance(alpha_y, (np.ndarray, list)):
+            alpha_y = np.asarray(alpha_y)
+            assert alpha_y.shape == (6,), "alpha_y must have shape (6,)"
+            self.alpha_y = alpha_y
+        else:
+            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
+        
+        if isinstance(beta_y, float):
+            self.beta_y = beta_y * np.ones(6)
+        elif isinstance(beta_y, (np.ndarray, list)):
+            beta_y = np.asarray(beta_y)
+            assert beta_y.shape == (6,), "beta_y must have shape (6,)"
+            self.beta_y = beta_y
+        else:
+            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")                
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
@@ -306,7 +327,7 @@ class CartesianDMP(DMPBase):
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
             self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
             self.execution_time_, 0.0,
-            self.alpha_y, self.beta_y,
+            self.alpha_y[:3], self.beta_y[:3],
             self.forcing_term_pos,
             coupling_term=coupling_term,
             int_dt=self.int_dt,
@@ -317,7 +338,7 @@ class CartesianDMP(DMPBase):
             self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
             self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
             self.execution_time_, 0.0,
-            self.alpha_y, self.beta_y,
+            self.alpha_y[3:], self.beta_y[3:],
             self.forcing_term_rot,
             coupling_term=coupling_term,
             int_dt=self.int_dt,
@@ -361,7 +382,7 @@ class CartesianDMP(DMPBase):
         T, Yp = dmp_open_loop(
             self.execution_time_, 0.0, self.dt_,
             self.start_y[:3], self.goal_y[:3],
-            self.alpha_y, self.beta_y,
+            self.alpha_y[:3], self.beta_y[:3],
             self.forcing_term_pos,
             coupling_term,
             run_t, self.int_dt,
@@ -377,7 +398,7 @@ class CartesianDMP(DMPBase):
         _, Yr = dmp_open_loop_quaternion(
             self.execution_time_, 0.0, self.dt_,
             self.start_y[3:], self.goal_y[3:],
-            self.alpha_y, self.beta_y,
+            self.alpha_y[3:], self.beta_y[3:],
             self.forcing_term_rot,
             coupling_term,
             run_t, self.int_dt,
@@ -411,7 +432,7 @@ class CartesianDMP(DMPBase):
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[:3], beta_y=self.beta_y[:3],
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -420,7 +441,7 @@ class CartesianDMP(DMPBase):
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[3:], beta_y=self.beta_y[3:],
             overlap=self.forcing_term_rot.overlap,
             alpha_z=self.forcing_term_rot.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -473,10 +494,10 @@ def dmp_quaternion_imitation(
     regularization_coefficient : float, optional (default: 0)
         Regularization coefficient for regression.
 
-    alpha_y : float
+    alpha_y : array, shape (3,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (3,)
         Parameter of the transformation system.
 
     overlap : float
@@ -546,10 +567,10 @@ def determine_forces_quaternion(
     Y : array, shape (n_steps, n_dims)
         Position at each step.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Parameter of the transformation system.
 
     alpha_z : float
@@ -645,10 +666,10 @@ def dmp_open_loop_quaternion(
     goal_y : array, shape (7,)
         Goal position.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
