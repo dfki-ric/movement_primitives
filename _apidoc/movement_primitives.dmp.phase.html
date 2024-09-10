@@ -5,12 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.phase &#8212; movement_primitives 0.7.1 documentation</title>
+    <title>movement_primitives.dmp.phase &#8212; movement_primitives 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -104,8 +105,17 @@
 <h1>movement_primitives.dmp.phase<a class="headerlink" href="#movement-primitives-dmp-phase" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement_primitives.dmp.phase">
-<span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.phase" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.phase" title="Link to this definition">¶</a></dt>
 <dd><p>Map time to phase.</p>
+<p>According to <a class="reference internal" href="#r4e9bc15b2ac8-1" id="id1">[1]</a>, the differential Equation</p>
+<div class="math notranslate nohighlight">
+\[\tau \dot{z} = -\alpha_z z\]</div>
+<p>describes the evolution of the phase variable z. Starting from the initial
+position <span class="math notranslate nohighlight">\(z_0 = 1\)</span>, the phase value converges monotonically to 0.
+Instead of using an iterative procedure to calculate the current value of
+z, it is computed directly through</p>
+<div class="math notranslate nohighlight">
+\[z(t) = \exp - \frac{\alpha_z}{\tau} t\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -117,10 +127,6 @@
 </dd>
 <dt><strong>start_t</strong><span class="classifier">float</span></dt><dd><p>Time at which the execution should start.</p>
 </dd>
-<dt><strong>int_dt</strong><span class="classifier">float, optional (default: 0.001)</span></dt><dd><p>Time delta that is used internally for integration.</p>
-</dd>
-<dt><strong>eps</strong><span class="classifier">float, optional (default: 1e-10)</span></dt><dd><p>Small number used to avoid numerical issues.</p>
-</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -130,6 +136,17 @@
 </dl>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r4e9bc15b2ac8-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+(2013). Dynamical Movement Primitives: Learning Attractor Models for
+Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+10.1162/NECO_a_00393,
+<a class="reference external" href="https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf">https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf</a></p>
+</div>
+</div>
 </dd></dl>
 
 </section>

@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.7.1 documentation</title>
+    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -140,20 +140,8 @@ The domain is [0, execution_time**2/dt].</p>
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">References</p>
-<div role="list" class="citation-list">
-<div class="citation" id="r5542a6744e36-1" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013). Learning to
-Select and Generalize Striking Movements in Robot Table Tennis.
-International Journal of Robotics Research 32 (3), 263-279.
-<a class="reference external" href="https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf">https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf</a></p>
-</div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>execution_time_</strong><span class="classifier">float</span></dt><dd><p>Execution time of the DMP.</p>
 </dd>
 <dt><strong>dt_</strong><span class="classifier">float</span></dt><dd><p>Time difference between DMP steps. This value can be changed to adapt
@@ -201,6 +189,16 @@ the frequency.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r5542a6744e36-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013). Learning to
+Select and Generalize Striking Movements in Robot Table Tennis.
+International Journal of Robotics Research 32 (3), 263-279.
+<a class="reference external" href="https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf">https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf</a></p>
+</div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity.configure">
 <span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_yd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_ydd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DMPWithFinalVelocity.configure" title="Link to this definition">¶</a></dt>

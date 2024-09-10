@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.canonical_system_alpha &#8212; movement_primitives 0.7.1 documentation</title>
+    <title>movement_primitives.dmp.canonical_system_alpha &#8212; movement_primitives 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -104,8 +104,11 @@
 <h1>movement_primitives.dmp.canonical_system_alpha<a class="headerlink" href="#movement-primitives-dmp-canonical-system-alpha" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement_primitives.dmp.canonical_system_alpha">
-<span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">canonical_system_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.canonical_system_alpha" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">canonical_system_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.canonical_system_alpha" title="Link to this definition">¶</a></dt>
 <dd><p>Compute parameter alpha of canonical system.</p>
+<p>The parameter alpha is computed such that a specific phase value goal_z
+is reached at goal_t. The canonical system is defined according to <a class="reference internal" href="#r4fcf24288fcd-1" id="id1">[1]</a>,
+even though we compute a different value for alpha.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -115,8 +118,6 @@
 goal_t &gt; start_t.</p>
 </dd>
 <dt><strong>start_t</strong><span class="classifier">float</span></dt><dd><p>Time at which the execution should start.</p>
-</dd>
-<dt><strong>int_dt</strong><span class="classifier">float, optional (default: 0.001)</span></dt><dd><p>Time delta that is used internally for integration.</p>
 </dd>
 </dl>
 </dd>
@@ -133,6 +134,17 @@ goal_t &gt; start_t.</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r4fcf24288fcd-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ijspeert, A. J., Nakanishi, J., Hoffmann, H., Pastor, P., Schaal, S.
+(2013). Dynamical Movement Primitives: Learning Attractor Models for
+Motor Behaviors. Neural Computation 25 (2), 328-373. DOI:
+10.1162/NECO_a_00393,
+<a class="reference external" href="https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf">https://homes.cs.washington.edu/~todorov/courses/amath579/reading/DynamicPrimitives.pdf</a></p>
+</div>
+</div>
 </dd></dl>
 
 </section>
