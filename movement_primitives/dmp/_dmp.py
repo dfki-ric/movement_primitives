@@ -808,10 +808,10 @@ def dmp_open_loop(
     dt : float, optional (default: 0.01)
         Time difference between DMP steps.
 
-    start_y : array, shape (7,)
+    start_y : array, shape (n_dims,)
         Start position.
 
-    goal_y : array, shape (7,)
+    goal_y : array, shape (n_dims,)
         Goal position.
 
     alpha_y : float
