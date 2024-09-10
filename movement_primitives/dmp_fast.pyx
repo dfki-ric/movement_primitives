@@ -177,13 +177,13 @@ cpdef dmp_step(
 
         for d in range(n_dims):
             if smooth_scaling:
-                smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+                smoothing = beta_y[d] * (goal_y[d] - start_y[d]) * z
             else:
                 smoothing = 0.0
 
             current_ydd[d] = (
-                alpha_y * (
-                    beta_y * (goal_y[d] - current_y[d])
+                alpha_y[d] * (
+                    beta_y[d] * (goal_y[d] - current_y[d])
                     - execution_time * current_yd[d]
                     - smoothing
                 )
@@ -348,12 +348,12 @@ cdef _dmp_acc(
     cdef double smoothing
     for d in range(n_dims):
         if smooth_scaling:
-            smoothing = beta_y * (goal_y[d] - start_y[d]) * z
+            smoothing = beta_y[d] * (goal_y[d] - start_y[d]) * z
         else:
             smoothing = 0.0
         Ydd[d] = (
-            alpha_y * (
-                beta_y * (goal_y[d] - Y[d])
+            alpha_y[d] * (
+                beta_y[d] * (goal_y[d] - Y[d])
                 - execution_time * V[d]
                 - smoothing
             )
@@ -638,12 +638,12 @@ cpdef dmp_step_dual_cartesian(
         # position components
         for pps, pvs in POS_INDICES:
             if smooth_scaling:
-                smoothing_pos = beta_y * (goal_y[pps] - start_y[pps]) * z
+                smoothing_pos = beta_y[pps] * (goal_y[pps] - start_y[pps]) * z
             else:
                 smoothing_pos = 0.0
             current_ydd[pvs] = (
-                alpha_y * (
-                    beta_y * (goal_y[pps] - current_y[pps])
+                alpha_y[pvs] * (
+                    beta_y[pvs] * (goal_y[pps] - current_y[pps])
                     - execution_time * current_yd[pvs]
                     - smoothing_pos
                 )
@@ -658,10 +658,10 @@ cpdef dmp_step_dual_cartesian(
             if smooth_scaling:
                 goal_y_minus_start_y = compact_axis_angle_from_quaternion(
                     concatenate_quaternions(goal_y[ops], q_conj(start_y[ops])))
-                smoothing_orn[:] = beta_y * z * goal_y_minus_start_y
+                smoothing_orn[:] = beta_y[ovs] * z * goal_y_minus_start_y
             current_ydd[ovs] = (
-                alpha_y * (
-                    beta_y * compact_axis_angle_from_quaternion(
+                alpha_y[ovs] * (
+                    beta_y[ovs] * compact_axis_angle_from_quaternion(
                         concatenate_quaternions(goal_y[ops], q_conj(current_y[ops])))
                     - execution_time * current_yd[ovs]
                     - smoothing_orn
