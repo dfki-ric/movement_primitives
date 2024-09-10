@@ -125,7 +125,9 @@ def dmp_step_quaternion_python(
 
         current_ydd[:] = (
             alpha_y * (
-                beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
+                beta_y * pr.compact_axis_angle_from_quaternion(
+                    pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))
+                )
                 - execution_time * current_yd
                 - smoothing
             )
@@ -202,7 +204,7 @@ class CartesianDMP(DMPBase):
 
     alpha_y : float, list with length 6, or array with shape (6,), optional (default: 25.0)
         Parameter of the transformation system.
-    
+
     beta_y : float, list with length 6, or array with shape (6,), optional (default: 6.25)
         Parameter of the transformation system.
 
@@ -248,8 +250,11 @@ class CartesianDMP(DMPBase):
             assert alpha_y.shape == (6,), "alpha_y must have shape (6,)"
             self.alpha_y = alpha_y
         else:
-            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
-        
+            t = type(alpha_y)
+            raise ValueError(
+                f"alpha_y must be either a float or np.ndarray, not '{t}'"
+            )
+
         if isinstance(beta_y, float):
             self.beta_y = beta_y * np.ones(6)
         elif isinstance(beta_y, (np.ndarray, list)):
@@ -257,7 +262,10 @@ class CartesianDMP(DMPBase):
             assert beta_y.shape == (6,), "beta_y must have shape (6,)"
             self.beta_y = beta_y
         else:
-            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")                
+            t = type(beta_y)
+            raise ValueError(
+                f"beta_y must be either a float or np.ndarray, not '{t}'"
+            )
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)

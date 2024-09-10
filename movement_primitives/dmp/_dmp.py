@@ -382,9 +382,9 @@ class DMP(WeightParametersMixin, DMPBase):
 
     alpha_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 25.0)
         Parameter of the transformation system.
-    
+
     beta_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 6.25)
-        Parameter of the transformation system.            
+        Parameter of the transformation system.
 
     Attributes
     ----------
@@ -426,20 +426,28 @@ class DMP(WeightParametersMixin, DMPBase):
             self.alpha_y = alpha_y * np.ones(n_dims)
         elif isinstance(alpha_y, (np.ndarray, list)):
             alpha_y = np.asarray(alpha_y)
-            assert alpha_y.shape == (n_dims,), f"alpha_y must have shape ({n_dims},)"
+            assert alpha_y.shape == (n_dims,), \
+                f"alpha_y must have shape ({n_dims},)"
             self.alpha_y = alpha_y
         else:
-            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
-        
+            t = type(alpha_y)
+            raise ValueError(
+                f"alpha_y must be either a float or np.ndarray, not '{t}'"
+            )
+
         if isinstance(beta_y, float):
             self.beta_y = beta_y * np.ones(n_dims)
         elif isinstance(beta_y, (np.ndarray, list)):
             beta_y = np.asarray(beta_y)
-            assert beta_y.shape == (n_dims,), f"beta_y must have shape ({n_dims},)"
+            assert beta_y.shape == (n_dims,), \
+                f"beta_y must have shape ({n_dims},)"
             self.beta_y = beta_y
         else:
-            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")               
-        
+            t = type(beta_y)
+            raise ValueError(
+                f"beta_y must be either a float or np.ndarray, not '{t}'"
+            )
+
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
         self.forcing_term = ForcingTerm(
@@ -595,12 +603,15 @@ class DMP(WeightParametersMixin, DMPBase):
         allow_final_velocity : bool, optional (default: False)
             Allow a final velocity.
         """
-        self.forcing_term.weights_[:, :], start_y, _, _, goal_y, _, _ = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, _, _, goal_y, _, _ = \
+            dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y, overlap=self.forcing_term.overlap,
-            alpha_z=self.forcing_term.alpha_z, allow_final_velocity=allow_final_velocity,
+            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            overlap=self.forcing_term.overlap,
+            alpha_z=self.forcing_term.alpha_z,
+            allow_final_velocity=allow_final_velocity,
             smooth_scaling=self.smooth_scaling)
         self.configure(start_y=start_y, goal_y=goal_y)
 
@@ -773,8 +784,12 @@ def dmp_imitate(
 
     forcing_term = ForcingTerm(
         Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
-    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = determine_forces(
-        T, Y, alpha_y, beta_y, alpha_z, allow_final_velocity, smooth_scaling)
+    F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = \
+        determine_forces(
+            T, Y, alpha_y, beta_y,
+            alpha_z, allow_final_velocity,
+            smooth_scaling
+        )
     # F shape (n_steps, n_dims)
 
     X = forcing_term.design_matrix(T)  # shape (n_weights_per_dim, n_steps)

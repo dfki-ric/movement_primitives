@@ -37,9 +37,9 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
 
     alpha_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 25.0)
         Parameter of the transformation system.
-    
+
     beta_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 6.25)
-        Parameter of the transformation system.    
+        Parameter of the transformation system.
 
     Attributes
     ----------
@@ -58,7 +58,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
        https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
     """
     def __init__(self, n_dims, execution_time=1.0, dt=0.01,
-                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0, alpha_y=25.0, beta_y=6.25):
+                 n_weights_per_dim=10, int_dt=0.001, p_gain=0.0,
+                 alpha_y=25.0, beta_y=6.25):
         super(DMPWithFinalVelocity, self).__init__(n_dims, n_dims)
         self._execution_time = execution_time
         self.dt_ = dt
@@ -77,7 +78,7 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             self.alpha_y = alpha_y
         else:
             raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
-        
+
         if isinstance(beta_y, float):
             self.beta_y = beta_y * np.ones(n_dims)
         elif isinstance(beta_y, (np.ndarray, list)):
@@ -85,7 +86,7 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
             assert beta_y.shape == (n_dims,), f"beta_y must have shape ({n_dims},)"
             self.beta_y = beta_y
         else:
-            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")           
+            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
@@ -212,7 +213,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         regularization_coefficient : float, optional (default: 0)
             Regularization coefficient for regression.
         """
-        self.forcing_term.weights_[:, :], start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
+        self.forcing_term.weights_[:, :], start_y, start_yd, \
+            start_ydd, goal_y, goal_yd, goal_ydd = dmp_imitate(
             T, Y,
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,

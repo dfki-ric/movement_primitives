@@ -206,9 +206,9 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
 
     alpha_y : float, list with length 12, or array with shape (12,), optional (default: 25.0)
         Parameter of the transformation system.
-    
+
     beta_y : float, list with length 12, or array with shape (12,), optional (default: 6.25)
-        Parameter of the transformation system.                    
+        Parameter of the transformation system.
 
     Attributes
     ----------
@@ -252,8 +252,11 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             assert alpha_y.shape == (12,), "alpha_y must have shape (12,)"
             self.alpha_y = alpha_y
         else:
-            raise ValueError(f"alpha_y must be either a float or np.ndarray, not '{type(alpha_y)}'")
-        
+            t = type(alpha_y)
+            raise ValueError(
+                f"alpha_y must be either a float or np.ndarray, not '{t}'"
+            )
+
         if isinstance(beta_y, float):
             self.beta_y = beta_y * np.ones(12)
         elif isinstance(beta_y, (np.ndarray, list)):
@@ -261,7 +264,10 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             assert beta_y.shape == (12,), "beta_y must have shape (12,)"
             self.beta_y = beta_y
         else:
-            raise ValueError(f"beta_y must be either a float or np.ndarray, not '{type(beta_y)}'")                   
+            t = type(beta_y)
+            raise ValueError(
+                f"beta_y must be either a float or np.ndarray, not '{t}'"
+            )
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
