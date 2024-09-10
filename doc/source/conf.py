@@ -13,7 +13,6 @@
 import os
 import sys
 import time
-import sphinx_bootstrap_theme
 
 
 sys.path.insert(0, os.path.abspath('.'))
@@ -58,18 +57,12 @@ autosummary_generate = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "bootstrap"
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "bootswatch_theme": "readable",
-    "navbar_sidebarrel": False,
-    "bootstrap_version": "3",
-    "nosidebar": True,
-    "body_max_width": "90%",
-    "navbar_links": [
-        ("Home", "index"),
-        ("API", "api"),
-    ],
+    "logo": {
+        "text": f"movement_primitives {release}"
+    },
+    "navbar_start": ["navbar-logo"],
 }
 
 root_doc = "index"
