@@ -34,26 +34,8 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
 
         alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0)
 
-        if isinstance(alpha_y, float):
-            self.alpha_y = alpha_y * np.ones(n_dims)
-        elif isinstance(alpha_y, (np.ndarray, list)):
-            alpha_y = np.asarray(alpha_y)
-            assert alpha_y.shape == (n_dims,), \
-                f"alpha_y must have shape ({n_dims},)"
-            self.alpha_y = alpha_y
-        else:
-            t = type(alpha_y)
-            raise ValueError(
-                f"alpha_y must be either a float or np.ndarray, not '{t}'"
-            )
-
-        if isinstance(beta_y, float):
-            self.beta_y = beta_y * np.ones(n_dims)
-        elif isinstance(beta_y, (np.ndarray, list)):
-            beta_y = np.asarray(beta_y)
-            assert beta_y.shape == (n_dims,), \
-                f"beta_y must have shape ({n_dims},)"
-            self.beta_y = beta_y
+        self.alpha_y = self._process_gain_input(alpha_y, n_dims, "alpha_y")
+        self.beta_y = self._process_gain_input(beta_y, n_dims, "beta_y")
 
         self.forcing_term = StateFollowingForcingTerm(
             self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1,

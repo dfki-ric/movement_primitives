@@ -18,6 +18,16 @@ class DMPBase(PointToPointMovement):
 
         self.initialized = False
 
+    @staticmethod
+    def _process_gain_input(value, dim, label):
+        """Process scalar or array-like input to ensure it is a 1D numpy array of the correct shape."""        
+        value = np.atleast_1d(value).astype(float).flatten()
+        if value.shape[0] == 1:
+            value = value * np.ones(dim)
+        elif value.shape != (dim,):
+            raise ValueError(f"{label} has incorrect shape, expected ({dim},) got {value.shape}")
+        return value
+
     def reset(self):
         """Reset DMP to initial state and time."""
         self.t = 0.0

@@ -243,29 +243,8 @@ class CartesianDMP(DMPBase):
 
         self._init_forcing_term()
 
-        if isinstance(alpha_y, float):
-            self.alpha_y = alpha_y * np.ones(6)
-        elif isinstance(alpha_y, (np.ndarray, list)):
-            alpha_y = np.asarray(alpha_y)
-            assert alpha_y.shape == (6,), "alpha_y must have shape (6,)"
-            self.alpha_y = alpha_y
-        else:
-            t = type(alpha_y)
-            raise ValueError(
-                f"alpha_y must be either a float or np.ndarray, not '{t}'"
-            )
-
-        if isinstance(beta_y, float):
-            self.beta_y = beta_y * np.ones(6)
-        elif isinstance(beta_y, (np.ndarray, list)):
-            beta_y = np.asarray(beta_y)
-            assert beta_y.shape == (6,), "beta_y must have shape (6,)"
-            self.beta_y = beta_y
-        else:
-            t = type(beta_y)
-            raise ValueError(
-                f"beta_y must be either a float or np.ndarray, not '{t}'"
-            )
+        self.alpha_y = self._process_gain_input(alpha_y, 6, "alpha_y")
+        self.beta_y = self._process_gain_input(beta_y, 6, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
