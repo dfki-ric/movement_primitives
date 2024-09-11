@@ -5,8 +5,6 @@ Effect of DMP Gain
 
 Demonstrates how modifying DMP gains (alpha_y, beta_y) affects 
 the resulting trajectory reproduction.
-
-
 """
 
 print(__doc__)
