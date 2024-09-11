@@ -6,12 +6,13 @@ Effect of DMP Gain
 Demonstrates how modifying DMP gains (alpha_y, beta_y) affects 
 the resulting trajectory reproduction.
 """
-
 print(__doc__)
+
 
 import matplotlib.pyplot as plt
 import numpy as np
 from movement_primitives.dmp import DMP
+
 
 dt = 0.01
 
