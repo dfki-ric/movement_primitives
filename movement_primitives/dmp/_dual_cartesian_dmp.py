@@ -1,6 +1,7 @@
 import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase, WeightParametersMixin
+from ..utils import ensure_1d_array
 from ._canonical_system import canonical_system_alpha
 from ._forcing_term import ForcingTerm, phase
 from ._dmp import dmp_imitate
@@ -245,8 +246,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = self._process_gain_input(alpha_y, 12, "alpha_y")
-        self.beta_y = self._process_gain_input(beta_y, 12, "beta_y")
+        self.alpha_y = ensure_1d_array(alpha_y, 12, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, 12, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)

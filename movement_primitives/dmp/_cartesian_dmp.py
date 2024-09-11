@@ -1,11 +1,11 @@
 import numpy as np
 import pytransform3d.rotations as pr
+from ..utils import ensure_1d_array
 from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 from ._dmp import (dmp_open_loop, dmp_imitate, ridge_regression,
                    DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION, phase)
-
 
 def dmp_step_quaternion_python(
         last_t, t,
@@ -243,8 +243,8 @@ class CartesianDMP(DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = self._process_gain_input(alpha_y, 6, "alpha_y")
-        self.beta_y = self._process_gain_input(beta_y, 6, "beta_y")
+        self.alpha_y = ensure_1d_array(alpha_y, 6, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, 6, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)

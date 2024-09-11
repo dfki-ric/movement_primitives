@@ -1,5 +1,6 @@
 import numpy as np
 from ._base import DMPBase, WeightParametersMixin
+from ..utils import ensure_1d_array
 from ._forcing_term import ForcingTerm, phase
 from ._canonical_system import canonical_system_alpha
 from ._dmp import dmp_imitate, dmp_open_loop
@@ -70,8 +71,8 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = self._process_gain_input(alpha_y, n_dims, "alpha_y")
-        self.beta_y = self._process_gain_input(beta_y, n_dims, "beta_y")
+        self.alpha_y = ensure_1d_array(alpha_y, n_dims, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, n_dims, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)

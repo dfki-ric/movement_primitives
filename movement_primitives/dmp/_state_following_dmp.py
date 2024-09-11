@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from ._base import DMPBase, WeightParametersMixin
+from ..utils import ensure_1d_array
 from ._canonical_system import canonical_system_alpha, phase
 
 
@@ -34,8 +35,8 @@ class StateFollowingDMP(WeightParametersMixin, DMPBase):
 
         alpha_z = canonical_system_alpha(0.01, self.execution_time, 0.0)
 
-        self.alpha_y = self._process_gain_input(alpha_y, n_dims, "alpha_y")
-        self.beta_y = self._process_gain_input(beta_y, n_dims, "beta_y")
+        self.alpha_y = ensure_1d_array(alpha_y, n_dims, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, n_dims, "beta_y")
 
         self.forcing_term = StateFollowingForcingTerm(
             self.n_dims, self.n_viapoints, self.execution_time, 0.0, 0.1,
