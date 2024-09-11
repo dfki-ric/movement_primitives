@@ -380,7 +380,7 @@ class DMP(WeightParametersMixin, DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
-    alpha_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 25.0)
+    alpha_y : float or array-like, shape (n_dims,), optional (default: 25.0)
         Parameter of the transformation system.
 
     beta_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 6.25)

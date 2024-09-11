@@ -202,10 +202,10 @@ class CartesianDMP(DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
-    alpha_y : float, list with length 6, or array with shape (6,), optional (default: 25.0)
+    alpha_y : float or array-like, shape (6,), optional (default: 25.0)
         Parameter of the transformation system.
 
-    beta_y : float, list with length 6, or array with shape (6,), optional (default: 6.25)
+    beta_y : float or array-like, shape (6,), optional (default: 6.25)
         Parameter of the transformation system.
 
     Attributes

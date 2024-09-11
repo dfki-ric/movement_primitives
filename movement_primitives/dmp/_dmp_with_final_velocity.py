@@ -35,10 +35,10 @@ class DMPWithFinalVelocity(WeightParametersMixin, DMPBase):
         Gain for proportional controller of DMP tracking error.
         The domain is [0, execution_time**2/dt].
 
-    alpha_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 25.0)
+    alpha_y : float or array-like, shape (n_dims,), optional (default: 25.0)
         Parameter of the transformation system.
 
-    beta_y : float, list with length n_dims, or array with shape (n_dims,), optional (default: 6.25)
+    beta_y : float or array-like, shape (n_dims,), optional (default: 6.25)
         Parameter of the transformation system.
 
     Attributes
