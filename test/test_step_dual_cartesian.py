@@ -18,7 +18,9 @@ def test_compare_python_cython():
         goal_yd=np.zeros([12]), goal_ydd=np.zeros([12]),
         start_y=np.array([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
         start_yd=np.zeros([12]), start_ydd=np.zeros([12]),
-        goal_t=2.0, start_t=0.0, alpha_y=25.0, beta_y=6.25,
+        goal_t=2.0, start_t=0.0, 
+        alpha_y=25.0 * np.ones(12), 
+        beta_y=6.25 * np.ones(12),
         forcing_term=forcing_term, coupling_term=None, int_dt=0.0001,
         p_gain=0.0, tracking_error=None
     )

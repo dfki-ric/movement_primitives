@@ -1,11 +1,11 @@
 import numpy as np
 import pytransform3d.rotations as pr
+from ..utils import ensure_1d_array
 from ._base import DMPBase
 from ._forcing_term import ForcingTerm
 from ._canonical_system import canonical_system_alpha
 from ._dmp import (dmp_open_loop, dmp_imitate, ridge_regression,
                    DMP_STEP_FUNCTIONS, DEFAULT_DMP_STEP_FUNCTION, phase)
-
 
 def dmp_step_quaternion_python(
         last_t, t,
@@ -58,10 +58,10 @@ def dmp_step_quaternion_python(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -125,7 +125,9 @@ def dmp_step_quaternion_python(
 
         current_ydd[:] = (
             alpha_y * (
-                beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(goal_y, pr.q_conj(current_y)))
+                beta_y * pr.compact_axis_angle_from_quaternion(
+                    pr.concatenate_quaternions(goal_y, pr.q_conj(current_y))
+                )
                 - execution_time * current_yd
                 - smoothing
             )
@@ -200,6 +202,12 @@ class CartesianDMP(DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
+    alpha_y : float or array-like, shape (6,), optional (default: 25.0)
+        Parameter of the transformation system.
+
+    beta_y : float or array-like, shape (6,), optional (default: 6.25)
+        Parameter of the transformation system.
+
     Attributes
     ----------
     execution_time_ : float
@@ -225,7 +233,7 @@ class CartesianDMP(DMPBase):
     """
     def __init__(
             self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-            int_dt=0.001, smooth_scaling=False):
+            int_dt=0.001, smooth_scaling=False, alpha_y=25.0, beta_y=6.25):
         super(CartesianDMP, self).__init__(7, 6)
         self._execution_time = execution_time
         self.dt_ = dt
@@ -235,8 +243,8 @@ class CartesianDMP(DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
+        self.alpha_y = ensure_1d_array(alpha_y, 6, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, 6, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
@@ -306,7 +314,7 @@ class CartesianDMP(DMPBase):
             self.goal_y[:3], self.goal_yd[:3], self.goal_ydd[:3],
             self.start_y[:3], self.start_yd[:3], self.start_ydd[:3],
             self.execution_time_, 0.0,
-            self.alpha_y, self.beta_y,
+            self.alpha_y[:3], self.beta_y[:3],
             self.forcing_term_pos,
             coupling_term=coupling_term,
             int_dt=self.int_dt,
@@ -317,7 +325,7 @@ class CartesianDMP(DMPBase):
             self.goal_y[3:], self.goal_yd[3:], self.goal_ydd[3:],
             self.start_y[3:], self.start_yd[3:], self.start_ydd[3:],
             self.execution_time_, 0.0,
-            self.alpha_y, self.beta_y,
+            self.alpha_y[3:], self.beta_y[3:],
             self.forcing_term_rot,
             coupling_term=coupling_term,
             int_dt=self.int_dt,
@@ -361,7 +369,7 @@ class CartesianDMP(DMPBase):
         T, Yp = dmp_open_loop(
             self.execution_time_, 0.0, self.dt_,
             self.start_y[:3], self.goal_y[:3],
-            self.alpha_y, self.beta_y,
+            self.alpha_y[:3], self.beta_y[:3],
             self.forcing_term_pos,
             coupling_term,
             run_t, self.int_dt,
@@ -377,7 +385,7 @@ class CartesianDMP(DMPBase):
         _, Yr = dmp_open_loop_quaternion(
             self.execution_time_, 0.0, self.dt_,
             self.start_y[3:], self.goal_y[3:],
-            self.alpha_y, self.beta_y,
+            self.alpha_y[3:], self.beta_y[3:],
             self.forcing_term_rot,
             coupling_term,
             run_t, self.int_dt,
@@ -411,7 +419,7 @@ class CartesianDMP(DMPBase):
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[:3], beta_y=self.beta_y[:3],
             overlap=self.forcing_term_pos.overlap,
             alpha_z=self.forcing_term_pos.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -420,7 +428,7 @@ class CartesianDMP(DMPBase):
             T, Y[:, 3:],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[3:], beta_y=self.beta_y[3:],
             overlap=self.forcing_term_rot.overlap,
             alpha_z=self.forcing_term_rot.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -473,10 +481,10 @@ def dmp_quaternion_imitation(
     regularization_coefficient : float, optional (default: 0)
         Regularization coefficient for regression.
 
-    alpha_y : float
+    alpha_y : array, shape (3,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (3,)
         Parameter of the transformation system.
 
     overlap : float
@@ -546,10 +554,10 @@ def determine_forces_quaternion(
     Y : array, shape (n_steps, n_dims)
         Position at each step.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Parameter of the transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Parameter of the transformation system.
 
     alpha_z : float
@@ -645,10 +653,10 @@ def dmp_open_loop_quaternion(
     goal_y : array, shape (7,)
         Goal position.
 
-    alpha_y : float
+    alpha_y : array, shape (6,)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : array, shape (6,)
         Constant in transformation system.
 
     forcing_term : ForcingTerm

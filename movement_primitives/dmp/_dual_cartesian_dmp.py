@@ -1,6 +1,7 @@
 import numpy as np
 import pytransform3d.rotations as pr
 from ._base import DMPBase, WeightParametersMixin
+from ..utils import ensure_1d_array
 from ._canonical_system import canonical_system_alpha
 from ._forcing_term import ForcingTerm, phase
 from ._dmp import dmp_imitate
@@ -59,10 +60,10 @@ def dmp_step_dual_cartesian_python(
     start_t : float
         Time at the start.
 
-    alpha_y : float
+    alpha_y : float or array with shape (12,), optional (default: 25.0)
         Constant in transformation system.
 
-    beta_y : float
+    beta_y : float or array with shape (12,), optional (default: 6.25)
         Constant in transformation system.
 
     forcing_term : ForcingTerm
@@ -116,14 +117,14 @@ def dmp_step_dual_cartesian_python(
                     tracking_error[ops]) / dt
 
         if smooth_scaling:
-            smoothing = beta_y * (goal_y[pps] - start_y[pps]) * z
+            smoothing = beta_y[pps] * (goal_y[pps] - start_y[pps]) * z
         else:
             smoothing = 0.0
 
         # position components
         current_ydd[pvs] = (
-            alpha_y * (
-                beta_y * (goal_y[pps] - current_y[pps])
+            alpha_y[pvs] * (
+                beta_y[pvs] * (goal_y[pps] - current_y[pps])
                 - execution_time * current_yd[pvs]
                 - smoothing
             )
@@ -139,12 +140,12 @@ def dmp_step_dual_cartesian_python(
             if smooth_scaling:
                 goal_y_minus_start_y = pr.compact_axis_angle_from_quaternion(
                     pr.concatenate_quaternions(goal_y[ops], pr.q_conj(start_y[ops])))
-                smoothing = beta_y * z * goal_y_minus_start_y
+                smoothing = beta_y[ovs] * z * goal_y_minus_start_y
             else:
                 smoothing = 0.0
             current_ydd[ovs] = (
-                alpha_y * (
-                    beta_y * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
+                alpha_y[ovs] * (
+                    beta_y[ovs] * pr.compact_axis_angle_from_quaternion(pr.concatenate_quaternions(
                         goal_y[ops], pr.q_conj(current_y[ops])))
                     - execution_time * current_yd[ovs]
                     - smoothing
@@ -204,6 +205,12 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
+    alpha_y : float or array-like, shape (12,), optional (default: 25.0)
+        Parameter of the transformation system.
+
+    beta_y : float or array-like, shape (12,), optional (default: 6.25)
+        Parameter of the transformation system.
+
     Attributes
     ----------
     execution_time_ : float
@@ -228,7 +235,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
        https://h2t.iar.kit.edu/pdf/Pastor2009.pdf
     """
     def __init__(self, execution_time=1.0, dt=0.01, n_weights_per_dim=10,
-                 int_dt=0.001, p_gain=0.0, smooth_scaling=False):
+                 int_dt=0.001, p_gain=0.0, smooth_scaling=False, alpha_y=25.0, beta_y=6.25):
         super(DualCartesianDMP, self).__init__(14, 12)
         self._execution_time = execution_time
         self.dt_ = dt
@@ -239,8 +246,8 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
 
         self._init_forcing_term()
 
-        self.alpha_y = 25.0
-        self.beta_y = self.alpha_y / 4.0
+        self.alpha_y = ensure_1d_array(alpha_y, 12, "alpha_y")
+        self.beta_y = ensure_1d_array(beta_y, 12, "beta_y")
 
     def _init_forcing_term(self):
         alpha_z = canonical_system_alpha(0.01, self.execution_time_, 0.0)
@@ -385,7 +392,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             T, Y[:, :3],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[:3], beta_y=self.beta_y[:3],
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -394,7 +401,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             T, Y[:, 3:7],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[3:6], beta_y=self.beta_y[3:6],
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -403,7 +410,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             T, Y[:, 7:10],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[6:9], beta_y=self.beta_y[6:9],
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity,
@@ -412,7 +419,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
             T, Y[:, 10:14],
             n_weights_per_dim=self.n_weights_per_dim,
             regularization_coefficient=regularization_coefficient,
-            alpha_y=self.alpha_y, beta_y=self.beta_y,
+            alpha_y=self.alpha_y[9:12], beta_y=self.beta_y[9:12],
             overlap=self.forcing_term.overlap,
             alpha_z=self.forcing_term.alpha_z,
             allow_final_velocity=allow_final_velocity,
