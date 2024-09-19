@@ -103,23 +103,31 @@ class PointToPointMovement(abc.ABC):
         """
         if t is not None:
             self.t = t
+
+        def check_length(var, var_name, expected):
+            """Raise ValueError if 'var' does not have length 'expected', using 'var_name' in the message."""
+            nv = len(var)
+            if nv != expected:
+                s = "s" if expected > 1 else ""
+                raise ValueError(f"expected {var_name} with {expected} element{s}, got {nv}")
+
         if start_y is not None:
-            assert len(start_y) == self.n_dims, f"{len(start_y)}"
+            check_length(start_y, "start_y", self.n_dims)
             self.start_y = start_y
         if start_yd is not None:
-            assert len(start_yd) == self.n_vel_dims, f"{len(start_yd)}"
+            check_length(start_yd, "start_yd", self.n_vel_dims)
             self.start_yd = start_yd
         if start_ydd is not None:
-            assert len(start_ydd) == self.n_vel_dims, f"{len(start_ydd)}"
+            check_length(start_ydd, "start_ydd", self.n_vel_dims)
             self.start_ydd = start_ydd
         if goal_y is not None:
-            assert len(goal_y) == self.n_dims, f"{len(goal_y)}"
+            check_length(goal_y, "goal_y", self.n_dims)
             self.goal_y = goal_y
         if goal_yd is not None:
-            assert len(goal_yd) == self.n_vel_dims, f"{len(goal_yd)}"
+            check_length(goal_yd, "goal_yd", self.n_vel_dims)
             self.goal_yd = goal_yd
         if goal_ydd is not None:
-            assert len(goal_ydd) == self.n_vel_dims, f"{len(goal_ydd)}"
+            check_length(goal_ydd, "goal_ydd", self.n_vel_dims)
             self.goal_ydd = goal_ydd
 
     @abc.abstractmethod
