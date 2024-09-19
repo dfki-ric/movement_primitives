@@ -252,6 +252,17 @@ def test_temporal_scaling():
     assert np.linalg.norm(Y2 - Y4[::2]) / len(Y2) < 1e-3
 
 
+def test_dmp_configure_invalid_input():
+    start_yd = np.array([0.0])
+    goal_y = np.array([1.0])
+
+    sd = DMP(n_dims=1, execution_time=1.0, dt=0.01)
+    with pytest.raises(
+            ValueError,
+            match=r"Expected start_y with 1 element, got 2."):
+        sd.configure(start_y=np.zeros(2), goal_y=goal_y, start_yd=start_yd)
+
+
 def test_n_weights():
     dmp = DMP(n_dims=5, n_weights_per_dim=9)
     assert dmp.n_weights == 45
