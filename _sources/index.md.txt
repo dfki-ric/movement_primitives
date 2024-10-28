@@ -492,3 +492,8 @@ Bremen. At this phase the work was supported through a grant of the German
 Federal Ministry of Economic Affairs and Energy (BMWi, FKZ 50 RA 1701).
 
 <img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/DFKI_Logo.jpg" height="150px" /><img src="https://raw.githubusercontent.com/dfki-ric/movement_primitives/main/doc/source/_static/241-logo-bmwi-jpg.jpg" height="150px" />
+
+```{toctree}
+:hidden:
+api
+```

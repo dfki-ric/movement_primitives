@@ -1,148 +1,373 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+
+<html lang="en" data-content_root="./" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Documentation &#8212; movement_primitives 0.8.0 documentation</title>
+    <title>API Documentation &#8212; movement_primitives 0.9.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=3b405b93" />
-    <script src="_static/documentation_options.js?v=486e5634"></script>
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
-<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="next" title="movement_primitives.dmp.DMP" href="_apidoc/movement_primitives.dmp.DMP.html" />
+    <link rel="prev" title="Movement Primitives" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-  </head><body>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="index.html">
-          movement_primitives</a>
-        <span class="navbar-text navbar-version pull-left"><b></b></span>
-      </div>
-
-        <div class="collapse navbar-collapse nav-collapse">
-          <ul class="nav navbar-nav">
-            
-                <li><a href="index.html">Home</a></li>
-                <li><a href="#">API</a></li>
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="index.html">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">API Documentation</a><ul>
-<li><a class="reference internal" href="#module-movement_primitives.dmp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp</span></code></a><ul>
-<li><a class="reference internal" href="#dynamical-movement-primitive-dmp">Dynamical Movement Primitive (DMP)</a></li>
-<li><a class="reference internal" href="#coupling-terms">Coupling Terms</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.promp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.promp</span></code></a><ul>
-<li><a class="reference internal" href="#probabilistic-movement-primitive-promp">Probabilistic Movement Primitive (ProMP)</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.io</span></code></a><ul>
-<li><a class="reference internal" href="#input-output">Input / Output</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.base</span></code></a><ul>
-<li><a class="reference internal" href="#base-classes">Base Classes</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.data</span></code></a><ul>
-<li><a class="reference internal" href="#data">Data</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.kinematics</span></code></a><ul>
-<li><a class="reference internal" href="#kinematics">Kinematics</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.plot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.plot</span></code></a><ul>
-<li><a class="reference internal" href="#plotting-tools">Plotting Tools</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.visualization</span></code></a><ul>
-<li><a class="reference internal" href="#visualization-tools">Visualization Tools</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.dmp_potential_field"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp_potential_field</span></code></a><ul>
-<li><a class="reference internal" href="#potential-field-of-dmp">Potential Field of DMP</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-movement_primitives.spring_damper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.spring_damper</span></code></a><ul>
-<li><a class="reference internal" href="#spring-damper-based-attractors">Spring-Damper Based Attractors</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-              
-            
-            
-            
-            
-            
-              <li class="hidden-sm"></li>
-            
-          </ul>
-
-          
-            
-<form class="navbar-form navbar-right" action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-    </div>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
   </div>
 
-<div class="container">
-  <div class="row">
-    <div class="body col-md-12 content" role="main">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">movement_primitives 0.9.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
       
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Documentation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Documentation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.DMP.html">movement_primitives.dmp.DMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.DMPWithFinalVelocity.html">movement_primitives.dmp.DMPWithFinalVelocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CartesianDMP.html">movement_primitives.dmp.CartesianDMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.DualCartesianDMP.html">movement_primitives.dmp.DualCartesianDMP</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermPos1DToPos1D.html">movement_primitives.dmp.CouplingTermPos1DToPos1D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermObstacleAvoidance2D.html">movement_primitives.dmp.CouplingTermObstacleAvoidance2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermObstacleAvoidance3D.html">movement_primitives.dmp.CouplingTermObstacleAvoidance3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermPos3DToPos3D.html">movement_primitives.dmp.CouplingTermPos3DToPos3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermDualCartesianPose.html">movement_primitives.dmp.CouplingTermDualCartesianPose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermDualCartesianDistance.html">movement_primitives.dmp.CouplingTermDualCartesianDistance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermDualCartesianTrajectory.html">movement_primitives.dmp.CouplingTermDualCartesianTrajectory</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.promp.ProMP.html">movement_primitives.promp.ProMP</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.write_pickle.html">movement_primitives.io.write_pickle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.read_pickle.html">movement_primitives.io.read_pickle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.write_yaml.html">movement_primitives.io.write_yaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.read_yaml.html">movement_primitives.io.read_yaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.write_json.html">movement_primitives.io.write_json</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.io.read_json.html">movement_primitives.io.read_json</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.base.PointToPointMovement.html">movement_primitives.base.PointToPointMovement</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.data.load_lasa.html">movement_primitives.data.load_lasa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.data.generate_minimum_jerk.html">movement_primitives.data.generate_minimum_jerk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.data.generate_1d_trajectory_distribution.html">movement_primitives.data.generate_1d_trajectory_distribution</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.kinematics.Kinematics.html">movement_primitives.kinematics.Kinematics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.kinematics.Chain.html">movement_primitives.kinematics.Chain</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.plot.plot_trajectory_in_rows.html">movement_primitives.plot.plot_trajectory_in_rows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.plot.plot_distribution_in_rows.html">movement_primitives.plot.plot_distribution_in_rows</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.visualization.plot_pointcloud.html">movement_primitives.visualization.plot_pointcloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.visualization.to_ellipsoid.html">movement_primitives.visualization.to_ellipsoid</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.dmp_potential_field.plot_potential_field_2d.html">movement_primitives.dmp_potential_field.plot_potential_field_2d</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.spring_damper.SpringDamper.html">movement_primitives.spring_damper.SpringDamper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_apidoc/movement_primitives.spring_damper.SpringDamperOrientation.html">movement_primitives.spring_damper.SpringDamperOrientation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">API Documentation</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="api-documentation">
-<span id="api"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading">¶</a></h1>
+<span id="api"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading">#</a></h1>
 <p>This is the detailed documentation of all public classes and functions.
 You can also search for specific modules, classes, or functions in the
 <a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a>.</p>
@@ -161,9 +386,9 @@ You can also search for specific modules, classes, or functions in the
 </ul>
 </nav>
 <section id="module-movement_primitives.dmp">
-<span id="movement-primitives-dmp"></span><h2><a class="toc-backref" href="#id1" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.dmp" title="movement_primitives.dmp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp</span></code></a></a><a class="headerlink" href="#module-movement_primitives.dmp" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-dmp"></span><h2><a class="toc-backref" href="#id1" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.dmp" title="movement_primitives.dmp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp</span></code></a></a><a class="headerlink" href="#module-movement_primitives.dmp" title="Link to this heading">#</a></h2>
 <section id="dynamical-movement-primitive-dmp">
-<h3>Dynamical Movement Primitive (DMP)<a class="headerlink" href="#dynamical-movement-primitive-dmp" title="Link to this heading">¶</a></h3>
+<h3>Dynamical Movement Primitive (DMP)<a class="headerlink" href="#dynamical-movement-primitive-dmp" title="Link to this heading">#</a></h3>
 <p>This module provides implementations of various DMP types. DMPs consist of
 a goal-directed movement generated by the transformation system and a forcing
 term that defines the shape of the trajectory. They are time-dependent and
@@ -182,7 +407,7 @@ movement</p></li>
 <li><p><span class="math notranslate nohighlight">\(C_t\)</span> - coupling term that is added to the acceleration of the DMP</p></li>
 </ul>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.dmp.DMP.html#movement_primitives.dmp.DMP" title="movement_primitives.dmp.DMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DMP</span></code></a>(n_dims[, execution_time, dt, ...])</p></td>
 <td><p>Dynamical movement primitive (DMP).</p></td>
@@ -198,11 +423,12 @@ movement</p></li>
 </tr>
 </tbody>
 </table>
+</div>
 <section id="coupling-terms">
-<h3>Coupling Terms<a class="headerlink" href="#coupling-terms" title="Link to this heading">¶</a></h3>
+<h3>Coupling Terms<a class="headerlink" href="#coupling-terms" title="Link to this heading">#</a></h3>
 <p>Coupling terms can be used to adapt the movement generated by a DMP online.
 Not all coupling terms are compatible with all types of DMPs.</p>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.dmp.CouplingTermPos1DToPos1D.html#movement_primitives.dmp.CouplingTermPos1DToPos1D" title="movement_primitives.dmp.CouplingTermPos1DToPos1D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CouplingTermPos1DToPos1D</span></code></a>(desired_distance, lf)</p></td>
 <td><p>Couples position components of a 2D DMP with a virtual spring.</p></td>
@@ -227,29 +453,31 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 </section>
 <section id="module-movement_primitives.promp">
-<span id="movement-primitives-promp"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.promp" title="movement_primitives.promp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.promp</span></code></a></a><a class="headerlink" href="#module-movement_primitives.promp" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-promp"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.promp" title="movement_primitives.promp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.promp</span></code></a></a><a class="headerlink" href="#module-movement_primitives.promp" title="Link to this heading">#</a></h2>
 <section id="probabilistic-movement-primitive-promp">
-<h3>Probabilistic Movement Primitive (ProMP)<a class="headerlink" href="#probabilistic-movement-primitive-promp" title="Link to this heading">¶</a></h3>
+<h3>Probabilistic Movement Primitive (ProMP)<a class="headerlink" href="#probabilistic-movement-primitive-promp" title="Link to this heading">#</a></h3>
 <p>ProMPs represent distributions of trajectories.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.promp.ProMP.html#movement_primitives.promp.ProMP" title="movement_primitives.promp.ProMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProMP</span></code></a>(n_dims[, n_weights_per_dim])</p></td>
 <td><p>Probabilistic Movement Primitive (ProMP).</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.io">
-<span id="movement-primitives-io"></span><h2><a class="toc-backref" href="#id3" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.io" title="movement_primitives.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.io</span></code></a></a><a class="headerlink" href="#module-movement_primitives.io" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-io"></span><h2><a class="toc-backref" href="#id3" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.io" title="movement_primitives.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.io</span></code></a></a><a class="headerlink" href="#module-movement_primitives.io" title="Link to this heading">#</a></h2>
 <section id="input-output">
-<h3>Input / Output<a class="headerlink" href="#input-output" title="Link to this heading">¶</a></h3>
+<h3>Input / Output<a class="headerlink" href="#input-output" title="Link to this heading">#</a></h3>
 <p>Input and output from and to files of movement primitives.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.io.write_pickle.html#movement_primitives.io.write_pickle" title="movement_primitives.io.write_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_pickle</span></code></a>(filename, obj)</p></td>
 <td><p>Write object to pickle format.</p></td>
@@ -271,28 +499,30 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.base">
-<span id="movement-primitives-base"></span><h2><a class="toc-backref" href="#id4" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.base" title="movement_primitives.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.base</span></code></a></a><a class="headerlink" href="#module-movement_primitives.base" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-base"></span><h2><a class="toc-backref" href="#id4" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.base" title="movement_primitives.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.base</span></code></a></a><a class="headerlink" href="#module-movement_primitives.base" title="Link to this heading">#</a></h2>
 <section id="base-classes">
-<h3>Base Classes<a class="headerlink" href="#base-classes" title="Link to this heading">¶</a></h3>
+<h3>Base Classes<a class="headerlink" href="#base-classes" title="Link to this heading">#</a></h3>
 <p>Base classes of movement primitives.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.base.PointToPointMovement.html#movement_primitives.base.PointToPointMovement" title="movement_primitives.base.PointToPointMovement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointToPointMovement</span></code></a>(n_pos_dims, n_vel_dims)</p></td>
 <td><p>Base class for point to point movements (discrete motions).</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.data">
-<span id="movement-primitives-data"></span><h2><a class="toc-backref" href="#id5" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.data" title="movement_primitives.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.data</span></code></a></a><a class="headerlink" href="#module-movement_primitives.data" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-data"></span><h2><a class="toc-backref" href="#id5" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.data" title="movement_primitives.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.data</span></code></a></a><a class="headerlink" href="#module-movement_primitives.data" title="Link to this heading">#</a></h2>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading">¶</a></h3>
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <p>Tools for loading datasets.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.data.load_lasa.html#movement_primitives.data.load_lasa" title="movement_primitives.data.load_lasa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_lasa</span></code></a>(shape_idx)</p></td>
 <td><p>Load demonstrations from LASA dataset.</p></td>
@@ -305,14 +535,15 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.kinematics">
-<span id="movement-primitives-kinematics"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.kinematics" title="movement_primitives.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.kinematics</span></code></a></a><a class="headerlink" href="#module-movement_primitives.kinematics" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-kinematics"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.kinematics" title="movement_primitives.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.kinematics</span></code></a></a><a class="headerlink" href="#module-movement_primitives.kinematics" title="Link to this heading">#</a></h2>
 <section id="kinematics">
-<h3>Kinematics<a class="headerlink" href="#kinematics" title="Link to this heading">¶</a></h3>
+<h3>Kinematics<a class="headerlink" href="#kinematics" title="Link to this heading">#</a></h3>
 <p>Forward kinematics and a simple implementation of inverse kinematics.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.kinematics.Kinematics.html#movement_primitives.kinematics.Kinematics" title="movement_primitives.kinematics.Kinematics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kinematics</span></code></a>(urdf[, mesh_path])</p></td>
 <td><p>Robot kinematics.</p></td>
@@ -322,14 +553,15 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.plot">
-<span id="movement-primitives-plot"></span><h2><a class="toc-backref" href="#id7" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.plot" title="movement_primitives.plot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.plot</span></code></a></a><a class="headerlink" href="#module-movement_primitives.plot" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-plot"></span><h2><a class="toc-backref" href="#id7" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.plot" title="movement_primitives.plot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.plot</span></code></a></a><a class="headerlink" href="#module-movement_primitives.plot" title="Link to this heading">#</a></h2>
 <section id="plotting-tools">
-<h3>Plotting Tools<a class="headerlink" href="#plotting-tools" title="Link to this heading">¶</a></h3>
+<h3>Plotting Tools<a class="headerlink" href="#plotting-tools" title="Link to this heading">#</a></h3>
 <p>Tools for plotting multi-dimensional trajectories.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.plot.plot_trajectory_in_rows.html#movement_primitives.plot.plot_trajectory_in_rows" title="movement_primitives.plot.plot_trajectory_in_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_trajectory_in_rows</span></code></a>(trajectory[, t, ...])</p></td>
 <td><p>Plot trajectories of N dimensions in N 2D subplots.</p></td>
@@ -339,14 +571,15 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.visualization">
-<span id="movement-primitives-visualization"></span><h2><a class="toc-backref" href="#id8" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.visualization" title="movement_primitives.visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.visualization</span></code></a></a><a class="headerlink" href="#module-movement_primitives.visualization" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-visualization"></span><h2><a class="toc-backref" href="#id8" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.visualization" title="movement_primitives.visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.visualization</span></code></a></a><a class="headerlink" href="#module-movement_primitives.visualization" title="Link to this heading">#</a></h2>
 <section id="visualization-tools">
-<h3>Visualization Tools<a class="headerlink" href="#visualization-tools" title="Link to this heading">¶</a></h3>
+<h3>Visualization Tools<a class="headerlink" href="#visualization-tools" title="Link to this heading">#</a></h3>
 <p>3D visualization tools for movement primitives.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.visualization.plot_pointcloud.html#movement_primitives.visualization.plot_pointcloud" title="movement_primitives.visualization.plot_pointcloud"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_pointcloud</span></code></a>(fig, pcl_points, color[, ...])</p></td>
 <td><p>Plot point cloud.</p></td>
@@ -356,28 +589,30 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.dmp_potential_field">
-<span id="movement-primitives-dmp-potential-field"></span><h2><a class="toc-backref" href="#id9" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.dmp_potential_field" title="movement_primitives.dmp_potential_field"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp_potential_field</span></code></a></a><a class="headerlink" href="#module-movement_primitives.dmp_potential_field" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-dmp-potential-field"></span><h2><a class="toc-backref" href="#id9" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.dmp_potential_field" title="movement_primitives.dmp_potential_field"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp_potential_field</span></code></a></a><a class="headerlink" href="#module-movement_primitives.dmp_potential_field" title="Link to this heading">#</a></h2>
 <section id="potential-field-of-dmp">
-<h3>Potential Field of DMP<a class="headerlink" href="#potential-field-of-dmp" title="Link to this heading">¶</a></h3>
+<h3>Potential Field of DMP<a class="headerlink" href="#potential-field-of-dmp" title="Link to this heading">#</a></h3>
 <p>Visualization of DMP as potential field.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.dmp_potential_field.plot_potential_field_2d.html#movement_primitives.dmp_potential_field.plot_potential_field_2d" title="movement_primitives.dmp_potential_field.plot_potential_field_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_potential_field_2d</span></code></a>(ax, dmp, x_range, ...)</p></td>
 <td><p>Plot 2D potential field of a DMP.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-movement_primitives.spring_damper">
-<span id="movement-primitives-spring-damper"></span><h2><a class="toc-backref" href="#id10" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.spring_damper" title="movement_primitives.spring_damper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.spring_damper</span></code></a></a><a class="headerlink" href="#module-movement_primitives.spring_damper" title="Link to this heading">¶</a></h2>
+<span id="movement-primitives-spring-damper"></span><h2><a class="toc-backref" href="#id10" role="doc-backlink"><a class="reference internal" href="#module-movement_primitives.spring_damper" title="movement_primitives.spring_damper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.spring_damper</span></code></a></a><a class="headerlink" href="#module-movement_primitives.spring_damper" title="Link to this heading">#</a></h2>
 <section id="spring-damper-based-attractors">
-<h3>Spring-Damper Based Attractors<a class="headerlink" href="#spring-damper-based-attractors" title="Link to this heading">¶</a></h3>
+<h3>Spring-Damper Based Attractors<a class="headerlink" href="#spring-damper-based-attractors" title="Link to this heading">#</a></h3>
 <p>Spring-damper based attractors are the basis of a DMP’s transformation system.</p>
 </section>
-<table class="autosummary longtable docutils align-default">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_apidoc/movement_primitives.spring_damper.SpringDamper.html#movement_primitives.spring_damper.SpringDamper" title="movement_primitives.spring_damper.SpringDamper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpringDamper</span></code></a>(n_dims[, dt, k, c, int_dt])</p></td>
 <td><p>Spring-damper system.</p></td>
@@ -387,24 +622,146 @@ Not all coupling terms are compatible with all types of DMPs.</p>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-
-
-    </div>
-      
-  </div>
 </div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-    </p>
-    <p>
-        &copy; Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.<br/>
-    </p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Movement Primitives</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="_apidoc/movement_primitives.dmp.DMP.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">movement_primitives.dmp.DMP</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
   </div>
-</footer>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.dmp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamical-movement-primitive-dmp">Dynamical Movement Primitive (DMP)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coupling-terms">Coupling Terms</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.promp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.promp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probabilistic-movement-primitive-promp">Probabilistic Movement Primitive (ProMP)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.io</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-output">Input / Output</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.base</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#base-classes">Base Classes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.data</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.kinematics</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kinematics">Kinematics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.plot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.plot</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-tools">Plotting Tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.visualization</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualization-tools">Visualization Tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.dmp_potential_field"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.dmp_potential_field</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#potential-field-of-dmp">Potential Field of DMP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-movement_primitives.spring_damper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement_primitives.spring_damper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spring-damper-based-attractors">Spring-Damper Based Attractors</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
   </body>
 </html>
