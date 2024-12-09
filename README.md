@@ -415,7 +415,7 @@ following papers.
     International Journal of Robotics Research 32 (3), 263-279.
     https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf
 
-[4] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+[4] Ude, A., Nemec, B., Petric, T., Morimoto, J. (2014).
     Orientation in Cartesian space dynamic movement primitives.
     In IEEE International Conference on Robotics and Automation (ICRA)
     (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
