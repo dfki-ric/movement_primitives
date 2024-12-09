@@ -222,7 +222,7 @@ class DualCartesianDMP(WeightParametersMixin, DMPBase):
 
     References
     ----------
-    .. [1] Ude, A., Nemec, B., Petric, T., Murimoto, J. (2014).
+    .. [1] Ude, A., Nemec, B., Petric, T., Morimoto, J. (2014).
        Orientation in Cartesian space dynamic movement primitives.
        In IEEE International Conference on Robotics and Automation (ICRA)
        (pp. 2997-3004). DOI: 10.1109/ICRA.2014.6907291,
