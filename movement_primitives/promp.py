@@ -630,3 +630,48 @@ def _nd_block_diagonal(partial_1d, n_dims):
         full_nd[n_block_rows * j:n_block_rows * (j + 1),
                 n_block_cols * j:n_block_cols * (j + 1)] = partial_1d
     return full_nd
+
+
+def via_points(promp, ts, y_cond, y_conditional_cov=None):
+    """Condition ProMP on several via-points.
+
+    For details, see section 2.2 on page 4 of [1]_
+
+    Parameters
+    ----------
+    promp : ProMP instance
+
+    ts : array, shape (n_positions,)
+        Time vector at which the activations of RBFs will be queried. Note that
+        we internally normalize the time so that t_max == 1.
+
+    y_cond : array, shape (n_positions,)
+        Desired mean position vector corresponding to each time in `ts`.
+
+    y_conditional_cov : array, shape (n_dims, n_dims), optional (default: 0)
+        Covariances of desired positions.
+
+    Returns
+    -------
+    conditional_promp : ProMP
+        New conditional ProMP
+
+    References
+    ----------
+    .. [1] Paraschos, A., Daniel, C., Peters, J., Neumann, G. (2013).
+       Probabilistic movement primitives, In C.J. Burges and L. Bottou and
+       M. Welling and Z. Ghahramani and K.Q. Weinberger (Eds.), Advances in
+       Neural Information Processing Systems, 26,
+       https://papers.nips.cc/paper/2013/file/e53a0a2978c28872a4505bdb51db06dc-Paper.pdf
+    """
+    if y_conditional_cov is None:
+        y_conditional_cov = np.zeros(y_cond.shape)
+
+    for idx, t_i in enumerate(ts):
+        promp = promp.condition_position(
+            y_mean=y_cond[idx],
+            y_cov=y_conditional_cov[[idx]],
+            t=t_i,
+            t_max=1.0
+        )
+    return promp
