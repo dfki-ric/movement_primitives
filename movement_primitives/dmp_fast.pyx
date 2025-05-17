@@ -611,7 +611,7 @@ cpdef dmp_step_dual_cartesian(
     cdef int pps
     cdef int pvs
     cdef np.ndarray[long, ndim=2] POS_INDICES = np.array(
-        [[0, 0], [1, 1], [2, 2], [7, 6], [8, 7], [9, 8]], dtype=long)
+        [[0, 0], [1, 1], [2, 2], [7, 6], [8, 7], [9, 8]], dtype=int)
 
     cdef double dt
     cdef double current_t = last_t

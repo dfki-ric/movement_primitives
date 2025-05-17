@@ -16,3 +16,4 @@ __pycache__
 .coverage
 .ipynb_checkpoints/
 /cover/
+.venv/
