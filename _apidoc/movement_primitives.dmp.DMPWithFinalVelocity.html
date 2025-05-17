@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.9.0 documentation</title>
+    <title>movement_primitives.dmp.DMPWithFinalVelocity &#8212; movement_primitives 0.9.1 documentation</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=9dc39874"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -119,7 +119,7 @@
   
   
   
-    <p class="title logo__title">movement_primitives 0.9.0</p>
+    <p class="title logo__title">movement_primitives 0.9.1</p>
   
 </a></div>
     
@@ -374,7 +374,7 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_primitives.dmp.</span></span><span class="sig-name descname"><span class="pre">DMPWithFinalVelocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_weights_per_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.25</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement_primitives.dmp.DMPWithFinalVelocity" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="movement_primitives.dmp.WeightParametersMixin.html#movement_primitives.dmp.WeightParametersMixin" title="movement_primitives.dmp._base.WeightParametersMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeightParametersMixin</span></code></a>, <a class="reference internal" href="movement_primitives.dmp.DMPBase.html#movement_primitives.dmp.DMPBase" title="movement_primitives.dmp._base.DMPBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DMPBase</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">WeightParametersMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DMPBase</span></code></p>
 <p>Dynamical movement primitive (DMP) with final velocity.</p>
 <p>Equation of transformation system (according to <a class="reference internal" href="#r5542a6744e36-1" id="id1">[1]</a>, Eq. 6):</p>
 <div class="math notranslate nohighlight">
@@ -401,8 +401,20 @@ The domain is [0, execution_time**2/dt].</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Attributes<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r5542a6744e36-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013). Learning to
+Select and Generalize Striking Movements in Robot Table Tennis.
+International Journal of Robotics Research 32 (3), 263-279.
+<a class="reference external" href="https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf">https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf</a></p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>execution_time_</strong><span class="classifier">float</span></dt><dd><p>Execution time of the DMP.</p>
 </dd>
 <dt><strong>dt_</strong><span class="classifier">float</span></dt><dd><p>Time difference between DMP steps. This value can be changed to adapt
@@ -451,16 +463,6 @@ the frequency.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<p class="rubric">References</p>
-<div role="list" class="citation-list">
-<div class="citation" id="r5542a6744e36-1" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Muelling, K., Kober, J., Kroemer, O., Peters, J. (2013). Learning to
-Select and Generalize Striking Movements in Robot Table Tennis.
-International Journal of Robotics Research 32 (3), 263-279.
-<a class="reference external" href="https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf">https://www.ias.informatik.tu-darmstadt.de/uploads/Publications/Muelling_IJRR_2013.pdf</a></p>
-</div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement_primitives.dmp.DMPWithFinalVelocity.configure">
@@ -729,7 +731,7 @@ recomputed in each step.</p>
 
   <p class="copyright">
     
-      © Copyright 2020-2024, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.
+      © Copyright 2020-2025, Alexander Fabisch, DFKI GmbH, Robotics Innovation Center.
       <br/>
     
   </p>
