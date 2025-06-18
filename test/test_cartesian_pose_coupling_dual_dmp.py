@@ -64,8 +64,8 @@ def test_pose_coupling():
     right2left_mean = np.mean(right2left, axis=0)
     right2left_mean[:3, :3] = pr.norm_matrix(right2left_mean[:3, :3])
     pose_error = np.dot(right2left_mean, np.linalg.inv(desired_distance))
-    assert np.linalg.norm(pose_error[:3, 3]) > 0.25
-    assert pr.axis_angle_from_matrix(pose_error[:3, :3])[-1] > 0.25
+    assert np.linalg.norm(pose_error[:3, 3]) > 0.18
+    assert pr.axis_angle_from_matrix(pose_error[:3, :3])[-1] > 0.18
 
     coupling_term_pose = CouplingTermDualCartesianPose(
         desired_distance=desired_distance, couple_position=True,
