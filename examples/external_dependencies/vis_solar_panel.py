@@ -18,7 +18,7 @@ def panel_pose(tm):
     tcp_right_pos = tcp_right[:3, 3]
     tcp_middle = 0.5 * (tcp_left_pos + tcp_right_pos)
     x_axis = pr.norm_vector(tcp_right_pos - tcp_left_pos)
-    y_axis = -pr.norm_vector(0.5 * (tcp_left[:3, 1] + tcp_right[:3, 1]))
+    y_axis = -pr.norm_vector(0.5 * (tcp_left[:3, 2] + tcp_right[:3, 2]))
     R_panel = pr.matrix_from_two_vectors(x_axis, y_axis)
     return pt.transform_from(R_panel, tcp_middle)
 
