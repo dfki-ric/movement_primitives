@@ -90,7 +90,7 @@ def test_coupling_term_dual_cartesian_pose():
     R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-110)])
     q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
     q_end = -pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-    for i, t in enumerate(T_demo):
+    for i, t in enumerate(sigmoid):
         Y_demo[i, 3:7] = pr.quaternion_slerp(q_start, q_end, t)
 
     circle1 = radius * np.cos(np.deg2rad(270) + np.deg2rad(90) * sigmoid)
@@ -103,7 +103,7 @@ def test_coupling_term_dual_cartesian_pose():
     R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-270)])
     q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
     q_end = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-    for i, t in enumerate(T_demo):
+    for i, t in enumerate(sigmoid):
         Y_demo[i, 10:] = pr.quaternion_slerp(q_start, q_end, t)
 
     dmp = DualCartesianDMP(

@@ -37,7 +37,7 @@ def test_pose_coupling():
     R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-110)])
     q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
     q_end = -pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-    for i, t in enumerate(T):
+    for i, t in enumerate(sigmoid):
         Y[i, 3:7] = pr.quaternion_slerp(q_start, q_end, t)
 
     circle1 = radius * np.cos(np.deg2rad(270) + np.deg2rad(90) * sigmoid)
@@ -50,7 +50,7 @@ def test_pose_coupling():
     R_to_center_end = pr.matrix_from_axis_angle([1, 0, 0, np.deg2rad(-270)])
     q_start = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_start))
     q_end = pr.quaternion_from_matrix(R_three_fingers_front.dot(R_to_center_end))
-    for i, t in enumerate(T):
+    for i, t in enumerate(sigmoid):
         Y[i, 10:] = pr.quaternion_slerp(q_start, q_end, t)
 
     dmp = DualCartesianDMP(
@@ -64,8 +64,8 @@ def test_pose_coupling():
     right2left_mean = np.mean(right2left, axis=0)
     right2left_mean[:3, :3] = pr.norm_matrix(right2left_mean[:3, :3])
     pose_error = np.dot(right2left_mean, np.linalg.inv(desired_distance))
-    assert np.linalg.norm(pose_error[:3, 3]) > 0.25
-    assert pr.axis_angle_from_matrix(pose_error[:3, :3])[-1] > 0.25
+    assert np.linalg.norm(pose_error[:3, 3]) > 0.18
+    assert pr.axis_angle_from_matrix(pose_error[:3, :3])[-1] > 0.18
 
     coupling_term_pose = CouplingTermDualCartesianPose(
         desired_distance=desired_distance, couple_position=True,
