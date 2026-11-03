@@ -2,7 +2,7 @@ import numpy as np
 from pytransform3d import rotations as pr
 from pytransform3d import trajectories as ptr
 from movement_primitives.spring_damper import SpringDamper, SpringDamperOrientation
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_allclose, assert_array_equal
 import pytest
 
 
@@ -106,6 +106,36 @@ def test_spring_damper_quaternion_reset():
     assert 1 == pytest.approx(sd.t)
     sd.reset()
     assert 0 == pytest.approx(sd.t)
+
+
+@pytest.mark.parametrize("container", [list, tuple, np.array])
+@pytest.mark.parametrize("dtype", [np.int32, np.int64, np.uint32, np.float32, np.float64])
+@pytest.mark.parametrize("orientation", [False, True])
+@pytest.mark.parametrize("run_t", [0.0, 0.1, 1.0])
+def test_integer_initial_state(container, dtype, orientation, run_t):
+    start = np.array([1, 0, 0, 0] if orientation else [0, 2], dtype=dtype)
+    goal = np.array([0.0, 0.0, 0.0, 1.0] if orientation else [1.5, -1.0])
+    expected_sd = (SpringDamperOrientation(k=25.0) if orientation else
+                   SpringDamper(2, k=25.0))
+    actual_sd = (SpringDamperOrientation(k=25.0) if orientation else
+                 SpringDamper(2, k=25.0))
+    reference = start.astype(float) if start.dtype.kind in "iu" else start.copy()
+    expected_sd.configure(start_y=reference, goal_y=goal)
+    actual_start = container(start)
+    original = np.copy(actual_start)
+    if container is np.array:
+        actual_start.flags.writeable = False
+    actual_sd.configure(start_y=actual_start, goal_y=goal)
+    expected_t, expected_y = expected_sd.open_loop(run_t=run_t)
+    actual_t, actual_y = actual_sd.open_loop(run_t=run_t)
+    assert_allclose(actual_t, expected_t)
+    assert_allclose(actual_y, expected_y, atol=2e-7)
+    assert_array_equal(actual_start, original)
+    assert_allclose(actual_y[0], start)
+    if orientation:
+        assert_allclose(np.linalg.norm(actual_y, axis=1), 1.0, atol=2e-6)
+    if run_t > 0.0:
+        assert not np.allclose(actual_y[-1], start)
 
 
 if __name__ == "__main__":

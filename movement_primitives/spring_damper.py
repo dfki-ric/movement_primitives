@@ -284,7 +284,9 @@ def spring_damper_open_loop(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
     y = np.copy(start_y)
-    yd = np.zeros_like(start_y)
+    if y.dtype.kind in "biu":
+        y = y.astype(float)
+    yd = np.zeros_like(y)
 
     T = np.arange(0.0, run_t + dt, dt)
     Y = np.empty((len(T), len(y)))
@@ -301,6 +303,8 @@ def spring_damper_open_loop_quaternion(
         dt, start_y, goal_y, k=1.0, c=None, coupling_term=None, run_t=1.0,
         int_dt=0.001):
     y = np.copy(start_y)
+    if y.dtype.kind in "biu":
+        y = y.astype(float)
     yd = np.zeros(3)
 
     T = np.arange(0.0, run_t + dt, dt)
