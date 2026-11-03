@@ -68,9 +68,10 @@ def generate_minimum_jerk(start, goal, execution_time=1.0, dt=0.01):
 
     X[0] = x
     for t in range(1, n_steps):
-        tau = execution_time - t * dt
+        # The current state is at the beginning of this integration step.
+        tau = execution_time - (t - 1) * dt
 
-        if tau >= dt:
+        if tau > 0.0:
             dist = g - x
 
             a1 = 0
