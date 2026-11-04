@@ -1,6 +1,7 @@
 import numpy as np
 from movement_primitives.promp import ProMP
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_allclose, assert_array_equal
+import pytest
 
 
 def test_imitate():
@@ -108,6 +109,35 @@ def test_promp_velocities():
     dt = T[0, 1] - T[0, 0]
     int_velocities = mean_trajectory[0] + np.cumsum(mean_velocities * dt)
     assert_array_almost_equal(int_velocities, mean_trajectory[:, 0], decimal=1)
+
+
+@pytest.mark.parametrize("method", ["mean_trajectory", "cov_trajectory", "var_trajectory",
+                                    "mean_velocities", "cov_velocities", "var_velocities"])
+@pytest.mark.parametrize("storage", ["float", "integer", "readonly", "strided"])
+def test_query_preserves_times(method, storage):
+    times = np.arange(0, 5, dtype=int if storage == "integer" else float)
+    if storage == "strided":
+        times = np.arange(10.0)[::2]
+    if storage == "readonly":
+        times.flags.writeable = False
+    original = times.copy()
+    promp = ProMP(2, n_weights_per_dim=5)
+    promp.weight_mean = np.linspace(-1.0, 2.0, promp.n_weights)
+    normalized = original.astype(float) / original[-1]
+    expected = getattr(promp, method)(normalized.copy())
+    actual = getattr(promp, method)(times)
+    assert_allclose(actual, expected)
+    assert_array_equal(times, original)
+
+
+def test_weights_preserve_demonstration_times():
+    times = np.linspace(0.0, 3.0, 31)
+    original = times.copy()
+    positions = np.sin(times)[:, np.newaxis]
+    promp = ProMP(1)
+    weights = promp.weights(times, positions)
+    assert np.isfinite(weights).all()
+    assert_array_equal(times, original)
 
 
 if __name__ == "__main__":
