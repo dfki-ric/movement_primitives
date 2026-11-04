@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from movement_primitives.dmp._canonical_system import canonical_system_alpha, phase
 from movement_primitives.dmp._forcing_term import ForcingTerm
@@ -45,6 +46,24 @@ def test_activations():
 
     assert activations.shape[0] == n_weights_per_dim
     assert activations.shape[1] == len(T)
+
+
+@pytest.mark.parametrize("start", [-2.0, 0.0, 0.25, 2.0])
+@pytest.mark.parametrize("duration", [0.5, 1.0, 3.0])
+@pytest.mark.parametrize("n_weights", [2, 6, 10])
+def test_forcing_time_origin(start, duration, n_weights):
+    alpha = -np.log(0.01)
+    baseline = ForcingTerm(2, n_weights, duration, 0.0, 0.8, alpha)
+    shifted = ForcingTerm(2, n_weights, start + duration, start, 0.8, alpha)
+    weights = np.arange(2 * n_weights).reshape(2, n_weights) * 0.1
+    baseline.weights_[:] = shifted.weights_[:] = weights
+    assert_allclose(shifted.centers, baseline.centers, rtol=1e-12, atol=1e-14)
+    assert_allclose(shifted.widths, baseline.widths, rtol=1e-12, atol=1e-14)
+    times = np.linspace(0.0, duration, 31)
+    assert_allclose(shifted(times + start), baseline(times), rtol=1e-12, atol=1e-14)
+    assert_allclose(shifted.design_matrix(times + start),
+                    baseline.design_matrix(times), rtol=1e-12, atol=1e-14)
+    assert_allclose(shifted.centers[[0, -1]], [1.0, 0.01])
 
 
 if __name__ == "__main__":
