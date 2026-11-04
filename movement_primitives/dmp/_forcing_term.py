@@ -60,8 +60,7 @@ class ForcingTerm:
         t = start_t
         self.centers[0] = phase(t, self.alpha_z, self.goal_t, self.start_t)
         for i in range(1, self.n_weights_per_dim):
-            # normally lower_border + i * step but lower_border is 0
-            t = i * step
+            t = start_t + i * step
             self.centers[i] = phase(t, self.alpha_z, self.goal_t, self.start_t)
             # Choose width of RBF basis functions automatically so that the
             # RBF centered at one center has value overlap at the next center
