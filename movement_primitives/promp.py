@@ -493,7 +493,7 @@ class ProMP:
 
         # normalize time to interval [0, 1]
         T = np.atleast_2d(T)
-        T /= np.max(T)
+        T = T / np.max(T)
 
         activations = np.exp(
             -(T - self.centers[:, np.newaxis]) ** 2 / (2.0 * h))
@@ -555,7 +555,7 @@ class ProMP:
 
         # normalize time to interval [0, 1]
         T = np.atleast_2d(T)
-        T /= np.max(T)
+        T = T / np.max(T)
 
         rbfs_deriv = (self.centers[:, np.newaxis] - T) / h
         rbfs_deriv *= rbfs
