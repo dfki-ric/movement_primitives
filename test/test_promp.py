@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from movement_primitives.promp import ProMP
 from numpy.testing import assert_array_almost_equal
 
@@ -108,6 +109,37 @@ def test_promp_velocities():
     dt = T[0, 1] - T[0, 0]
     int_velocities = mean_trajectory[0] + np.cumsum(mean_velocities * dt)
     assert_array_almost_equal(int_velocities, mean_trajectory[:, 0], decimal=1)
+
+
+@pytest.mark.parametrize("duration", [0.5, 1.0, 2.0, 3.0])
+@pytest.mark.parametrize("n_dims", [1, 2])
+def test_velocity_uses_physical_time(duration, n_dims):
+    promp = ProMP(n_dims, n_weights_per_dim=8)
+    promp.weight_mean = np.linspace(-1.0, 1.0, promp.weight_mean.size)
+    times = np.linspace(0.0, duration, 1001)
+    positions = promp.mean_trajectory(times.copy())
+    velocities = promp.mean_velocities(times.copy())
+    numerical = np.gradient(positions, times, axis=0)
+    np.testing.assert_allclose(velocities[2:-2], numerical[2:-2],
+                               rtol=1e-4, atol=1e-5)
+
+
+@pytest.mark.parametrize("duration", [0.5, 1.0, 2.0, 3.0])
+@pytest.mark.parametrize("n_dims", [1, 2])
+@pytest.mark.parametrize("method,power", [("mean_velocities", 1),
+                                         ("cov_velocities", 2),
+                                         ("var_velocities", 2)])
+def test_velocity_distribution_time_scaling(duration, n_dims, method, power):
+    promp = ProMP(n_dims, n_weights_per_dim=8)
+    promp.weight_mean = np.linspace(-1.0, 1.0, promp.weight_mean.size)
+    rng = np.random.RandomState(42)
+    factor = rng.randn(promp.weight_mean.size, promp.weight_mean.size)
+    promp.weight_cov = factor.dot(factor.T)
+    normalized_times = np.linspace(0.0, 1.0, 31)
+    query = getattr(promp, method)
+    expected = query(normalized_times.copy()) / duration ** power
+    actual = query(normalized_times * duration)
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
 
 
 if __name__ == "__main__":
