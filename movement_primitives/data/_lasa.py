@@ -32,7 +32,7 @@ def load_lasa(shape_idx):
     Returns
     -------
     T : array, shape (n_demos, n_steps)
-        Times
+        Recorded times for each demonstration.
 
     X : array, shape (n_demos, n_steps, n_dims)
         Positions
@@ -44,7 +44,7 @@ def load_lasa(shape_idx):
         Accelerations
 
     dt : float
-        Time between steps
+        Time between steps of the first demonstration.
 
     shape_name : string
         Name of the Matlab file from which we load the demonstrations
@@ -68,8 +68,7 @@ def load_lasa(shape_idx):
     dataset_path += "lasa_data" + os.sep + "DataSet" + os.sep
     demos, shape_name = _load_from_matlab_file(dataset_path, shape_idx)
     X, Xd, Xdd, dt = _convert_demonstrations(demos)
-    t = np.linspace(0, X.shape[1], X.shape[1])
-    T = np.tile(t, (X.shape[0], 1))
+    T = np.asarray([demo[0, 0][1].ravel() for demo in demos])
     return T, X, Xd, Xdd, dt, shape_name
 
 
@@ -118,7 +117,7 @@ def _convert_demonstrations(demos):
         Accelerations
 
     dt : float
-        Time between steps
+        Time between steps of the first demonstration.
     """
     tmp = []
     for demo_idx in range(demos.shape[0]):

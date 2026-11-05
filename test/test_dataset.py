@@ -41,6 +41,45 @@ def test_lasa():
     assert shape_name == "Angle"
 
 
+@pytest.mark.parametrize("n_demos", [1, 3])
+@pytest.mark.parametrize("n_steps", [2, 5, 21])
+def test_lasa_preserves_recorded_times(tmp_path, monkeypatch, n_demos, n_steps):
+    import scipy.io
+    from movement_primitives.data import _lasa
+
+    dataset = tmp_path / "lasa_data" / "DataSet"
+    dataset.mkdir(parents=True)
+    demos = np.empty((1, n_demos), dtype=object)
+    expected_times = []
+    expected_positions = []
+    expected_velocities = []
+    expected_accelerations = []
+    for i in range(n_demos):
+        dt = 0.002 * (i + 1)
+        times = np.arange(n_steps) * dt
+        positions = np.vstack((times ** 2, 3.0 * times))
+        velocities = np.vstack((2.0 * times, np.full(n_steps, 3.0)))
+        accelerations = np.vstack((np.full(n_steps, 2.0), np.zeros(n_steps)))
+        demos[0, i] = dict(pos=positions, t=times[None, :], vel=velocities,
+                           acc=accelerations, dt=dt)
+        expected_times.append(times)
+        expected_positions.append(positions.T)
+        expected_velocities.append(velocities.T)
+        expected_accelerations.append(accelerations.T)
+    scipy.io.savemat(dataset / "Synthetic.mat", dict(demos=demos))
+    monkeypatch.setattr(_lasa, "get_common_dataset_path",
+                        lambda: str(tmp_path) + "/")
+
+    T, X, Xd, Xdd, dt, shape_name = load_lasa(0)
+
+    np.testing.assert_allclose(T, expected_times)
+    np.testing.assert_allclose(X, expected_positions)
+    np.testing.assert_allclose(Xd, expected_velocities)
+    np.testing.assert_allclose(Xdd, expected_accelerations)
+    assert dt == 0.002
+    assert shape_name == "Synthetic"
+
+
 def test_toy1d():
     T1, X1 = generate_1d_trajectory_distribution(
         n_demos=1, n_steps=11, noise_per_step_range=0.0,
