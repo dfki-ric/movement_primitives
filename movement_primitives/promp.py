@@ -550,6 +550,7 @@ class ProMP:
 
         h = -1.0 / (8.0 * self.n_weights_per_dim ** 2 * np.log(overlap))
 
+        t_max = np.max(T)
         rbfs = self._rbfs_1d_sequence(T, overlap, normalize=False)
         rbfs_sum_per_step = rbfs.sum(axis=0)
 
@@ -567,7 +568,7 @@ class ProMP:
         assert rbfs_deriv.shape[0] == self.n_weights_per_dim
         assert rbfs_deriv.shape[1] == n_steps
 
-        return rbfs_deriv
+        return rbfs_deriv / t_max
 
     def _expectation(self, PhiHTR, PhiHTHPhiT):
         cov = np.linalg.pinv(PhiHTHPhiT / self.variance
