@@ -378,12 +378,12 @@ class Chain:
         Q = []
         errors = []
         bounds = np.empty((self.n_joints, 2))
-        bounds[:, 0] = joint_angles - interval
-        bounds[:, 1] = joint_angles + interval
+        bounds[:, 0] = np.maximum(joint_angles - interval, self.joint_limits[:, 0])
+        bounds[:, 1] = np.minimum(joint_angles + interval, self.joint_limits[:, 1])
         q = joint_angles  # start with previous state
         for _ in range(n_restarts):
             q, error = self.inverse(
-                desired_pose, q, return_error=True, solver=solver,
+                desired_pose, q, return_error=True, bounds=bounds, solver=solver,
                 orientation_weight=orientation_weight,
                 position_weight=position_weight)
             Q.append(q)
