@@ -222,12 +222,15 @@ def obstacle_avoidance_acceleration_3d(
         Accelerations.
     """
     obstacle_diff = obstacle_position - y
-    r = 0.5 * np.pi * pr.norm_vector(np.cross(obstacle_diff, yd))
-    R = pr.matrix_from_compact_axis_angle(r)
+    r = 0.5 * np.pi * pbr.norm_vectors(np.cross(obstacle_diff, yd))
+    R = pbr.matrices_from_compact_axis_angles(r)
     theta = np.arccos(
-        np.dot(obstacle_diff, yd)
-        / (np.linalg.norm(obstacle_diff) * np.linalg.norm(yd) + EPSILON))
-    cdd = gamma * np.dot(R, yd) * theta * np.exp(-beta * theta)
+        np.sum(obstacle_diff * yd, axis=-1)
+        / (np.linalg.norm(obstacle_diff, axis=-1)
+           * np.linalg.norm(yd, axis=-1) + EPSILON))
+    rotated_velocity = np.einsum("...ij,...j->...i", R, yd)
+    cdd = (gamma * rotated_velocity
+           * (theta * np.exp(-beta * theta))[..., np.newaxis])
     return cdd
 
 
