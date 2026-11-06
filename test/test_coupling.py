@@ -117,3 +117,38 @@ def test_coupling_term_dual_cartesian_pose():
         right2left = pt.concat(right2origin, pt.invert_transform(left2origin))
         error = np.linalg.norm(right2left - desired_distance)
         assert error < 0.25
+
+
+@pytest.mark.parametrize("shape", [(1,), (2,), (3,), (2, 3), (1, 2, 1)])
+@pytest.mark.parametrize("zero_velocity", [False, True])
+def test_obstacle_avoidance_3d_batch_matches_individual(shape, zero_velocity):
+    from movement_primitives.dmp._coupling_terms import (
+        obstacle_avoidance_acceleration_3d)
+
+    rng = np.random.RandomState(12)
+    y = rng.randn(*(shape + (3,)))
+    yd = np.zeros_like(y) if zero_velocity else rng.randn(*y.shape)
+    obstacle = np.array([0.5, -0.3, 0.8])
+    expected = np.array([
+        obstacle_avoidance_acceleration_3d(p, v, obstacle)
+        for p, v in zip(y.reshape(-1, 3), yd.reshape(-1, 3))
+    ]).reshape(y.shape)
+    actual = obstacle_avoidance_acceleration_3d(y, yd, obstacle)
+    assert actual.shape == y.shape
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
+
+
+def test_obstacle_avoidance_3d_scalar_reference():
+    from movement_primitives.dmp._coupling_terms import (
+        obstacle_avoidance_acceleration_3d)
+
+    y = np.zeros(3)
+    yd = np.array([1.0, 0.0, 0.0])
+    obstacle = np.array([1.0, 1.0, 0.0])
+    gamma, beta = 2.0, 1.5
+    theta = np.arccos(1.0 / (np.sqrt(2.0) + 1e-10))
+    # Rotate velocity by -90 degrees around z.
+    expected = gamma * np.array([0.0, -1.0, 0.0]) * theta * np.exp(-beta * theta)
+    actual = obstacle_avoidance_acceleration_3d(y, yd, obstacle, gamma, beta)
+    assert actual.shape == (3,)
+    np.testing.assert_allclose(actual, expected, atol=1e-15)
