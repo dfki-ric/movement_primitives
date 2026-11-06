@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from movement_primitives.kinematics import Kinematics
 from numpy.testing import assert_array_almost_equal
 
@@ -172,3 +173,45 @@ def test_forward_inverse_trajectory_without_restarts():
     H2 = chain.forward_trajectory(Q2)
 
     assert_array_almost_equal(H, H2, decimal=3)
+
+
+@pytest.mark.parametrize("target_x,center,interval,expected", [
+    (-0.8, 0.0, 0.1, -0.1), (0.8, 0.0, 0.1, 0.1),
+    (0.8, 0.9, 0.05, 0.85), (-0.8, -0.9, 0.05, -0.85),
+    (1.5, 0.95, 0.2, 1.0), (-1.5, -0.95, 0.2, -1.0),
+    (0.05, 0.0, 0.1, 0.05)])
+@pytest.mark.parametrize("n_restarts", [1, 3])
+def test_local_inverse_respects_interval(
+        target_x, center, interval, expected, n_restarts):
+    urdf = """<robot name="slider">
+    <link name="base"/><link name="tip"/>
+    <joint name="slide" type="prismatic">
+      <parent link="base"/><child link="tip"/><axis xyz="1 0 0"/>
+      <limit lower="-1" upper="1" effort="1" velocity="1"/>
+    </joint></robot>"""
+    chain = Kinematics(urdf).create_chain(["slide"], "base", "tip")
+    target = np.eye(4)
+    target[0, 3] = target_x
+    q = chain.local_inverse_with_random_restarts(
+        target, np.array([center]), interval=interval, n_restarts=n_restarts,
+        random_state=np.random.RandomState(0))
+    assert abs(q[0] - center) <= interval + 1e-8
+    assert -1.0 <= q[0] <= 1.0
+    np.testing.assert_allclose(q[0], expected, atol=1e-6)
+
+
+@pytest.mark.parametrize("random_restarts", [False, True])
+def test_inverse_trajectory_interval_with_restarts(random_restarts):
+    urdf = """<robot name="slider">
+    <link name="base"/><link name="tip"/>
+    <joint name="slide" type="prismatic">
+      <parent link="base"/><child link="tip"/><axis xyz="1 0 0"/>
+      <limit lower="-1" upper="1" effort="1" velocity="1"/>
+    </joint></robot>"""
+    chain = Kinematics(urdf).create_chain(["slide"], "base", "tip")
+    poses = np.repeat(np.eye(4)[None], 4, axis=0)
+    poses[1:, 0, 3] = [0.8, -0.8, 0.8]
+    q = chain.inverse_trajectory(
+        poses, initial_joint_angles=np.array([0.0]), interval=0.1,
+        random_restarts=random_restarts, random_state=np.random.RandomState(0))
+    assert np.max(np.abs(np.diff(q[:, 0]))) <= 0.1 + 1e-8
