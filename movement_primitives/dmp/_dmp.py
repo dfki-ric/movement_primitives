@@ -760,6 +760,9 @@ def dmp_imitate(
     if regularization_coefficient < 0.0:
         raise ValueError("Regularization coefficient must be >= 0!")
 
+    # Derivatives and integration require floating-point state buffers.
+    Y = np.asarray(Y, dtype=float)
+
     forcing_term = ForcingTerm(
         Y.shape[1], n_weights_per_dim, T[-1], T[0], overlap, alpha_z)
     F, start_y, start_yd, start_ydd, goal_y, goal_yd, goal_ydd = \
