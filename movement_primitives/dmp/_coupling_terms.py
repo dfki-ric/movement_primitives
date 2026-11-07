@@ -387,8 +387,9 @@ class CouplingTermDualCartesianDistance:
 
     def coupling(self, y, yd=None):
         actual_distance = y[:3] - y[7:10]
-        desired_distance = (np.abs(self.desired_distance) * actual_distance
-                            / np.linalg.norm(actual_distance))
+        # At coincidence there is no direction in which to separate the arms.
+        desired_distance = (np.abs(self.desired_distance)
+                            * pr.norm_vector(actual_distance))
         F12 = self.k * (desired_distance - actual_distance)
         F21 = -F12
         C12 = self.c1 * F12 * self.lf[0]
