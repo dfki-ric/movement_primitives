@@ -547,7 +547,8 @@ class DMP(WeightParametersMixin, DMPBase):
             coupling_term,
             run_t, self.int_dt,
             step_function,
-            smooth_scaling=self.smooth_scaling)
+            smooth_scaling=self.smooth_scaling,
+            start_yd=self.start_yd)
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
                 allow_final_velocity=False):
