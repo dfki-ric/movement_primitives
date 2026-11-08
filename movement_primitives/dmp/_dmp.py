@@ -98,7 +98,7 @@ def dmp_step_rk4(
     execution_time = goal_t - start_t
     dt = t - last_t
     dt_2 = 0.5 * dt
-    T = np.array([t, t + dt_2, t + dt])
+    T = np.array([last_t, last_t + dt_2, t])
     Z = forcing_term.phase(T)
     F = forcing_term.forcing_term(Z)
     tdd = p_gain * tracking_error / dt

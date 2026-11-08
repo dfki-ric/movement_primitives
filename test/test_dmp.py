@@ -3,6 +3,7 @@ from pytransform3d import rotations as pr
 from movement_primitives.dmp import DMP
 from numpy.testing import assert_array_almost_equal, assert_raises_regex
 import pytest
+from scipy.integrate import solve_ivp
 
 
 def test_dmp_step_function_unknown():
@@ -120,7 +121,10 @@ def test_dmp2d_imitation():
     dmp.configure(start_y=new_start, goal_y=new_goal)
     T, Y = dmp.open_loop(run_t=execution_time)
     assert_array_almost_equal(Y[0], new_start, decimal=4)
-    assert_array_almost_equal(Y[-1], new_goal, decimal=3)
+    # A nonzero learned force need not reach the attractor exactly at tau.
+    # Compare with the intended continuous DMP, not a shifted forcing term.
+    reference = _reference_dmp(dmp, T, dmp.start_y, np.zeros(2))
+    np.testing.assert_allclose(Y, reference, atol=1e-6)
 
 
 def test_compare_integrators():
@@ -178,6 +182,11 @@ def test_set_current_time():
     y = np.array([0.0])  # current state is different though
     yd = np.array([0.0])
     for i in range(13):
+        y, yd = dmp.step(y, yd)
+    reference = _reference_dmp(dmp, [0.5, dmp.t], start_y, np.zeros(1))
+    np.testing.assert_allclose(y, reference[-1], atol=5e-5, rtol=0.0)
+    # Allow the remaining forcing term to decay before checking convergence.
+    for _ in range(7):
         y, yd = dmp.step(y, yd)
     error = np.linalg.norm(goal_y - y)
     assert error < 1e-2
@@ -346,3 +355,23 @@ if __name__ == "__main__":
     plt.tight_layout()
 
     plt.show()
+
+
+def _reference_dmp(dmp, T, y, yd):
+    """Independent high-accuracy solution for an uncoupled regular DMP."""
+    n_dims = len(y)
+
+    def dynamics(t, state):
+        position, velocity = state[:n_dims], state[n_dims:]
+        tau = dmp.execution_time_
+        acceleration = (
+            dmp.alpha_y * (dmp.beta_y * (dmp.goal_y - position)
+                           - tau * velocity)
+            + dmp.forcing_term(t).ravel()) / tau ** 2
+        return np.r_[velocity, acceleration]
+
+    solution = solve_ivp(
+        dynamics, (T[0], T[-1]), np.r_[y, yd], t_eval=T,
+        method="DOP853", rtol=1e-11, atol=1e-13)
+    assert solution.success
+    return solution.y[:n_dims].T
