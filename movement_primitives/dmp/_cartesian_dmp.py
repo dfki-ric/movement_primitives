@@ -374,7 +374,8 @@ class CartesianDMP(DMPBase):
             coupling_term,
             run_t, self.int_dt,
             step_function=step_function,
-            smooth_scaling=self.smooth_scaling)
+            smooth_scaling=self.smooth_scaling,
+            start_yd=self.start_yd[:3])
         try:
             quaternion_step_function = CARTESIAN_DMP_STEP_FUNCTIONS[
                 quaternion_step_function]
@@ -390,7 +391,8 @@ class CartesianDMP(DMPBase):
             coupling_term,
             run_t, self.int_dt,
             quaternion_step_function,
-            self.smooth_scaling)
+            self.smooth_scaling,
+            start_yd=self.start_yd[3:])
         return T, np.hstack((Yp, Yr))
 
     def imitate(self, T, Y, regularization_coefficient=0.0,
@@ -633,7 +635,7 @@ def dmp_open_loop_quaternion(
         coupling_term=None, run_t=None, int_dt=0.001,
         quaternion_step_function=CARTESIAN_DMP_STEP_FUNCTIONS[
             DEFAULT_CARTESIAN_DMP_STEP_FUNCTION],
-        smooth_scaling=False):
+        smooth_scaling=False, start_yd=None):
     """Run Cartesian DMP without external feedback.
 
     Parameters
@@ -680,6 +682,9 @@ def dmp_open_loop_quaternion(
         is changed and the trajectory is scaled by interpolating between
         the old and new scaling of the trajectory.
 
+    start_yd : array, shape (3,), optional (default: zeros)
+        Initial angular velocity.
+
     Returns
     -------
     T : array, shape (n_steps,)
@@ -690,7 +695,8 @@ def dmp_open_loop_quaternion(
     """
     goal_yd = np.zeros(3)
     goal_ydd = np.zeros(3)
-    start_yd = np.zeros(3)
+    if start_yd is None:
+        start_yd = np.zeros(3)
     start_ydd = np.zeros(3)
 
     if run_t is None:
