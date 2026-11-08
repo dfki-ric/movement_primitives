@@ -292,7 +292,7 @@ cpdef dmp_step_rk4(
     cdef double execution_time = goal_t - start_t
     cdef double dt = t - last_t
     cdef double dt_2 = 0.5 * dt
-    cdef np.ndarray[double, ndim=1] T = np.array([t, t + dt_2, t + dt])
+    cdef np.ndarray[double, ndim=1] T = np.array([last_t, last_t + dt_2, t])
     cdef np.ndarray[double, ndim=1] Z = forcing_term.phase(T)
     cdef np.ndarray[double, ndim=2] F = forcing_term.forcing_term(Z)
     cdef np.ndarray[double, ndim=1] tdd
